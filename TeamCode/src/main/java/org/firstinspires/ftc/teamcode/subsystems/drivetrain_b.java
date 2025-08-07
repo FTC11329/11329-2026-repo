@@ -28,7 +28,7 @@ import java.util.List;
  * Simple mecanum drive hardware implementation for REV hardware.
  */
 @Config
-public class Drivetrain {
+public class drivetrain_b {
     public final DcMotorEx leftFront;
     public final DcMotorEx leftBack;
     public final DcMotorEx rightBack;
