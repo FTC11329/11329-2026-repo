@@ -5,8 +5,6 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.teamcode.pedroPathing.tuners_tests.localization.MotorDirections;
-
 public class drivetrainB {
     // declaring variables
     DcMotorEx leftFront;
@@ -43,18 +41,18 @@ public class drivetrainB {
      */
     //
     public void teleopMovement(double forwardBackPower, double strafePower, double turning, boolean TURBO) {
-        double speed = 0
+        double speed = 0;
         // TURBO MODE
         if (TURBO) {
             speed = 1;
         }
         else {
-            speed = 0.3
+            speed = 0.3;
         }
         //MATH
-        leftFront.setPower(forwardBackPower + strafePower + turning * speed);
-        leftBack.setPower(forwardBackPower  - strafePower + turning * speed);
-        rightFront.setPower(forwardBackPower - strafePower - turning * speed);
-        rightBack.setPower(forwardBackPower + strafePower - turning * speed);
+        leftFront.setPower((forwardBackPower + strafePower + turning) * speed);
+        leftBack.setPower((forwardBackPower  - strafePower + turning) * speed);
+        rightFront.setPower((forwardBackPower - strafePower - turning) * speed);
+        rightBack.setPower((forwardBackPower + strafePower - turning) * speed);
     }
 }
