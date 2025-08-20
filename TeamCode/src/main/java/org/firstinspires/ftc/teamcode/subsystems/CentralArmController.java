@@ -4,14 +4,14 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
-public class centralArmController {
+public class CentralArmController {
     // declaring motor variables
 
     DcMotorEx arm;
     Servo claw;
     Servo wrist;
 
-    public centralArmController(HardwareMap hardwaremap){
+    public CentralArmController(HardwareMap hardwaremap){
         arm = hardwaremap.get(DcMotorEx.class, "arm");
         claw = hardwaremap.get(Servo.class, "claw");
         wrist = hardwaremap.get(Servo.class, "wrist");
