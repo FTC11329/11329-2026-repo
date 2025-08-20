@@ -31,7 +31,9 @@ public class drivetrainMain {
         rightBack.setPower(set);
 
     }
-    /** drivetrine
+    /** dricetraine
+     * drivetrain
+     * drivetrine
      * drivetrine
      * drivrtrine
      * drivrtrine
