@@ -9,11 +9,13 @@ public class CentralArmController {
 
     DcMotorEx arm;
     Servo claw;
+    Servo wrist1;
     Servo wrist;
 
     public CentralArmController(HardwareMap hardwaremap){
         arm = hardwaremap.get(DcMotorEx.class, "arm");
         claw = hardwaremap.get(Servo.class, "claw");
+        wrist1 = hardwaremap.get(Servo.class, "wrist");
         wrist = hardwaremap.get(Servo.class, "wrist");
     }
 
@@ -24,12 +26,13 @@ public class CentralArmController {
         claw.setPosition(set);
     }
     public void setwristPower(double set){
-        wrist.setPosition(set);
+        wrist1.setPosition(set);
+        wrist.setPosition(-set);
     }
 
-    public void teleopArmMovement(double forward, double backward, double open, double close, double up, double down){
-        arm.setPower(forward - backward);
-        claw.setPosition(open - close);
-        wrist.setPosition(up - down);
+    public void teleopArmMovement(double forwardBackward, double openClose, double upDown){
+        arm.setPower(forwardBackward);
+        claw.setPosition(openClose);
+        wrist.setPosition(upDown);
     }
 }
