@@ -9,20 +9,20 @@ import org.firstinspires.ftc.teamcode.subsystems.DrivetrainMain;
 @TeleOp(name = "Main Releop", group = "grop")
 public class MainTeleop extends OpMode {
     //This is where we introduce the tele-operated controls
-    CentralArmController jarm;
-    DrivetrainMain train;
+    CentralArmController arm;
+    DrivetrainMain drivetrain;
     @Override
     public void init() {
         //do stuff init
-        jarm = new CentralArmController(hardwareMap);
-        train = new DrivetrainMain(hardwareMap);
+        arm = new CentralArmController(hardwareMap);
+        drivetrain = new DrivetrainMain(hardwareMap);
     }
 
     @Override
     public void loop() {
         //do stuff always start
-        train.teleopMovement(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, gamepad1.right_bumper);
-        jarm.teleopArmMovement(gamepad2.left_stick_y, gamepad2.left_stick_x, gamepad1.right_stick_y);
+        drivetrain.teleopMovement(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, gamepad1.right_bumper);
+        arm.teleopArmMovement(gamepad2.left_stick_y, gamepad2.left_stick_x, gamepad1.right_stick_y);
         telemetry.addLine("bine");
         telemetry.addData("jarm", true);
         telemetry.update();

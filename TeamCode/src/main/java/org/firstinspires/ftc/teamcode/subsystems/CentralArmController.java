@@ -10,29 +10,44 @@ public class CentralArmController {
     DcMotorEx arm;
     Servo claw;
     Servo wrist1;
-    Servo wrist;
+    Servo wrist2;
 
     public CentralArmController(HardwareMap hardwaremap){
         arm = hardwaremap.get(DcMotorEx.class, "arm");
         claw = hardwaremap.get(Servo.class, "claw");
-        wrist1 = hardwaremap.get(Servo.class, "wrist");
-        wrist = hardwaremap.get(Servo.class, "wrist");
+        wrist1 = hardwaremap.get(Servo.class, "wrist1");
+        wrist2 = hardwaremap.get(Servo.class, "wrist2");
     }
 
-    public void setarmPower(double set){
+    public void setArmPower(double set){
         arm.setPower(set);
     }
-    public void setclawPower(double set){
-        claw.setPosition(set);
-    }
-    public void setwristPower(double set){
-        wrist1.setPosition(set);
-        wrist.setPosition(-set);
+    public void setClaw(boolean set){
+        if (set) {
+            setClawPos(1);
+        } else {
+            setClawPos(0);
+        }
     }
 
-    public void teleopArmMovement(double forwardBackward, double openClose, double upDown){
-        arm.setPower(forwardBackward);
-        claw.setPosition(openClose);
-        wrist.setPosition(upDown);
+    public void setClawPos(double set){
+        claw.setPosition(set);
+    }
+
+    public void setWristPos(double set){
+        wrist1.setPosition(set);
+        wrist2.setPosition(-set);
+    }
+
+    public void teleopArmMovement(double armPower, double clawPos, double wristPos){
+        setArmPower(armPower);
+        setClawPos(clawPos);
+        setWristPos(wristPos);
+    }
+
+    public void teleopArmMovement(double armPower, boolean clawBool, double wristPos){
+        setArmPower(armPower);
+        setClaw(clawBool);
+        setWristPos(wristPos);
     }
 }
