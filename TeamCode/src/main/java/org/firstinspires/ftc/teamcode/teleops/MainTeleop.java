@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.subsystems.CentralArmController;
 import org.firstinspires.ftc.teamcode.subsystems.DrivetrainMain;
 
-@TeleOp(name = "Main Releop", group = "grop")
+@TeleOp(name = "Main Teleop", group = "group")
 public class MainTeleop extends OpMode {
     //This is where we introduce the tele-operated controls
     CentralArmController arm;
