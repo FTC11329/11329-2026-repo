@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.subsystems.CentralArmController;
 import org.firstinspires.ftc.teamcode.subsystems.DrivetrainMain;
 
-@TeleOp(name = "Main Teleop", group = "group")
+@TeleOp(name = "Main Teleop", group = "grop")
 public class MainTeleop extends OpMode {
     //This is where we introduce the tele-operated controls
     CentralArmController arm;
@@ -23,7 +23,7 @@ public class MainTeleop extends OpMode {
         //do stuff always start
         drivetrain.teleopMovement(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, gamepad1.right_bumper);
         arm.teleopArmMovement(gamepad2.left_stick_y, gamepad2.left_stick_x, gamepad1.right_stick_y);
-        telemetry.addLine("brivebraine");
+        telemetry.addLine("briveBraine");
         telemetry.addData("jarm", true);
         telemetry.update();
     }
