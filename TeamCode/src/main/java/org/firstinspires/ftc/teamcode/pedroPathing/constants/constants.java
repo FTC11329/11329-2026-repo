@@ -1,5 +1,12 @@
 package org.firstinspires.ftc.teamcode.pedroPathing.constants;
 
+import com.pedropathing.follower.Follower;
+import com.pedropathing.follower.FollowerConstants;
+import com.pedropathing.localization.constants.PinpointConstants;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+
 public class Constants {
 
     public static FollowerConstants followerConstants = new FollowerConstants()
