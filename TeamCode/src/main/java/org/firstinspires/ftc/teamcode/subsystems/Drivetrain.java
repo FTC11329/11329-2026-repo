@@ -5,14 +5,14 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-public class DrivetrainMain {
+public class Drivetrain {
     // declaring variables
     DcMotorEx leftFront;
     DcMotorEx leftBack;
     DcMotorEx rightFront;
     DcMotorEx rightBack;
 
-    public DrivetrainMain(HardwareMap hardwareMap) {
+    public Drivetrain(HardwareMap hardwareMap) {
         // telling each drive motor that it is in fact, a motor
         leftFront = hardwareMap.get(DcMotorEx.class, "leftFront");
         leftBack = hardwareMap.get(DcMotorEx.class, "leftBack");
