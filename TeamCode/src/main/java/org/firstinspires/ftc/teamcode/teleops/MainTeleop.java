@@ -3,18 +3,18 @@ package org.firstinspires.ftc.teamcode.teleops;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.subsystems.CentralArmController;
+import org.firstinspires.ftc.teamcode.subsystems.intakeControllerGeneral;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 
 @TeleOp(name = "Main Teleop", group = "group")
 public class MainTeleop extends OpMode {
     //This is where we introduce the tele-operated controls
-    CentralArmController arm;
+    intakeControllerGeneral arm;
     Drivetrain drivetrain;
     @Override
     public void init() {
         //do stuff init
-        arm = new CentralArmController(hardwareMap);
+        arm = new intakeControllerGeneral(hardwareMap);
         drivetrain = new Drivetrain(hardwareMap);
     }
 
