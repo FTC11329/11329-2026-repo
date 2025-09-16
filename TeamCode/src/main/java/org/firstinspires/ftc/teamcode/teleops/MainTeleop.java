@@ -21,8 +21,7 @@ public class MainTeleop extends OpMode {
     @Override
     public void loop() {
         //do stuff always start
-        drivetrain.teleopMovement(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, gamepad1.right_bumper);
-        arm.teleopArmMovement(gamepad2.left_stick_y, gamepad2.left_stick_x, gamepad1.right_stick_y);
+
         telemetry.addLine("driveTrain");
         telemetry.addData("arm", true);
         telemetry.update();
