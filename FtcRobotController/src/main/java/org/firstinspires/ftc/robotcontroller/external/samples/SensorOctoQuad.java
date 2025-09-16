@@ -133,7 +133,7 @@ public class SensorOctoQuad extends LinearOpMode {
         //
         // Since both calls take almost the same amount of time, and the actual channels may not end up
         // being sequential, we will read all of the encoder positions, and then pick out the ones we need.
-        int[] positions = octoquad.readAllPositions();
+        int[] positions = null;//octoquad.readAllPositions();
         posLeft  = positions[ODO_LEFT];
         posRight = positions[ODO_RIGHT];
         posPerp  = positions[ODO_PERP];
