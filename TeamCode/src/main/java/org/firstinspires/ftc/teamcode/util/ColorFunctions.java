@@ -1,0 +1,27 @@
+package org.firstinspires.ftc.teamcode.util;
+
+import com.qualcomm.robotcore.hardware.NormalizedRGBA;
+
+import org.firstinspires.ftc.teamcode.Constants;
+
+public class ColorFunctions {
+    public static BallColor toColor(NormalizedRGBA rgba) {
+        double[] colorList = {rgba.red, rgba.green, rgba.blue, rgba.alpha};
+
+        double purpleDistance = Math.hypot(Math.hypot(colorList[0] - Constants.Color.purple[0], colorList[1] - Constants.Color.purple[1]), colorList[2] - Constants.Color.purple[2]);
+        double greenDistance  = Math.hypot(Math.hypot(colorList[0] - Constants.Color.green[0] , colorList[1] - Constants.Color.green[1]) , colorList[2] - Constants.Color.green[2] );
+        double noneDistance   = Math.hypot(Math.hypot(colorList[0] - Constants.Color.none[0]  , colorList[1] - Constants.Color.none[1])  , colorList[2] - Constants.Color.none[2] );
+        double none2Distance  = Math.hypot(Math.hypot(colorList[0] - Constants.Color.none2[0] , colorList[1] - Constants.Color.none2[1]) , colorList[2] - Constants.Color.none2[2] );
+
+        noneDistance = Math.min(noneDistance, none2Distance);
+
+        if (greenDistance <= purpleDistance && greenDistance <= noneDistance) {
+            return BallColor.Green;
+        } else if (purpleDistance <= greenDistance && purpleDistance <= noneDistance) {
+            return BallColor.Purple;
+        } else {
+            return BallColor.None;
+        }
+
+    }
+}

@@ -11,11 +11,13 @@ public class MainTeleop extends OpMode {
     //This is where we introduce the tele-operated controls
     intakeControllerGeneral arm;
     Drivetrain drivetrain;
+
     @Override
     public void init() {
         //do stuff init
         arm = new intakeControllerGeneral(hardwareMap);
         drivetrain = new Drivetrain(hardwareMap);
+
     }
 
     @Override

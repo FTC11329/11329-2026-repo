@@ -4,13 +4,13 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
-public class stiltsControllerGeneral {
+public class Stilts {
     // declaring motor variables
 
     DcMotorEx stiltMotor;
     Servo stiltServo;
 
-    public void stiltControllerGeneral(HardwareMap hardwaremap){
+    public Stilts(HardwareMap hardwaremap){
         stiltMotor = hardwaremap.get(DcMotorEx.class, "wheel1");
         stiltServo = hardwaremap.get(Servo.class, "claw");
 
