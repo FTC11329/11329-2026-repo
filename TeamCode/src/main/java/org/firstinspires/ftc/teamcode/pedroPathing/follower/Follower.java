@@ -353,6 +353,28 @@ public class Follower {
         vectorCalculator.setTeleOpMovementVectors(forward, strafe, turn, isRobotCentric);
     }
 
+    public void setTeleOpDrive(double forward, double strafe, double turn, boolean isRobotCentric, boolean normalize) {
+        Pose drivePower = new Pose(forward, strafe, turn);
+        Pose vel = drivePower;
+        if (normalize) {
+            if (Math.abs(drivePower.getX()) + Math.abs(drivePower.getY())
+                    + Math.abs(drivePower.getHeading()) > 1) {
+                // re-normalize the powers according to the weights
+                double denom = Math.abs(drivePower.getX())
+                        + Math.abs(drivePower.getY())
+                        + Math.abs(drivePower.getHeading());
+
+                vel = new Pose(
+                        drivePower.getX() / denom,
+                        drivePower.getY() / denom,
+                        drivePower.getHeading() / denom
+                );
+            }
+        }
+        vectorCalculator.setTeleOpMovementVectors(vel.getX(), vel.getY(), vel.getHeading(), isRobotCentric);
+    }
+
+
     /** Updates the Mecanum constants */
     public void updateDrivetrain() {
         drivetrain.updateConstants();

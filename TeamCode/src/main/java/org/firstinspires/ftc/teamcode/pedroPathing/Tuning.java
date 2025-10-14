@@ -151,7 +151,7 @@ class LocalizationTest extends OpMode {
      */
     @Override
     public void loop() {
-        follower.setTeleOpDrive(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, true);
+        follower.setTeleOpDrive(-gamepad1.left_stick_y, gamepad1.left_stick_x, -gamepad1.right_stick_x, true, true);
         follower.update();
 
         telemetryM.debug("x:" + follower.getPose().getX());
@@ -776,6 +776,10 @@ class TranslationalTuner extends OpMode {
         }
 
         telemetryM.debug("Push the robot laterally to test the Translational PIDF(s).");
+        telemetryM.addData("drive error", follower.errorCalculator.getDriveError());
+        telemetryM.addData("translational error", follower.errorCalculator.getTranslationalError().getMagnitude());
+        telemetryM.addData("heading error", follower.errorCalculator.getHeadingError());
+        telemetryM.addData("heading error", follower.drivetrain.vectors[2]);
         telemetryM.update(telemetry);
     }
 }

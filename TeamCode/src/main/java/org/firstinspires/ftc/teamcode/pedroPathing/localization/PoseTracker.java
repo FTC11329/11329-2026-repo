@@ -333,14 +333,14 @@ public class PoseTracker {
 
     public String debugString() {
         return "PoseTracker{" +
-                "currentPose=" + getPose() +
-                ", previousPose=" + getPreviousPose() +
-                ", currentVelocity=" + getVelocity() +
-                ", previousVelocity=" + previousVelocity +
-                ", currentAcceleration=" + getAcceleration() +
-                ", xOffset=" + getXOffset() +
-                ", yOffset=" + getYOffset() +
-                ", headingOffset=" + getHeadingOffset() +
+                "\ncurrentPose=" + getPose() +
+                "\npreviousPose=" + getPreviousPose() +
+                "\ncurrentVelocity=" + getVelocity() +
+                "\npreviousVelocity=" + previousVelocity +
+                "\ncurrentAcceleration=" + getAcceleration() +
+                "\nxOffset=" + getXOffset() +
+                "\nyOffset=" + getYOffset() +
+                "\nheadingOffset=" + getHeadingOffset() +
                 '}';
     }
 }

@@ -188,7 +188,7 @@ public class VectorCalculator {
 
         drivePIDF.updateFeedForwardInput(Math.signum(driveError));
         drivePIDF.updateError(driveError);
-        driveVector = new Vector(MathFunctions.clamp(-drivePIDF.run(), -maxPowerScaling, maxPowerScaling), tangent.getTheta());
+        driveVector = new Vector(MathFunctions.clamp(drivePIDF.run(), -maxPowerScaling, maxPowerScaling), tangent.getTheta());
         return driveVector.copy();
     }
 
@@ -212,7 +212,7 @@ public class VectorCalculator {
         }
         headingPIDF.updateFeedForwardInput(MathFunctions.getTurnDirection(currentPose.getHeading(), headingGoal));
         headingPIDF.updateError(headingError);
-        headingVector = new Vector(MathFunctions.clamp(-headingPIDF.run(), -maxPowerScaling, maxPowerScaling), currentPose.getHeading());
+        headingVector = new Vector(MathFunctions.clamp(headingPIDF.run(), -maxPowerScaling, maxPowerScaling), currentPose.getHeading());
         return headingVector.copy();
     }
 
@@ -273,7 +273,7 @@ public class VectorCalculator {
 
             translationalPIDF.updateFeedForwardInput(1);
             translationalPIDF.updateError(translationalVector.getMagnitude());
-            translationalVector.setMagnitude(translationalPIDF.run());
+            translationalVector.setMagnitude(-translationalPIDF.run());
             translationalVector = translationalVector.plus(translationalIntegralVector);
         }
 

@@ -269,13 +269,13 @@ public class Mecanum extends Drivetrain {
 
     public String debugString() {
         return "Mecanum{" +
-                " leftFront=" + leftFront +
-                ", leftRear=" + leftRear +
-                ", rightFront=" + rightFront +
-                ", rightRear=" + rightRear +
-                ", motors=" + motors +
-                ", motorCachingThreshold=" + motorCachingThreshold +
-                ", useBrakeModeInTeleOp=" + useBrakeModeInTeleOp +
+                "\nleftFront=" + leftFront +
+                "\nleftRear=" + leftRear +
+                "\nrightFront=" + rightFront +
+                "\nrightRear=" + rightRear +
+                "\nmotors=" + motors +
+                "\nmotorCachingThreshold=" + motorCachingThreshold +
+                "\nuseBrakeModeInTeleOp=" + useBrakeModeInTeleOp +
                 '}';
     }
 
