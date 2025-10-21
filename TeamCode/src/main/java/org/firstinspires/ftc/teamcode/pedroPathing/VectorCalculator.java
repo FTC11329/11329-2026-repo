@@ -273,7 +273,7 @@ public class VectorCalculator {
 
             translationalPIDF.updateFeedForwardInput(1);
             translationalPIDF.updateError(translationalVector.getMagnitude());
-            translationalVector.setMagnitude(-translationalPIDF.run());
+            translationalVector.setMagnitude(translationalPIDF.run());
             translationalVector = translationalVector.plus(translationalIntegralVector);
         }
 
