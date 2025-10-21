@@ -5,6 +5,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.VectorCalculator;
 import org.firstinspires.ftc.teamcode.pedroPathing.control.FilteredPIDFCoefficients;
 import org.firstinspires.ftc.teamcode.pedroPathing.control.PIDFCoefficients;
 import org.firstinspires.ftc.teamcode.pedroPathing.Drivetrain;
+import org.firstinspires.ftc.teamcode.pedroPathing.geometry.BezierLine;
 import org.firstinspires.ftc.teamcode.pedroPathing.paths.PathConstraints;
 import org.firstinspires.ftc.teamcode.pedroPathing.paths.PathPoint;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.PoseHistory;
@@ -1066,4 +1067,40 @@ public class Follower {
     public double getHeading() {
         return getPose().getHeading();
     }
+
+    // Start of I.C.E. Code (you can tell because it is worse documentation)
+    //Builds very simple paths
+    public Path linearPathBuilder(Pose startPose, Pose endPose, double endTime) {
+        Path tempPath = new Path(new BezierLine(startPose,endPose));
+        tempPath.setLinearHeadingInterpolation(startPose.getHeading(), endPose.getHeading(), endTime);
+        return tempPath;
+    }
+    public Path linearPathBuilder(Pose startPose, Pose endPose) {
+        return linearPathBuilder(startPose, endPose, 1);
+    }
+
+    public PathChain linearPathChainBuilder(Pose startPose, Pose endPose, double endTime) {
+        PathChain tempPath = pathBuilder()
+                .addPath(new BezierLine(startPose, endPose))
+                .setLinearHeadingInterpolation(startPose.getHeading(), endPose.getHeading(), endTime)
+                .build();
+        return tempPath;
+    }
+    public PathChain linearPathChainBuilder(Pose startPose, Pose endPose) {
+        return linearPathChainBuilder(startPose, endPose, 1);
+    }
+
+    //returns the distance from targetPose
+    public Pose getErrorCartesian(Pose targetPose) {
+        Pose tempPose = new Pose();
+        tempPose.setX(Math.abs(getPose().getX() - targetPose.getX()));
+        tempPose.setY(Math.abs(getPose().getY() - targetPose.getY()));
+        tempPose.setHeading(Math.abs(getPose().getHeading() - targetPose.getHeading()));
+        return tempPose;
+    }
+
+    public double getErrorDistance(Pose targetPose) {
+        return Pose.cartesianToPolar(getErrorCartesian(targetPose).getX(), getErrorCartesian(targetPose).getY())[0];
+    }
+
 }

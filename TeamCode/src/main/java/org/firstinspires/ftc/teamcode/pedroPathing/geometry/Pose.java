@@ -19,9 +19,9 @@ import org.firstinspires.ftc.teamcode.pedroPathing.math.Vector;
  * @version 1.0, 4/2/2024
  */
 public final class Pose implements FuturePose {
-    private final double x;
-    private final double y;
-    private final double heading;
+    private double x;
+    private double y;
+    private double heading;
     private final CoordinateSystem coordinateSystem;
 
     /**
@@ -339,14 +339,32 @@ public final class Pose implements FuturePose {
     }
 
     /**
-     * Returns a new pose with the specified heading, keeping x and y the same.
+     * This sets the x value.
      *
-     * @param heading the new heading in radians
-     * @return a new pose with updated heading
+     * @param set the x value
      */
-    public Pose setHeading(double heading) {
-        return new Pose(x, y, heading);
+    public void setX(double set) {
+        x = set;
     }
+
+    /**
+     * This sets the y value.
+     *
+     * @param set the y value
+     */
+    public void setY(double set) {
+        y = set;
+    }
+
+    /**
+     * This sets the heading value.
+     *
+     * @param set the heading value
+     */
+    public void setHeading(double set) {
+        heading = MathFunctions.normalizeAngle(set);
+    }
+
 
     /** Returns a new pose with the same coordinate system, keeping x, y, and heading. */
     public Pose copy() {
