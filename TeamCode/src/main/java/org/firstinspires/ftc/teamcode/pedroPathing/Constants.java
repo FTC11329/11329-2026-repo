@@ -24,7 +24,7 @@ public class Constants {
             .useSecondaryHeadingPIDF(false)
             ;
     public static PinpointConstants localizerConstants = new PinpointConstants()
-            .forwardPodY(-(3-(0.13-0.005)))
+            .forwardPodY(-2.125)
             .strafePodX(5.6875)
             .distanceUnit(DistanceUnit.INCH)
             .hardwareMapName("pinpoint")
