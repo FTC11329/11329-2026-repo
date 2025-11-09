@@ -9,6 +9,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
+import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
@@ -58,6 +59,12 @@ public class AprilTag {
         return null;
     }
 
+    public double distanceXToGoal(Pose robotPose) {
+        Pose goalPose = new Pose(72, -72);
+        Pose distancePose = goalPose.minus(robotPose);
+        return distancePose.returnPolar()[0];
+    }
+
     // --------------- SHOOTER RPM CALCULATOR by Chat GPT --------------
     //
     // Calculates the wheel target RPM required to hit the goal
@@ -78,14 +85,12 @@ public class AprilTag {
     //
     // ------------------------------------------------------------------
 
-    public double getRPMNeeded(double Distance_to_tag_inch) {
-        AprilTagDetection goalDetection = getTagWithID(goalID);
-        if (goalDetection == null) {
-            return -1;
-        }
+    public double getRPMNeeded() {
+        // todo: insert code to get robot pose
+        Pose robotPose = new Pose(); //here
 
         // --- Positioning ---
-        final double D_tag_in = goalDetection.ftcPose.y;
+        final double D_tag_in = distanceXToGoal(robotPose);
 
         // --- Fixed geometry ---
         final double LAUNCHER_HEIGHT_IN = 16.0;   // inches: how high the ball leaves the shooter

@@ -339,6 +339,15 @@ public final class Pose implements FuturePose {
     }
 
     /**
+     * returns the current pose as polar coordinates
+     *
+     * @return an array \`[r, theta]\` where r is the radius and theta is the angle in radians
+     */
+    public double[] returnPolar() {
+        return new double[] {Math.sqrt(x * x + y * y), Math.atan2(y, x)};
+    }
+
+    /**
      * This sets the x value.
      *
      * @param set the x value
