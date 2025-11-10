@@ -141,8 +141,10 @@ public class Vision {
         Pose distancePose = goalPose.minus(robotPose);
         double dst = distancePose.returnPolar()[0];
         double heading = distancePose.returnPolar()[1];
-        double vx = (dst + Constants.ShooterParamaters.TAG_TO_TARGET_IN) / time;
-        double vy = Constants.ShooterParamaters.TARGET_HEIGHT_IN / time + 0.5 * Constants.ShooterParamaters.G * time;
+        double x0 = (dst + Constants.ShooterParamaters.TAG_TO_TARGET_IN);
+        double y0 = (Constants.ShooterParamaters.TARGET_HEIGHT_IN - Constants.ShooterParamaters.LAUNCHER_HEIGHT_IN);
+        double vx = x0 / time;
+        double vy = y0 / time + 0.5 * Constants.ShooterParamaters.G * time;
 
         double vrx = Math.sin(heading) * vx - velocity.getX();
         double vry = - Math.cos(heading) * vx - velocity.getY();
@@ -154,5 +156,34 @@ public class Vision {
         double angle = Math.atan2(vy, vx);
 
         return new double[] {heading, angle, v};
+    }
+
+    public double[] getVelocityFinalAngle(double angleDeg, Pose velocity) {
+        Pose robotPose = getRobotPose(); //here
+        Pose goalPose = new Pose(72, -72);
+        Pose distancePose = goalPose.minus(robotPose);
+        double dst = distancePose.returnPolar()[0];
+        double heading = distancePose.returnPolar()[1];
+        double x0 = (dst + Constants.ShooterParamaters.TAG_TO_TARGET_IN);
+        double y0 = (Constants.ShooterParamaters.TARGET_HEIGHT_IN - Constants.ShooterParamaters.LAUNCHER_HEIGHT_IN);
+        double c = Math.tan(Math.toRadians(angleDeg));
+        double vx = Math.sqrt(0.5 * Constants.ShooterParamaters.G * x0 * x0 / (y0 - c * x0));
+        double vy = vx * c + Constants.ShooterParamaters.G * x0 / vx;
+
+        double vrx = Math.sin(heading) * vx - velocity.getX();
+        double vry = - Math.cos(heading) * vx - velocity.getY();
+
+        vx = Math.sqrt(vrx * vrx + vry * vry);
+        heading = Math.atan2(-vx, vy);
+
+        double v = Math.sqrt(vx * vx + vy * vy);
+        double angle = Math.atan2(vy, vx);
+
+        return new double[] {heading, angle, v};
+    }
+
+    public double[] getVelocityMaxHeight(double maxHeight, Pose velocity) {
+        double time = Math.sqrt(2 * maxHeight / Constants.ShooterParamaters.G);
+        return getVelocityTime(time, velocity);
     }
 }
