@@ -10,6 +10,7 @@ public class Constants {
         public static Pose cameraPos = new Pose(0, 4.47);
 
         public static double pitch = 80;
+        public static double tagAngle = 80;
     }
     public static class Indexer {
         public static double spindexPower = 0;
@@ -19,5 +20,28 @@ public class Constants {
         public static double[] purple = {0, 0, 0, 0};
         public static double[] none = {0, 0, 0, 0};
         public static double[] none2 = {0, 0, 0, 0};
+    }
+
+    public static class ShooterParamaters {
+        // --- Fixed geometry ---
+        public static double LAUNCHER_HEIGHT_IN = 12.063;   // inches: how high the ball leaves the shooter
+        public static double TARGET_HEIGHT_IN   = 29.0;   // inches: height of the target off the ground
+        public static double TAG_TO_TARGET_IN   = 19.0;   // inches: distance from AprilTag to middle of the targeted point
+
+        // --- Physical constants ---
+        public static double G = 9.81;                   // gravity (m/s^2)
+        public static double IN_TO_M = 0.0254;           // inches to meters conversion
+
+        // --- Empirical tuning constants ---
+        public static double K_DRAG = 0.06;              // drag correction per meter (higher = more required speed)
+        public static double K_SPIN = 0.28; //0.12     // lift correction factor from backspin
+        public static double SPIN_RPM = 0;               // expected backspin of the ball
+        public static double EFF = 0.95;                 // wheel-to-ball efficiency (0.9–1.0 typical)
+        public static double K_TUNE = 1.0;               // final tuning multiplier (easy field tuning)
+
+        // --- Shooter hardware parameters ---
+        public static double R_WHEEL_IN = 2.0;           // wheel radius (inches) //todo
+        public static double phi_deg = 50;               // 5-50 Angle of the shot (degrees) // todo
+        public static double R_WHEEL_M = R_WHEEL_IN * IN_TO_M; // wheel radius in meters
     }
 }
