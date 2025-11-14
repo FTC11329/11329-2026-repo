@@ -49,19 +49,19 @@ public class Vision {
                 List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
 
                 for (LLResultTypes.FiducialResult fr : fiducialResults) {
-                    Pose3D fiducial = fr.getTargetPoseCameraSpace();
-                    Pose camToTag = new Pose(fiducial.getPosition().x, Math.sin(Math.toRadians(pitch)) * fiducial.getPosition().y + Math.cos(Math.toRadians(pitch)) * fiducial.getPosition().z, 0);
-                    Pose botToTag = camToTag.plus(cameraPos);
-                    Pose botToField = null;
-
-                    if (fr.getFiducialId() == 20) {
-                        Pose botToRealTag = botToTag.rotate((fiducial.getOrientation().getYaw(AngleUnit.RADIANS) - Math.toRadians(tagAngle)), true);
-                        botToField = redTag.minus(botToRealTag);
-                    } else if (fr.getFiducialId() == 24) {
-                        Pose botToRealTag = botToTag.rotate((fiducial.getOrientation().getYaw(AngleUnit.RADIANS) + Math.toRadians(tagAngle)), true);
-                        botToField = blueTag.minus(botToRealTag);
-                    }
-                    pose = botToField;
+                    Pose3D  = fr.getRobotPoseFieldSpace();
+//                    Pose camToTag = new Pose(fiducial.getPosition().x, Math.sin(Math.toRadians(pitch)) * fiducial.getPosition().y + Math.cos(Math.toRadians(pitch)) * fiducial.getPosition().z, 0);
+//                    Pose botToTag = camToTag.plus(cameraPos);
+//                    Pose botToField = null;
+//
+//                    if (fr.getFiducialId() == 20) {
+//                        Pose botToRealTag = botToTag.rotate((fiducial.getOrientation().getYaw(AngleUnit.RADIANS) - Math.toRadians(tagAngle)), true);
+//                        botToField = redTag.minus(botToRealTag);
+//                    } else if (fr.getFiducialId() == 24) {
+//                        Pose botToRealTag = botToTag.rotate((fiducial.getOrientation().getYaw(AngleUnit.RADIANS) + Math.toRadians(tagAngle)), true);
+//                        botToField = blueTag.minus(botToRealTag);
+//                    }
+//                    pose = botToField;
 
                 }
             }
@@ -91,13 +91,13 @@ public class Vision {
     //    double phi_deg    = shooter launch angle above horizontal (in degrees)
     //
     // Output:
-    //    double targetRPM  = wheel RPM required for that shot
+    //    double vCorrected  = velocity of ball needed for shot
     //
     // ------------------------------------------------------------------
 
     public double getVelocity() {
-        // todo: insert code to get robot pose
-        Pose robotPose = getRobotPose(); //here
+        // get robot pose
+        Pose robotPose = getRobotPose();
 
         // --- Positioning ---
         final double D_tag_in = distanceXToGoal(robotPose);
