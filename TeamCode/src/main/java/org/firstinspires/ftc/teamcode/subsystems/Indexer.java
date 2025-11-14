@@ -2,33 +2,46 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
+import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.robotcontroller.external.samples.ConceptAprilTag;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.ColorFunctions;
 
 public class Indexer {
     // declaring motor variables
-    DcMotorEx spindexer;
-    CRServo indexerToShooter;
+    CRServo spindexer1;
+    CRServo spindexer3Minus1;
+    Servo indexerToShooterServo;
+    DcMotorEx indexerToShooterMotor;
     RevColorSensorV3 colorSensor;
 
     public Indexer(HardwareMap hardwaremap){
-        spindexer = hardwaremap.get(DcMotorEx.class, "spindexer");
-        indexerToShooter = hardwaremap.get(CRServo.class, "spindexerServo");
-        colorSensor = hardwaremap.get(RevColorSensorV3.class, "spindexerColorSensor");
+        spindexer1 = hardwaremap.get(CRServo.class, "spindexer1");
+        spindexer3Minus1 = hardwaremap.get(CRServo.class, "spindexer3Minus1");
+        indexerToShooterMotor = hardwaremap.get(DcMotorEx.class, "spindexerPrimingMotor");
+//        indexerToShooterServo = hardwaremap.get(Servo.class, "spindexerServo");
+//        colorSensor = hardwaremap.get(RevColorSensorV3.class, "spindexerColorSensor");
     }
 
     public void setSpindexerPower(double set){
-        spindexer.setPower(set);
+        spindexer1.setPower(set);
+        spindexer3Minus1.setPower(set);
     }
+
     public void moveToShooterPower(double set){
-        indexerToShooter.setPower(set);
+        indexerToShooterMotor.setPower(set);
+    }
+    public void moveToShooterServoUp(boolean up){
+
+        if (up){
+            indexerToShooterServo.setPosition(Constants.Indexer.primingServoUp);
+        } else {
+            indexerToShooterServo.setPosition(Constants.Indexer.primingServoDown);
+        }
     }
 
     public NormalizedRGBA getColor(){
@@ -46,5 +59,18 @@ public class Indexer {
         } else {
             return false;
         }
+    }
+    //ToDo: Loading
+    public void ballToShooter(){
+
+    }
+
+    public void setServo(double set) {
+        spindexer1.setPower(set);
+        spindexer3Minus1.setPower(set);
+    }
+
+    public void setMotor(double set) {
+        indexerToShooterMotor.setPower(set);
     }
 }

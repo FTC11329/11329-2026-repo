@@ -48,7 +48,7 @@ public class ShooterTrial extends OpMode {
             shooter.setHoodDeg(0);
         }
         telemetry.addData("deg", shooter.getHoodPos());
-        deltaTime = time.milliseconds() - lastTime
+        deltaTime = time.milliseconds() - lastTime;
         telemetry.addData("delta", deltaTime);
         lastTime = time.milliseconds();
     }

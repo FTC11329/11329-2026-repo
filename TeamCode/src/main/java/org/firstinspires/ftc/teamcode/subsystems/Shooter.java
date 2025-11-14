@@ -6,11 +6,15 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcontroller.external.samples.ConceptAprilTag;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+import org.firstinspires.ftc.teamcode.Constants;
 
 public class Shooter {
     // declaring motor variables
     DcMotorEx flywheel;
+
+    double targetRPM = 0;
 
     Servo hoodServo1;
     Servo hoodServo2;
@@ -52,6 +56,13 @@ public class Shooter {
 
     public double getHoodPos() {
         return (hoodPos * 80) + 5;
+    }
+
+    public boolean spinUp(/*ToDo:robotpose*/){
+        return true;
+    }
+    public void lightSpin() {
+        targetRPM = Constants.PlacholdereDouble;
     }
 
 //    public void rotateHood(double speed){
