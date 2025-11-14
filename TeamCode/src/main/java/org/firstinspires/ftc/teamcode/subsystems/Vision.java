@@ -43,25 +43,25 @@ public class Vision {
     public Pose getRobotPose() {
         //Creating a 3d array to store the distances of each block for comparison
         LLResult result = limelight.getLatestResult();
-        Pose pose = null;
+        Pose pose = new Pose();
         if (result != null) {
             if (result.isValid()) {
                 List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
 
                 for (LLResultTypes.FiducialResult fr : fiducialResults) {
-                    Pose3D fiducial = fr.getTargetPoseCameraSpace();
-                    Pose camToTag = new Pose(fiducial.getPosition().x, Math.sin(Math.toRadians(pitch)) * fiducial.getPosition().y + Math.cos(Math.toRadians(pitch)) * fiducial.getPosition().z, 0);
-                    Pose botToTag = camToTag.plus(cameraPos);
-                    Pose botToField = null;
-
-                    if (fr.getFiducialId() == 20) {
-                        Pose botToRealTag = botToTag.rotate((fiducial.getOrientation().getYaw(AngleUnit.RADIANS) - Math.toRadians(tagAngle)), true);
-                        botToField = redTag.minus(botToRealTag);
-                    } else if (fr.getFiducialId() == 24) {
-                        Pose botToRealTag = botToTag.rotate((fiducial.getOrientation().getYaw(AngleUnit.RADIANS) + Math.toRadians(tagAngle)), true);
-                        botToField = blueTag.minus(botToRealTag);
-                    }
-                    pose = botToField;
+                    Pose3D fiducial = fr.getRobotPoseFieldSpace();
+//                    Pose camToTag = new Pose(fiducial.getPosition().x, Math.sin(Math.toRadians(pitch)) * fiducial.getPosition().y + Math.cos(Math.toRadians(pitch)) * fiducial.getPosition().z, 0);
+//                    Pose botToTag = camToTag.plus(cameraPos);
+//                    Pose botToField = null;
+//
+//                    if (fr.getFiducialId() == 20) {
+//                        Pose botToRealTag = botToTag.rotate((fiducial.getOrientation().getYaw(AngleUnit.RADIANS) - Math.toRadians(tagAngle)), true);
+//                        botToField = redTag.minus(botToRealTag);
+//                    } else if (fr.getFiducialId() == 24) {
+//                        Pose botToRealTag = botToTag.rotate((fiducial.getOrientation().getYaw(AngleUnit.RADIANS) + Math.toRadians(tagAngle)), true);
+//                        botToField = blueTag.minus(botToRealTag);
+//                    }
+                    pose = new Pose(fiducial.getPosition().x, fiducial.getPosition().y);
 
                 }
             }
@@ -91,13 +91,13 @@ public class Vision {
     //    double phi_deg    = shooter launch angle above horizontal (in degrees)
     //
     // Output:
-    //    double targetRPM  = wheel RPM required for that shot
+    //    double vCorrected  = velocity of ball needed for shot
     //
     // ------------------------------------------------------------------
 
     public double getVelocity() {
-        // todo: insert code to get robot pose
-        Pose robotPose = getRobotPose(); //here
+        // get robot pose
+        Pose robotPose = getRobotPose();
 
         // --- Positioning ---
         final double D_tag_in = distanceXToGoal(robotPose);
@@ -150,7 +150,7 @@ public class Vision {
         double vry = - Math.cos(heading) * vx - velocity.getY();
 
         vx = Math.sqrt(vrx * vrx + vry * vry);
-        heading = Math.atan2(-vx, vy);
+        heading = Math.atan2(-vrx, vry);
 
         double v = Math.sqrt(vx * vx + vy * vy);
         double angle = Math.atan2(vy, vx);

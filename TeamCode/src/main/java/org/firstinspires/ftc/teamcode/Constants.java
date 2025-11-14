@@ -1,5 +1,10 @@
 package org.firstinspires.ftc.teamcode;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
+import org.firstinspires.ftc.robotcore.external.navigation.Position;
+import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 
 public class Constants {
@@ -10,6 +15,7 @@ public class Constants {
         public static Pose blueTag = new Pose(55.64, 58.34);
 
         public static Pose cameraPos = new Pose(0, 4.47);
+        public static Pose3D cameraPosForInfoForGlacierInIN = new Pose3D(new Position(DistanceUnit.INCH, 0, -7, 15.75, 0), new YawPitchRollAngles(AngleUnit.DEGREES, 0, 28.3, 0, 0));
 
         public static double pitch = 80;
         public static double tagAngle = 80;

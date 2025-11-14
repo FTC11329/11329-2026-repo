@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 
-@TeleOp(name = "Shooter", group = "group")
+@TeleOp(name = "Shooter Test", group = "group")
 public class ShooterTrial extends OpMode {
     //This is where we introduce the tele-operated controls
     Shooter shooter;
@@ -49,7 +49,7 @@ public class ShooterTrial extends OpMode {
         }
         telemetry.addData("deg", shooter.getHoodPos());
         deltaTime = time.milliseconds() - lastTime;
-        telemetry.addData("delta", deltaTime);
+        telemetry.addData("delta Time", deltaTime);
         lastTime = time.milliseconds();
     }
 }

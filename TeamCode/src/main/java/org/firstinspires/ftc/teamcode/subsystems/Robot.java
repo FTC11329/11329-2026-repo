@@ -81,4 +81,26 @@ public class Robot {
     public void update() {
 
     }
+
+    //FNCTION TO SHOOT obe ball
+    public void singleball{
+        indexer.SpinTill(BallColor.None);
+
+    }
+    //FNCTION TO SHOOT green ball
+    public void greenball{
+        indexer.SpinTill(BallColor.Green);
+
+    }
+    //FNCTION TO SHOOT purple ball
+    public void purpleball{
+        indexer.SpinTill(BallColor.Purple);
+    }
+    //FNCTION TO SHOOT 3 ball
+    public void threeRoundBurst{
+
+    }
+    //function to intake and spindexer
+    public void Intakenspindex{
+    }
 }
