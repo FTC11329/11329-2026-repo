@@ -43,13 +43,13 @@ public class Vision {
     public Pose getRobotPose() {
         //Creating a 3d array to store the distances of each block for comparison
         LLResult result = limelight.getLatestResult();
-        Pose pose = null;
+        Pose pose = new Pose();
         if (result != null) {
             if (result.isValid()) {
                 List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
 
                 for (LLResultTypes.FiducialResult fr : fiducialResults) {
-                    Pose3D  = fr.getRobotPoseFieldSpace();
+                    Pose3D fiducial = fr.getRobotPoseFieldSpace();
 //                    Pose camToTag = new Pose(fiducial.getPosition().x, Math.sin(Math.toRadians(pitch)) * fiducial.getPosition().y + Math.cos(Math.toRadians(pitch)) * fiducial.getPosition().z, 0);
 //                    Pose botToTag = camToTag.plus(cameraPos);
 //                    Pose botToField = null;
@@ -61,7 +61,7 @@ public class Vision {
 //                        Pose botToRealTag = botToTag.rotate((fiducial.getOrientation().getYaw(AngleUnit.RADIANS) + Math.toRadians(tagAngle)), true);
 //                        botToField = blueTag.minus(botToRealTag);
 //                    }
-//                    pose = botToField;
+                    pose = new Pose(fiducial.getPosition().x, fiducial.getPosition().y);
 
                 }
             }
@@ -150,7 +150,7 @@ public class Vision {
         double vry = - Math.cos(heading) * vx - velocity.getY();
 
         vx = Math.sqrt(vrx * vrx + vry * vry);
-        heading = Math.atan2(-vx, vy);
+        heading = Math.atan2(-vrx, vry);
 
         double v = Math.sqrt(vx * vx + vy * vy);
         double angle = Math.atan2(vy, vx);
