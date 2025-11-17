@@ -49,20 +49,9 @@ public class Vision {
                 List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
 
                 for (LLResultTypes.FiducialResult fr : fiducialResults) {
-                    Pose3D fiducial = fr.getRobotPoseFieldSpace();
-//                    Pose camToTag = new Pose(fiducial.getPosition().x, Math.sin(Math.toRadians(pitch)) * fiducial.getPosition().y + Math.cos(Math.toRadians(pitch)) * fiducial.getPosition().z, 0);
-//                    Pose botToTag = camToTag.plus(cameraPos);
-//                    Pose botToField = null;
-//
-//                    if (fr.getFiducialId() == 20) {
-//                        Pose botToRealTag = botToTag.rotate((fiducial.getOrientation().getYaw(AngleUnit.RADIANS) - Math.toRadians(tagAngle)), true);
-//                        botToField = redTag.minus(botToRealTag);
-//                    } else if (fr.getFiducialId() == 24) {
-//                        Pose botToRealTag = botToTag.rotate((fiducial.getOrientation().getYaw(AngleUnit.RADIANS) + Math.toRadians(tagAngle)), true);
-//                        botToField = blueTag.minus(botToRealTag);
-//                    }
-                    pose = new Pose(fiducial.getPosition().x, fiducial.getPosition().y);
-
+                    Pose3D robotPoseWeirdM = fr.getRobotPoseFieldSpace();
+                    Pose robotPoseM = new Pose(robotPoseWeirdM.getPosition().x, robotPoseWeirdM.getPosition().y, robotPoseWeirdM.getOrientation().getYaw());
+                    pose = robotPoseM.scale(39.37);
                 }
             }
         }
