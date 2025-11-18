@@ -5,7 +5,6 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
-import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.util.BallColor;
@@ -14,34 +13,24 @@ import org.firstinspires.ftc.teamcode.util.ColorFunctions;
 public class Indexer {
     // declaring motor variables
     CRServo spindexer1;
-    CRServo spindexer3Minus1;
-    Servo indexerToShooterServo;
+    CRServo spindexer2;
     DcMotorEx indexerToShooterMotor;
     RevColorSensorV3 colorSensor;
 
     public Indexer(HardwareMap hardwaremap){
         spindexer1 = hardwaremap.get(CRServo.class, "spindexer1");
-        spindexer3Minus1 = hardwaremap.get(CRServo.class, "spindexer3Minus1");
+        spindexer2 = hardwaremap.get(CRServo.class, "spindexer2");
         indexerToShooterMotor = hardwaremap.get(DcMotorEx.class, "spindexerPrimingMotor");
-//        indexerToShooterServo = hardwaremap.get(Servo.class, "spindexerServo");
-//        colorSensor = hardwaremap.get(RevColorSensorV3.class, "spindexerColorSensor");
+        colorSensor = hardwaremap.get(RevColorSensorV3.class, "spindexerColorSensor");
     }
 
     public void setSpindexerPower(double set){
         spindexer1.setPower(set);
-        spindexer3Minus1.setPower(set);
+        spindexer2.setPower(set);
     }
 
-    public void moveToShooterPower(double set){
+    public void setIndexerToShooterPower(double set){
         indexerToShooterMotor.setPower(set);
-    }
-    public void moveToShooterServoUp(boolean up){
-
-        if (up){
-            indexerToShooterServo.setPosition(Constants.Indexer.primingServoUp);
-        } else {
-            indexerToShooterServo.setPosition(Constants.Indexer.primingServoDown);
-        }
     }
 
     public NormalizedRGBA getColor(){
@@ -67,7 +56,7 @@ public class Indexer {
 
     public void setServo(double set) {
         spindexer1.setPower(set);
-        spindexer3Minus1.setPower(set);
+        spindexer2.setPower(set);
     }
 
     public void setMotor(double set) {

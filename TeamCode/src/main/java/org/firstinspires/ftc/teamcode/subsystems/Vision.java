@@ -47,11 +47,9 @@ public class Vision {
         if (result != null) {
             if (result.isValid()) {
                 List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
-
                 for (LLResultTypes.FiducialResult fr : fiducialResults) {
                     Pose3D robotPoseWeirdM = fr.getRobotPoseFieldSpace();
-                    Pose robotPoseM = new Pose(robotPoseWeirdM.getPosition().x, robotPoseWeirdM.getPosition().y, robotPoseWeirdM.getOrientation().getYaw());
-                    pose = robotPoseM.scale(39.37);
+                    pose = new Pose(-robotPoseWeirdM.getPosition().x * 39.37, -robotPoseWeirdM.getPosition().y * 39.37, Math.toRadians(-robotPoseWeirdM.getOrientation().getYaw()));
                 }
             }
         }

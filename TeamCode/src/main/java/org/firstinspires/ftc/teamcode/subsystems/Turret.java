@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -10,8 +11,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
 public class Turret {
     // declaring motor variables
-    Servo turretServo1;
-    Servo turretServo2;
+    CRServo turretServo1;
+    CRServo turretServo2;
 
     double hoodPos = 0;
 
@@ -21,20 +22,24 @@ public class Turret {
 
     public Turret(HardwareMap hardwareMap){
 
-        turretServo1 = hardwareMap.get(Servo.class, "turret1");
-        turretServo1.setDirection(Servo.Direction.FORWARD);
-        turretServo1.setPosition(0);
+        turretServo1 = hardwareMap.get(CRServo.class, "turret1");
+        turretServo1.setDirection(CRServo.Direction.FORWARD);
 
-        turretServo2 = hardwareMap.get(Servo.class, "turret2");
-        turretServo2.setDirection(Servo.Direction.REVERSE);
-        turretServo2.setPosition(0);
+        turretServo2 = hardwareMap.get(CRServo.class, "turret2");
+        turretServo2.setDirection(CRServo.Direction.FORWARD);
 
-        encoder = hardwareMap.get(DcMotor.class, "encoder");
-
-        encoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        encoder.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        encoder = hardwareMap.get(DcMotor.class, "encoder");
+//
+//        encoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        encoder.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
-    public void turnTo(double degrees){
+    public void turnTo(double degrees) {
 
     }
+
+    public void setPower(double set) {
+        turretServo1.setPower(set);
+        turretServo2.setPower(set);
+    }
+
 }

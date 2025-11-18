@@ -3,8 +3,11 @@ package org.firstinspires.ftc.teamcode.subsystems;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Constants;
+import org.firstinspires.ftc.teamcode.pedroPathing.Drawing;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
+import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
 
@@ -16,25 +19,30 @@ public class Robot {
     int burst = 3;
 
 
-    Stilts stilts;
-    Intake intake;
-    Indexer indexer;
-    Shooter shooter;
-    Follower follower;
-    Drivetrain drivetrain;
-    Turret turret;
-    ElapsedTime time;
-    RobotSide robotSide;
+    public Stilts stilts;
+    public Intake intake;
+    public Turret turret;
+    public Vision vision;
+    public Indexer indexer;
+    public Shooter shooter;
+    public Follower follower;
+    public Drivetrain drivetrain;
+    public ElapsedTime time;
+    public RobotSide robotSide;
 
-    public Robot(HardwareMap hardwareMap, RobotSide robotSide) {
+    Telemetry telemetry;
+    public Robot(Telemetry telemetry, HardwareMap hardwareMap, RobotSide robotSide) {
+        this.telemetry = telemetry;
         this.robotSide = robotSide;
         stilts = new Stilts(hardwareMap);
         intake = new Intake(hardwareMap);
+        vision = new Vision(hardwareMap, robotSide);
         indexer = new Indexer(hardwareMap);
         shooter = new Shooter(hardwareMap);
-//        follower = new Follower(hardwareMap);
+        follower = org.firstinspires.ftc.teamcode.pedroPathing.Constants.createFollower(hardwareMap);
         drivetrain = new Drivetrain(hardwareMap);
         time = new ElapsedTime();
+        follower.setStartingPose(new Pose(0,0,0));
 
     }
 
@@ -70,7 +78,7 @@ public class Robot {
 
     // Loops through and removes balls from queuedBalls after firing them
     public void shootQueue() {
-        if (queuedBalls.get(0) == null) {
+        if (queuedBalls.isEmpty()) {
             return;
         }
         if (singleBallShoot(queuedBalls.get(0))) {
@@ -89,8 +97,22 @@ public class Robot {
         return indexer.spinTill(BallColor.Any);
     }
 
+    public Pose getCurrentPose() {
+        return follower.getPose();
+    }
+
+    double pictureTime = 0;
     public void update() {
+        if (pictureTime + 500 < time.milliseconds()) {
+            pictureTime = time.milliseconds();
+            Pose visionPose = vision.getRobotPose();
+            if (visionPose.distanceFrom(new Pose(0,0,0)) > 0.001) {
+                follower.setPose(visionPose);
+            }
+        }
         shootQueue();
+        follower.update();
+        Drawing.drawDebug(follower);
     }
 
 }

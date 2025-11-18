@@ -11,9 +11,8 @@ public class Stilts {
     Servo stiltServo;
 
     public Stilts(HardwareMap hardwaremap){
-        stiltMotor = hardwaremap.get(DcMotorEx.class, "wheel1");
-        stiltServo = hardwaremap.get(Servo.class, "claw");
-
+//        stiltMotor = hardwaremap.get(DcMotorEx.class, "wheel1");
+//        stiltServo = hardwaremap.get(Servo.class, "claw");
     }
 
     public void setStiltMotorPower(double set){
