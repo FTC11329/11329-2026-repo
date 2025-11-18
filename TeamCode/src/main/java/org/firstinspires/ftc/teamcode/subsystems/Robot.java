@@ -14,6 +14,8 @@ public class Robot {
     ArrayList<BallColor> queuedBalls = new ArrayList<>();
     int oneBallCase = 0;
     int burst = 3;
+
+
     Stilts stilts;
     Intake intake;
     Indexer indexer;
@@ -23,6 +25,7 @@ public class Robot {
     Turret turret;
     ElapsedTime time;
     RobotSide robotSide;
+
     public Robot(HardwareMap hardwareMap, RobotSide robotSide) {
         this.robotSide = robotSide;
         stilts = new Stilts(hardwareMap);
@@ -34,13 +37,15 @@ public class Robot {
         time = new ElapsedTime();
 
     }
+
     double startTime;
-    //FNCTION TO SHOOT one ball
+
+    //Shoots one ball of BallColor and returns true when done
     public boolean singleBallShoot(BallColor colorOfBall) {
         switch (oneBallCase) {
             case 0:
-                if (indexer.SpinTill(colorOfBall)) {
-                    oneBallCase =  1;
+                if (indexer.spinTill(colorOfBall)) {
+                    oneBallCase = 1;
                 }
                 return false;
             case 1:
@@ -48,10 +53,10 @@ public class Robot {
                 shooter.setHoodDeg(Constants.PlacholdereDouble);
                 if (shooter.spinUp()) {
                     startTime = time.milliseconds();
-                    oneBallCase = 3-1;
+                    oneBallCase = 2;
                 }
                 return false;
-            case 3-1:
+            case 2:
                 indexer.ballToShooter();
                 if (time.milliseconds() - startTime < 300) {
                     shooter.lightSpin();
@@ -62,7 +67,9 @@ public class Robot {
         }
         return false;
     }
-    public void shootQueue(){
+
+    // Loops through and removes balls from queuedBalls after firing them
+    public void shootQueue() {
         if (queuedBalls.get(0) == null) {
             return;
         }
@@ -70,37 +77,20 @@ public class Robot {
             queuedBalls.remove(0);
         }
     }
-    public void aFunctionThatQsBalls(BallColor qdColor) {
+
+    // Adds a ball of color ball color to queuedBalls list
+    public void QBall(BallColor qdColor) {
         queuedBalls.add(qdColor);
     }
 
-    //function to intake and SpinDexer
-    public void Intakenspindex(){
+    //function to intake and spin until sees any ball
+    public boolean Intakenspindex() {
+        intake.setintakePower(Constants.Intake.intakePower);
+        return indexer.spinTill(BallColor.Any);
     }
 
     public void update() {
-
+        shootQueue();
     }
 
-    //FNCTION TO SHOOT obe ball
-    public void singleball{
-        indexer.SpinTill(BallColor.None);
-
-    }
-    //FNCTION TO SHOOT green ball
-    public void greenball{
-        indexer.SpinTill(BallColor.Green);
-
-    }
-    //FNCTION TO SHOOT purple ball
-    public void purpleball{
-        indexer.SpinTill(BallColor.Purple);
-    }
-    //FNCTION TO SHOOT 3 ball
-    public void threeRoundBurst{
-
-    }
-    //function to intake and spindexer
-    public void Intakenspindex{
-    }
 }

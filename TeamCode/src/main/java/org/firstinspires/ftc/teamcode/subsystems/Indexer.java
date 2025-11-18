@@ -49,7 +49,7 @@ public class Indexer {
     }
 
     // Spins the indexer until the correct color is in front of the sensor then stops the spindexer
-    public boolean SpinTill(BallColor ballColor) {
+    public boolean spinTill(BallColor ballColor) {
         setSpindexerPower(Constants.Indexer.spindexPower);
         NormalizedRGBA currentColor = getColor();
 
