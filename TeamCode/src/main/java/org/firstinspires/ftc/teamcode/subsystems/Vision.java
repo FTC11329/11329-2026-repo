@@ -195,16 +195,46 @@ public class Vision {
     }
 
     public double[] getVelocityMaxHeight(double maxHeight, Pose velocity) {
-        double time = Math.sqrt(2 * maxHeight / Constants.ShooterParamaters.G);
-        return getVelocityTime(time, velocity);
+        double uy = Math.sqrt(2 * maxHeight * Constants.ShooterParamaters.G);
+        double y0 = (Constants.ShooterParamaters.TARGET_HEIGHT_IN - Constants.ShooterParamaters.LAUNCHER_HEIGHT_IN);
+        double discriminant = uy * uy - 2 * Constants.ShooterParamaters.G * y0;
+        if (discriminant < 0) {
+            // no real solution: the desired max height is impossible
+            return null;
+        }
+        double t = (uy + Math.sqrt(discriminant)) / Constants.ShooterParamaters.G; // choose physically valid root
+        return getVelocityTime(t, velocity);
+    }
+
+    public double[] getVelocityRPM(double rpm, Pose velocity) {
+        double v = Math.pow(RPMToVelocity(rpm),2);
+        Pose robotPose = getRobotPose(); //here
+        Pose goalPose = new Pose(72, -72);
+        Pose distancePose = goalPose.minus(robotPose);
+        double dst = distancePose.returnPolar()[0];
+        double heading = distancePose.returnPolar()[1];
+        double x0 = (dst + Constants.ShooterParamaters.TAG_TO_TARGET_IN);
+        double y0 = (Constants.ShooterParamaters.TARGET_HEIGHT_IN - Constants.ShooterParamaters.LAUNCHER_HEIGHT_IN);
+        double a = 0.25 * Constants.ShooterParamaters.G * Constants.ShooterParamaters.G;
+        double b = y0 * Constants.ShooterParamaters.G - v;
+        double c = x0 * x0 + y0 * y0;
+        double t2 = (- b + Math.sqrt(b * b - 4 * a * c)) / (2 * a);
+        return getVelocityTime(Math.sqrt(t2), velocity);
     }
 
     public double velocityToRPM(double velocity){
         double ratio = Constants.ShooterParamaters.H_WHEEL_IN / Constants.ShooterParamaters.R_WHEEL_IN;
         double vf = 2 * velocity / (ratio + 1);
         double wf = vf / Constants.ShooterParamaters.R_WHEEL_IN;
-        double rpm = wf / Constants.ShooterParamaters.MotorToWheel;
-        return rpm;
+        return Constants.ShooterParamaters.K_TUNE * wf / Constants.ShooterParamaters.MotorToWheel;
+    }
+
+    public double RPMToVelocity(double rpm){
+        double ratio = Constants.ShooterParamaters.H_WHEEL_IN / Constants.ShooterParamaters.R_WHEEL_IN;
+
+        double wf = rpm * Constants.ShooterParamaters.MotorToWheel / Constants.ShooterParamaters.K_TUNE;
+        double vf = wf * Constants.ShooterParamaters.R_WHEEL_IN;
+        return 0.5 * vf * (ratio + 1);
     }
 
     public double[] getRPM (double initalCondition, InitialCondition initialConditionType, Pose velocity){
@@ -216,6 +246,8 @@ public class Vision {
                 info = getVelocityMaxHeight(initalCondition, velocity);
             case FinalAngle:
                 info = getVelocityFinalAngle(initalCondition, velocity);
+            case RPM:
+                info = getVelocityRPM(initalCondition, velocity);
         }
         if (info != null){
             info[2] = velocityToRPM(info[2]);
