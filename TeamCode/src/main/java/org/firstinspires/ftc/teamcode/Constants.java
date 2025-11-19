@@ -58,6 +58,8 @@ public class Constants {
 
         // --- Shooter hardware parameters ---
         public static double R_WHEEL_IN = 2.0;           // wheel radius (inches) //todo
+        public static double H_WHEEL_IN = 1.5;           // wheel radius (inches) //todo
+        public static double MotorToWheel = 1.5;           // wheel radius (inches) //todo
         public static double phi_deg = 50;               // 5-50 Angle of the shot (degrees) // todo
         public static double R_WHEEL_M = R_WHEEL_IN * IN_TO_M; // wheel radius in meters
     }

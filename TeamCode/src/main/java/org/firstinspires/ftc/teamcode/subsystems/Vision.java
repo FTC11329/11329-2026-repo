@@ -15,6 +15,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.math.Matrix;
+import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
 
 import java.util.ArrayList;
@@ -54,6 +55,30 @@ public class Vision {
             }
         }
         return pose;
+    }
+
+    public BallColor[] getMotif() {
+        //Creating a 3d array to store the distances of each block for comparison
+        BallColor[] motif = null;
+        LLResult result = limelight.getLatestResult();
+        Pose pose = new Pose();
+        if (result != null) {
+            if (result.isValid()) {
+                List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
+                for (LLResultTypes.FiducialResult fr : fiducialResults) {
+                    if (fr.getFiducialId() == 21){
+                        motif = new BallColor[]{BallColor.Green, BallColor.Green, BallColor.Purple};
+                    }
+                    if (fr.getFiducialId() == 22){
+                        motif = new BallColor[]{BallColor.Green, BallColor.Purple, BallColor.Green};
+                    }
+                    if (fr.getFiducialId() == 23){
+                        motif = new BallColor[]{BallColor.Purple, BallColor.Green, BallColor.Green};
+                    }
+                }
+            }
+        }
+        return motif;
     }
 
     public double distanceXToGoal(Pose robotPose) {
@@ -172,5 +197,33 @@ public class Vision {
     public double[] getVelocityMaxHeight(double maxHeight, Pose velocity) {
         double time = Math.sqrt(2 * maxHeight / Constants.ShooterParamaters.G);
         return getVelocityTime(time, velocity);
+    }
+
+    public double velocityToRPM(double velocity){
+        double ratio = Constants.ShooterParamaters.H_WHEEL_IN / Constants.ShooterParamaters.R_WHEEL_IN;
+        double vf = 2 * velocity / (ratio + 1);
+        double wf = vf / Constants.ShooterParamaters.R_WHEEL_IN;
+        double rpm = wf / Constants.ShooterParamaters.MotorToWheel;
+        return rpm;
+    }
+
+    public double[] getRPM (double initalCondition, InitialCondition initialConditionType, Pose velocity){
+        double[] info = null;
+        switch (initialConditionType){
+            case Time:
+                info = getVelocityTime(initalCondition, velocity);
+            case MaxHeight:
+                info = getVelocityMaxHeight(initalCondition, velocity);
+            case FinalAngle:
+                info = getVelocityFinalAngle(initalCondition, velocity);
+        }
+        if (info != null){
+            info[2] = velocityToRPM(info[2]);
+        }
+        return info;
+    }
+
+    public enum InitialCondition{
+        RPM, MaxHeight, Time, FinalAngle
     }
 }

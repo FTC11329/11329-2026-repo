@@ -51,7 +51,7 @@ public class Indexer {
     }
     //ToDo: Loading
     public void ballToShooter(){
-
+        setMotor(0.9);
     }
 
     public void setServo(double set) {
