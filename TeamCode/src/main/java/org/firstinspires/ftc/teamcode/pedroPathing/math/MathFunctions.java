@@ -52,6 +52,10 @@ public class MathFunctions {
         return Math.min(MathFunctions.normalizeAngle(one - two), MathFunctions.normalizeAngle(two - one));
     }
 
+    public static double crossProduct(Vector one, Vector two) {
+        return one.getXComponent() * two.getYComponent() - one.getYComponent() * two.getXComponent();
+    }
+
     /**
      * This gets the direction to turn between a start heading and an end heading. Positive is left
      * and negative is right. This operates in radians.
