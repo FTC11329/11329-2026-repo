@@ -10,6 +10,8 @@ import org.firstinspires.ftc.robotcontroller.external.samples.ConceptAprilTag;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Constants;
+import org.firstinspires.ftc.teamcode.pedroPathing.control.PIDFCoefficients;
+import org.firstinspires.ftc.teamcode.pedroPathing.control.PIDFController;
 
 public class Shooter {
     // declaring motor variables
@@ -20,7 +22,10 @@ public class Shooter {
     Servo hoodServo1;
     Servo hoodServo2;
 
+    double targetVelocity;
+
     double hoodPos = 0;
+    public PIDFController shooterPID;
 
     public Shooter(HardwareMap hardwareMap){
         flywheel = hardwareMap.get(DcMotorEx.class, "flywheel");
@@ -37,15 +42,22 @@ public class Shooter {
         hoodServo2 = hardwareMap.get(Servo.class, "hood2");
         hoodServo2.setDirection(Servo.Direction.REVERSE);
         hoodServo2.setPosition(0);
+
+        shooterPID = new PIDFController(new PIDFCoefficients(0.35, 0.2, 0.8, 0.5)); //change this!
     }
 
     public void setPower (double power){
         flywheel.setPower(power);
     }
+    public double getRPM (){ return flywheel.getVelocity() * 60 / flywheel.getMotorType().getTicksPerRev(); }
+    public double rpmToVelocity(double RPM){
+        return RPM * flywheel.getMotorType().getTicksPerRev() / 60;
+    }
 
     public void setHood(double angle){
+
         if (hoodPos != angle) {
-            hoodPos  = Math.max(Math.min(angle, 1), 0);
+            hoodPos = Math.max(Math.min(angle, 0.5), 0);
             hoodServo1.setPosition(angle);
             hoodServo2.setPosition(angle);
         }
@@ -59,12 +71,27 @@ public class Shooter {
         return (hoodPos * 80) + 5;
     }
 
-    public boolean spinUp(double targetRPM){
-        setPower(targetRPM/maxRPM);
-        return (flywheel.getVelocity(AngleUnit.RADIANS) > (targetRPM));
+    public void spinUp(double targetRPM){
+        shooterPID.reset();
+        shooterPID.setTargetPosition(rpmToVelocity(targetRPM));
+        updateShooter();
     }
 
-//    public void rotateHood(double speed){
-//        setHood(hoodPos + speed);
-//    }
+    public boolean updateShooter(double targetRPM){
+        shooterPID.setTargetPosition(rpmToVelocity(targetRPM));
+        shooterPID.updatePosition(flywheel.getVelocity());
+        setPower(clamp(shooterPID.run(), 0, 1));
+
+        return Math.abs(shooterPID.getError()) <= 20;
+    }
+
+    public void updateShooter(){
+        shooterPID.updatePosition(getRPM());
+        setPower(shooterPID.run() / maxRPM);
+    }
+
+    private double clamp(double v, double min, double max) {
+        return Math.max(min, Math.min(max, v));
+    }
+
 }

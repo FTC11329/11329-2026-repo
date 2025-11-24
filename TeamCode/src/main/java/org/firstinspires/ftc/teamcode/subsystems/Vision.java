@@ -44,7 +44,7 @@ public class Vision {
     public Pose getRobotPose() {
         //Creating a 3d array to store the distances of each block for comparison
         LLResult result = limelight.getLatestResult();
-        Pose pose = new Pose();
+        Pose pose = null;
         if (result != null) {
             if (result.isValid()) {
                 List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
@@ -147,8 +147,7 @@ public class Vision {
     }
 
 
-    public double[] getVelocityTime(double time, Pose velocity) {
-        Pose robotPose = getRobotPose(); //here
+    public double[] getVelocityTime(double time, Pose robotPose, Pose velocity) {
         Pose goalPose = new Pose(72, -72);
         Pose distancePose = goalPose.minus(robotPose);
         double dst = distancePose.returnPolar()[0];
@@ -170,8 +169,7 @@ public class Vision {
         return new double[] {heading, angle, v};
     }
 
-    public double[] getVelocityFinalAngle(double angleDeg, Pose velocity) {
-        Pose robotPose = getRobotPose(); //here
+    public double[] getVelocityFinalAngle(double angleDeg, Pose robotPose, Pose velocity) {
         Pose goalPose = new Pose(72, -72);
         Pose distancePose = goalPose.minus(robotPose);
         double dst = distancePose.returnPolar()[0];
@@ -194,7 +192,7 @@ public class Vision {
         return new double[] {heading, angle, v};
     }
 
-    public double[] getVelocityMaxHeight(double maxHeight, Pose velocity) {
+    public double[] getVelocityMaxHeight(double maxHeight, Pose robotPose, Pose velocity) {
         double uy = Math.sqrt(2 * maxHeight * Constants.ShooterParamaters.G);
         double y0 = (Constants.ShooterParamaters.TARGET_HEIGHT_IN - Constants.ShooterParamaters.LAUNCHER_HEIGHT_IN);
         double discriminant = uy * uy - 2 * Constants.ShooterParamaters.G * y0;
@@ -203,12 +201,11 @@ public class Vision {
             return null;
         }
         double t = (uy + Math.sqrt(discriminant)) / Constants.ShooterParamaters.G; // choose physically valid root
-        return getVelocityTime(t, velocity);
+        return getVelocityTime(t, robotPose, velocity);
     }
 
-    public double[] getVelocityRPM(double rpm, Pose velocity) {
+    public double[] getVelocityRPM(double rpm, Pose robotPose, Pose velocity) {
         double v = Math.pow(RPMToVelocity(rpm),2);
-        Pose robotPose = getRobotPose(); //here
         Pose goalPose = new Pose(72, -72);
         Pose distancePose = goalPose.minus(robotPose);
         double dst = distancePose.returnPolar()[0];
@@ -219,7 +216,7 @@ public class Vision {
         double b = y0 * Constants.ShooterParamaters.G - v;
         double c = x0 * x0 + y0 * y0;
         double t2 = (- b + Math.sqrt(b * b - 4 * a * c)) / (2 * a);
-        return getVelocityTime(Math.sqrt(t2), velocity);
+        return getVelocityTime(Math.sqrt(t2), robotPose, velocity);
     }
 
     public double velocityToRPM(double velocity){
@@ -237,17 +234,17 @@ public class Vision {
         return 0.5 * vf * (ratio + 1);
     }
 
-    public double[] getRPM (double initalCondition, InitialCondition initialConditionType, Pose velocity){
+    public double[] getRPM (Pose robotPose, double initalCondition, InitialCondition initialConditionType, Pose velocity){
         double[] info = null;
         switch (initialConditionType){
             case Time:
-                info = getVelocityTime(initalCondition, velocity);
+                info = getVelocityTime(initalCondition, robotPose, velocity);
             case MaxHeight:
-                info = getVelocityMaxHeight(initalCondition, velocity);
+                info = getVelocityMaxHeight(initalCondition, robotPose, velocity);
             case FinalAngle:
-                info = getVelocityFinalAngle(initalCondition, velocity);
+                info = getVelocityFinalAngle(initalCondition, robotPose, velocity);
             case RPM:
-                info = getVelocityRPM(initalCondition, velocity);
+                info = getVelocityRPM(initalCondition, robotPose, velocity);
         }
         if (info != null){
             info[2] = velocityToRPM(info[2]);

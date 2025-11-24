@@ -23,6 +23,6 @@ public class TemporaryClassThatWeAreTotallyGoingToDelete extends OpMode {
         telemetry.addData("pow1", power1);
         telemetry.addData("pow3", power3);
         indexer.setMotor(power1);
-        indexer.setServo(power3);
+        indexer.setIndexerPower(power3);
     }
 }

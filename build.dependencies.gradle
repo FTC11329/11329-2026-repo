@@ -3,6 +3,7 @@ repositories {
     google() // Needed for androidx
     maven { url = 'https://maven.pedropathing.com' }
     maven { url = "https://mymaven.bylazar.com/releases" }
+    maven { url = 'https://maven.brott.dev/' }
 }
 
 dependencies {

@@ -34,9 +34,12 @@ public class LimelightTrial extends OpMode {
     @Override
     public void loop() {
         Pose pos = vision.getRobotPose();
-        telemetry.addData("heading:", vision.getVelocityMaxHeight(2, new Pose())[0]);
-        telemetry.addData("turret angle:", vision.getVelocityMaxHeight(2, new Pose())[1]);
-        telemetry.addData("velocity:", vision.getVelocityMaxHeight(2, new Pose())[2]);
+        if (pos == null){
+            pos = new Pose();
+        }
+        telemetry.addData("heading:", vision.getVelocityMaxHeight(2,pos, new Pose())[0]);
+        telemetry.addData("turret angle:", vision.getVelocityMaxHeight(2,pos, new Pose())[1]);
+        telemetry.addData("velocity:", vision.getVelocityMaxHeight(2,pos, new Pose())[2]);
         telemetry.addData("pos:", pos);
 
     }

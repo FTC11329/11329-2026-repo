@@ -3,8 +3,6 @@ package org.firstinspires.ftc.teamcode.teleops;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.subsystems.Intake;
-import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
 
@@ -22,18 +20,21 @@ public class MainTeleop extends OpMode {
 
     @Override
     public void loop() {
-        robot.indexer.setSpindexerPower(-gamepad1.left_stick_y);
+        robot.update();
+
+        robot.drivetrain.teleopMovement(gamepad1.right_stick_y, gamepad1.right_stick_x, gamepad1.left_stick_x, gamepad1.left_bumper);
+        robot.indexer.setIndexerPower(-gamepad1.left_stick_y);
         telemetry.addData("Spindexer Power", -gamepad1.left_stick_y);
 
-        robot.indexer.setIndexerToShooterPower(-gamepad1.right_stick_y);
-        telemetry.addData("indexer to shooter power", -gamepad1.right_stick_y);
+        robot.indexer.setIndexerToShooterPower(-gamepad2.right_stick_x);
+        telemetry.addData("indexer to shooter power", -gamepad2.right_stick_x);
 
         telemetry.addData("indexer r", robot.indexer.getColor().red);
         telemetry.addData("indexer g", robot.indexer.getColor().green);
         telemetry.addData("indexer b", robot.indexer.getColor().blue);
         telemetry.addData("indexer a", robot.indexer.getColor().alpha);
 
-        robot.intake.setintakePower(gamepad1.right_trigger - gamepad1.left_trigger);
+        robot.intake.setIntakePower(gamepad1.right_trigger - gamepad1.left_trigger);
         telemetry.addData("intake Power", gamepad1.right_trigger - gamepad1.left_trigger);
 
         robot.shooter.setPower(-gamepad2.left_stick_y);

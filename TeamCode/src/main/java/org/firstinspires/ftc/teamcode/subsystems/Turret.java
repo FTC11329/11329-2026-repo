@@ -6,8 +6,11 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+import org.firstinspires.ftc.teamcode.pedroPathing.control.PIDFCoefficients;
+import org.firstinspires.ftc.teamcode.pedroPathing.control.PIDFController;
 
 public class Turret {
     // declaring motor variables
@@ -16,9 +19,12 @@ public class Turret {
 
     double hoodPos = 0;
 
-    private DcMotor encoder;
+    private final DcMotor encoder;
+    // Constants — CHANGE FOR YOUR ROBOT
+    private static final int TICKS_PER_REV = 8192;   // or your encoder type
+    private static final double GEAR_RATIO = 2.0;    // gear reduction to output
 
-    double position;
+     public PIDFController turretPID;
 
     public Turret(HardwareMap hardwareMap){
 
@@ -28,13 +34,10 @@ public class Turret {
         turretServo2 = hardwareMap.get(CRServo.class, "turret2");
         turretServo2.setDirection(CRServo.Direction.FORWARD);
 
-//        encoder = hardwareMap.get(DcMotor.class, "encoder");
-//
-//        encoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        encoder.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-    }
-    public void turnTo(double degrees) {
-
+        encoder = hardwareMap.get(DcMotor.class, "encoder");
+        encoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        encoder.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        turretPID = new PIDFController(new PIDFCoefficients(0.5, 0.5, 0.5, 0.0));
     }
 
     public void setPower(double set) {
@@ -42,4 +45,63 @@ public class Turret {
         turretServo2.setPower(set);
     }
 
+    // Converts raw encoder ticks to turret angle
+    private double ticksToDegrees(int ticks) {
+        double motorRevs = ticks / (double) TICKS_PER_REV;
+        double turretRevs = motorRevs / GEAR_RATIO;
+        return turretRevs * 360.0;
+    }
+
+
+    // Converts degrees to power
+    private double degreesToPower(double deg) {
+        double turretRevs = deg / 360.0;
+        return turretRevs * GEAR_RATIO;
+    }
+
+    // Sets the target turret angle
+    public void turnTo(double degrees) {
+        turretPID.reset();
+        turretPID.setTargetPosition(degrees);
+    }
+
+    public void updateTurret(double degrees) {
+
+        turretPID.setTargetPosition(degrees);
+        // read angle
+        double currentDeg = ticksToDegrees(encoder.getCurrentPosition());
+
+        // get PIDF output
+        turretPID.updatePosition(currentDeg);
+        double pidOut = turretPID.run();
+
+        pidOut = clamp(degreesToPower(pidOut), -1.0, 1.0);
+
+        setPower(pidOut);
+    }
+
+    public void updateTurret() {
+        // read angle
+        double currentDeg = ticksToDegrees(encoder.getCurrentPosition());
+
+        // get PIDF output
+        turretPID.updatePosition(currentDeg);
+        double pidOut = turretPID.run();
+
+        pidOut = clamp(degreesToPower(pidOut), -1.0, 1.0);
+
+        setPower(pidOut);
+    }
+
+    private double clamp(double v, double min, double max) {
+        return Math.max(min, Math.min(max, v));
+    }
+
+    public double getAngle() {
+        return ticksToDegrees(encoder.getCurrentPosition());
+    }
+
+    public double getTarget() {
+        return turretPID.getTargetPosition();
+    }
 }

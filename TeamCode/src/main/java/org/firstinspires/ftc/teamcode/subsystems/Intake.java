@@ -1,13 +1,11 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import com.qualcomm.hardware.rev.RevColorSensorV3;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.NormalizedRGBA;
-import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.teamcode.util.BallColor;
-import org.firstinspires.ftc.teamcode.util.ColorFunctions;
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
 public class Intake {
     // declaring motor variables
@@ -15,10 +13,14 @@ public class Intake {
     DcMotorEx intakeMotor;
 
     public Intake(HardwareMap hardwaremap) {
-        intakeMotor = hardwaremap.get(DcMotorEx.class, "wheel1");
+        intakeMotor = hardwaremap.get(DcMotorEx.class, "intake");
+        intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        intakeMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        intakeMotor.setCurrentAlert(4, CurrentUnit.AMPS);
     }
 
-    public void setintakePower(double set) {
+    public void setIntakePower(double set) {
         intakeMotor.setPower(set);
     }
 

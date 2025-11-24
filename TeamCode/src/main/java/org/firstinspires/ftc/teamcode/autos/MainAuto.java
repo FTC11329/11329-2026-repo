@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.autos;
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -26,14 +25,16 @@ public class MainAuto {
     private PathChain collect1, collect2, collect3;
     private PathChain grabPickup1, scorePickup1, grabPickup2, scorePickup2, grabPickup3, scorePickup3;
 
-    private final Pose startPose = new Pose(28.5, 128, Math.toRadians(180)); // Start Pose of our robot.
-    private final Pose scorePose = new Pose(60, 85, Math.toRadians(135));
-    private final Pose collectI1 = new Pose(60, 85, Math.toRadians(135));
-    private final Pose collectF1 = new Pose(60, 85, Math.toRadians(135));
-    private final Pose collectI2 = new Pose(60, 85, Math.toRadians(135));
-    private final Pose collectF2 = new Pose(60, 85, Math.toRadians(135));
-    private final Pose collectI3 = new Pose(60, 85, Math.toRadians(135));
-    private final Pose collectF3 = new Pose(60, 85, Math.toRadians(135));
+    private final Pose startPose = new Pose(120, 128, Math.toRadians(-144)); // Start Pose of our robot.
+    private final Pose scorePose = new Pose(100, 100, Math.toRadians(50));
+    //Initial
+    private final Pose collectI1 = new Pose(100, 85, Math.toRadians(0));
+    //Final
+    private final Pose collectF1 = new Pose(130, 85, Math.toRadians(0));
+    private final Pose collectI2 = new Pose(100, 60, Math.toRadians(0));
+    private final Pose collectF2 = new Pose(130, 60, Math.toRadians(0));
+    private final Pose collectI3 = new Pose(100, 35, Math.toRadians(0));
+    private final Pose collectF3 = new Pose(130, 35, Math.toRadians(0));
 
     RobotSide robotSide;
     Telemetry telemetry;
@@ -85,11 +86,11 @@ public class MainAuto {
                 break;
             case collectArtifacts1:
                 if(follower.getChainIndex() > 0) {
-                    robot.intake.setintakePower(1);
+                    robot.startIntake();
                 }
                 if (!follower.isBusy()){
                     robot.QBall(new BallColor[] {BallColor.Purple, BallColor.Green, BallColor.Green});
-                    robot.intake.setintakePower(0);
+                    robot.stopIntake();
                     follower.followPath(shoot1);
                     setPathState(AutoPhase.scoreArtifacts1);
                 }
@@ -104,11 +105,12 @@ public class MainAuto {
                 break;
             case collectArtifacts2:
                 if(follower.getChainIndex() > 0) {
-                    robot.intake.setintakePower(1);
+                    robot.startIntake();
                 }
                 if (!follower.isBusy()){
                     robot.QBall(new BallColor[] {BallColor.Green, BallColor.Purple, BallColor.Green});
-                    robot.intake.setintakePower(0);
+                    robot.stopIntake();
+                    robot.stopIntake();
                     follower.followPath(shoot2);
                     setPathState(AutoPhase.scoreArtifacts2);
                 }
@@ -124,11 +126,11 @@ public class MainAuto {
             case collectArtifacts3:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the pickup1Pose's position */
                 if(follower.getChainIndex() > 0) {
-                    robot.intake.setintakePower(1);
+                    robot.startIntake();
                 }
                 if (!follower.isBusy()){
                     robot.QBall(new BallColor[] {BallColor.Green, BallColor.Green, BallColor.Purple});
-                    robot.intake.setintakePower(0);
+                    robot.stopIntake();
                     follower.followPath(shoot3);
                     setPathState(AutoPhase.scoreArtifacts3);
                 }
