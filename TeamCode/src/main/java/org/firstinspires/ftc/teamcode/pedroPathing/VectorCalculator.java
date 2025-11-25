@@ -10,7 +10,6 @@ import org.firstinspires.ftc.teamcode.pedroPathing.paths.PathChain;
 import org.firstinspires.ftc.teamcode.pedroPathing.math.Vector;
 import org.firstinspires.ftc.teamcode.pedroPathing.control.FilteredPIDFController;
 import org.firstinspires.ftc.teamcode.pedroPathing.control.PIDFController;
-import org.firstinspires.ftc.teamcode.util.PathSpline;
 
 import java.util.ArrayList;
 
@@ -24,7 +23,6 @@ public class VectorCalculator {
 
     private Path currentPath;
     private PathChain currentPathChain;
-    private PathSpline pathSpline;
     private Pose currentPose, closestPose;
     private double headingError, driveError;
     private double headingGoal;
@@ -92,7 +90,7 @@ public class VectorCalculator {
         mass = constants.mass;
     }
 
-    public void update(boolean useDrive, boolean useHeading, boolean useTranslational, boolean useCentripetal, boolean teleopDrive, int chainIndex, double maxPowerScaling, boolean followingPathChain, double centripetalScaling, Pose currentPose, Pose closestPose, Vector velocity, Path currentPath, PathChain currentPathChain, PathSpline pathSpline, double driveError, Vector translationalError, double headingError, double headingGoal) {
+    public void update(boolean useDrive, boolean useHeading, boolean useTranslational, boolean useCentripetal, boolean teleopDrive, int chainIndex, double maxPowerScaling, boolean followingPathChain, double centripetalScaling, Pose currentPose, Pose closestPose, Vector velocity, Path currentPath, PathChain currentPathChain, double driveError, Vector translationalError, double headingError, double headingGoal) {
         updateConstants();
 
         this.useDrive = useDrive;
@@ -109,7 +107,6 @@ public class VectorCalculator {
         this.velocity = velocity;
         this.currentPath = currentPath;
         this.currentPathChain = currentPathChain;
-        this.pathSpline = pathSpline;
         this.driveError = driveError;
         this.translationalError = translationalError;
         this.headingError = headingError;

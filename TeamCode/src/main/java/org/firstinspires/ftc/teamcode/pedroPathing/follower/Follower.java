@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.pedroPathing.follower;
 
-import com.qualcomm.robotcore.util.ElapsedTime;
-
 import org.firstinspires.ftc.teamcode.pedroPathing.ErrorCalculator;
 import org.firstinspires.ftc.teamcode.pedroPathing.VectorCalculator;
 import org.firstinspires.ftc.teamcode.pedroPathing.control.FilteredPIDFCoefficients;
@@ -23,7 +21,6 @@ import org.firstinspires.ftc.teamcode.pedroPathing.paths.callbacks.PathCallback;
 import org.firstinspires.ftc.teamcode.pedroPathing.paths.PathChain;
 import org.firstinspires.ftc.teamcode.pedroPathing.math.Vector;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
-import org.firstinspires.ftc.teamcode.util.PathSpline;
 
 /**
  * This is the Follower class. It handles the actual following of the paths and all the on-the-fly
@@ -48,12 +45,9 @@ public class Follower {
     private PathPoint previousClosestPose = new PathPoint();
     private Path currentPath = null;
     private PathChain currentPathChain = null;
-    private PathSpline currentSpline;
-    private ElapsedTime pathTimer;
 
     private int BEZIER_CURVE_SEARCH_LIMIT;
     private int chainIndex;
-    private  boolean splineFollow;
     private boolean followingPathChain, holdingPosition, isBusy, isTurning, reachedParametricPathEnd, holdPositionAtEnd, manualDrive;
     private boolean automaticHoldEnd, useHoldScaling = true;
     private double globalMaxPower = 1, centripetalScaling;
@@ -228,7 +222,6 @@ public class Follower {
         holdPositionAtEnd = holdEnd;
         isBusy = true;
         followingPathChain = false;
-        currentSpline = null;
         setPath(path);
         previousClosestPose = closestPose;
         closestPose = currentPath.updateClosestPose(poseTracker.getPose(), BEZIER_CURVE_SEARCH_LIMIT);
@@ -279,7 +272,6 @@ public class Follower {
         followingPathChain = true;
         chainIndex = 0;
         currentPathChain = pathChain;
-        currentSpline = null;
         setPath(pathChain.getPath(chainIndex));
         previousClosestPose = closestPose;
         closestPose = currentPath.updateClosestPose(poseTracker.getPose(), BEZIER_CURVE_SEARCH_LIMIT);
@@ -290,24 +282,6 @@ public class Follower {
                 callback.initialize();
             }
         }
-    }
-
-    /**
-     * This follows a Path.
-     * This also makes the Follower hold the last Point on the Path.
-     *
-     * @param path the Path to follow.
-     */
-    public void followSpline(PathSpline path) {
-        drivetrain.setMaxPowerScaling(globalMaxPower);
-        breakFollowing();
-        followingPathChain = false;
-        isBusy = false;
-        splineFollow = true;
-        currentSpline = path;
-        closestPose = new PathPoint(0, currentSpline.evaluate(0), currentSpline.velocity(0));
-        pathTimer = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
-        pathTimer.reset();
     }
 
     /**
@@ -421,7 +395,7 @@ public class Follower {
 
     /** Calls an update to the VectorCalculator, which updates the robot's current vectors to correct. */
     public void updateVectors() {
-        vectorCalculator.update(useDrive, useHeading, useTranslational, useCentripetal, manualDrive, chainIndex, drivetrain.getMaxPowerScaling(), followingPathChain, centripetalScaling, currentPose, closestPose.getPose(), poseTracker.getVelocity(), currentPath, currentPathChain, currentSpline, useDrive && !holdingPosition ? getDriveError() : -1, getTranslationalError(), getHeadingError(), getClosestPointHeadingGoal());
+        vectorCalculator.update(useDrive, useHeading, useTranslational, useCentripetal, manualDrive, chainIndex, drivetrain.getMaxPowerScaling(), followingPathChain, centripetalScaling, currentPose, closestPose.getPose(), poseTracker.getVelocity(), currentPath, currentPathChain, useDrive && !holdingPosition ? getDriveError() : -1, getTranslationalError(), getHeadingError(), getClosestPointHeadingGoal());
     }
 
     public void updateErrorAndVectors() {updateErrors(); updateVectors();}
@@ -446,7 +420,7 @@ public class Follower {
             return;
         }
 
-        if (currentPath == null && currentSpline == null) {
+        if (currentPath == null) {
             return;
         }
 
@@ -505,13 +479,6 @@ public class Follower {
         if (!reachedParametricPathEnd) {
             reachedParametricPathEnd = true;
             reachedParametricPathEndTime = System.currentTimeMillis();
-        }
-
-        if (splineFollow){
-            previousClosestPose = closestPose;
-            closestPose = new PathPoint(pathTimer.time(), currentSpline.evaluate(pathTimer.time()), currentSpline.velocity(pathTimer.time()));
-
-            drivetrain.runDrive(getCorrectiveVector(), getHeadingVector(), currentSpline.velocity(pathTimer.time()), poseTracker.getPose().getHeading());
         }
 
         updateErrorAndVectors();

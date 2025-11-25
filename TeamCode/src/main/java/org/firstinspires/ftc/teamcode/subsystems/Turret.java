@@ -19,7 +19,7 @@ public class Turret {
 
     double hoodPos = 0;
 
-    private final DcMotor encoder;
+    public final DcMotorEx encoder;
     // Constants — CHANGE FOR YOUR ROBOT
     private static final int TICKS_PER_REV = 8192;   // or your encoder type
     private static final double GEAR_RATIO = 2.0;    // gear reduction to output
@@ -34,7 +34,7 @@ public class Turret {
         turretServo2 = hardwareMap.get(CRServo.class, "turret2");
         turretServo2.setDirection(CRServo.Direction.FORWARD);
 
-        encoder = hardwareMap.get(DcMotor.class, "encoder");
+        encoder = hardwareMap.get(DcMotorEx.class, "encoder");
         encoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         encoder.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         turretPID = new PIDFController(new PIDFCoefficients(0.5, 0.5, 0.5, 0.0));

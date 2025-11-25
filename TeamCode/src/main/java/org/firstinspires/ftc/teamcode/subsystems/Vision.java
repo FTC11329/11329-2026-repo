@@ -37,7 +37,7 @@ public class Vision {
 
     public Vision(HardwareMap hardwareMap, RobotSide robotSide){
         this.robotSide = robotSide;
-        limelight = hardwareMap.get(Limelight3A .class, "limelight");
+        limelight = hardwareMap.get(Limelight3A.class, "limelight");
         limelight.start();
     }
 

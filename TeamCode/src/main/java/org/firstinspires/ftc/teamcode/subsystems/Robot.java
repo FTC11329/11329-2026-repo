@@ -47,6 +47,7 @@ public class Robot {
         vision = new Vision(hardwareMap, robotSide);
         indexer = new Indexer(hardwareMap);
         shooter = new Shooter(hardwareMap);
+        turret = new Turret(hardwareMap);
         follower = org.firstinspires.ftc.teamcode.pedroPathing.Constants.createFollower(hardwareMap);
         drivetrain = new Drivetrain(hardwareMap);
         time = new ElapsedTime();

@@ -50,6 +50,7 @@ public class ShooterTrial extends OpMode {
         telemetry.addData("deg", shooter.getHoodPos());
         deltaTime = time.milliseconds() - lastTime;
         telemetry.addData("delta Time", deltaTime);
+        telemetry.addData("Encoder RPM", shooter.getRPM());
         lastTime = time.milliseconds();
     }
 }
