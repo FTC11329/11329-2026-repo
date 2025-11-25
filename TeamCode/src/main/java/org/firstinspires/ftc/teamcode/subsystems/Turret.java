@@ -22,7 +22,7 @@ public class Turret {
     public final DcMotorEx encoder;
     // Constants — CHANGE FOR YOUR ROBOT
     private static final int TICKS_PER_REV = 4096;   // or your encoder type
-    private static final double GEAR_RATIO = 2.0;    // gear reduction to output
+    private static final double GEAR_RATIO = 6.25;    // gear reduction to output
 
      public PIDFController turretPID;
 
@@ -37,7 +37,7 @@ public class Turret {
         encoder = hardwareMap.get(DcMotorEx.class, "encoder");
         encoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         encoder.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        turretPID = new PIDFController(new PIDFCoefficients(0.5, 0.5, 0.5, 0.0));
+        turretPID = new PIDFController(new PIDFCoefficients(0.01, 0.0001, 0.0002, 0.0));
     }
 
     public void setPower(double set) {
@@ -60,9 +60,8 @@ public class Turret {
     }
 
     // Sets the target turret angle
-    public void turnTo(double degrees) {
+    public void resetTurret() {
         turretPID.reset();
-        turretPID.setTargetPosition(degrees);
     }
 
     public void updateTurret(double degrees) {
@@ -75,20 +74,7 @@ public class Turret {
         turretPID.updatePosition(currentDeg);
         double pidOut = turretPID.run();
 
-        pidOut = clamp(degreesToPower(pidOut), -1.0, 1.0);
-
-        setPower(pidOut);
-    }
-
-    public void updateTurret() {
-        // read angle
-        double currentDeg = ticksToDegrees(encoder.getCurrentPosition());
-
-        // get PIDF output
-        turretPID.updatePosition(currentDeg);
-        double pidOut = turretPID.run();
-
-        pidOut = clamp(degreesToPower(pidOut), -1.0, 1.0);
+        pidOut = clamp(pidOut, -1.0, 1.0);
 
         setPower(pidOut);
     }

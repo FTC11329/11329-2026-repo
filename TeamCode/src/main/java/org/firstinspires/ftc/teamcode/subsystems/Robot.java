@@ -64,7 +64,7 @@ public class Robot {
                 shootingParams = vision.getRPM(getCurrentPose(), 3500, Vision.InitialCondition.RPM, new Pose(follower.getVelocity().getXComponent(), follower.getVelocity().getYComponent()));
                 if (indexer.spinUntil(nextArtifact())) {
                     oneBallCase = 1;
-                    shooter.spinUp(shootingParams[2]);
+                    shooter.resetShooter();
                     turret.turnTo(shootingParams[0]);
                 }
                 return false;
@@ -92,16 +92,14 @@ public class Robot {
         return false;
     }
 
-    //Shoots one ball of BallColor and returns true when done
+    //Shoots one ball
     public void passiveShoot(double RPM, boolean intake) {
         indexer.setIndexerPower(Constants.Indexer.spindexPower);
         indexer.startTransfer();
-        shooter.spinUp(RPM);
+        shooter.updateShooter(RPM);
         if (intake){
             startIntake();
         }
-
-        shooter.updateShooter();
     }
 
     public void stopAllSubsystems(){

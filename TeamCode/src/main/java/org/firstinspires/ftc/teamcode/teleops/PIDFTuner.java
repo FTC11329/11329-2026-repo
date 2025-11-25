@@ -63,11 +63,8 @@ public class PIDFTuner extends OpMode {
             robot.shooter.shooterPID.setCoefficients(new PIDFCoefficients(p, i, d, f));
         }
 
-        if (gamepad1.leftBumperWasPressed()){
-            robot.shooter.spinUp(3500);
-        }
         if (gamepad1.left_bumper){
-            robot.shooter.updateShooter();
+            robot.shooter.updateShooter(3500);
         }
         if (gamepad1.leftBumperWasReleased()){
             robot.shooter.setPower(0);

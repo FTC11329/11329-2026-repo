@@ -16,13 +16,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class SplineCurve {
-/*
+public class SplineCurve implements Curve {
     private final List<Pose> controlPoints;
     private final List<Pose> controlVelocities;
     private final List<Double> times;
-    private ElapsedTime timer;
+    private final ElapsedTime timer;
 
+    private double totalTime;
     private PathConstraints pathConstraints;
 
     public PathSpline spline;
@@ -34,7 +34,7 @@ public class SplineCurve {
 
     private double[][] panelsDrawingPoints;
 
-    private NumericBijectiveMap completionMap = new NumericBijectiveMap();
+    private final NumericBijectiveMap completionMap = new NumericBijectiveMap();
     private double length = 0;
 
     public SplineCurve(List<Pose> points, List<Pose> velocities, List<Double> times, PathConstraints constraints) {
@@ -46,6 +46,7 @@ public class SplineCurve {
         this.times = new ArrayList<>(times);
         this.pathConstraints = constraints;
         this.timer = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
+        totalTime = times.get(times.size() - 1);
         initialize();
     }
 
@@ -59,7 +60,7 @@ public class SplineCurve {
 
         int n = controlPoints.size();
         double[] t = new double[n];
-        for (int i = 0; i < n; i++) t[i] = times.get(i);
+        for (int i = 0; i < n; i++) t[i] = times.get(i) / totalTime;
 
         double[] xs = new double[n];
         double[] ys = new double[n];
@@ -103,31 +104,22 @@ public class SplineCurve {
         return panelsDrawingPoints;
     }
 
-    @Override
     public Pose getPose(double t) {
-        t = MathFunctions.clamp(t, 0, 1);
         return spline.evaluate(t);
     }
 
-    @Override
     public Vector getDerivative(double t) {
-        t = MathFunctions.clamp(t, 0, 1);
         return spline.velocity(t);
     }
 
-    @Override
     public Vector getSecondDerivative(double t) {
-        t = MathFunctions.clamp(t, 0, 1);
         return spline.acceleration(t);
     }
 
-    @Override
     public double getCurvature(double t) {
-        t = MathFunctions.clamp(t, 0, 1);
         return spline.curvature(t);
     }
 
-    @Override
     public Vector getNormalVector(double t) {
         double a = getDerivative(t).getTheta();
         double b = getDerivative(t + 0.0001).getTheta();
@@ -150,13 +142,12 @@ public class SplineCurve {
         return total;
     }
 
-    @Override
     public double length() {
         return length;
     }
 
     public ArrayList<Pose> getControlPoints() {
-        return controlPoints;
+        return new ArrayList<>(controlPoints);
     }
 
     public Pose getFirstControlPoint() { return controlPoints.get(0); }
@@ -164,7 +155,6 @@ public class SplineCurve {
     public Pose getSecondToLastControlPoint() { return controlPoints.get(controlPoints.size()-2); }
     public Pose getLastControlPoint() { return controlPoints.get(controlPoints.size()-1); }
 
-    @Override
     public PathConstraints getPathConstraints() {
         return pathConstraints;
     }
@@ -178,42 +168,17 @@ public class SplineCurve {
     public String pathType() { return "spline"; }
 
     public SplineCurve getReversed() {
-        ArrayList<Pose> reversed = new ArrayList<>(controlPoints);
-        Collections.reverse(reversed);
-        return new SplineCurve(reversed, pathConstraints);
+        ArrayList<Pose> reversedControl = new ArrayList<>(controlPoints);
+        ArrayList<Pose> reversedVelocities = new ArrayList<>(controlVelocities);
+        ArrayList<Double> reversedTimes = new ArrayList<>(times);
+        Collections.reverse(reversedControl);
+        Collections.reverse(reversedVelocities);
+        Collections.reverse(reversedTimes);
+        return new SplineCurve(reversedControl, reversedVelocities, reversedTimes, pathConstraints);
     }
 
-    // Find closest t using Newton iteration
     public double getClosestPoint(Pose pose, int searchLimit, double initialGuess) {
-        double best = 0;
-        double bestDist = 1e9;
-
-        for (double t = 0; t <= 1.0; t += 0.1) {
-            double dist = getPose(t).distSquared(pose);
-            if (dist < bestDist) {
-                bestDist = dist;
-                best = t;
-            }
-        }
-
-        double t = best;
-
-        for (int i = 0; i < searchLimit; i++) {
-            Vector d = getDerivative(t);
-            Vector dd = getSecondDerivative(t);
-            Pose p = getPose(t);
-
-            double fx = (p.getX() - pose.getX()) * d.getX() +
-                    (p.getY() - pose.getY()) * d.getY();
-
-            double fpx = d.getX()*d.getX() + d.getY()*d.getY() +
-                    (p.getX() - pose.getX()) * dd.getX() +
-                    (p.getY() - pose.getY()) * dd.getY();
-
-            t = MathFunctions.clamp(t - fx / (fpx + 1e-9), 0, 1);
-        }
-
-        return t;
+        return timer.time() / totalTime;
     }
 
     public double getClosestPoint(Pose pose, double guess) {
@@ -230,5 +195,4 @@ public class SplineCurve {
     }
 
     public boolean isInitialized() { return initialized; }
- */
 }

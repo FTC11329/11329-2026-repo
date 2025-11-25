@@ -24,13 +24,15 @@ public class Shooter {
 
     double targetVelocity;
 
+    int TICKS_PER_REVOLUTION = 28;
+
     double hoodPos = 0;
     public PIDFController shooterPID;
 
     public Shooter(HardwareMap hardwareMap){
         flywheel = hardwareMap.get(DcMotorEx.class, "flywheel");
 
-        flywheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        flywheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         flywheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         flywheel.setDirection(DcMotorSimple.Direction.REVERSE);
         flywheel.setCurrentAlert(4, CurrentUnit.AMPS);
@@ -43,15 +45,19 @@ public class Shooter {
         hoodServo2.setDirection(Servo.Direction.REVERSE);
         hoodServo2.setPosition(0);
 
-        shooterPID = new PIDFController(new PIDFCoefficients(0.35, 0.2, 0.8, 0.5)); //change this!
+        shooterPID = new PIDFController(new PIDFCoefficients(0.0006, 0.0002, 0.00005, 0.1)); //change this!
+        shooterPID.reset();
     }
 
     public void setPower (double power){
         flywheel.setPower(power);
     }
-    public double getRPM (){ return flywheel.getVelocity() * 60 / flywheel.getMotorType().getTicksPerRev(); }
+    public double getRPM (){ return flywheel.getVelocity() * 60 / TICKS_PER_REVOLUTION; }
     public double rpmToVelocity(double RPM){
-        return RPM * flywheel.getMotorType().getTicksPerRev() / 60;
+        return RPM * TICKS_PER_REVOLUTION / 60;
+    }
+    public double getVelocity(){
+        return flywheel.getVelocity();
     }
 
     public void setHood(double angle){
@@ -71,23 +77,21 @@ public class Shooter {
         return (hoodPos * 80) + 5;
     }
 
-    public void spinUp(double targetRPM){
+    public void resetShooter(){
         shooterPID.reset();
-        shooterPID.setTargetPosition(rpmToVelocity(targetRPM));
-        updateShooter();
     }
 
     public boolean updateShooter(double targetRPM){
-        shooterPID.setTargetPosition(rpmToVelocity(targetRPM));
-        shooterPID.updatePosition(flywheel.getVelocity());
-        setPower(clamp(shooterPID.run(), 0, 1));
+        double targetVel = rpmToVelocity(targetRPM);
 
-        return Math.abs(shooterPID.getError()) <= 20;
-    }
+        shooterPID.setTargetPosition(targetVel);
+        shooterPID.updatePosition(flywheel.getVelocity());  // ticks per second
 
-    public void updateShooter(){
-        shooterPID.updatePosition(getRPM());
-        setPower(shooterPID.run() / maxRPM);
+        double output = shooterPID.run();  // PID output (should be 0–1)
+
+        setPower(clamp(output, 0, 1));
+
+        return Math.abs(shooterPID.getError()) <= rpmToVelocity(60);
     }
 
     private double clamp(double v, double min, double max) {

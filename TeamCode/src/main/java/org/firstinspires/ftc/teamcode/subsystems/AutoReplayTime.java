@@ -8,7 +8,9 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
+import org.firstinspires.ftc.teamcode.pedroPathing.geometry.SplineCurve;
 import org.firstinspires.ftc.teamcode.pedroPathing.math.Vector;
+import org.firstinspires.ftc.teamcode.pedroPathing.paths.Path;
 import org.firstinspires.ftc.teamcode.pedroPathing.paths.PathChain;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedroPathing.paths.PathChain;
@@ -56,7 +58,7 @@ public class AutoReplayTime {
 
     GamepadStateEntry lastGamePad1;
     GamepadStateEntry lastGamePad2;
-    PathSpline splinePath;
+    SplineCurve splineCurve;
     int logPointer = 0;
 
     public AutoReplayTime(Follower follower, Telemetry telemetry, Gamepad gamepad1, Gamepad gamepad2) {
@@ -190,7 +192,6 @@ public class AutoReplayTime {
             lastGamePad2 = new GamepadStateEntry(gamepad2);
         }
         if (recording.isOn) {
-            telemetry.addData("Error Mag: ", MathFunctions.distance(lastPose, follower.getPose()));
             if (recording.time.seconds() - lastTime > deltaTime) {
                 currentReplayStates.timeListPose.add(recording.time.seconds());
                 currentReplayStates.poseList.add(new PoseStateEntry(follower.getPose()));
@@ -216,7 +217,7 @@ public class AutoReplayTime {
                 loadPoses();
                 createPathSpline();
                 currentGamepadIndex = 0;
-                follower.followSpline(splinePath);
+                follower.followPath(new Path(splineCurve));
             }
             if (replay.isOn){
                 double currentTime = replay.time.seconds();
@@ -239,36 +240,27 @@ public class AutoReplayTime {
         int n = currentReplayStates.size;
         double[] t = new double[n];
         double[] x = new double[n];
-        double[] vx = new double[n];
         double[] y = new double[n];
-        double[] vy = new double[n];
         double[] theta = new double[n];
-        double[] dtheta = new double[n];
+
+        List<Pose> points = new ArrayList<>();
+        List<Pose> velocities = new ArrayList<>();
+        List<Double> times = new ArrayList<>();
 
         for (int i = 0; i < n; i += 1){
+            points.add(new Pose(currentReplayStates.poseList.get(i).x, currentReplayStates.poseList.get(i).y, currentReplayStates.poseList.get(i).heading));
+            times.add(currentReplayStates.timeListPose.get(i));
             t[i] = currentReplayStates.timeListPose.get(i);
             x[i] = currentReplayStates.poseList.get(i).x;
-            vx[i] = currentReplayStates.velocityList.get(i).x;
             y[i] = currentReplayStates.poseList.get(i).y;
-            vy[i] = currentReplayStates.velocityList.get(i).y;
             theta[i] = currentReplayStates.poseList.get(i).heading;
         }
 
         for (int i = 1; i < n; i += 1){
             double dt = t[i - 1] - t[i];
-            dtheta[i] = (theta[i - 1] - theta[i]) / dt;
-            vx[i] = (x[i - 1] - x[i]) / dt;
-            vy[i] = (y[i - 1] - y[i]) / dt;
+            velocities.add(new Pose((x[i - 1] - x[i]) / dt, (y[i - 1] - y[i]) / dt, (theta[i - 1] - theta[i]) / dt));
         }
-        dtheta[0] = 0;
-        vx[0] = 0;
-        vy[0] = 0;
-
-        splinePath = new PathSpline();
-
-        splinePath.xSpline = new CubicSpline1D(t, x, vx);
-        splinePath.ySpline = new CubicSpline1D(t, y, vy);
-        splinePath.headingSpline = new CubicSpline1D(t, theta, dtheta);
+        splineCurve = new SplineCurve(points, velocities, times);
     }
 
     public boolean IsReplayOn(){

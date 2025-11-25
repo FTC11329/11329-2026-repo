@@ -63,14 +63,15 @@ public class PIDFTunerTurret extends OpMode {
             robot.turret.turretPID.setCoefficients(new PIDFCoefficients(p, i, d, f));
         }
 
-        if (gamepad1.leftBumperWasPressed()){
-            robot.turret.turnTo(30);
+        if (gamepad1.leftBumperWasPressed() || gamepad1.leftBumperWasReleased()){
+            robot.turret.resetTurret();
         }
-        if (gamepad1.leftBumperWasReleased()){
-            robot.turret.turnTo(80);
+        if (gamepad1.left_bumper){
+            robot.turret.updateTurret(30);
+        }else {
+            robot.turret.updateTurret(80);
         }
 
-        robot.turret.updateTurret();
 
         robot.drivetrain.teleopMovement(gamepad1.right_stick_y, gamepad1.right_stick_x, gamepad1.left_stick_x, gamepad1.left_bumper);
 
