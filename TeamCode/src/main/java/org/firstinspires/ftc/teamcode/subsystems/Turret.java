@@ -60,6 +60,9 @@ public class Turret {
     }
 
     // Sets the target turret angle
+    public void turnTo(double degrees) {
+        //Todo: don't delete this until you have a replacement to place in the "robot" subsystem
+    }
     public void resetTurret() {
         turretPID.reset();
     }
