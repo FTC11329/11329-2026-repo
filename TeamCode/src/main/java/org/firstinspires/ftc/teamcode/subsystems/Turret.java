@@ -21,7 +21,7 @@ public class Turret {
 
     public final DcMotorEx encoder;
     // Constants — CHANGE FOR YOUR ROBOT
-    private static final int TICKS_PER_REV = 8192;   // or your encoder type
+    private static final int TICKS_PER_REV = 4096;   // or your encoder type
     private static final double GEAR_RATIO = 2.0;    // gear reduction to output
 
      public PIDFController turretPID;
