@@ -47,16 +47,16 @@ public class PIDFTuner extends OpMode {
 
 
         if (timerP.isPressed){
-            p = timerP.time.seconds()/2;
+            p = timerP.time.seconds()/100;
         }
         if (timerI.isPressed){
-            i = timerI.time.seconds()/2;
+            i = timerI.time.seconds()/100;
         }
         if (timerD.isPressed){
-            d = timerD.time.seconds()/2;
+            d = timerD.time.seconds()/100;
         }
         if (timerF.isPressed){
-            f = timerF.time.seconds()/2;
+            f = timerF.time.seconds()/100;
         }
 
         if (timerP.endPress || timerI.endPress || timerD.endPress || timerF.endPress){
