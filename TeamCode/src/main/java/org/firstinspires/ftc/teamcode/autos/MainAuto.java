@@ -46,6 +46,18 @@ public class MainAuto {
         this.hardwareMap = hardwareMap;
     }
 
+    /** This method is called once at the init of the OpMode. **/
+    public void init() {
+        pathTimer = new Timer();
+        opmodeTimer = new Timer();
+        opmodeTimer.resetTimer();
+        follower = Constants.createFollower(hardwareMap);
+        buildPaths();
+        follower.setStartingPose(startPose);
+        robot = new Robot(telemetry, hardwareMap, RobotSide.Blue);
+
+    }
+
     /** This method is called once at the start of the OpMode.
      * It runs all the setup actions, including building paths and starting the path system **/
     public void start() {
@@ -152,22 +164,12 @@ public class MainAuto {
         pathTimer.resetTimer();
     }
 
-    /** This method is called once at the init of the OpMode. **/
-    public void init() {
-        pathTimer = new Timer();
-        opmodeTimer = new Timer();
-        opmodeTimer.resetTimer();
-        follower = Constants.createFollower(hardwareMap);
-        buildPaths();
-        follower.setStartingPose(startPose);
-        robot = new Robot(telemetry, hardwareMap, RobotSide.Blue);
 
-    }
     /** This is the main loop of the OpMode, it will run repeatedly after clicking "Play". **/
     public void loop() {
 
         // These loop the movements of the robot, these must be called continuously in order to work
-        follower.update();
+        robot.update();
         autonomousPathUpdate();
 
         // Feedback to Driver Hub for debugging
