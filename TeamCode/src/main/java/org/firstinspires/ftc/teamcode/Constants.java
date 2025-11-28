@@ -13,12 +13,14 @@ public class Constants {
     public static boolean PlaceHOLDERboooLEAN = false;
 
     public static class Indexer {
-        public static double spindexPower = 0;
+        public static double spindexPower = 0.9;
+        public static double transferPower = 0.9;
         public static double primingServoUp = 0;
         public static double primingServoDown = 0;
     }
     public static class Intake {
-        public static double intakePower = 0;
+        public static double intakePower = 1;
+        public static double spitPower = -0.75;
     }
 
     public static class Vision {
@@ -35,8 +37,13 @@ public class Constants {
 
         public static double[] green = {0.0142, 0.0564, 0.0452, 0.9899};
         public static double[] purple = {0.0149, 0.0177, 0.0371, 0.9726};
+        public static double[] greenHole = {0.0142, 0.0564, 0.0452, 0.9899};
+        public static double[] purpleHole = {0.0149, 0.0177, 0.0371, 0.9726};
         public static double[] none = {0, 0, 0, 0};
         public static double[] none2 = {0, 0, 0, 0};
+
+        public static double fronDst = 0.1;
+        public static double backDst = 0.9;
     }
 
     public static class ShooterParamaters {
