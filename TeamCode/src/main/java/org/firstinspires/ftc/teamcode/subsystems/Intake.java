@@ -11,6 +11,7 @@ public class Intake {
     // declaring motor variables
 
     DcMotorEx intakeMotor;
+    double lastPower = 0;
 
     public Intake(HardwareMap hardwaremap) {
         intakeMotor = hardwaremap.get(DcMotorEx.class, "intake");
@@ -21,7 +22,10 @@ public class Intake {
     }
 
     public void setIntakePower(double set) {
-        intakeMotor.setPower(set);
+        if (lastPower != set) {
+            lastPower = set;
+            intakeMotor.setPower(set);
+        }
     }
 
 }

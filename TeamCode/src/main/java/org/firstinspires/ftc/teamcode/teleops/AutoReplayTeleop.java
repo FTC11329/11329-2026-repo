@@ -1,23 +1,20 @@
 package org.firstinspires.ftc.teamcode.teleops;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.subsystems.AutoReplayTime;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
-import org.firstinspires.ftc.teamcode.util.PressHold;
+import org.firstinspires.ftc.teamcode.util.FancyButton;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
 
 public class AutoReplayTeleop {
     Robot robot;
 
 
-    PressHold intake;
-    PressHold shoot;
+    FancyButton intake;
+    FancyButton shoot;
 
     double angle = 5;
 
@@ -39,8 +36,8 @@ public class AutoReplayTeleop {
 
     public void init() {
         robot = new Robot(telemetry, hardwareMap, RobotSide.Blue);
-        intake = new PressHold(PressHold.PressType.DoublePress);
-        shoot = new PressHold(PressHold.PressType.LongPress);
+        intake = new FancyButton(FancyButton.PressType.Toggle);
+        shoot = new FancyButton(FancyButton.PressType.LongPress);
         autoReplay = new AutoReplayTime(robot.follower, telemetry, gamepadInfo1, gamepad2);
     }
 

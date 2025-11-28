@@ -88,10 +88,10 @@ public class Indexer {
             case pre:
                 if (color != BallColor.None){
                     scanPhase = ScanPhase.ball;
-                    if (scanTimer.time() < Constants.PlacholdereDouble){ //This is SMALL
+                    if (scanTimer.time() < Constants.Indexer.secondsFor1){ //This is SMALL
                         balls = Arrays.asList(balls.get(1), balls.get(2), color);
                     }
-                    else if (scanTimer.time() < Constants.PlacholdereDouble){ // This is BIG
+                    else if (scanTimer.time() < Constants.Indexer.secondsFor2){ // This is BIG
                         balls = Arrays.asList(balls.get(1), color);
                     } else {
                         balls = Arrays.asList(color);

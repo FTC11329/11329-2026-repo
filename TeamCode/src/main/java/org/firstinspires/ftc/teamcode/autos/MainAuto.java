@@ -77,87 +77,87 @@ public class MainAuto {
 
     }
 
-    public void autonomousPathUpdate() {
-        switch (pathState) {
-            case scorePreload:
-                follower.followPath(scorePreload);
-                setPathState(AutoPhase.shootPreload);
-                break;
-            case shootPreload:
-                if(pathTimer.getElapsedTime() < 1000) {
-                    robot.getMotif();
-                }
-                if(follower.getErrorDistance(scorePose) < 1) {
-                    if (robot.shootQueue()){
-                        if (pathTimer.getElapsedTime() >= 1000){
-                            follower.followPath(collect1);
-                            setPathState(AutoPhase.collectArtifacts1);
-                        }
-                    }
-                }
-                break;
-            case collectArtifacts1:
-                if(follower.getChainIndex() > 0) {
-                    robot.startIntake();
-                }
-                if (!follower.isBusy()){
-                    robot.QBall(new BallColor[] {BallColor.Purple, BallColor.Green, BallColor.Green});
-                    robot.stopIntake();
-                    follower.followPath(shoot1);
-                    setPathState(AutoPhase.scoreArtifacts1);
-                }
-                break;
-            case scoreArtifacts1:
-                if(follower.getErrorDistance(scorePose) < 1) {
-                    if (robot.shootQueue()){
-                        follower.followPath(collect2);
-                        setPathState(AutoPhase.collectArtifacts2);
-                    }
-                }
-                break;
-            case collectArtifacts2:
-                if(follower.getChainIndex() > 0) {
-                    robot.startIntake();
-                }
-                if (!follower.isBusy()){
-                    robot.QBall(new BallColor[] {BallColor.Green, BallColor.Purple, BallColor.Green});
-                    robot.stopIntake();
-                    robot.stopIntake();
-                    follower.followPath(shoot2);
-                    setPathState(AutoPhase.scoreArtifacts2);
-                }
-                break;
-            case scoreArtifacts2:
-                if(follower.getErrorDistance(scorePose) < 1) {
-                    if (robot.shootQueue()){
-                        follower.followPath(collect3);
-                        setPathState(AutoPhase.collectArtifacts3);
-                    }
-                }
-                break;
-            case collectArtifacts3:
-                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the pickup1Pose's position */
-                if(follower.getChainIndex() > 0) {
-                    robot.startIntake();
-                }
-                if (!follower.isBusy()){
-                    robot.QBall(new BallColor[] {BallColor.Green, BallColor.Green, BallColor.Purple});
-                    robot.stopIntake();
-                    follower.followPath(shoot3);
-                    setPathState(AutoPhase.scoreArtifacts3);
-                }
-                break;
-            case scoreArtifacts3:
-                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
-                if(follower.getErrorDistance(scorePose) < 1) {
-                    if (robot.shootQueue()){
-                        follower.followPath(end);
-                        setPathState(AutoPhase.end);
-                    }
-                }
-                break;
-        }
-    }
+//    public void autonomousPathUpdate() {
+//        switch (pathState) {
+//            case scorePreload:
+//                follower.followPath(scorePreload);
+//                setPathState(AutoPhase.shootPreload);
+//                break;
+//            case shootPreload:
+//                if(pathTimer.getElapsedTime() < 1000) {
+//                    robot.getMotif();
+//                }
+//                if(follower.getErrorDistance(scorePose) < 1) {
+//                    if (robot.shootQueue()){
+//                        if (pathTimer.getElapsedTime() >= 1000){
+//                            follower.followPath(collect1);
+//                            setPathState(AutoPhase.collectArtifacts1);
+//                        }
+//                    }
+//                }
+//                break;
+//            case collectArtifacts1:
+//                if(follower.getChainIndex() > 0) {
+//                    robot.intakeManual(true);
+//                }
+//                if (!follower.isBusy()){
+//                    robot.qBall(new BallColor[] {BallColor.Purple, BallColor.Green, BallColor.Green});
+//                    robot.intakeManual(true);
+//                    follower.followPath(shoot1);
+//                    setPathState(AutoPhase.scoreArtifacts1);
+//                }
+//                break;
+//            case scoreArtifacts1:
+//                if(follower.getErrorDistance(scorePose) < 1) {
+//                    if (robot.shootQueue()){
+//                        follower.followPath(collect2);
+//                        setPathState(AutoPhase.collectArtifacts2);
+//                    }
+//                }
+//                break;
+//            case collectArtifacts2:
+//                if(follower.getChainIndex() > 0) {
+//                    robot.intakeManual(true);
+//                }
+//                if (!follower.isBusy()){
+//                    robot.qBall(new BallColor[] {BallColor.Green, BallColor.Purple, BallColor.Green});
+//                    robot.intakeManual(false);
+//                    follower.followPath(shoot2);
+//                    setPathState(AutoPhase.scoreArtifacts2);
+//                }
+//                break;
+//            case scoreArtifacts2:
+//                if(follower.getErrorDistance(scorePose) < 1) {
+//                    if (robot.shootQueue()){
+//                        follower.followPath(collect3);
+//                        setPathState(AutoPhase.collectArtifacts3);
+//                    }
+//                }
+//                break;
+//            case collectArtifacts3:
+//                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the pickup1Pose's position */
+//                if(follower.getChainIndex() > 0) {
+//                    robot.intakeManual(true);
+//                }
+//                if (!follower.isBusy()){
+//                    robot.qBall(new BallColor[] {BallColor.Green, BallColor.Green, BallColor.Purple});
+//                    robot.intakeManual(false);
+//                    follower.followPath(shoot3);
+//                    setPathState(AutoPhase.scoreArtifacts3);
+//                }
+//                break;
+//            case scoreArtifacts3:
+//                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
+//                if(follower.getErrorDistance(scorePose) < 1) {
+//                    if (robot.shootQueue()){
+//                        follower.followPath(end);
+//                        setPathState(AutoPhase.end);
+//                    }
+//                }
+//                break;
+//        }
+//    }
+
     /** These change the states of the paths and actions. It will also reset the timers of the individual switches **/
     public void setPathState(AutoPhase pState) {
         pathState = pState;
@@ -170,7 +170,7 @@ public class MainAuto {
 
         // These loop the movements of the robot, these must be called continuously in order to work
         robot.update();
-        autonomousPathUpdate();
+//        autonomousPathUpdate();
 
         // Feedback to Driver Hub for debugging
         telemetry.addData("path state", pathState);
@@ -179,6 +179,7 @@ public class MainAuto {
         telemetry.addData("heading", follower.getPose().getHeading());
         telemetry.update();
     }
+
 
     /** We do not use this because everything should automatically disable **/
     public void stop() {}

@@ -3,8 +3,6 @@ package org.firstinspires.ftc.teamcode.autos;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.subsystems.Robot;
-import org.firstinspires.ftc.teamcode.util.PressHold;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
 
 @TeleOp(name = "Main Auto", group = "    group")

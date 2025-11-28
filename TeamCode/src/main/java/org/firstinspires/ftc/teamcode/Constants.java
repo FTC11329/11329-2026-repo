@@ -13,10 +13,13 @@ public class Constants {
     public static boolean PlaceHOLDERboooLEAN = false;
 
     public static class Indexer {
-        public static double spindexPower = 0.9;
-        public static double transferPower = 0.9;
+        public static double spindexPower = 1;
+        public static double transferPower = 1;
         public static double primingServoUp = 0;
         public static double primingServoDown = 0;
+
+        public static double secondsFor2 = 1.6;
+        public static double secondsFor1 = 0.8;
     }
     public static class Intake {
         public static double intakePower = 1;

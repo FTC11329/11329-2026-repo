@@ -21,8 +21,11 @@ public class Robot {
     int oneBallCase = 0;
     int burst = 3;
     double[] shootingParams;
+    boolean doAutoIntake = false;
 
 
+
+    // Todo make private
     public Stilts stilts;
     public Intake intake;
     public Turret turret;
@@ -55,10 +58,26 @@ public class Robot {
 
         shooterTimer = new ElapsedTime();
     }
+    // VISION**************************************************************************************~
+    public void getMotif(){
+        if (motif != null){
+            return;
+        }
+        motif = vision.getMotif();
+    }
 
+    // SHOOTER*************************************************************************************~
+    // Adds a ball of color ball color to queuedBalls list
+    public void qBall(BallColor qdColor) {
+        queuedBalls.add(qdColor);
+    }
+
+    public void qBall(BallColor[] qdColors) {
+        queuedBalls.addAll(Arrays.asList(qdColors));
+    }
 
     //Shoots one ball of BallColor and returns true when done
-    public boolean shootArtifact(boolean stopWhenFinished) {
+    public boolean shootArtifact() {
         switch (oneBallCase) {
             case 0:
                 shootingParams = vision.getRPM(getCurrentPose(), 3500, Vision.InitialCondition.RPM, new Pose(follower.getVelocity().getXComponent(), follower.getVelocity().getYComponent()));
@@ -72,17 +91,19 @@ public class Robot {
                 shootingParams = vision.getRPM(getCurrentPose(),3500, Vision.InitialCondition.RPM, new Pose(follower.getVelocity().getXComponent(), follower.getVelocity().getYComponent()));
                 shooter.setHoodDeg(shootingParams[1]);
                 turret.updateTurret(shootingParams[0]);
-                if (shooter.updateShooter(shootingParams[2])) {
+                if (shooter.closeEnough()) {
+                    shootingParams = vision.getRPM(getCurrentPose(),shooter.getRPM(), Vision.InitialCondition.RPM, new Pose(follower.getVelocity().getXComponent(), follower.getVelocity().getYComponent()));
+                    shooter.setHoodDeg(shootingParams[1]);
                     startTime = time.milliseconds();
                     oneBallCase = 2;
                 }
                 return false;
             case 2:
-                indexer.startTransfer();
+                indexer.transfer(true);
                 if (time.milliseconds() - startTime < 300) {
                     oneBallCase = 0;
-                    indexer.stopTransfer();
-                    if (stopWhenFinished){
+                    indexer.transfer(false);
+                    if (queuedBalls.size() <= 1){
                         indexer.stopIndexer();
                     }
                     return true;
@@ -92,38 +113,29 @@ public class Robot {
         return false;
     }
 
-    //Shoots one ball
-    public void passiveShoot(double RPM, boolean intake) {
-        indexer.setIndexerPower(Constants.Indexer.spindexPower);
-        indexer.startTransfer();
-        shooter.updateShooter(RPM);
-        if (intake){
-            startIntake();
-        }
-    }
-
-    public void stopAllSubsystems(){
-        indexer.setIndexerPower(0);
-        indexer.stopTransfer();
-        shooter.setPower(0);
-        oneBallCase = 0;
-        stopIntake();
-    }
-
     // Loops through and removes balls from queuedBalls after firing them
     public boolean shootQueue() {
         if (queuedBalls.isEmpty()) {
-            indexer.setIndexerPower(0);
             return true;
         }
         BallColor current = nextArtifact();
-        if (shootArtifact(false)) {
+        if (shootArtifact()) {
             queuedBalls.remove(current);
             ramp.add(current);
         }
         return false;
     }
 
+    double pictureTime = 0;
+    public void shooterUpdate() {
+        // Takes Picture every ___ ms
+        if (pictureTime + 500 < time.milliseconds()) {
+            pictureTime = time.milliseconds();
+            autoSetCurrentPose();
+        }
+    }
+
+    // Uses curent ramp state and current motif to get the next color of ball we shoot
     public BallColor nextArtifact(){
         if (motif != null){
             if (queuedBalls.contains(motif[(ramp.size() - 1) % 3])){
@@ -133,54 +145,97 @@ public class Robot {
         return queuedBalls.isEmpty() ? BallColor.Any : queuedBalls.get(0);
     }
 
-    public void getMotif(){
-        if (motif != null){
-            return;
-        }
-        motif = vision.getMotif();
-    }
 
-    // Adds a ball of color ball color to queuedBalls list
-    public void QBall(BallColor qdColor) {
-        queuedBalls.add(qdColor);
-    }
-
-    public void QBall(BallColor[] qdColors) {
-        queuedBalls.addAll(Arrays.asList(qdColors));
-    }
-
-    //function to intake and spin until sees any ball
-    public boolean intakeAndIndex() {
-        intake.setIntakePower(Constants.Intake.intakePower);
-        return indexer.spinUntil(BallColor.Any);
-    }
-
-    public void startIntake(){
-        intake.setIntakePower(Constants.Intake.intakePower);
-    }
-
-    public void stopIntake(){
-        intake.setIntakePower(0);
-    }
-
-    public Pose getCurrentPose() {
+    public void autoSetCurrentPose() {
         Pose pos = vision.getRobotPose();
         if (pos != null){
             follower.setPose(pos);
         }
+    }
+    public Pose getCurrentPose() {
         return follower.getPose();
     }
 
-    double pictureTime = 0;
-    public void update() {
-        if (pictureTime + 500 < time.milliseconds()) {
-            pictureTime = time.milliseconds();
-            getCurrentPose();
-        }
 
-        follower.update();
-        telemetry.update();
-        Drawing.drawDebug(follower);
+    // INTAKE SYSTEM*******************************************************************************~
+    public void spinIntake() {
+        intake.setIntakePower(Constants.Intake.intakePower);
+    }
+    public void intakeUpdate() {
+
     }
 
+    // SPINDEXER***********************************************************************************~
+    public void spinIndexer() {
+        indexer.setIndexerPower(Constants.Indexer.spindexPower);
+    }
+
+    public void spindexerUpdate() {
+
+    }
+
+    // TELE-OP*************************************************************************************~
+    public void intakeManual() {
+        spinIntake();
+        spinIndexer();
+    }
+
+    public void autoIntake3() {
+        doAutoIntake = true;
+    }
+
+    public void spitIntake() {
+        intake.setIntakePower(Constants.Intake.spitPower);
+    }
+
+    public void teleopUpdate() {
+        if (doAutoIntake) {
+            spitIntake();
+            spinIndexer();
+            queuedBalls = new ArrayList<>(indexer.scanIndexer(queuedBalls));
+            doAutoIntake = queuedBalls.size() < 3;
+        }
+    }
+
+    public void stopIntake() {
+        intake.setIntakePower(0);
+
+    }
+
+
+    // SYSTEM**************************************************************************************~
+    public void update() {
+        update(false);
+    }
+    public void update(boolean debug) {
+        shooterUpdate();
+        intakeUpdate();
+        spindexerUpdate();
+        teleopUpdate();
+        shootQueue();
+        follower.update();
+        telemetry.update();
+        if (debug) {
+            Drawing.drawDebug(follower);
+        }
+    }
+
+    public void stopAllSubsystems() {
+        indexer.setIndexerPower(0);
+        indexer.transfer(false);
+        shooter.setPower(0);
+        oneBallCase = 0;
+        stopIntake();
+    }
+
+    // TESTING*************************************************************************************~
+    //Shoots one ball
+    public void passiveShoot(double RPM, boolean intake) {
+        indexer.setIndexerPower(Constants.Indexer.spindexPower);
+        indexer.transfer(true);
+        shooter.setTargetRPM(RPM);
+        if (intake) {
+            intakeManual();
+        }
+    }
 }

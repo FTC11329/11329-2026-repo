@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.util;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-public class PressHold {
+public class FancyButton {
 
     public PressType type;
 
@@ -14,7 +14,7 @@ public class PressHold {
 
     public ElapsedTime time;
 
-    public PressHold(PressType type){
+    public FancyButton(PressType type){
         this.type = type;
         isOn = false;
         isPressed = false;
@@ -27,7 +27,8 @@ public class PressHold {
         if (startPress) startPress = false;
         if (endPress) endPress = false;
 
-        if (type == PressType.DoublePress){
+        // A toggle button and you can see time since it changed from false to true
+        if (type == PressType.Toggle){
             if (pressed && !isPressed){
                 if (!isOn){
                     startPress = true;
@@ -39,16 +40,16 @@ public class PressHold {
                 }
             }
         }
-        else if (type == PressType.LongPress){
+        // Just a regular button but you can see time since start press
+        else if (type == PressType.LongPress) {
             if (pressed && !isPressed){
                 startPress = true;
                 isOn = true;
                 time.reset();
             }
-            else if (!pressed && isPressed){
+            else if (!pressed && isPressed) {
                 endPress = true;
                 isOn = false;
-                time.reset();
             }
         }
 
@@ -60,7 +61,7 @@ public class PressHold {
     }
 
     public enum PressType{
-        DoublePress,
+        Toggle,
         LongPress
     }
 }

@@ -12,15 +12,9 @@ import org.firstinspires.ftc.teamcode.pedroPathing.geometry.SplineCurve;
 import org.firstinspires.ftc.teamcode.pedroPathing.math.Vector;
 import org.firstinspires.ftc.teamcode.pedroPathing.paths.Path;
 import org.firstinspires.ftc.teamcode.pedroPathing.paths.PathChain;
-import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
-import org.firstinspires.ftc.teamcode.pedroPathing.paths.PathChain;
 
 import org.firstinspires.ftc.teamcode.util.DoubleAdapter;
-import org.firstinspires.ftc.teamcode.util.PathSpline;
-import org.firstinspires.ftc.teamcode.util.PressHold;
-import org.firstinspires.ftc.teamcode.util.CubicSpline1D;
-import org.firstinspires.ftc.teamcode.util.DoubleAdapter;
-import org.firstinspires.ftc.teamcode.util.PathSpline;
+import org.firstinspires.ftc.teamcode.util.FancyButton;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -39,9 +33,9 @@ public class AutoReplayTime {
     Gamepad gamepadReplay1;
     Gamepad gamepadReplay2;
 
-    PressHold recording;
-    PressHold replay;
-    PressHold pointerInput;
+    FancyButton recording;
+    FancyButton replay;
+    FancyButton pointerInput;
     Pose lastPose = new Pose(0, 0, 0);
     double lastTime = 0;
     double deltaTime = 0.25;
@@ -69,9 +63,9 @@ public class AutoReplayTime {
     }
 
     public void init() {
-        recording = new PressHold(PressHold.PressType.DoublePress);
-        replay = new PressHold(PressHold.PressType.DoublePress);
-        pointerInput = new PressHold(PressHold.PressType.LongPress);
+        recording = new FancyButton(FancyButton.PressType.Toggle);
+        replay = new FancyButton(FancyButton.PressType.Toggle);
+        pointerInput = new FancyButton(FancyButton.PressType.LongPress);
 
         currentReplayStates = new StateEntryJson();
 

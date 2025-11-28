@@ -37,7 +37,7 @@ public class TestOpMode extends OpMode {
     @Override
     public void loop() {
         robot.update();
-        robot.drivetrain.teleopMovement(-gamepad1.left_stick_y, gamepad1.left_stick_x, -gamepad1.right_stick_y, gamepad1.right_bumper);
+        robot.drivetrain.teleopMovement(-gamepad1.left_stick_y, gamepad1.left_stick_x, -gamepad1.right_stick_x, gamepad1.right_bumper);
 
         robotPose = robot.getCurrentPose();
 

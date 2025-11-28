@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.pedroPathing.control.PIDFCoefficients;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
-import org.firstinspires.ftc.teamcode.util.PressHold;
+import org.firstinspires.ftc.teamcode.util.FancyButton;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
 
 import java.util.Arrays;
@@ -21,10 +21,10 @@ public class PIDFTuner extends OpMode {
 
     public List<Pose> poses;
     public List<String> titles;
-    public PressHold timerP = new PressHold(PressHold.PressType.LongPress);
-    public PressHold timerI = new PressHold(PressHold.PressType.LongPress);
-    public PressHold timerD = new PressHold(PressHold.PressType.LongPress);
-    public PressHold timerF = new PressHold(PressHold.PressType.LongPress);
+    public FancyButton timerP = new FancyButton(FancyButton.PressType.LongPress);
+    public FancyButton timerI = new FancyButton(FancyButton.PressType.LongPress);
+    public FancyButton timerD = new FancyButton(FancyButton.PressType.LongPress);
+    public FancyButton timerF = new FancyButton(FancyButton.PressType.LongPress);
 
     public double p, i, d, f = 0;
 
@@ -64,7 +64,7 @@ public class PIDFTuner extends OpMode {
         }
 
         if (gamepad1.left_bumper){
-            robot.shooter.updateShooter(3500);
+            robot.shooter.setTargetRPM(3500);
         }else{
             robot.shooter.setPower(0);
         }

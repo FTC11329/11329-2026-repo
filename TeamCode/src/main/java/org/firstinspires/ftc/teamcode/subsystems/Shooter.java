@@ -6,10 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.robotcontroller.external.samples.ConceptAprilTag;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
-import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.control.PIDFCoefficients;
 import org.firstinspires.ftc.teamcode.pedroPathing.control.PIDFController;
 
@@ -32,8 +29,8 @@ public class Shooter {
     public Shooter(HardwareMap hardwareMap){
         flywheel = hardwareMap.get(DcMotorEx.class, "flywheel");
 
-        flywheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        flywheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        flywheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        flywheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         flywheel.setDirection(DcMotorSimple.Direction.REVERSE);
         flywheel.setCurrentAlert(4, CurrentUnit.AMPS);
 
@@ -45,14 +42,16 @@ public class Shooter {
         hoodServo2.setDirection(Servo.Direction.REVERSE);
         hoodServo2.setPosition(0);
 
-        shooterPID = new PIDFController(new PIDFCoefficients(0.0006, 0.0002, 0.00005, 0.1)); //change this!
+        shooterPID = new PIDFController(new PIDFCoefficients(0.0006, 0.0002, 0.00005, 0.1)); // todo change this!
         shooterPID.reset();
     }
 
-    public void setPower (double power){
+    public void setPower(double power){
         flywheel.setPower(power);
     }
-    public double getRPM (){ return flywheel.getVelocity() * 60 / TICKS_PER_REVOLUTION; }
+    public double getRPM(){
+        return flywheel.getVelocity() * 60 / TICKS_PER_REVOLUTION;
+    }
     public double rpmToVelocity(double RPM){
         return RPM * TICKS_PER_REVOLUTION / 60;
     }
@@ -81,21 +80,20 @@ public class Shooter {
         shooterPID.reset();
     }
 
-    public boolean updateShooter(double targetRPM){
-        double targetVel = rpmToVelocity(targetRPM);
-
-        shooterPID.setTargetPosition(targetVel);
-        shooterPID.updatePosition(flywheel.getVelocity());  // ticks per second
-
-        double output = shooterPID.run();  // PID output (should be 0–1)
-
-        setPower(clamp(output, 0, 1));
-
+    public boolean closeEnough() {
         return Math.abs(shooterPID.getError()) <= rpmToVelocity(60);
     }
 
-    private double clamp(double v, double min, double max) {
-        return Math.max(min, Math.min(max, v));
+    // targetRPM is in ticks/sec
+    public void setTargetRPM(double targetRPM) {
+        double targetVel = rpmToVelocity(targetRPM);
+        shooterPID.reset();
+        shooterPID.setTargetPosition(targetVel);
+    }
+
+    public void update(int set) {
+        shooterPID.updatePosition(flywheel.getVelocity());  // ticks/sec
+        setPower(shooterPID.run());
     }
 
 }
