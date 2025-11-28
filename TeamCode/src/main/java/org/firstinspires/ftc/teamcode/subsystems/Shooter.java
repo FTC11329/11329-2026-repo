@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.control.PIDFController;
 
 public class Shooter {
     // declaring motor variables
-    DcMotorEx flywheel;
+    public DcMotorEx flywheel;
 
     double maxRPM = 6000;
 

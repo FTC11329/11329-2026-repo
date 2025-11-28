@@ -3,7 +3,11 @@ package org.firstinspires.ftc.teamcode.teleops;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
+import org.firstinspires.ftc.teamcode.util.BallColor;
+import org.firstinspires.ftc.teamcode.util.ColorFunctions;
 import org.firstinspires.ftc.teamcode.util.PressHold;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
 
@@ -27,7 +31,7 @@ public class MainTeleop extends OpMode {
     @Override
     public void loop() {
         robot.update();
-        shoot.checkStatus(gamepad1.b);
+        shoot.checkStatus(gamepad1.x);
         if (shoot.isOn && intake.isOn){
             intake.checkStatus(false);
             intake.checkStatus(true);
@@ -35,35 +39,32 @@ public class MainTeleop extends OpMode {
         }else {
             intake.checkStatus(gamepad1.a);
         }
+        robot.drivetrain.teleopMovement(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, gamepad1.left_bumper);
 
-        //TURRET
+        //TURRET : 2 x
         robot.turret.setPower(gamepad2.left_stick_x);
         telemetry.addData("turret velocity encoder", robot.turret.encoder.getVelocity());
         telemetry.addData("turret position encoder", robot.turret.encoder.getCurrentPosition());
 
-        //INTAKE
-        robot.intake.setIntakePower(intake.isOn ? 1 : 0);
+        //INTAKE : a
+        robot.intake.setIntakePower(gamepad1.a ? 1 :0);
 
-        //INDEXER
-        robot.indexer.setIndexerPower(intake.isOn ? 0.6 : 0);
+        //INDEXER : b
+        robot.indexer.setIndexerPower(gamepad1.b ? 1 : 0);
 
-        //SHOOTER
-        if (shoot.isOn){
+        //SHOOTER : y
+        if (gamepad1.y){
             robot.passiveShoot(6000, false);
         }
 
-        robot.drivetrain.teleopMovement(gamepad1.right_stick_y, gamepad1.right_stick_x, gamepad1.left_stick_x, gamepad1.left_bumper);
-        if (gamepad1.x){
-        }else{
-            robot.indexer.setIndexerPower(-gamepad1.left_stick_y);
-        }
+        //Shooter 2 : 2 a, and y
+        robot.shooter.setPower(gamepad2.a ? 1 : 0);
+
         telemetry.addData("Spindexer Power", -gamepad1.left_stick_y);
 
-        if (gamepad1.y){
-            robot.indexer.setIndexerToShooterPower(1);
-        }else{
-            robot.indexer.setIndexerToShooterPower(-gamepad2.right_stick_x);
-        }
+        //TRANSFER
+        robot.indexer.setIndexerToShooterPower(gamepad1.x ? 1 : -gamepad2.right_stick_x);
+
         telemetry.addData("indexer to shooter power", -gamepad2.right_stick_x);
 
         telemetry.addData("indexer r", robot.indexer.getColor().red);
@@ -71,19 +72,7 @@ public class MainTeleop extends OpMode {
         telemetry.addData("indexer b", robot.indexer.getColor().blue);
         telemetry.addData("indexer a", robot.indexer.getColor().alpha);
 
-        if (gamepad1.b){
-            robot.intake.setIntakePower(1);
-        }else{
-            robot.intake.setIntakePower(gamepad1.right_trigger - gamepad1.left_trigger);
-        }
         telemetry.addData("intake Power", gamepad1.right_trigger - gamepad1.left_trigger);
-
-        if (gamepad1.a){
-            robot.shooter.setPower(1);
-        }
-        else {
-            robot.shooter.setPower(-gamepad2.left_stick_y);
-        }
 
         telemetry.addData("shooter power", -gamepad2.left_stick_y);
 
@@ -92,7 +81,9 @@ public class MainTeleop extends OpMode {
         telemetry.addData("shooter angle", angle);
 
 
+        telemetry.addData("current", robot.shooter.flywheel.getCurrent(CurrentUnit.AMPS));
 
+        telemetry.addData("Encoder RPM", robot.shooter.getRPM());
 
         telemetry.addData("turret power", gamepad2.right_trigger - gamepad2.left_trigger);
     }

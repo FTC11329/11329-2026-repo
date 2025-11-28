@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.subsystems.AutoReplayTime;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
 import org.firstinspires.ftc.teamcode.util.PressHold;
@@ -40,6 +41,7 @@ public class AutoReplayTeleop {
         robot = new Robot(telemetry, hardwareMap, RobotSide.Blue);
         intake = new PressHold(PressHold.PressType.DoublePress);
         shoot = new PressHold(PressHold.PressType.LongPress);
+        autoReplay = new AutoReplayTime(robot.follower, telemetry, gamepadInfo1, gamepad2);
     }
 
     public void loop() {

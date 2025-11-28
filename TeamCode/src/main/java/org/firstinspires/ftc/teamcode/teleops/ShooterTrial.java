@@ -2,8 +2,10 @@ package org.firstinspires.ftc.teamcode.teleops;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 
 @TeleOp(name = "Shooter Test", group = "group")
@@ -14,11 +16,13 @@ public class ShooterTrial extends OpMode {
     ElapsedTime time;
     double deltaTime;
     double lastTime;
+    public CRServo shooterServo;
 
     @Override
     public void init() {
         //do stuff init
         shooter = new Shooter(hardwareMap);
+        shooterServo = hardwareMap.get(CRServo.class, "shooterServo");
     }
 
     @Override
@@ -31,7 +35,13 @@ public class ShooterTrial extends OpMode {
     @Override
     public void loop() {
         double shooterSpeed = gamepad1.right_stick_y;
-        shooter.setPower(shooterSpeed);
+        if (gamepad1.left_bumper){
+            shooter.setPower(1);
+        }
+        if (gamepad1.right_bumper){
+            shooterServo.setPower(1);
+        }
+
         if (gamepad1.a) {
             shooter.setHoodDeg(80);
 
@@ -48,6 +58,7 @@ public class ShooterTrial extends OpMode {
             shooter.setHoodDeg(0);
         }
         telemetry.addData("deg", shooter.getHoodPos());
+        telemetry.addData("current", shooter.flywheel.getCurrent(CurrentUnit.AMPS));
         deltaTime = time.milliseconds() - lastTime;
         telemetry.addData("delta Time", deltaTime);
         telemetry.addData("Encoder RPM", shooter.getRPM());

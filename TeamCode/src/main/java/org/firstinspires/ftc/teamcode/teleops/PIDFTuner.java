@@ -65,8 +65,7 @@ public class PIDFTuner extends OpMode {
 
         if (gamepad1.left_bumper){
             robot.shooter.updateShooter(3500);
-        }
-        if (gamepad1.leftBumperWasReleased()){
+        }else{
             robot.shooter.setPower(0);
         }
 

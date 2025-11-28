@@ -19,10 +19,10 @@ public class Drivetrain {
         rightFront = hardwareMap.get(DcMotorEx.class, "rightFront");
         rightBack = hardwareMap.get(DcMotorEx.class, "rightBack");
         // setting the motor direction to go correctly
-        rightBack.setDirection(DcMotorSimple.Direction.FORWARD);
-        rightFront.setDirection(DcMotorSimple.Direction.FORWARD);
-        leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
-        leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightBack.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftBack.setDirection(DcMotorSimple.Direction.FORWARD);
+        leftFront.setDirection(DcMotorSimple.Direction.FORWARD);
 
     }
     // sets power of each motor
@@ -45,13 +45,10 @@ public class Drivetrain {
      */
     //
     public void teleopMovement(double forwardBackPower, double strafePower, double turning, boolean TURBO) {
-        double speed = 0;
+        double speed = 0.3;
         // TURBO MODE
         if (TURBO) {
             speed = 1;
-        }
-        else {
-            speed = 0.3;
         }
         //MATH
         leftFront.setPower((forwardBackPower + strafePower + turning) * speed);

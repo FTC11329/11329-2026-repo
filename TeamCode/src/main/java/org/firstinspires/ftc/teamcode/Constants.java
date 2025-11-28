@@ -33,8 +33,8 @@ public class Constants {
     }
     public static class Color {
 
-        public static double[] green = {0, 0, 0, 0};
-        public static double[] purple = {0, 0, 0, 0};
+        public static double[] green = {0.0142, 0.0564, 0.0452, 0.9899};
+        public static double[] purple = {0.0149, 0.0177, 0.0371, 0.9726};
         public static double[] none = {0, 0, 0, 0};
         public static double[] none2 = {0, 0, 0, 0};
     }
