@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.Indexer;
 
-@TeleOp(name = "TEstuingiuwenio", group = "group")
+@TeleOp(name = "TEstuingiuwenio", group = "zgroup")
 public class TemporaryClassThatWeAreTotallyGoingToDelete extends OpMode {
     Indexer indexer;
     @Override

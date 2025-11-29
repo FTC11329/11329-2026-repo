@@ -15,8 +15,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Robot {
-    ArrayList<BallColor> queuedBalls = new ArrayList<>();
-    public BallColor[] motif = new BallColor[3];
+    public ArrayList<BallColor> queuedBalls = new ArrayList<>();
+    public ArrayList<BallColor> hasBalls = new ArrayList<>();
+    public BallColor[] motif = null;
     public ArrayList<BallColor> ramp = new ArrayList<BallColor>();
     int oneBallCase = 0;
     int burst = 3;
@@ -54,6 +55,7 @@ public class Robot {
         follower = org.firstinspires.ftc.teamcode.pedroPathing.Constants.createFollower(hardwareMap);
         drivetrain = new Drivetrain(hardwareMap);
         time = new ElapsedTime();
+
         follower.setStartingPose(new Pose(0,0,0));
 
         shooterTimer = new ElapsedTime();
@@ -67,7 +69,7 @@ public class Robot {
     }
 
     // SHOOTER*************************************************************************************~
-    // Adds a ball of color ball color to queuedBalls list
+    // Adds a ball of color ball color to hasBalls list
     public void qBall(BallColor qdColor) {
         queuedBalls.add(qdColor);
     }
@@ -113,7 +115,7 @@ public class Robot {
         return false;
     }
 
-    // Loops through and removes balls from queuedBalls after firing them
+    // Loops through and removes balls from hasBalls after firing them
     public boolean shootQueue() {
         if (queuedBalls.isEmpty()) {
             return true;
@@ -138,11 +140,11 @@ public class Robot {
     // Uses curent ramp state and current motif to get the next color of ball we shoot
     public BallColor nextArtifact(){
         if (motif != null){
-            if (queuedBalls.contains(motif[(ramp.size() - 1) % 3])){
+            if (hasBalls.contains(motif[(ramp.size() - 1) % 3])){
                 return motif[(ramp.size() - 1) % 3];
             }
         }
-        return queuedBalls.isEmpty() ? BallColor.Any : queuedBalls.get(0);
+        return hasBalls.isEmpty() ? BallColor.Any : hasBalls.get(0);
     }
 
 
@@ -174,6 +176,10 @@ public class Robot {
 
     }
 
+    public void stopIndexer() {
+        indexer.setIndexerPower(0);
+    }
+
     // TELE-OP*************************************************************************************~
     public void intakeManual() {
         spinIntake();
@@ -190,16 +196,15 @@ public class Robot {
 
     public void teleopUpdate() {
         if (doAutoIntake) {
-            spitIntake();
+            spinIntake();
             spinIndexer();
-            queuedBalls = new ArrayList<>(indexer.scanIndexer(queuedBalls));
-            doAutoIntake = queuedBalls.size() < 3;
+            hasBalls = new ArrayList<>(indexer.scanIndexer(hasBalls));
+            doAutoIntake = hasBalls.size() < 3;
         }
     }
 
     public void stopIntake() {
         intake.setIntakePower(0);
-
     }
 
 

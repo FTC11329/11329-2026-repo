@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.subsystems.AutoReplayTime;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
+import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.FancyButton;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
 
@@ -13,7 +14,6 @@ public class AutoReplayTeleop {
     Robot robot;
 
 
-    FancyButton intake;
     FancyButton shoot;
 
     double angle = 5;
@@ -27,6 +27,12 @@ public class AutoReplayTeleop {
     Gamepad gamepadInfo2;
     AutoReplayTime autoReplay;
 
+    FancyButton intake;
+    FancyButton spitIntake;
+    FancyButton queueAny;
+    FancyButton queueGreen;
+    FancyButton queuePurple;
+
     public AutoReplayTeleop(HardwareMap hardwareMap, Telemetry telemetry, Gamepad gamepad1, Gamepad gamepad2) {
         this.hardwareMap = hardwareMap;
         this.telemetry = telemetry;
@@ -36,15 +42,18 @@ public class AutoReplayTeleop {
 
     public void init() {
         robot = new Robot(telemetry, hardwareMap, RobotSide.Blue);
-        intake = new FancyButton(FancyButton.PressType.Toggle);
-        shoot = new FancyButton(FancyButton.PressType.LongPress);
         autoReplay = new AutoReplayTime(robot.follower, telemetry, gamepadInfo1, gamepad2);
+
+        intake = new FancyButton(FancyButton.PressType.Toggle);
+        spitIntake = new FancyButton(FancyButton.PressType.LongPress);
+        queueAny = new FancyButton(FancyButton.PressType.LongPress);
+        queueGreen = new FancyButton(FancyButton.PressType.LongPress);
+        queuePurple = new FancyButton(FancyButton.PressType.LongPress);
     }
 
     public void loop() {
-        robot.update();
 
-        robot.drivetrain.teleopMovement(gamepadInfo1.right_stick_y, gamepadInfo1.right_stick_x, gamepadInfo1.left_stick_x, gamepadInfo1.left_bumper);
+        robot.drivetrain.teleopMovement(-gamepadInfo1.left_stick_y, gamepadInfo1.left_stick_x, gamepadInfo1.right_stick_x, gamepadInfo1.right_bumper);
 
         if (autoReplay.IsReplayOn()){
             gamepad1 = autoReplay.getGamepad1();
@@ -55,65 +64,44 @@ public class AutoReplayTeleop {
             gamepad2 = gamepadInfo2;
         }
 
-        //TURRET
-        robot.turret.setPower(gamepad2.left_stick_x);
-        telemetry.addData("turret velocity encoder", robot.turret.encoder.getVelocity());
-        telemetry.addData("turret position encoder", robot.turret.encoder.getCurrentPosition());
+        intake.checkStatus(gamepad1.left_bumper); // Toggle on to intake
+        spitIntake.checkStatus(gamepad1.b); // Hold to spit
+        queueGreen.checkStatus(gamepad1.y); // Press to queue green
+        queuePurple.checkStatus(gamepad1.x); // Press to queue purple
+        queueAny.checkStatus(gamepad1.a); // Press to queue any ball
 
-        //INTAKE
-        robot.intake.setIntakePower(intake.isOn ? 1 : 0);
-
-        //INDEXER
-        robot.indexer.setIndexerPower(intake.isOn ? 0.6 : 0);
-
-        //SHOOTER
-        if (shoot.isOn){
-            robot.passiveShoot(6000, false);
+        if (intake.startPress) {
+            robot.intakeManual();
+        }
+        if (intake.endPress) {
+            robot.stopIntake();
         }
 
-        robot.drivetrain.teleopMovement(gamepad1.right_stick_y, gamepad1.right_stick_x, gamepad1.left_stick_x, gamepad1.left_bumper);
-        if (gamepad1.x){
-        }else{
-            robot.indexer.setIndexerPower(-gamepad1.left_stick_y);
+        if (spitIntake.startPress) {
+            robot.spitIntake();
+            if (intake.isOn){
+                // Makes the intake toggle correct
+                intake.checkStatus(false);
+                intake.checkStatus(true);
+                intake.checkStatus(false);
+            }
         }
-        telemetry.addData("Spindexer Power", -gamepad1.left_stick_y);
-
-        if (gamepad1.y){
-            robot.indexer.setIndexerToShooterPower(1);
-        }else{
-            robot.indexer.setIndexerToShooterPower(-gamepad2.right_stick_x);
-        }
-        telemetry.addData("indexer to shooter power", -gamepad2.right_stick_x);
-
-        telemetry.addData("indexer r", robot.indexer.getColor().red);
-        telemetry.addData("indexer g", robot.indexer.getColor().green);
-        telemetry.addData("indexer b", robot.indexer.getColor().blue);
-        telemetry.addData("indexer a", robot.indexer.getColor().alpha);
-
-        if (gamepad1.b){
-            robot.intake.setIntakePower(1);
-        }else{
-            robot.intake.setIntakePower(gamepad1.right_trigger - gamepad1.left_trigger);
-        }
-        telemetry.addData("intake Power", gamepad1.right_trigger - gamepad1.left_trigger);
-
-        if (gamepad1.a){
-            robot.shooter.setPower(1);
-        }
-        else {
-            robot.shooter.setPower(-gamepad2.left_stick_y);
+        if (spitIntake.endPress) {
+            robot.stopIntake();
+            robot.autoIntake3();
         }
 
-        telemetry.addData("shooter power", -gamepad2.left_stick_y);
+        if (queueAny.startPress) {
+            robot.qBall(BallColor.Any);
+        }
+        if (queuePurple.startPress) {
+            robot.qBall(BallColor.Purple);
+        }
+        if (queueGreen.startPress) {
+            robot.qBall(BallColor.Green);
+        }
 
-        angle += -gamepad2.right_stick_y * 0.5;
-        robot.shooter.setHoodDeg(angle);
-        telemetry.addData("shooter angle", angle);
-
-
-
-
-        telemetry.addData("turret power", gamepad2.right_trigger - gamepad2.left_trigger);
+        robot.update();
     }
 
 }

@@ -20,6 +20,7 @@ public class Constants {
 
         public static double secondsFor2 = 1.6;
         public static double secondsFor1 = 0.8;
+        public static double secondsForHole = 0.1;
     }
     public static class Intake {
         public static double intakePower = 1;
@@ -38,15 +39,12 @@ public class Constants {
     }
     public static class Color {
 
-        public static double[] green = {0.0142, 0.0564, 0.0452, 0.9899};
-        public static double[] purple = {0.0149, 0.0177, 0.0371, 0.9726};
-        public static double[] greenHole = {0.0142, 0.0564, 0.0452, 0.9899};
-        public static double[] purpleHole = {0.0149, 0.0177, 0.0371, 0.9726};
-        public static double[] none = {0, 0, 0, 0};
-        public static double[] none2 = {0, 0, 0, 0};
+        public static double[] green = {0.0097, 0.0421, 0.0318, 0.9807}; //0.2503
+        public static double[] purple = {0.0253, 0.0336, 0.0632, 0.9909}; //0.2503
+        public static double[] none = {0.0004, 0.0008, 0.0007, 0.0234}; // 1.67
+        public static double[] none2 = {0.0005, 0.001, 0.0009, 0.0396}; //1.52
 
-        public static double fronDst = 0.1;
-        public static double backDst = 0.9;
+        public static double backDst = 0.7;
     }
 
     public static class ShooterParamaters {

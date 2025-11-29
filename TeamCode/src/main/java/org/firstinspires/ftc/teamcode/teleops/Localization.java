@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.util.RobotSide;
 import java.util.Arrays;
 import java.util.List;
 
-@TeleOp(name = "Localization", group = "       group")
+@TeleOp(name = "Localization", group = "group")
 public class Localization extends OpMode {
     //This is where we introduce the tele-operated controls
     Robot robot;

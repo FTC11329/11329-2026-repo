@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Constants;
+import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.ColorFunctions;
 import org.firstinspires.ftc.teamcode.util.ScanPhase;
@@ -29,12 +30,11 @@ public class Indexer {
     RevColorSensorV3 colorSensor;
     ScanPhase scanPhase = ScanPhase.pre;
 
-    BallColor color;
     int scanIndex = 0;
 
     double lastIndexerPower;
     double lastTransferPower;
-    ElapsedTime scanTimer;
+    Timer lastColorTime;
 
     public Indexer(HardwareMap hardwaremap){
         spindexer1 = hardwaremap.get(CRServo.class, "spindexer1");
@@ -49,8 +49,7 @@ public class Indexer {
         transfer.setCurrentAlert(4, CurrentUnit.AMPS);
 
         colorSensor = hardwaremap.get(RevColorSensorV3.class, "spindexerColorSensor");
-        scanTimer = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
-        scanTimer.reset();
+        lastColorTime = new Timer();
     }
 
     public void setIndexerPower(double set) {
@@ -66,8 +65,11 @@ public class Indexer {
         transfer.setPower(set);
     }
 
-    public NormalizedRGBA getColor(){
+    public NormalizedRGBA getColorRGBA(){
         return colorSensor.getNormalizedColors();
+    }
+    public BallColor getColor(){
+        return ColorFunctions.toColor(colorSensor.getNormalizedColors(), colorSensor.getDistance(DistanceUnit.INCH));
     }
     public double getDistance(){
         return colorSensor.getDistance(DistanceUnit.INCH);
@@ -76,37 +78,101 @@ public class Indexer {
     // Spins the indexer until the correct color is in front of the sensor then stops the spindexer
     public boolean spinUntil(BallColor ballColor) {
         setIndexerPower(Constants.Indexer.spindexPower);
-        NormalizedRGBA currentColor = getColor();
+        NormalizedRGBA currentColor = getColorRGBA();
+        double distance = getDistance();
+        BallColor color = getColor();
 
-        return ColorFunctions.toColor(currentColor, getDistance()) == ballColor;
+        if (ballColor == BallColor.Any && color != BallColor.None) {
+            return true;
+        }
+        return ColorFunctions.toColor(currentColor, distance) == ballColor;
     }
 
-    public List<BallColor> scanIndexer(List<BallColor> balls){
-        color = ColorFunctions.toColor(getColor(), getDistance());
-        BallColor ballColor = balls.get(balls.size() - 1);
-        switch (scanPhase) {
-            case pre:
-                if (color != BallColor.None){
-                    scanPhase = ScanPhase.ball;
-                    if (scanTimer.time() < Constants.Indexer.secondsFor1){ //This is SMALL
-                        balls = Arrays.asList(balls.get(1), balls.get(2), color);
-                    }
-                    else if (scanTimer.time() < Constants.Indexer.secondsFor2){ // This is BIG
-                        balls = Arrays.asList(balls.get(1), color);
-                    } else {
-                        balls = Arrays.asList(color);
-                    }
-                }
-                break;
-            case ball:
-                if (color != ballColor){
-                    scanPhase = ScanPhase.pre;
-                    scanTimer.reset();
-                }
-                break;
+    BallColor lastColor = BallColor.None;
+
+    boolean countedEmpty1 = false;
+    boolean countedEmpty2 = false;
+
+    // Inserts at index 0 and wraps size to 3 max
+    private void insertAtFrontWrapped(List<BallColor> balls, BallColor color) {
+        balls.add(0, color);
+        if (balls.size() > 3) {
+            balls.remove(3); // remove oldest
         }
+    }
+
+    // Doron if you want to go back to your code that is fine
+    public List<BallColor> scanIndexer(List<BallColor> balls) {
+        BallColor color = getColor();
+
+        // === Sensor sees empty ===
+        if (color == BallColor.None) {
+            double t = lastColorTime.getElapsedTimeSeconds();
+
+            // First empty slot after 0.8 sec
+            if (t >= 0.8 && !countedEmpty1) {
+                insertAtFrontWrapped(balls, BallColor.None);
+                countedEmpty1 = true;
+            }
+
+            // Second empty slot after 1.6 sec
+            if (t >= 1.6 && !countedEmpty2) {
+                insertAtFrontWrapped(balls, BallColor.None);
+                countedEmpty2 = true;
+            }
+
+            return balls;
+        }
+
+        // === Sensor sees real color ===
+        lastColorTime.resetTimer();
+        countedEmpty1 = false;
+        countedEmpty2 = false;
+
+        // New ball detected if color changed or last was empty
+        if (color != lastColor) {
+            insertAtFrontWrapped(balls, color);
+        }
+
         return balls;
     }
+
+//        Doron's way
+//        BallColor ballColor = balls.isEmpty() ? BallColor.None : balls.get(balls.size() - 1);
+//        switch (scanPhase) {
+//            case pre:
+//                if (color != BallColor.None){
+//                    scanPhase = ScanPhase.ball;
+//                    if (scanTimer.time() < Constants.Indexer.secondsFor1){ //This is SMALL
+//                        balls = balls.size() >= 3 ?
+//                                Arrays.asList(balls.get(1), balls.get(2), color) :
+//                                (balls.size() >= 2 ? Arrays.asList(balls.get(1), color) : Arrays.asList(color));
+//
+//                    } else if (scanTimer.time() < Constants.Indexer.secondsFor2){ // This is BIG
+//                        balls = balls.size() >= 2 ? Arrays.asList(balls.get(1), color) : Arrays.asList(color);
+//                    } else {
+//                        balls = Arrays.asList(color);
+//                    }
+//                }
+//                break;
+//            case ball:
+//                if (color != ballColor){
+//                    scanPhase = ScanPhase.hole;
+//                    scanTimer.reset();
+//                }
+//                break;
+//            case hole:
+//                if (scanTimer.time() > 0.1) {
+//                    if (color == BallColor.None) {
+//                        scanPhase = ScanPhase.pre;
+//                    } else {
+//                        scanPhase = ScanPhase.ball;
+//                    }
+//
+//                }
+//                break;
+//        }
+//        return balls;
     //ToDo: Loading
     public void setTransferPower(double set){
         if (lastTransferPower != set){

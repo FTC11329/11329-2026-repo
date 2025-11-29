@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.teleops;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-@TeleOp(name = "Auto Replay Time", group = "      group")
+@TeleOp(name = "Auto Replay Time", group = "zgroup")
 public class AutoReplayMode extends OpMode {
 
     AutoReplayTeleop autoReplay;

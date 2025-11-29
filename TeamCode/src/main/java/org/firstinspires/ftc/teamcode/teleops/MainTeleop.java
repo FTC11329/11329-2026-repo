@@ -8,7 +8,7 @@ import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.FancyButton;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
 
-@TeleOp(name = "Main Teleop", group = "    group")
+@TeleOp(name = "Main Teleop", group = "                                                        group")
 public class MainTeleop extends OpMode {
     //This is where we introduce the tele-operated controls
     Robot robot;
@@ -20,7 +20,6 @@ public class MainTeleop extends OpMode {
     FancyButton queueGreen;
     FancyButton queuePurple;
 
-    double angle = 5;
 
     @Override
     public void init() {
@@ -44,15 +43,22 @@ public class MainTeleop extends OpMode {
 
         robot.drivetrain.teleopMovement(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, gamepad1.right_bumper);
 
-        if (intake.isOn && intake.startPress) {
+        if (intake.startPress) {
             robot.intakeManual();
         }
-        if (!intake.isOn && intake.startPress) {
+        if (intake.endPress) {
             robot.stopIntake();
+            robot.stopIndexer();
         }
 
         if (spitIntake.startPress) {
             robot.spitIntake();
+            if (intake.isOn){
+                // Makes the intake toggle correct
+                intake.checkStatus(false);
+                intake.checkStatus(true);
+                intake.checkStatus(false);
+            }
         }
         if (spitIntake.endPress) {
             robot.stopIntake();
@@ -68,6 +74,23 @@ public class MainTeleop extends OpMode {
         if (queueGreen.startPress) {
             robot.qBall(BallColor.Green);
         }
+
+        telemetry.addData("indexer r", robot.indexer.getColorRGBA().red);
+        telemetry.addData("indexer g", robot.indexer.getColorRGBA().green);
+        telemetry.addData("indexer b", robot.indexer.getColorRGBA().blue);
+        telemetry.addData("indexer a", robot.indexer.getColorRGBA().alpha);
+        telemetry.addData("indexer col", robot.indexer.getColor());
+        telemetry.addData("indexer dis", robot.indexer.getDistance());
+        telemetry.addLine();
+
+        telemetry.addData("pose", robot.getCurrentPose());
+        for (BallColor ball : robot.hasBalls) {
+            telemetry.addData("hball", ball);
+        }
+        for (BallColor ball : robot.queuedBalls) {
+            telemetry.addData("qball", ball);
+        }
+
 
         robot.update();
 
@@ -109,10 +132,6 @@ public class MainTeleop extends OpMode {
 //
 //        telemetry.addData("indexer to shooter power", -gamepad2.right_stick_x);
 //
-//        telemetry.addData("indexer r", robot.indexer.getColor().red);
-//        telemetry.addData("indexer g", robot.indexer.getColor().green);
-//        telemetry.addData("indexer b", robot.indexer.getColor().blue);
-//        telemetry.addData("indexer a", robot.indexer.getColor().alpha);
 //
 //        telemetry.addData("intake Power", gamepad1.right_trigger - gamepad1.left_trigger);
 //
