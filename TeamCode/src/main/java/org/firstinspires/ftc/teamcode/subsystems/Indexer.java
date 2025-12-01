@@ -92,7 +92,8 @@ public class Indexer {
 
     boolean countedEmpty1 = false;
     boolean countedEmpty2 = false;
-
+/*
+    todo remove after 2nd comp
     // Inserts at index 0 and wraps size to 3 max
     private void insertAtFrontWrapped(List<BallColor> balls, BallColor color) {
         balls.add(0, color);
@@ -173,6 +174,7 @@ public class Indexer {
 //                break;
 //        }
 //        return balls;
+     */
     //ToDo: Loading
     public void setTransferPower(double set){
         if (lastTransferPower != set){

@@ -37,6 +37,9 @@ public class Constants {
         public static double pitch = 80;
         public static double tagAngle = 80;
     }
+    public static class Shooter {
+        public static double closeEnoughRPM = 40;
+    }
     public static class Color {
 
         public static double[] green = {0.0097, 0.0421, 0.0318, 0.9807}; //0.2503
@@ -45,6 +48,16 @@ public class Constants {
         public static double[] none2 = {0.0005, 0.001, 0.0009, 0.0396}; //1.52
 
         public static double backDst = 0.7;
+    }
+
+    public static class ShootingZone {
+
+            public static Pose bigCenter = new Pose(0, 0);
+            public static Pose bigRight = new Pose(-72, 72);
+            public static Pose bigLeft = new Pose(-72, -72);
+            public static Pose smallCenter = new Pose(48, 0);
+            public static Pose smallRight = new Pose(72, 24);
+            public static Pose smallLeft = new Pose(72, -24);
     }
 
     public static class ShooterParamaters {

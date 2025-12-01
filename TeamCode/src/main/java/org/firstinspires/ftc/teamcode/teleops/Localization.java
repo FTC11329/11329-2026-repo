@@ -30,6 +30,10 @@ public class Localization extends OpMode {
     public void loop() {
         robot.drivetrain.teleopMovement(gamepad1.right_stick_y, gamepad1.right_stick_x, gamepad1.left_stick_x, gamepad1.left_bumper);
         robot.update();
+
+        telemetry.addData("currentPos", robot.getCurrentPose());
+        telemetry.addData("In Shooting Zone", robot.inShootingZone());
+
         if (gamepad1.aWasReleased()){
             poses.set(index, robot.getCurrentPose());
             index += 1;
@@ -37,7 +41,6 @@ public class Localization extends OpMode {
                 index = 0;
             }
         }
-        telemetry.addData("currentPos", robot.getCurrentPose());
 
         telemetry.addData("index", index);
 

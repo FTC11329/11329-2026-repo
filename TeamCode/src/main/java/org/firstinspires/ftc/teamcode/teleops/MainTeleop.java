@@ -7,8 +7,28 @@ import org.firstinspires.ftc.teamcode.subsystems.Robot;
 import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.FancyButton;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
+//  Shooting logic (in psudo code)
+//
+//  if ((!failsafeToggle) && (togg and (inShootZone || overrideButton) ) ) {
+//      if ((purple or green) in queue) {
+//          shoot queue
+//      } else {
+//          shoot any
+//      }
+//  } else if (failsafeToggle) {
+//      if (gamepad2.a) {
+//          spin indexer
+//          spin shooter(2000rpm)
+//          setHood (10deg)
+//      }
+//      if (gamepad2.back) {
+//          spin transfer
+//      } else {
+//          don't spin transfer
+//      }
+//   }
 
-@TeleOp(name = "Main Teleop", group = "                                                        group")
+@TeleOp(name = "Main Teleop", group = "                                                      group")
 public class MainTeleop extends OpMode {
     //This is where we introduce the tele-operated controls
     Robot robot;
@@ -16,7 +36,7 @@ public class MainTeleop extends OpMode {
     // PressHolds
     FancyButton intake;
     FancyButton spitIntake;
-    FancyButton queueAny;
+    FancyButton autoShoot;
     FancyButton queueGreen;
     FancyButton queuePurple;
 
@@ -25,12 +45,11 @@ public class MainTeleop extends OpMode {
     public void init() {
         robot = new Robot(telemetry, hardwareMap, RobotSide.Blue);
 
-
         intake = new FancyButton(FancyButton.PressType.Toggle);
         spitIntake = new FancyButton(FancyButton.PressType.LongPress);
-        queueAny = new FancyButton(FancyButton.PressType.LongPress);
         queueGreen = new FancyButton(FancyButton.PressType.LongPress);
         queuePurple = new FancyButton(FancyButton.PressType.LongPress);
+        autoShoot = new FancyButton(FancyButton.PressType.Toggle);
     }
 
     @Override
@@ -39,7 +58,7 @@ public class MainTeleop extends OpMode {
         spitIntake.checkStatus(gamepad1.b); // Hold to spit
         queueGreen.checkStatus(gamepad1.y); // Press to queue green
         queuePurple.checkStatus(gamepad1.x); // Press to queue purple
-        queueAny.checkStatus(gamepad1.a); // Press to queue any ball
+        autoShoot.checkStatus(gamepad1.a); // Toggle to turn on auto shoot
 
         robot.drivetrain.teleopMovement(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, gamepad1.right_bumper);
 
@@ -62,11 +81,10 @@ public class MainTeleop extends OpMode {
         }
         if (spitIntake.endPress) {
             robot.stopIntake();
-            robot.autoIntake3();
         }
-
-        if (queueAny.startPress) {
-            robot.qBall(BallColor.Any);
+        
+        if (autoShoot.isOn) {
+            robot.shootQueue();
         }
         if (queuePurple.startPress) {
             robot.qBall(BallColor.Purple);
@@ -74,23 +92,6 @@ public class MainTeleop extends OpMode {
         if (queueGreen.startPress) {
             robot.qBall(BallColor.Green);
         }
-
-        telemetry.addData("indexer r", robot.indexer.getColorRGBA().red);
-        telemetry.addData("indexer g", robot.indexer.getColorRGBA().green);
-        telemetry.addData("indexer b", robot.indexer.getColorRGBA().blue);
-        telemetry.addData("indexer a", robot.indexer.getColorRGBA().alpha);
-        telemetry.addData("indexer col", robot.indexer.getColor());
-        telemetry.addData("indexer dis", robot.indexer.getDistance());
-        telemetry.addLine();
-
-        telemetry.addData("pose", robot.getCurrentPose());
-        for (BallColor ball : robot.hasBalls) {
-            telemetry.addData("hball", ball);
-        }
-        for (BallColor ball : robot.queuedBalls) {
-            telemetry.addData("qball", ball);
-        }
-
 
         robot.update();
 
@@ -148,5 +149,8 @@ public class MainTeleop extends OpMode {
 //
 //        telemetry.addData("turret power", gamepad2.right_trigger - gamepad2.left_trigger);
     }
-
+    @Override
+    public void stop() {
+        robot.stopAllSubsystems();
+    }
 }

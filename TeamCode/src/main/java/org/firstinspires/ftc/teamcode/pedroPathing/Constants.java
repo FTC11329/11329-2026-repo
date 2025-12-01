@@ -9,13 +9,14 @@ import org.firstinspires.ftc.teamcode.pedroPathing.core.localization.constants.P
 import org.firstinspires.ftc.teamcode.pedroPathing.paths.PathConstraints;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 public class Constants {
     public static FollowerConstants followerConstants = new FollowerConstants()
-            .mass(13)
+            .mass(9.97)
             .forwardZeroPowerAcceleration(-32.39971547811005)
             .lateralZeroPowerAcceleration(-71.3025081310961)
             .useSecondaryDrivePIDF(false)
@@ -24,22 +25,22 @@ public class Constants {
             .useSecondaryHeadingPIDF(false)
             ;
     public static PinpointConstants localizerConstants = new PinpointConstants()
-            .forwardPodY(-5.6875)
-            .strafePodX(2.125)
+            .forwardPodY(-5.866)
+            .strafePodX(-2.3622)
             .distanceUnit(DistanceUnit.INCH)
             .hardwareMapName("pinpoint")
             .encoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD)
             .forwardEncoderDirection(GoBildaPinpointDriver.EncoderDirection.REVERSED)
-            .strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.FORWARD);
+            .strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.REVERSED);
 
     public static PathConstraints pathConstraints = new PathConstraints(0.99, 100, 1, 1);
 
     public static MecanumConstants driveConstants = new MecanumConstants()
             .maxPower(1)
+            .leftFrontMotorName("leftFront")
+            .leftRearMotorName("leftBack")
             .rightFrontMotorName("rightFront")
             .rightRearMotorName("rightBack")
-            .leftRearMotorName("leftBack")
-            .leftFrontMotorName("leftFront")
             .leftFrontMotorDirection(DcMotorEx.Direction.REVERSE)
             .leftRearMotorDirection(DcMotorEx.Direction.REVERSE)
             .rightFrontMotorDirection(DcMotorEx.Direction.FORWARD)

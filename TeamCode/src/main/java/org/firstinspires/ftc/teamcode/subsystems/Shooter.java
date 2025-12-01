@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.control.PIDFCoefficients;
 import org.firstinspires.ftc.teamcode.pedroPathing.control.PIDFController;
 
@@ -25,6 +26,8 @@ public class Shooter {
 
     double hoodPos = 0;
     public PIDFController shooterPID;
+    
+    boolean shooterSpin;
 
     public Shooter(HardwareMap hardwareMap){
         flywheel = hardwareMap.get(DcMotorEx.class, "flywheel");
@@ -59,20 +62,21 @@ public class Shooter {
         return flywheel.getVelocity();
     }
 
-    public void setHood(double angle){
-
-        if (hoodPos != angle) {
-            hoodPos = Math.max(Math.min(angle, 0.5), 0);
-            hoodServo1.setPosition(angle);
-            hoodServo2.setPosition(angle);
+    // Set hood from 0-1
+    public void setHood(double set){
+        if (hoodPos != set) {
+            hoodPos = Math.max(Math.min(set, 0.5), 0);
+            hoodServo1.setPosition(set);
+            hoodServo2.setPosition(set);
         }
     }
-
+    
     public void setHoodDeg(double hoodDeg) {
         setHood((hoodDeg - 5) / 80);
     }
 
-    public double getHoodPos() {
+    // get the degrees of the hood
+    public double getHoodPosDeg() {
         return (hoodPos * 80) + 5;
     }
 
@@ -80,8 +84,8 @@ public class Shooter {
         shooterPID.reset();
     }
 
-    public boolean closeEnough() {
-        return Math.abs(shooterPID.getError()) <= rpmToVelocity(60);
+    public boolean closeEnoughToTarget() {
+        return Math.abs(shooterPID.getError()) <= rpmToVelocity(Constants.Shooter.closeEnoughRPM);
     }
 
     // targetRPM is in ticks/sec
@@ -89,11 +93,19 @@ public class Shooter {
         double targetVel = rpmToVelocity(targetRPM);
         shooterPID.reset();
         shooterPID.setTargetPosition(targetVel);
+        shooterSpin = true;
     }
 
-    public void update(int set) {
-        shooterPID.updatePosition(flywheel.getVelocity());  // ticks/sec
-        setPower(shooterPID.run());
+    public void stopShooter(){
+        shooterSpin = false;
+        setPower(0);
+    }
+
+    public void update() {
+        if (shooterSpin){
+            shooterPID.updatePosition(flywheel.getVelocity());  // ticks/sec
+            setPower(shooterPID.run());
+        }
     }
 
 }
