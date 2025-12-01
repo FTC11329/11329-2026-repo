@@ -5,8 +5,8 @@ public class shooterTestValues {
 
     public void createShooterMap() {
         // Distance units must have a consistent unit
-        shooterMap.put(20.0, new ShooterState(1600, 10));  // close
-        shooterMap.put(60.0, new ShooterState(2700, 21));  // far
+        shooterMap.put(60, new ShooterState(2900, 14.1));  // close
+        shooterMap.put(62, new ShooterState(3000, 14.6));  // far
     }
 
     public ShooterState get(double distance) {
