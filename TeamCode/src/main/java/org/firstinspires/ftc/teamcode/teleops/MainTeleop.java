@@ -2,8 +2,10 @@ package org.firstinspires.ftc.teamcode.teleops;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
+import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.FancyButton;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
@@ -35,7 +37,6 @@ import org.firstinspires.ftc.teamcode.util.RobotSide;
 public class MainTeleop extends OpMode {
     //This is where we introduce the tele-operated controls
     Robot robot;
-
     // PressHolds
     FancyButton intake;
     FancyButton spitIntake;
@@ -45,7 +46,8 @@ public class MainTeleop extends OpMode {
     FancyButton overrideShootPosition;
     FancyButton debug;
 
-
+    public double hoodAngle = 20;
+    public double rpm = 3000;
     @Override
     public void init() {
         robot = new Robot(telemetry, hardwareMap, RobotSide.Blue);
@@ -71,6 +73,24 @@ public class MainTeleop extends OpMode {
 
 
         robot.drivetrain.teleopMovement(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, gamepad1.right_bumper);
+
+        if (gamepad2.dpad_up) {
+            hoodAngle += 5;
+            robot.shooter.setHoodDeg(hoodAngle);
+        } else if (hoodAngle >= 5 && gamepad2.dpad_down) {
+            hoodAngle -= 5;
+            robot.shooter.setHoodDeg(hoodAngle);
+        }
+        if (gamepad2.dpad_left) {
+            rpm += 100;
+            robot.shooter.setTargetRPM(rpm);
+        } else if (gamepad2.dpad_right) {
+            rpm -= 100;
+            robot.shooter.setTargetRPM(rpm);
+        }
+        if (gamepad2.left_bumper) {
+            robot.shootArtifact(BallColor.Any);
+        }
 
         if (intake.startPress) {
             robot.intakeManual();
@@ -157,7 +177,8 @@ public class MainTeleop extends OpMode {
 //
 //        telemetry.addData("current", robot.shooter.flywheel.getCurrent(CurrentUnit.AMPS));
 //
-//        telemetry.addData("Encoder RPM", robot.shooter.getRPM());
+        telemetry.addData("Encoder RPM", robot.shooter.getRPM());
+        telemetry.addData("Hood angle", robot.shooter.getHoodPosDeg());
 //
 //        telemetry.addData("turret power", gamepad2.right_trigger - gamepad2.left_trigger);
     }
