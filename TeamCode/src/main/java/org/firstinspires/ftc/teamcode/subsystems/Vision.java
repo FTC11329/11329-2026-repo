@@ -184,7 +184,7 @@ public class Vision {
         double vry = - Math.cos(heading) * vx - velocity.getY();
 
         vx = Math.sqrt(vrx * vrx + vry * vry);
-        heading = Math.atan2(-vx, vy);
+        heading = Math.atan2(-vrx, vry);
 
         double v = Math.sqrt(vx * vx + vy * vy);
         double angle = Math.atan2(vy, vx);
@@ -215,8 +215,8 @@ public class Vision {
         double a = 0.25 * Constants.ShooterParamaters.G * Constants.ShooterParamaters.G;
         double b = y0 * Constants.ShooterParamaters.G - v;
         double c = x0 * x0 + y0 * y0;
-        double t2 = (- b + Math.sqrt(b * b - 4 * a * c)) / (2 * a);
-        return getVelocityTime(Math.sqrt(t2), robotPose, velocity);
+        double t2 = (- b + Math.sqrt(Math.abs(b * b - 4 * a * c))) / (2 * a);
+        return getVelocityTime(Math.sqrt(Math.abs(t2)), robotPose, velocity);
     }
 
     public double velocityToRPM(double velocity){
@@ -239,12 +239,16 @@ public class Vision {
         switch (initialConditionType){
             case Time:
                 info = getVelocityTime(initalCondition, robotPose, velocity);
+                break;
             case MaxHeight:
                 info = getVelocityMaxHeight(initalCondition, robotPose, velocity);
+                break;
             case FinalAngle:
                 info = getVelocityFinalAngle(initalCondition, robotPose, velocity);
+                break;
             case RPM:
                 info = getVelocityRPM(initalCondition, robotPose, velocity);
+                break;
         }
         if (info != null){
             info[2] = velocityToRPM(info[2]);
@@ -253,6 +257,6 @@ public class Vision {
     }
 
     public enum InitialCondition{
-        RPM, MaxHeight, Time, FinalAngle
+        RPM, MaxHeight, Time, FinalAngle //todo add hood angle
     }
 }

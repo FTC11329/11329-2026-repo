@@ -7,8 +7,11 @@ import org.firstinspires.ftc.teamcode.subsystems.Robot;
 import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.FancyButton;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
+
 //  Shooting logic (in psudo code)
-//
+//  if (togg) {
+//      spin up
+//  }
 //  if ((!failsafeToggle) && (togg and (inShootZone || overrideButton) ) ) {
 //      if ((purple or green) in queue) {
 //          shoot queue
@@ -39,6 +42,8 @@ public class MainTeleop extends OpMode {
     FancyButton autoShoot;
     FancyButton queueGreen;
     FancyButton queuePurple;
+    FancyButton overrideShootPosition;
+    FancyButton debug;
 
 
     @Override
@@ -50,15 +55,20 @@ public class MainTeleop extends OpMode {
         queueGreen = new FancyButton(FancyButton.PressType.LongPress);
         queuePurple = new FancyButton(FancyButton.PressType.LongPress);
         autoShoot = new FancyButton(FancyButton.PressType.Toggle);
+        overrideShootPosition = new FancyButton(FancyButton.PressType.LongPress);
+        debug = new FancyButton(FancyButton.PressType.LongPress);
     }
 
     @Override
     public void loop() {
         intake.checkStatus(gamepad1.left_bumper); // Toggle on to intake
         spitIntake.checkStatus(gamepad1.b); // Hold to spit
-        queueGreen.checkStatus(gamepad1.y); // Press to queue green
-        queuePurple.checkStatus(gamepad1.x); // Press to queue purple
-        autoShoot.checkStatus(gamepad1.a); // Toggle to turn on auto shoot
+        queueGreen.checkStatus(gamepad2.y); // Press to queue green
+        queuePurple.checkStatus(gamepad2.x); // Press to queue purple
+        autoShoot.checkStatus(gamepad2.a); // Toggle to turn on auto shoot
+        overrideShootPosition.checkStatus(gamepad2.back); // hold to turn on ignore position
+        debug.checkStatus(gamepad1.start); // hold to print telemetry
+
 
         robot.drivetrain.teleopMovement(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, gamepad1.right_bumper);
 
@@ -82,9 +92,12 @@ public class MainTeleop extends OpMode {
         if (spitIntake.endPress) {
             robot.stopIntake();
         }
-        
+
         if (autoShoot.isOn) {
-            robot.shootQueue();
+            robot.prepareShooter();
+            robot.shootQueue(overrideShootPosition.isOn);
+        } else if (autoShoot.endPress){
+            robot.setShooterTargetRPM(0);
         }
         if (queuePurple.startPress) {
             robot.qBall(BallColor.Purple);
@@ -93,8 +106,7 @@ public class MainTeleop extends OpMode {
             robot.qBall(BallColor.Green);
         }
 
-        robot.update();
-
+        robot.update(debug.isOn);
 
 //        robot.update();
 //        shoot.checkStatus(gamepad1.x);

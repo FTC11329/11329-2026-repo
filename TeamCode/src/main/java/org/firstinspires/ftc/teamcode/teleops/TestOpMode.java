@@ -25,12 +25,14 @@ public class TestOpMode extends OpMode {
 
     Pose robotPose;
     FancyButton toggle;
+    FancyButton toggle2;
 
     @Override
     public void init() {
         //do stuff init
         robot = new Robot(telemetry, hardwareMap, RobotSide.Blue);
         toggle = new FancyButton(FancyButton.PressType.Toggle);
+        toggle2 = new FancyButton(FancyButton.PressType.Toggle);
     }
 
     @Override
@@ -45,15 +47,19 @@ public class TestOpMode extends OpMode {
 //        robot.update();
         robot.drivetrain.teleopMovement(gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, gamepad1.right_bumper);
         toggle.checkStatus(gamepad1.a);
+        toggle2.checkStatus(gamepad1.left_bumper);
 //        robotPose = robot.getCurrentPose();
+        if (toggle2.startPress) {
+            robot.indexer.transfer(true);
+        } else if (toggle2.endPress) {
+            robot.indexer.transfer(false);
+        }
         if (toggle.startPress) {
             robot.shooter.setPower(1);
-            robot.indexer.transfer(true);
             robot.indexer.setIndexerPower(1);
             robot.intake.setIntakePower(1);
         } else if (toggle.endPress) {
             robot.shooter.setPower(0);
-            robot.indexer.transfer(false);
             robot.indexer.setIndexerPower(0);
             robot.intake.setIntakePower(0);
         }

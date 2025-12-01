@@ -7,7 +7,6 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -17,16 +16,11 @@ import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.ColorFunctions;
 import org.firstinspires.ftc.teamcode.util.ScanPhase;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 public class Indexer {
     // declaring motor variables
     CRServo spindexer1;
     CRServo spindexer2;
-    DcMotorEx transfer;
+    DcMotorEx feeder;
     RevColorSensorV3 colorSensor;
     ScanPhase scanPhase = ScanPhase.pre;
 
@@ -42,11 +36,11 @@ public class Indexer {
         spindexer1.setDirection(DcMotorSimple.Direction.FORWARD);
         spindexer2.setDirection(DcMotorSimple.Direction.FORWARD);
 
-        transfer = hardwaremap.get(DcMotorEx.class, "transfer");
-        transfer.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        transfer.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        transfer.setDirection(DcMotorSimple.Direction.FORWARD);
-        transfer.setCurrentAlert(4, CurrentUnit.AMPS);
+        feeder = hardwaremap.get(DcMotorEx.class, "transfer");
+        feeder.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        feeder.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        feeder.setDirection(DcMotorSimple.Direction.REVERSE);
+        feeder.setCurrentAlert(4, CurrentUnit.AMPS);
 
         colorSensor = hardwaremap.get(RevColorSensorV3.class, "spindexerColorSensor");
         lastColorTime = new Timer();
@@ -62,7 +56,7 @@ public class Indexer {
     }
 
     public void setIndexerToShooterPower(double set){
-        transfer.setPower(set);
+        feeder.setPower(set);
     }
 
     public NormalizedRGBA getColorRGBA(){
@@ -179,7 +173,7 @@ public class Indexer {
     public void setTransferPower(double set){
         if (lastTransferPower != set){
             lastTransferPower = set;
-            transfer.setPower(set);
+            feeder.setPower(set);
         }
     }
 
@@ -196,6 +190,6 @@ public class Indexer {
     }
 
     public void setMotor(double set) {
-        transfer.setPower(set);
+        feeder.setPower(set);
     }
 }

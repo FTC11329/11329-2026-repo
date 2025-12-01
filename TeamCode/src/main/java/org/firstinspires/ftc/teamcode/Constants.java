@@ -15,10 +15,8 @@ public class Constants {
     public static class Indexer {
         public static double spindexPower = 1;
         public static double transferPower = 1;
-        public static double primingServoUp = 0;
-        public static double primingServoDown = 0;
 
-        public static double secondsFor2 = 1.6;
+        public static double secondsFor2 = 1.6; // todo remove after 2nd comp
         public static double secondsFor1 = 0.8;
         public static double secondsForHole = 0.1;
     }
@@ -39,6 +37,7 @@ public class Constants {
     }
     public static class Shooter {
         public static double closeEnoughRPM = 40;
+        public static double ticksPerRevolution = 28;
     }
     public static class Color {
 
@@ -47,7 +46,7 @@ public class Constants {
         public static double[] none = {0.0004, 0.0008, 0.0007, 0.0234}; // 1.67
         public static double[] none2 = {0.0005, 0.001, 0.0009, 0.0396}; //1.52
 
-        public static double backDst = 0.7;
+        public static double backDst = 1;
     }
 
     public static class ShootingZone {
@@ -63,8 +62,8 @@ public class Constants {
     public static class ShooterParamaters {
         // --- Fixed geometry ---
         public static double LAUNCHER_HEIGHT_IN = 12.063;   // inches: how high the ball leaves the shooter
-        public static double TARGET_HEIGHT_IN   = 29.0;   // inches: height of the target off the ground
-        public static double TAG_TO_TARGET_IN   = 19.0;   // inches: distance from AprilTag to middle of the targeted point
+        public static double TARGET_HEIGHT_IN   = 40.0;   // inches: height of the target off the ground
+        public static double TAG_TO_TARGET_IN   = 9;   // inches: distance from AprilTag to middle of the targeted point
 
         // --- Physical constants ---
         public static double G = 9.81;                   // gravity (m/s^2)

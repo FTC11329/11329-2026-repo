@@ -22,7 +22,6 @@ public class Shooter {
 
     double targetVelocity;
 
-    int TICKS_PER_REVOLUTION = 28;
 
     double hoodPos = 0;
     public PIDFController shooterPID;
@@ -53,10 +52,10 @@ public class Shooter {
         flywheel.setPower(power);
     }
     public double getRPM(){
-        return flywheel.getVelocity() * 60 / TICKS_PER_REVOLUTION;
+        return flywheel.getVelocity() * 60 / Constants.Shooter.ticksPerRevolution;
     }
     public double rpmToVelocity(double RPM){
-        return RPM * TICKS_PER_REVOLUTION / 60;
+        return RPM * Constants.Shooter.ticksPerRevolution / 60;
     }
     public double getVelocity(){
         return flywheel.getVelocity();

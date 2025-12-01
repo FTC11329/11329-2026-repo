@@ -15,17 +15,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Robot {
-    public ArrayList<BallColor> queuedBalls = new ArrayList<>();
-    public ArrayList<BallColor> hasBalls = new ArrayList<>(); // todo Delete after 2nd comp
-    public BallColor[] motif = null;
-    public ArrayList<BallColor> ramp = new ArrayList<BallColor>();
-    int oneBallCase = 0;
-    int burst = 3;
-    double[] shootingParams;
-    boolean doAutoIntake = false;
-
-
-
     // Todo make private
     public Stilts stilts;
     public Intake intake;
@@ -41,6 +30,18 @@ public class Robot {
     public ElapsedTime shooterTimer;
 
     double startTime;
+
+    //This is the balls that the shooter prepares to shoot
+    public ArrayList<BallColor> queuedBalls = new ArrayList<>();
+    //This is an array of the 3 special colors of the games MOTIF
+    public BallColor[] motif = null;
+    //This is SPECIFICALLY for auto, it is the balls in the ramp
+    public ArrayList<BallColor> ramp = new ArrayList<BallColor>();
+    //This is a varibale used in the ShootArtifact function to keep track of the shooting Phase
+    int oneBallCase = 0;
+    //This is a PUBLIC variable: [turret anlge, hood angle, shooter RPM]
+    double[] shootingParams;
+    boolean doAutoIntake = false;
 
     Telemetry telemetry;
     public Robot(Telemetry telemetry, HardwareMap hardwareMap, RobotSide robotSide) {
@@ -62,15 +63,15 @@ public class Robot {
     }
     // VISION**************************************************************************************~
     public void getMotif() {
-        if (motif != null){
-            return;
+        if (motif == null){
+            motif = vision.getMotif();
         }
-        motif = vision.getMotif();
     }
 
     public boolean lineSide(Pose a, Pose b, Pose r) {
         double s = (b.getX() - a.getX()) * (r.getY() - a.getY()) - (b.getY() - a.getY()) * (r.getY() - a.getY());
         s = s / a.distanceFrom(b);
+        telemetry.addData("distance", s);
         return s + 5 >= 0;
     }
 
@@ -89,7 +90,7 @@ public class Robot {
     }
 
     // SHOOTER*************************************************************************************~
-    // Adds a ball of color ball color to hasBalls list
+    // Adds a ball of color ball color to queuedBalls list
     public void qBall(BallColor qdColor) {
         queuedBalls.add(qdColor);
     }
@@ -98,41 +99,36 @@ public class Robot {
         queuedBalls.addAll(Arrays.asList(qdColors));
     }
 
+    //corrects the hood, turret, and shooter rpm
+    public void prepareShooter() {
+        shootingParams = vision.getRPM(getCurrentPose(), 3500, Vision.InitialCondition.RPM, new Pose(follower.getVelocity().getXComponent(), follower.getVelocity().getYComponent()));
+        telemetry.addData("shooter RPM", shootingParams[2]);
+        shootingParams = vision.getRPM(getCurrentPose(), shooter.getRPM(), Vision.InitialCondition.RPM, new Pose(follower.getVelocity().getXComponent(), follower.getVelocity().getYComponent()));
+        telemetry.addData("hood", shootingParams[1]);
+        turret.turnTo(shootingParams[0]);
+        shooter.setTargetRPM(shootingParams[2]);
+        shooter.setHoodDeg(Math.toDegrees(shootingParams[1]));
+        telemetry.addData("Turret Angle", shootingParams[0]);
+    }
+
     public boolean shootArtifact(BallColor ballColor) {
         switch (oneBallCase) {
             case 0:
                 if (indexer.spinUntil(ballColor)) {
-                    shootingParams = vision.getRPM(getCurrentPose(), 3500, Vision.InitialCondition.RPM, new Pose(follower.getVelocity().getXComponent(), follower.getVelocity().getYComponent()));
-                    shooter.resetShooter();
-                    shooter.setTargetRPM(shootingParams[2]);
-                    shooter.setHoodDeg(shootingParams[1]);
-                    turret.turnTo(shootingParams[0]);
                     oneBallCase = 1;
                 }
                 return false;
             case 1:
-                shooter.setHoodDeg(shootingParams[1]);
-                turret.updateTurret(shootingParams[0]);
                 if (shooter.closeEnoughToTarget()) {
-                    shootingParams = vision.getRPM(getCurrentPose(),shooter.getRPM(), Vision.InitialCondition.RPM, new Pose(follower.getVelocity().getXComponent(), follower.getVelocity().getYComponent()));
-                    shooter.setHoodDeg(shootingParams[1]);
-                    turret.turnTo(shootingParams[0]);
                     startTime = time.milliseconds();
                     oneBallCase = 2;
                 }
                 return false;
             case 2:
                 indexer.transfer(true);
-                shootingParams = vision.getRPM(getCurrentPose(),shooter.getRPM(), Vision.InitialCondition.RPM, new Pose(follower.getVelocity().getXComponent(), follower.getVelocity().getYComponent()));
-                shooter.setHoodDeg(shootingParams[1]);
-                turret.turnTo(shootingParams[0]);
-                if (time.milliseconds() - startTime < 300) {
+                if (time.milliseconds() - startTime < 500) {
                     oneBallCase = 0;
                     indexer.transfer(false);
-                    if (queuedBalls.size() <= 1){
-                        indexer.stopIndexer();
-                        shooter.stopShooter();
-                    }
                     return true;
                 }
                 return false;
@@ -142,12 +138,15 @@ public class Robot {
 
     // Loops through and removes balls from quedballs after firing them
     public boolean shootQueueInMotif() {
+        if (!inShootingZone()) {
+            return false;
+        }
         if (queuedBalls.isEmpty()) {
             return true;
         }
         BallColor current = nextArtifactInMotif();
         if (shootArtifact(current)) {
-            if (queuedBalls.contains(current)){
+            if (queuedBalls.contains(current)) {
                 queuedBalls.remove(current);
             } else {
                 queuedBalls.remove(0);
@@ -157,16 +156,26 @@ public class Robot {
         return false;
     }
 
-    //
-    public boolean shootQueue() {
+    // shoots balls in queue or any ball
+    public void shootQueue(boolean override) {
+        if (!inShootingZone() && !override){
+            return;
+        }
+        BallColor soonToBeShotBall;
         if (queuedBalls.isEmpty()) {
-            return true;
+            soonToBeShotBall = BallColor.Any;
+        } else {
+            soonToBeShotBall = queuedBalls.get(0);
         }
-        BallColor current = queuedBalls.get(0);
-        if (shootArtifact(current)) {
-            queuedBalls.remove(current);
+        if (shootArtifact(soonToBeShotBall)) {
+            if (!queuedBalls.isEmpty()) {
+                queuedBalls.remove(0);
+            }
         }
-        return false;
+    }
+
+    public void setShooterTargetRPM(double set) {
+        shooter.setTargetRPM(set);
     }
 
     double pictureTime = 0;

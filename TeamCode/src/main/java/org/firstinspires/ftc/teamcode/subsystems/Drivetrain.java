@@ -1,6 +1,7 @@
 
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -51,9 +52,21 @@ public class Drivetrain {
             speed = 1;
         }
         //MATH
-        leftFront.setPower((forwardBackPower + strafePower + turning) * speed);
-        leftBack.setPower((forwardBackPower  - strafePower + turning) * speed);
-        rightFront.setPower((forwardBackPower - strafePower - turning) * speed);
-        rightBack.setPower((forwardBackPower + strafePower - turning) * speed);
+//        leftFront.setPower((forwardBackPower + strafePower + turning) * speed);
+//        leftBack.setPower((forwardBackPower  - strafePower + turning) * speed);
+//        rightFront.setPower((forwardBackPower - strafePower - turning) * speed);
+//        rightBack.setPower((forwardBackPower + strafePower - turning) * speed);
+
+        setSafePower(leftFront, ((forwardBackPower + strafePower + turning) * speed));
+        setSafePower(leftBack, ((forwardBackPower  - strafePower + turning) * speed));
+        setSafePower(rightFront, ((forwardBackPower - strafePower - turning) * speed));
+        setSafePower(rightBack, ((forwardBackPower + strafePower - turning) * speed));
     }
-}
+    // todo remove once ve have power switch v2
+    void setSafePower(DcMotorEx motor, double targetPower){
+        final double SLEW_RATE = 0.2;
+        double currentPower = motor.getPower();
+        double desiredChange = targetPower - currentPower;
+        double limitedChange = Math.max(-SLEW_RATE, Math.min(desiredChange, SLEW_RATE));
+        motor.setPower(currentPower += limitedChange);
+    }}
