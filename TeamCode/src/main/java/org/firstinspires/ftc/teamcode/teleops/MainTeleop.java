@@ -179,6 +179,7 @@ public class MainTeleop extends OpMode {
 //
         telemetry.addData("Encoder RPM", robot.shooter.getRPM());
         telemetry.addData("Hood angle", robot.shooter.getHoodPosDeg());
+        telemetry.addData("Hood angle", robot.vision.distanceXToGoal(robot.follower.getPose()));
 //
 //        telemetry.addData("turret power", gamepad2.right_trigger - gamepad2.left_trigger);
     }
