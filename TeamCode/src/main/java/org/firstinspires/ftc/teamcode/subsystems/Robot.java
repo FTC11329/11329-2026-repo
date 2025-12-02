@@ -101,13 +101,12 @@ public class Robot {
 
     //corrects the hood, turret, and shooter rpm
     public void prepareShooter() {
-        shootingParams = vision.getRPM(getCurrentPose(), 3500, Vision.InitialCondition.RPM, new Pose(follower.getVelocity().getXComponent(), follower.getVelocity().getYComponent()));
-        telemetry.addData("shooter RPM", shootingParams[2]);
-        shootingParams = vision.getRPM(getCurrentPose(), shooter.getRPM(), Vision.InitialCondition.RPM, new Pose(follower.getVelocity().getXComponent(), follower.getVelocity().getYComponent()));
-        telemetry.addData("hood", shootingParams[1]);
+
         turret.turnTo(shootingParams[0]);
         shooter.setTargetRPM(shootingParams[2]);
         shooter.setHoodDeg(Math.toDegrees(shootingParams[1]));
+        telemetry.addData("hood", shootingParams[1]);
+        telemetry.addData("shooter RPM", shootingParams[2]);
         telemetry.addData("Turret Angle", shootingParams[0]);
     }
 
@@ -203,7 +202,7 @@ public class Robot {
     public void autoSetCurrentPose() {
         Pose pos = vision.getRobotPose();
         if (pos != null){
-            follower.setPose(pos);
+//            follower.setPose(pos);
         }
     }
     public Pose getCurrentPose() {

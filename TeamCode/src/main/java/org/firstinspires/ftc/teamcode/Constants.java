@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.bylazar.configurables.annotations.Configurable;
+
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
@@ -7,11 +9,13 @@ import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 
+@Configurable
 public class Constants {
     // todo replace all placeholders with real constants
     public static double PlacholdereDouble = 0;
     public static boolean PlaceHOLDERboooLEAN = false;
 
+    @Configurable
     public static class Indexer {
         public static double spindexPower = 1;
         public static double transferPower = 1;
@@ -20,11 +24,13 @@ public class Constants {
         public static double secondsFor1 = 0.8;
         public static double secondsForHole = 0.1;
     }
+    @Configurable
     public static class Intake {
         public static double intakePower = 1;
         public static double spitPower = -0.75;
     }
 
+    @Configurable
     public static class Vision {
         public static Pose redTag = new Pose(55.64, -58.34);
         public static Pose blueTag = new Pose(55.64, 58.34);
@@ -35,10 +41,16 @@ public class Constants {
         public static double pitch = 80;
         public static double tagAngle = 80;
     }
+    @Configurable
     public static class Shooter {
         public static double closeEnoughRPM = 40;
         public static double ticksPerRevolution = 28;
+        public static double P = 0.0006;  // todo tune this!
+        public static double I = 0.0002;
+        public static double D = 0.00005;
+        public static double F = 0.1;
     }
+    @Configurable
     public static class Color {
 
         public static double[] green = {0.0097, 0.0421, 0.0318, 0.9807}; //0.2503
@@ -49,6 +61,7 @@ public class Constants {
         public static double backDst = 1;
     }
 
+    @Configurable
     public static class ShootingZone {
 
             public static Pose bigCenter = new Pose(0, 0);
@@ -59,6 +72,7 @@ public class Constants {
             public static Pose smallLeft = new Pose(72, -24);
     }
 
+    @Configurable
     public static class ShooterParamaters {
         // --- Fixed geometry ---
         public static double LAUNCHER_HEIGHT_IN = 12.063;   // inches: how high the ball leaves the shooter

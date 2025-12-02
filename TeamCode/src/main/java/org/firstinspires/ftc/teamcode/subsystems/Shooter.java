@@ -44,7 +44,11 @@ public class Shooter {
         hoodServo2.setDirection(Servo.Direction.REVERSE);
         hoodServo2.setPosition(0);
 
-        shooterPID = new PIDFController(new PIDFCoefficients(0.0006, 0.0002, 0.00005, 0.1)); // todo change this!
+        shooterPID = new PIDFController(new PIDFCoefficients(
+                Constants.Shooter.P,
+                Constants.Shooter.I,
+                Constants.Shooter.D,
+                Constants.Shooter.F));
         shooterPID.reset();
     }
 
@@ -90,7 +94,6 @@ public class Shooter {
     // targetRPM is in ticks/sec
     public void setTargetRPM(double targetRPM) {
         double targetVel = rpmToVelocity(targetRPM);
-        shooterPID.reset();
         shooterPID.setTargetPosition(targetVel);
         shooterSpin = true;
     }
@@ -98,6 +101,22 @@ public class Shooter {
     public void stopShooter(){
         shooterSpin = false;
         setPower(0);
+    }
+
+    public double getShooterPower() {
+        return shooterPID.run();
+    }
+
+    public void setPID() {
+        shooterPID.setCoefficients(new PIDFCoefficients(
+                Constants.Shooter.P,
+                Constants.Shooter.I,
+                Constants.Shooter.D,
+                Constants.Shooter.F));
+    }
+
+    public PIDFCoefficients getPID() {
+        return shooterPID.getCoefficients();
     }
 
     public void update() {
