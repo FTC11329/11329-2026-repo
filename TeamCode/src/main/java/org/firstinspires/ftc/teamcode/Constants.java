@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.bylazar.configurables.annotations.Configurable;
+import com.qualcomm.hardware.bosch.BNO055IMU;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -24,13 +25,11 @@ public class Constants {
         public static double secondsFor1 = 0.8;
         public static double secondsForHole = 0.1;
     }
-    @Configurable
     public static class Intake {
         public static double intakePower = 1;
         public static double spitPower = -0.75;
     }
 
-    @Configurable
     public static class Vision {
         public static Pose redTag = new Pose(55.64, -58.34);
         public static Pose blueTag = new Pose(55.64, 58.34);
@@ -41,27 +40,36 @@ public class Constants {
         public static double pitch = 80;
         public static double tagAngle = 80;
     }
-    @Configurable
+    public static class Turret {
+//        public static double P = 0.1;
+//        public static double I = 0;
+//        public static double D = 0;
+//        public static double F = 0;
+        public static double P = 0.016;
+        public static double I = 0.00043;
+        public static double D = 0.0004;
+        public static double F = 0;
+    }
     public static class Shooter {
         public static double closeEnoughRPM = 40;
         public static double ticksPerRevolution = 28;
-        public static double P = 0.0006;  // todo tune this!
-        public static double I = 0.0002;
-        public static double D = 0.00005;
-        public static double F = 0.1;
+        public static double P = 0.001;  // todo tune this!
+        public static double I = 0;
+        public static double D = 0;
+        public static double F = 0.0003333;
     }
-    @Configurable
     public static class Color {
 
         public static double[] green = {0.0097, 0.0421, 0.0318, 0.9807}; //0.2503
+        public static double[] greenFar = {0, 0, 0, 0};
         public static double[] purple = {0.0253, 0.0336, 0.0632, 0.9909}; //0.2503
+        public static double[] purpleFar = {0, 0, 0, 0};
         public static double[] none = {0.0004, 0.0008, 0.0007, 0.0234}; // 1.67
         public static double[] none2 = {0.0005, 0.001, 0.0009, 0.0396}; //1.52
 
         public static double backDst = 1;
     }
 
-    @Configurable
     public static class ShootingZone {
 
             public static Pose bigCenter = new Pose(0, 0);
@@ -72,7 +80,6 @@ public class Constants {
             public static Pose smallLeft = new Pose(72, -24);
     }
 
-    @Configurable
     public static class ShooterParamaters {
         // --- Fixed geometry ---
         public static double LAUNCHER_HEIGHT_IN = 12.063;   // inches: how high the ball leaves the shooter

@@ -9,12 +9,16 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.Indexer;
+import org.firstinspires.ftc.teamcode.subsystems.Robot;
+import org.firstinspires.ftc.teamcode.util.RobotSide;
 
 @TeleOp(name = "TEST", group = "zgroup")
 public class TemporaryClassThatWeAreTotallyGoingToDelete extends OpMode {
+    Robot robot;
     TelemetryManager panelsTelemetry;
     @Override
     public void init() {
+        robot = new Robot(telemetry, hardwareMap, RobotSide.Blue);
         panelsTelemetry = Panels.getTelemetry();
     }
 
@@ -27,5 +31,6 @@ public class TemporaryClassThatWeAreTotallyGoingToDelete extends OpMode {
         panelsTelemetry.graph("wave", power1);
         panelsTelemetry.graph("wave2", power2);
         panelsTelemetry.update(telemetry);
+        robot.turret.setPower(power1);
     }
 }

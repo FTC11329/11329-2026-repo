@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.teleops;
 
+import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.ftcontrol.panels.Panels;
 import com.bylazar.ftcontrol.panels.integration.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -35,8 +36,9 @@ public class TestOpMode extends OpMode {
     FancyButton press1;
     FancyButton press2;
     FancyButton press3;
+    FancyButton press4;
+    FancyButton press5;
 
-    TelemetryManager panelsTelemetry;
     @Override
     public void init() {
         //do stuff init
@@ -46,7 +48,8 @@ public class TestOpMode extends OpMode {
         press1 = new FancyButton(FancyButton.PressType.LongPress);
         press2 = new FancyButton(FancyButton.PressType.LongPress);
         press3 = new FancyButton(FancyButton.PressType.LongPress);
-        panelsTelemetry = Panels.getTelemetry();
+        press4 = new FancyButton(FancyButton.PressType.LongPress);
+        press5 = new FancyButton(FancyButton.PressType.LongPress);
     }
 
     @Override
@@ -64,6 +67,8 @@ public class TestOpMode extends OpMode {
         press1.checkStatus(gamepad2.dpad_right);
         press2.checkStatus(gamepad2.dpad_left);
         press3.checkStatus(gamepad2.left_stick_button);
+        press4.checkStatus(gamepad2.right_bumper);
+        press5.checkStatus(gamepad2.left_bumper);
 
         if (toggle2.startPress) {
             robot.indexer.transfer(true);
@@ -101,6 +106,12 @@ public class TestOpMode extends OpMode {
             robot.shooter.setPID();
         }
 
+        if (press4.startPress) {
+            robot.turret.setTargetDeg(90);
+        } else if (press5.startPress) {
+            robot.turret.setTargetDeg(270);
+        }
+
         telemetry.addData("shooter P", robot.shooter.getPID().P);
         telemetry.addData("shooter I", robot.shooter.getPID().I);
         telemetry.addData("shooter D", robot.shooter.getPID().D);
@@ -108,10 +119,6 @@ public class TestOpMode extends OpMode {
 
         telemetry.addData("shooter pow", robot.shooter.getShooterPower());
 
-        panelsTelemetry.debug("wave: $wave");
-        panelsTelemetry.debug("wave2: $wave2");
-        panelsTelemetry.graph("wave", robot.shooter.getRPM());
-        panelsTelemetry.graph("wave2", shooterRPM);
 
         telemetry.addData("act shooterRPM", robot.shooter.getRPM());
         telemetry.addData("tar shooterRPM", shooterRPM);
@@ -132,7 +139,7 @@ public class TestOpMode extends OpMode {
             telemetry.addData("pose h", 0);
         }
         lastShooterRPM = shooterRPM;
-        robot.update();
+        robot.update(true);
 //
 //        if (robotPose != null) {
 //            telemetry.addData("Pose", robotPose);

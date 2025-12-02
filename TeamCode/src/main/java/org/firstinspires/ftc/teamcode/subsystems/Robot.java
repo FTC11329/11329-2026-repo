@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import com.bylazar.ftcontrol.panels.Panels;
+import com.bylazar.ftcontrol.panels.integration.TelemetryManager;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -28,6 +30,7 @@ public class Robot {
     public RobotSide robotSide;
 
     public ElapsedTime shooterTimer;
+    TelemetryManager panelsTelemetry;
 
     double startTime;
 
@@ -47,6 +50,7 @@ public class Robot {
     public Robot(Telemetry telemetry, HardwareMap hardwareMap, RobotSide robotSide) {
         this.telemetry = telemetry;
         this.robotSide = robotSide;
+        panelsTelemetry = Panels.getTelemetry();
         stilts = new Stilts(hardwareMap);
         intake = new Intake(hardwareMap);
         vision = new Vision(hardwareMap, robotSide);
@@ -102,12 +106,6 @@ public class Robot {
     //corrects the hood, turret, and shooter rpm
     public void prepareShooter() {
 
-        turret.turnTo(shootingParams[0]);
-        shooter.setTargetRPM(shootingParams[2]);
-        shooter.setHoodDeg(Math.toDegrees(shootingParams[1]));
-        telemetry.addData("hood", shootingParams[1]);
-        telemetry.addData("shooter RPM", shootingParams[2]);
-        telemetry.addData("Turret Angle", shootingParams[0]);
     }
 
     public boolean shootArtifact(BallColor ballColor) {
@@ -270,8 +268,8 @@ public class Robot {
         intakeUpdate();
         spindexerUpdate();
         teleopUpdate();
+        turret.update();
         follower.update();
-        telemetry.update();
         if (debug) {
             Drawing.drawDebug(follower);
 
@@ -281,6 +279,12 @@ public class Robot {
             telemetry.addLine("=== SHOOTER ===");
             telemetry.addData("Shooter RPM", shooter.getRPM());
             telemetry.addData("Hood Angle", shooter.getHoodPosDeg());
+
+            telemetry.addLine("=== Turret ===");
+            telemetry.addData("Turret Degrees", turret.getAngle());
+            telemetry.addData("Turret Ticks  ", turret.getTicks());
+            telemetry.addData("Turret Tar Deg", turret.turretPID.getTargetPosition());
+            telemetry.addData("Turret power", turret.turretPID.run());
 
             telemetry.addLine("=== COLOR ===");
             telemetry.addData("indexer r", indexer.getColorRGBA().red);
@@ -302,6 +306,12 @@ public class Robot {
             for (BallColor ball : queuedBalls) {
                 telemetry.addData("qball", ball);
             }
+            panelsTelemetry.debug("wave: $wave");
+            panelsTelemetry.debug("wave2: $wave2");
+            panelsTelemetry.graph("wave", turret.getAngle());
+            panelsTelemetry.graph("wave2", turret.turretPID.getTargetPosition());
+            panelsTelemetry.update(telemetry);
+
         }
     }
 

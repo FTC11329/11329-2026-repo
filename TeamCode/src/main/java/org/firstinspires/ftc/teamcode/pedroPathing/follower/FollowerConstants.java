@@ -163,7 +163,7 @@ public class FollowerConstants {
     public double translationalPIDFSwitch = 3;
 
     /**
-     * Threshold that the turn and turnTo methods will be considered to be finished
+     * Threshold that the turn and setTargetDeg methods will be considered to be finished
      * In Radians
      * Default Value: 0.01
      */

@@ -3,12 +3,9 @@ package org.firstinspires.ftc.teamcode.subsystems;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
-import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.control.PIDFCoefficients;
 import org.firstinspires.ftc.teamcode.pedroPathing.control.PIDFController;
 
@@ -37,8 +34,30 @@ public class Turret {
         encoder = hardwareMap.get(DcMotorEx.class, "encoder");
         encoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         encoder.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        turretPID = new PIDFController(new PIDFCoefficients(0.01, 0.0001, 0.0002, 0.0));
+        turretPID = new PIDFController(new PIDFCoefficients(
+                Constants.Turret.P,
+                Constants.Turret.I,
+                Constants.Turret.D,
+                Constants.Turret.F));
     }
+
+    public void setTargetDeg(double deg) {
+        double robotDeg = 180 - deg;
+        while (robotDeg > 360) {
+            robotDeg -= 360;
+        }
+        while (robotDeg < 0) {
+            robotDeg += 360;
+        }
+
+        turretPID.setTargetPosition(robotDeg);
+    }
+
+    public void update() {
+        turretPID.updatePosition(ticksToDegrees(encoder.getCurrentPosition()));  // degrees
+        setPower(turretPID.run());
+    }
+
 
     public void setPower(double set) {
         turretServo1.setPower(set);
@@ -52,46 +71,10 @@ public class Turret {
         return turretRevs * 360.0;
     }
 
-
-    // Converts degrees to power
-    private double degreesToPower(double deg) {
-        double turretRevs = deg / 360.0;
-        return turretRevs * GEAR_RATIO;
-    }
-
-    // Sets the target turret angle
-    public void turnTo(double degrees) {
-        //Todo: don't delete this until you have a replacement to place in the "robot" subsystem
-    }
-
-    public void resetTurret() {
-        turretPID.reset();
-    }
-
-    public void updateTurret(double degrees) {
-
-        turretPID.setTargetPosition(degrees);
-        // read angle
-        double currentDeg = ticksToDegrees(encoder.getCurrentPosition());
-
-        // get PIDF output
-        turretPID.updatePosition(currentDeg);
-        double pidOut = turretPID.run();
-
-        pidOut = clamp(pidOut, -1.0, 1.0);
-
-        setPower(pidOut);
-    }
-
-    private double clamp(double v, double min, double max) {
-        return Math.max(min, Math.min(max, v));
-    }
-
     public double getAngle() {
         return ticksToDegrees(encoder.getCurrentPosition());
     }
-
-    public double getTarget() {
-        return turretPID.getTargetPosition();
+    public double getTicks() {
+        return encoder.getCurrentPosition();
     }
 }
