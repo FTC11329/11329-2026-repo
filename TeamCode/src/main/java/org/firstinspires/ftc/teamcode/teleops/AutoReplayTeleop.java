@@ -14,10 +14,6 @@ public class AutoReplayTeleop {
     Robot robot;
 
 
-    FancyButton shoot;
-
-    double angle = 5;
-
     Gamepad gamepad1;
     Gamepad gamepad2;
 
@@ -29,9 +25,14 @@ public class AutoReplayTeleop {
 
     FancyButton intake;
     FancyButton spitIntake;
-    FancyButton queueAny;
+    FancyButton autoShoot;
     FancyButton queueGreen;
     FancyButton queuePurple;
+    FancyButton overrideShootPosition;
+    FancyButton debug;
+
+    public double hoodAngle = 20;
+    public double rpm = 3000;
 
     public AutoReplayTeleop(HardwareMap hardwareMap, Telemetry telemetry, Gamepad gamepad1, Gamepad gamepad2) {
         this.hardwareMap = hardwareMap;
@@ -46,9 +47,11 @@ public class AutoReplayTeleop {
 
         intake = new FancyButton(FancyButton.PressType.Toggle);
         spitIntake = new FancyButton(FancyButton.PressType.LongPress);
-        queueAny = new FancyButton(FancyButton.PressType.LongPress);
         queueGreen = new FancyButton(FancyButton.PressType.LongPress);
         queuePurple = new FancyButton(FancyButton.PressType.LongPress);
+        autoShoot = new FancyButton(FancyButton.PressType.Toggle);
+        overrideShootPosition = new FancyButton(FancyButton.PressType.LongPress);
+        debug = new FancyButton(FancyButton.PressType.LongPress);
     }
 
     public void loop() {
@@ -66,15 +69,39 @@ public class AutoReplayTeleop {
 
         intake.checkStatus(gamepad1.left_bumper); // Toggle on to intake
         spitIntake.checkStatus(gamepad1.b); // Hold to spit
-        queueGreen.checkStatus(gamepad1.y); // Press to queue green
-        queuePurple.checkStatus(gamepad1.x); // Press to queue purple
-        queueAny.checkStatus(gamepad1.a); // Press to queue any ball
+        queueGreen.checkStatus(gamepad2.y); // Press to queue green
+        queuePurple.checkStatus(gamepad2.x); // Press to queue purple
+        autoShoot.checkStatus(gamepad2.a); // Toggle to turn on auto shoot
+        overrideShootPosition.checkStatus(gamepad2.back); // hold to turn on ignore position
+        debug.checkStatus(gamepad1.start); // hold to print telemetry
+
+
+        robot.drivetrain.teleopMovement(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, gamepad1.right_bumper);
+
+        if (gamepad2.dpad_up) {
+            hoodAngle += 5;
+            robot.shooter.setHoodDeg(hoodAngle);
+        } else if (hoodAngle >= 5 && gamepad2.dpad_down) {
+            hoodAngle -= 5;
+            robot.shooter.setHoodDeg(hoodAngle);
+        }
+        if (gamepad2.dpad_left) {
+            rpm += 100;
+            robot.shooter.setTargetRPM(rpm);
+        } else if (gamepad2.dpad_right) {
+            rpm -= 100;
+            robot.shooter.setTargetRPM(rpm);
+        }
+        if (gamepad2.left_bumper) {
+            robot.shootArtifact(BallColor.Any);
+        }
 
         if (intake.startPress) {
             robot.intakeManual();
         }
         if (intake.endPress) {
             robot.stopIntake();
+            robot.stopIndexer();
         }
 
         if (spitIntake.startPress) {
@@ -88,11 +115,13 @@ public class AutoReplayTeleop {
         }
         if (spitIntake.endPress) {
             robot.stopIntake();
-            robot.autoIntake3();
         }
 
-        if (queueAny.startPress) {
-            robot.qBall(BallColor.Any);
+        if (autoShoot.isOn) {
+            robot.prepareShooter();
+            robot.shootQueue(overrideShootPosition.isOn);
+        } else if (autoShoot.endPress){
+            robot.setShooterTargetRPM(0);
         }
         if (queuePurple.startPress) {
             robot.qBall(BallColor.Purple);
@@ -101,7 +130,11 @@ public class AutoReplayTeleop {
             robot.qBall(BallColor.Green);
         }
 
-        robot.update();
+        robot.update(debug.isOn);
+
+        telemetry.addData("Encoder RPM", robot.shooter.getRPM());
+        telemetry.addData("Hood angle", robot.shooter.getHoodPosDeg());
+        telemetry.addData("Hood angle", robot.vision.distanceXToGoal(robot.follower.getPose()));
     }
 
 }

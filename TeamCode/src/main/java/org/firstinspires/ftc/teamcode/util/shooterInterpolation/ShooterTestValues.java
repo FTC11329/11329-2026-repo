@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.util.shooterInterpolation;
 
-public class shooterTestValues {
+public class ShooterTestValues {
     private final shooterTreeInterpolation shooterMap = new shooterTreeInterpolation();
 
     public void createShooterMap() {

@@ -66,20 +66,13 @@ public class Constants {
         public static double TAG_TO_TARGET_IN   = 9;   // inches: distance from AprilTag to middle of the targeted point
 
         // --- Physical constants ---
-        public static double G = 9.81;                   // gravity (m/s^2)
         public static double IN_TO_M = 0.0254;           // inches to meters conversion
-
-        // --- Empirical tuning constants ---
-        public static double K_DRAG = 0.06;              // drag correction per meter (higher = more required speed)
-        public static double K_SPIN = 0.28; //0.12     // lift correction factor from backspin
-        public static double SPIN_RPM = 0;               // expected backspin of the ball
-        public static double EFF = 0.95;                 // wheel-to-ball efficiency (0.9–1.0 typical)
-        public static double K_TUNE = 1.0;               // final tuning multiplier (easy field tuning)
+        public static double G = 9.81 / IN_TO_M;                   // gravity (m/s^2)
 
         // --- Shooter hardware parameters ---
         public static double R_WHEEL_IN = 2.0;           // wheel radius (inches)
         public static double H_WHEEL_IN = 1.5;           // wheel radius (inches)
-        public static double MotorToWheel = 1.0;           // wheel radius (inches)
+        public static double MotorToWheel = 1.25;           // wheel radius (inches)
         public static double phi_deg = 50;               // 5-50 Angle of the shot (degrees) // todo
         public static double R_WHEEL_M = R_WHEEL_IN * IN_TO_M; // wheel radius in meters
     }

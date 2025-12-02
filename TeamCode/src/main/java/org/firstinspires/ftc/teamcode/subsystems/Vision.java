@@ -17,12 +17,18 @@ import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.math.Matrix;
 import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
+import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterState;
+import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterTestValues;
+
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
 public class Vision {
+    ShooterTestValues shooterTestValues;
+
+
     RobotSide robotSide;
     Limelight3A limelight;
 
@@ -39,6 +45,8 @@ public class Vision {
         this.robotSide = robotSide;
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
         limelight.start();
+
+        shooterTestValues = new ShooterTestValues();
     }
 
     public Pose getRobotPose() {
@@ -81,69 +89,41 @@ public class Vision {
         return motif;
     }
 
+    ///Gets the shooter Params
+    /// Returns an array: [Turret Angle in Degrees,
+    /// Hood Angle from X axis in degrees,
+    /// and RPM of Motor]
+    public double[] getShooterParams(Pose robotPose, Pose robotVelocity) {
+        // This is the goal pose of the goal based on what color the robot is playing
+        Pose goalPose = robotSide == RobotSide.Blue ? blueTag : redTag;
+        // This is the vector pointing at the goal from the robot
+        Pose distancePose = goalPose.minus(robotPose);
+        // This extracts the distance and angle
+        double dst = distancePose.returnPolar()[0];
+        double heading = distancePose.returnPolar()[1];
+        // This extracts what the optimal shooting paramaters are from interpolating tested values
+        ShooterState shooterState = shooterTestValues.get(dst);
+        // This converts the Hood Angle and RPM to actual velocity vectors
+        double vx = Math.cos(Math.toRadians(shooterState.hoodAngle)) * RPMToVelocity(shooterState.rpm);
+        double vy = Math.sin(Math.toRadians(shooterState.hoodAngle)) * RPMToVelocity(shooterState.rpm);
+
+        // This accounts for robot velocity
+        double vrx = Math.sin(heading) * vx - robotVelocity.getX();
+        double vry = - Math.cos(heading) * vx - robotVelocity.getY();
+
+        vx = Math.sqrt(vrx * vrx + vry * vry);
+        heading = Math.atan2(-vrx, vry);
+
+        double v = Math.sqrt(vx * vx + vy * vy);
+        double angle = Math.atan2(vy, vx);
+
+        return new double[] {Math.toDegrees(heading - robotPose.getHeading()), Math.toDegrees(angle), velocityToRPM(v)};
+    }
+
     public double distanceXToGoal(Pose robotPose) {
         Pose goalPose = new Pose(72, -72);
         Pose distancePose = goalPose.minus(robotPose);
         return distancePose.returnPolar()[0];
-    }
-
-    // --------------- SHOOTER RPM CALCULATOR by Chat GPT --------------
-    //
-    // Calculates the wheel target RPM required to hit the goal
-    // given the robot’s distance from an AprilTag and the shooter’s launch angle.
-    //
-    // Assumptions:
-    // - Launcher exit height: 16 in
-    // - Target height: 29 in (so vertical delta = 13 in)
-    // - Target is 19 in behind the AprilTag (colinear shot)
-    // - Wiffle ball with backspin and drag, approximated empirically
-    //
-    // Inputs you provide each shot:
-    //    double D_tag_in   = distance from robot to AprilTag (in inches)
-    //    double phi_deg    = shooter launch angle above horizontal (in degrees)
-    //
-    // Output:
-    //    double vCorrected  = velocity of ball needed for shot
-    //
-    // ------------------------------------------------------------------
-
-    public double getVelocity() {
-        // get robot pose
-        Pose robotPose = getRobotPose();
-
-        // --- Positioning ---
-        final double D_tag_in = distanceXToGoal(robotPose);
-
-        // --- Derived distances ---
-        // Horizontal distance from shooter to target (colinear case)
-        double R_in = D_tag_in + Constants.ShooterParamaters.TAG_TO_TARGET_IN;
-        double R_M  = R_in * Constants.ShooterParamaters.IN_TO_M;  // convert to meters
-
-        // Vertical difference between target and launcher (m)
-        double DY_M = (Constants.ShooterParamaters.TARGET_HEIGHT_IN - Constants.ShooterParamaters.LAUNCHER_HEIGHT_IN) * Constants.ShooterParamaters.IN_TO_M;  // 13 in = 0.3302 m
-
-        // --- Angle conversions ---
-        double phi_rad = Math.toRadians(Constants.ShooterParamaters.phi_deg);
-
-        // --- Step 1: Ideal (no drag) launch velocity for ballistic trajectory ---
-        // v = sqrt( g * R^2 / [ 2 * cos^2(phi) * (R*tan(phi) - DY) ] )
-        double numerator = Constants.ShooterParamaters.G * R_M * R_M;
-        double denominator = 2.0 * Math.pow(Math.cos(phi_rad), 2) * (R_M * Math.tan(phi_rad) - DY_M);
-        double vIdeal = Math.sqrt(numerator / denominator);
-
-        // --- Step 2: Apply empirical corrections for drag & Magnus lift ---
-        double vCorrected = vIdeal * (1.0 + Constants.ShooterParamaters.K_DRAG * R_M) / (1.0 + Constants.ShooterParamaters.K_SPIN * (Constants.ShooterParamaters.SPIN_RPM / 1500.0));
-        return vCorrected;
-    }
-
-    public double getRPMNeeded(){
-        double vCorrected = getVelocity();
-
-        // --- Step 3: Convert linear velocity to wheel RPM ---
-        // ω = v / (r * efficiency)
-        double targetRPM = Constants.ShooterParamaters.K_TUNE * (vCorrected * 60.0) / (2.0 * Math.PI * Constants.ShooterParamaters.R_WHEEL_M * Constants.ShooterParamaters.EFF);
-
-        return targetRPM; // Conversion for gear ratio
     }
 
 
@@ -223,13 +203,13 @@ public class Vision {
         double ratio = Constants.ShooterParamaters.H_WHEEL_IN / Constants.ShooterParamaters.R_WHEEL_IN;
         double vf = 2 * velocity / (ratio + 1);
         double wf = vf / Constants.ShooterParamaters.R_WHEEL_IN;
-        return Constants.ShooterParamaters.K_TUNE * wf / Constants.ShooterParamaters.MotorToWheel;
+        return wf / Constants.ShooterParamaters.MotorToWheel;
     }
 
     public double RPMToVelocity(double rpm){
         double ratio = Constants.ShooterParamaters.H_WHEEL_IN / Constants.ShooterParamaters.R_WHEEL_IN;
 
-        double wf = rpm * Constants.ShooterParamaters.MotorToWheel / Constants.ShooterParamaters.K_TUNE;
+        double wf = rpm * Constants.ShooterParamaters.MotorToWheel;
         double vf = wf * Constants.ShooterParamaters.R_WHEEL_IN;
         return 0.5 * vf * (ratio + 1);
     }
