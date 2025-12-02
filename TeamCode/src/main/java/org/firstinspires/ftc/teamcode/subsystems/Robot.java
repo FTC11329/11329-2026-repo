@@ -10,6 +10,7 @@ import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.Drawing;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
+import org.firstinspires.ftc.teamcode.pedroPathing.math.Vector;
 import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
 
@@ -92,6 +93,15 @@ public class Robot {
 
         return triangle1 || triangle2;
     }
+    // TURRET**************************************************************************************~
+
+    public void updateTurret() {
+        Pose curPose = getCurrentPose();
+        double dx = 72 - curPose.getX();
+        double dy = 72 - curPose.getY();
+        double angle = Math.toDegrees(Math.atan2(dy, dx));
+        turret.setTargetDeg(angle - Math.toDegrees(curPose.getHeading()));
+    }
 
     // SHOOTER*************************************************************************************~
     // Adds a ball of color ball color to queuedBalls list
@@ -105,7 +115,10 @@ public class Robot {
 
     //corrects the hood, turret, and shooter rpm
     public void prepareShooter() {
-
+        shooter.setPower(0.9);
+        Vector vel = follower.getVelocity();
+        double[] params = vision.getShooterParams(getCurrentPose(), new Pose (vel.getXComponent(), vel.getYComponent()));
+        shooter.setHood(params[0]);
     }
 
     public boolean shootArtifact(BallColor ballColor) {
@@ -183,7 +196,7 @@ public class Robot {
             autoSetCurrentPose();
         }
 
-        shooter.update();
+//        shooter.update();
     }
 
     // Uses curent ramp state and current motif to get the next color of ball we shoot
@@ -267,6 +280,7 @@ public class Robot {
         shooterUpdate();
         intakeUpdate();
         spindexerUpdate();
+        updateTurret();
         teleopUpdate();
         turret.update();
         follower.update();
@@ -308,8 +322,8 @@ public class Robot {
             }
             panelsTelemetry.debug("wave: $wave");
             panelsTelemetry.debug("wave2: $wave2");
-            panelsTelemetry.graph("wave", turret.getAngle());
-            panelsTelemetry.graph("wave2", turret.turretPID.getTargetPosition());
+            panelsTelemetry.graph("wave", shooter.getRPM());
+            panelsTelemetry.graph("wave2", shooter.shooterPID.getTargetPosition());
             panelsTelemetry.update(telemetry);
 
         }

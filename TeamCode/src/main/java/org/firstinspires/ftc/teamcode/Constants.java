@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 
@@ -10,13 +11,13 @@ import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 
-@Configurable
+@Config
 public class Constants {
     // todo replace all placeholders with real constants
     public static double PlacholdereDouble = 0;
     public static boolean PlaceHOLDERboooLEAN = false;
 
-    @Configurable
+    @Config
     public static class Indexer {
         public static double spindexPower = 1;
         public static double transferPower = 1;
@@ -40,11 +41,8 @@ public class Constants {
         public static double pitch = 80;
         public static double tagAngle = 80;
     }
+    @Config
     public static class Turret {
-//        public static double P = 0.1;
-//        public static double I = 0;
-//        public static double D = 0;
-//        public static double F = 0;
         public static double P = 0.016;
         public static double I = 0.00043;
         public static double D = 0.0004;
@@ -53,10 +51,10 @@ public class Constants {
     public static class Shooter {
         public static double closeEnoughRPM = 40;
         public static double ticksPerRevolution = 28;
-        public static double P = 0.001;  // todo tune this!
+        public static double P = 0.01;
         public static double I = 0;
         public static double D = 0;
-        public static double F = 0.0003333;
+        public static double F = 0;
     }
     public static class Color {
 

@@ -83,61 +83,27 @@ public class TestOpMode extends OpMode {
             robot.intake.setIntakePower(0);
         }
         if (gamepad2.dpad_up) {
-            shooterDeg += 0.05;
+            shooterDeg += 0.5;
         } else if (gamepad2.dpad_down) {
-            shooterDeg -= 0.05;
+            shooterDeg -= 0.5;
         }
         telemetry.addData("shooter Deg", shooterDeg);
         robot.shooter.setHoodDeg(shooterDeg);
 
 
-        if (gamepad2.y) {
-            shooterRPM += 2;
-        } else if (gamepad2.a) {
-            shooterRPM -= 2;
-        }
+//        if (gamepad2.y) {
+//            shooterRPM += 2;
+//        } else if (gamepad2.a) {
+//            shooterRPM -= 2;
+//        }
         if (press1.startPress) {
-            shooterRPM += 500;
+            robot.shooter.setPower(0.9);
         } else if (press2.startPress) {
-            shooterRPM -= 500;
+            robot.shooter.setPower(0);
         }
 
-        if (press3.startPress) {
-            robot.shooter.setPID();
-        }
-
-        if (press4.startPress) {
-            robot.turret.setTargetDeg(90);
-        } else if (press5.startPress) {
-            robot.turret.setTargetDeg(270);
-        }
-
-        telemetry.addData("shooter P", robot.shooter.getPID().P);
-        telemetry.addData("shooter I", robot.shooter.getPID().I);
-        telemetry.addData("shooter D", robot.shooter.getPID().D);
-        telemetry.addData("shooter F", robot.shooter.getPID().F);
-
-        telemetry.addData("shooter pow", robot.shooter.getShooterPower());
-
-
-        telemetry.addData("act shooterRPM", robot.shooter.getRPM());
-        telemetry.addData("tar shooterRPM", shooterRPM);
-        if (lastShooterRPM != shooterRPM) {
-            robot.setShooterTargetRPM(shooterRPM);
-        }
 
         robotPose = robot.getCurrentPose();
-        if (robotPose != null) {
-            telemetry.addData("distance from top left", robotPose.distanceFrom(new Pose(72, 72)));
-            telemetry.addData("pose x", robotPose.getX());
-            telemetry.addData("pose y", robotPose.getY());
-            telemetry.addData("pose h", robotPose.getHeading());
-        } else {
-            telemetry.addLine("distance from top left: null");
-            telemetry.addData("pose x", 0);
-            telemetry.addData("pose y", 0);
-            telemetry.addData("pose h", 0);
-        }
         lastShooterRPM = shooterRPM;
         robot.update(true);
 //
