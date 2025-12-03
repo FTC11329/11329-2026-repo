@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.util.shooterInterpolation;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class shooterTreeInterpolation {
+public class ShooterTreeInterpolation {
 
     private final TreeMap<Double, ShooterState> map = new TreeMap<>();
     //sorted map of distance from target and optimal shooter state
@@ -28,6 +28,7 @@ public class shooterTreeInterpolation {
 
         double lowerDistance = lower.getKey();
         double upperDistance = upper.getKey();
+
         ShooterState lowerShooterState = lower.getValue();
         ShooterState upperShooterState = upper.getValue();
 
@@ -35,10 +36,11 @@ public class shooterTreeInterpolation {
         double t = (distance - lowerDistance) / (upperDistance - lowerDistance);
 
         // Interpolate RPM and hood angle
-        double rpm = lowerShooterState.rpm + (upperShooterState.rpm - lowerShooterState.rpm) * t;
-        double hood = lowerShooterState.hoodAngle + (upperShooterState.hoodAngle - lowerShooterState.hoodAngle) * t;
+        double rpm = lowerShooterState.rpm                   + (upperShooterState.rpm          - lowerShooterState.rpm)          * t;
+        double hood = lowerShooterState.hoodAngle            + (upperShooterState.hoodAngle    - lowerShooterState.hoodAngle)    * t;
+        double timeInFlight = lowerShooterState.timeInFlight + (upperShooterState.timeInFlight - lowerShooterState.timeInFlight) * t;
 
-        return new ShooterState(rpm, hood);
+        return new ShooterState(rpm, hood, timeInFlight);
     }
 }
 

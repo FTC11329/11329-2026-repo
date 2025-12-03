@@ -134,7 +134,6 @@ public class AutoReplayTeleop {
 
         telemetry.addData("Encoder RPM", robot.shooter.getRPM());
         telemetry.addData("Hood angle", robot.shooter.getHoodPosDeg());
-        telemetry.addData("Hood angle", robot.vision.distanceXToGoal(robot.follower.getPose()));
     }
 
 }

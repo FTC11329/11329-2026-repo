@@ -120,13 +120,6 @@ public class Vision {
         return new double[] {Math.toDegrees(heading - robotPose.getHeading()), Math.toDegrees(angle), velocityToRPM(v)};
     }
 
-    public double distanceXToGoal(Pose robotPose) {
-        Pose goalPose = new Pose(72, -72);
-        Pose distancePose = goalPose.minus(robotPose);
-        return distancePose.returnPolar()[0];
-    }
-
-
     public double[] getVelocityTime(double time, Pose robotPose, Pose velocity) {
         Pose goalPose = new Pose(72, -72);
         Pose distancePose = goalPose.minus(robotPose);

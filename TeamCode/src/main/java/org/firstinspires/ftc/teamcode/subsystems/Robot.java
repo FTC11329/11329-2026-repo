@@ -10,9 +10,10 @@ import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.Drawing;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
-import org.firstinspires.ftc.teamcode.pedroPathing.math.Vector;
 import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
+import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterState;
+import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterTestValues;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,6 +31,8 @@ public class Robot {
     public ElapsedTime time;
     public RobotSide robotSide;
 
+
+    ShooterTestValues shooterTestValues;
     public ElapsedTime shooterTimer;
     TelemetryManager panelsTelemetry;
 
@@ -65,6 +68,7 @@ public class Robot {
         follower.setStartingPose(new Pose(0,0,0));
 
         shooterTimer = new ElapsedTime();
+        shooterTestValues = new ShooterTestValues();
     }
     // VISION**************************************************************************************~
     public void getMotif() {
@@ -87,23 +91,101 @@ public class Robot {
         return line1 && line2;
     }
 
-    public boolean inShootingZone() {
-        boolean triangle1 = inTriangle(Constants.ShootingZone.bigLeft, Constants.ShootingZone.bigCenter, Constants.ShootingZone.bigRight);
-        boolean triangle2 = lineSide(Constants.ShootingZone.smallRight, Constants.ShootingZone.smallCenter, Constants.ShootingZone.smallLeft);
 
-        return triangle1 || triangle2;
+    // Checks if the robot center is within the
+    public boolean inShootingZone() {
+        // idk if this logic works
+//        boolean triangle1 = inTriangle(Constants.ShootingZone.bigLeft, Constants.ShootingZone.bigCenter, Constants.ShootingZone.bigRight);
+//        boolean triangle2 = lineSide(Constants.ShootingZone.smallRight, Constants.ShootingZone.smallCenter, Constants.ShootingZone.smallLeft);
+//        return triangle1 || triangle2;
+
+        // Robot radius
+        double r = 6;
+
+        Pose cur = getCurrentPose();
+        double Rx = cur.getX();
+        double Ry = cur.getY();
+
+        // --- FAST REJECT: robot is far from both triangles ---
+        if (Rx < -r && Rx > r - 48) return false;
+
+        // --- FAST ACCEPT (big triangle) ---
+        if (Rx > Ry && Rx > -Ry) return true;
+
+        // --- FAST ACCEPT (small triangle) ---
+        if (Rx < Ry - 48 && Rx < -Ry - 48) return true;
+
+
+        // ======================================================
+        // SELECT TRIANGLE
+        // ======================================================
+
+        Pose start;
+        Pose end;
+        int steps;
+
+
+        if (Rx >= 0) {
+            // ===========================
+            // BIG TRIANGLE (top)
+            // ===========================
+
+            start = new Pose(0, 0);    // apex
+            steps = 100;
+
+            if (Ry >= 0) {
+                end = new Pose(72, 72);
+            } else {
+                end = new Pose(72, -72);
+            }
+
+        } else {
+            // ===========================
+            // SMALL TRIANGLE (bottom)
+            // ===========================
+
+            start = new Pose(-48, 0);   // apex
+            steps = 34;
+
+            if (Ry >= 0) {
+                end = new Pose(-72, 24);
+            } else {
+                end = new Pose(-72, -24);
+            }
+        }
+
+
+        // ======================================================
+        // SAMPLE ALONG THE TRIANGLE EDGE
+        // ======================================================
+
+        for (int i = 0; i <= steps; i++) {
+
+            double t = i / (double) steps;
+
+            double px = start.getX() * (1 - t) + end.getX() * t;
+            double py = start.getY() * (1 - t) + end.getY() * t;
+
+            double dx = Rx - px;
+            double dy = Ry - py;
+
+            if (dx * dx + dy * dy <= r * r)
+                return true;
+        }
+
+        return false;  // No sample point was within radius r
     }
     // TURRET**************************************************************************************~
 
-    public void updateTurret() {
-        Pose curPose = getCurrentPose();
-        double dx = 72 - curPose.getX();
-        double dy = 72 - curPose.getY();
-        double angle = Math.toDegrees(Math.atan2(dy, dx));
-        turret.setTargetDeg(angle - Math.toDegrees(curPose.getHeading()));
+    public void turretUpdate() {
+        turret.update();
     }
 
     // SHOOTER*************************************************************************************~
+    public boolean readyToShoot() {
+        return shooter.closeEnoughToTarget() && turret.closeEnoughToTarget();
+    }
+
     // Adds a ball of color ball color to queuedBalls list
     public void qBall(BallColor qdColor) {
         queuedBalls.add(qdColor);
@@ -115,30 +197,73 @@ public class Robot {
 
     //corrects the hood, turret, and shooter rpm
     public void prepareShooter() {
-        shooter.setPower(0.9);
-        Vector vel = follower.getVelocity();
-        double[] params = vision.getShooterParams(getCurrentPose(), new Pose (vel.getXComponent(), vel.getYComponent()));
-        shooter.setHood(params[0]);
+
+        // Gets current Pose
+        Pose curPose = getCurrentPose();
+
+        // Gets goal Pose
+        Pose goal;
+        if (robotSide == RobotSide.Blue)  {
+            goal = Constants.Vision.blueGoal;
+        } else {
+            goal = Constants.Vision.redGoal;
+        }
+
+        // Est Time In Flight for ball at current pose
+        double timeInFlight = shooterTestValues.get(curPose.distanceFrom(goal)).timeInFlight;
+
+        // Logic for future pose
+        Pose futrPose = curPose.plusVector(follower.getVelocity(), timeInFlight);
+
+        // Logic for heading to goal
+        double deltaX = goal.getX() - futrPose.getX();
+        double deltaY = goal.getY() - futrPose.getY();
+        double angleToGoal = Math.toDegrees(Math.atan2(deltaY, deltaX));
+
+        // Sets Turret angle
+        turret.setTargetDeg(angleToGoal - Math.toDegrees(futrPose.getHeading()));
+
+        // Gets shooter params based on future pose
+        ShooterState futureShooterParams = shooterTestValues.get(futrPose.distanceFrom(goal));
+
+        // Sets shooter rpm
+        shooter.setTargetRPM(futureShooterParams.rpm);
+
+        // gets hood angle
+        shooter.setHoodDeg(futureShooterParams.hoodAngle);
+
+    }
+
+    public void shootAny() {
+        indexer.spinIndexer(true);
+        telemetry.addData("r", readyToShoot());
+        telemetry.addData("s", shooter.closeEnoughToTarget());
+        telemetry.addData("t", turret.closeEnoughToTarget());
+        indexer.transfer(readyToShoot());
     }
 
     public boolean shootArtifact(BallColor ballColor) {
         switch (oneBallCase) {
             case 0:
+                indexer.transfer(false);
                 if (indexer.spinUntil(ballColor)) {
                     oneBallCase = 1;
                 }
                 return false;
             case 1:
-                if (shooter.closeEnoughToTarget()) {
+                indexer.transfer(false);
+                if (readyToShoot()) {
                     startTime = time.milliseconds();
                     oneBallCase = 2;
                 }
                 return false;
             case 2:
                 indexer.transfer(true);
+                indexer.spinIndexer(true);
                 if (time.milliseconds() - startTime < 500) {
                     oneBallCase = 0;
                     indexer.transfer(false);
+                    indexer.spinIndexer(false);
                     return true;
                 }
                 return false;
@@ -169,14 +294,17 @@ public class Robot {
     // shoots balls in queue or any ball
     public void shootQueue(boolean override) {
         if (!inShootingZone() && !override){
+            indexer.spinIndexer(false);
+            indexer.transfer(false);
             return;
         }
-        BallColor soonToBeShotBall;
+
         if (queuedBalls.isEmpty()) {
-            soonToBeShotBall = BallColor.Any;
-        } else {
-            soonToBeShotBall = queuedBalls.get(0);
+            shootAny();
+            return;
         }
+        BallColor soonToBeShotBall = queuedBalls.get(0);
+
         if (shootArtifact(soonToBeShotBall)) {
             if (!queuedBalls.isEmpty()) {
                 queuedBalls.remove(0);
@@ -196,7 +324,7 @@ public class Robot {
             autoSetCurrentPose();
         }
 
-//        shooter.update();
+        shooter.update();
     }
 
     // Uses curent ramp state and current motif to get the next color of ball we shoot
@@ -239,7 +367,8 @@ public class Robot {
     }
 
     public void stopIndexer() {
-        indexer.index(false);
+        indexer.spinIndexer(false);
+        indexer.transfer(false);
     }
 
     // TELE-OP*************************************************************************************~
@@ -280,13 +409,11 @@ public class Robot {
         shooterUpdate();
         intakeUpdate();
         spindexerUpdate();
-        updateTurret();
+        turretUpdate();
         teleopUpdate();
-        turret.update();
         follower.update();
         if (debug) {
             Drawing.drawDebug(follower);
-
             telemetry.addLine("=== VISION ===");
             telemetry.addData("Motif", motif);
 
@@ -312,6 +439,7 @@ public class Robot {
             telemetry.addData("guess pose", getCurrentPose());
             telemetry.addData("last cam pose", getCurrentPose());
             telemetry.addData("PP Pose", getCurrentPose());
+            telemetry.addData("in shooting zone", inShootingZone());
 
             telemetry.addLine("=== QUEUE ===");
             if (queuedBalls.isEmpty()) {
@@ -320,11 +448,20 @@ public class Robot {
             for (BallColor ball : queuedBalls) {
                 telemetry.addData("qball", ball);
             }
-            panelsTelemetry.debug("wave: $wave");
-            panelsTelemetry.debug("wave2: $wave2");
-            panelsTelemetry.graph("wave", shooter.getRPM());
-            panelsTelemetry.graph("wave2", shooter.shooterPID.getTargetPosition());
-            panelsTelemetry.update(telemetry);
+
+//            telemetry.addData("in shooting zone", inShootingZone());
+//            telemetry.addData("hood", shooter.getHoodPosDeg());
+//            telemetry.addData("rpm", shooter.getRPM());
+//            panelsTelemetry.debug("wave: $wave");
+//            panelsTelemetry.debug("wave2: $wave2");
+//            panelsTelemetry.debug("wave3: $wave3");
+//            panelsTelemetry.debug("wave4: $wave4");
+//
+//            panelsTelemetry.graph("wave", turret.turretPID.getTargetPosition());
+//            panelsTelemetry.graph("wave2", turret.getAngle());
+//            panelsTelemetry.graph("wave3", shooter.shooterPID.getTargetPosition());
+//            panelsTelemetry.graph("wave4", shooter.getVelocity());
+//            panelsTelemetry.update(telemetry);
 
         }
     }

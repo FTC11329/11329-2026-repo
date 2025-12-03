@@ -34,11 +34,8 @@ public class Turret {
         encoder = hardwareMap.get(DcMotorEx.class, "encoder");
         encoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         encoder.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        turretPID = new PIDFController(new PIDFCoefficients(
-                Constants.Turret.P,
-                Constants.Turret.I,
-                Constants.Turret.D,
-                Constants.Turret.F));
+        turretPID = new PIDFController(Constants.Turret.turretPID);
+        turretPID.updateFeedForwardInput(Constants.Turret.rightF);
     }
 
     public void setTargetDeg(double deg) {
@@ -54,7 +51,17 @@ public class Turret {
     }
 
     public void update() {
-        turretPID.updatePosition(ticksToDegrees(encoder.getCurrentPosition()));  // degrees
+        double curAngle = getAngle();
+
+        if (Math.round(curAngle * 10) == Math.round(turretPID.getTargetPosition() * 10)) {
+            turretPID.updateFeedForwardInput(0);
+        } else if (curAngle > turretPID.getTargetPosition()) {
+            turretPID.updateFeedForwardInput(Constants.Turret.leftF);
+        } else {
+            turretPID.updateFeedForwardInput(Constants.Turret.rightF);
+        }
+
+        turretPID.updatePosition(curAngle);  // degrees
         setPower(turretPID.run());
     }
 
@@ -65,7 +72,7 @@ public class Turret {
     }
 
     // Converts raw encoder ticks to turret angle
-    private double ticksToDegrees(int ticks) {
+    public double ticksToDegrees(int ticks) {
         double motorRevs = ticks / (double) TICKS_PER_REV;
         double turretRevs = motorRevs / GEAR_RATIO;
         return turretRevs * 360.0;
@@ -76,5 +83,8 @@ public class Turret {
     }
     public double getTicks() {
         return encoder.getCurrentPosition();
+    }
+    public boolean closeEnoughToTarget() {
+        return Math.abs(turretPID.getError()) <= Constants.Turret.closeEnough;
     }
 }

@@ -46,7 +46,7 @@ public class Drivetrain {
      */
     //
     public void teleopMovement(double forwardBackPower, double strafePower, double turning, boolean TURBO) {
-        double speed = 0.3;
+        double speed = 0.6;
         // TURBO MODE
         if (TURBO) {
             speed = 1;
@@ -64,7 +64,7 @@ public class Drivetrain {
     }
     // todo remove once ve have power switch v2
     void setSafePower(DcMotorEx motor, double targetPower){
-        final double SLEW_RATE = 0.2;
+        final double SLEW_RATE = 0.4;
         double currentPower = motor.getPower();
         double desiredChange = targetPower - currentPower;
         double limitedChange = Math.max(-SLEW_RATE, Math.min(desiredChange, SLEW_RATE));

@@ -71,7 +71,7 @@ public class Indexer {
 
     // Spins the indexer until the correct color is in front of the sensor then stops the spindexer
     public boolean spinUntil(BallColor ballColor) {
-        setIndexerPower(Constants.Indexer.spindexPower);
+        setIndexerPower(Constants.Indexer.scanningPower);
         NormalizedRGBA currentColor = getColorRGBA();
         double distance = getDistance();
         BallColor color = getColor();
@@ -181,7 +181,7 @@ public class Indexer {
         setTransferPower(start ? Constants.Indexer.transferPower : 0);
     }
 
-    public void index(boolean start){
+    public void spinIndexer(boolean start){
         setIndexerPower(start ? Constants.Indexer.spindexPower : 0);
     }
 

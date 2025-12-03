@@ -16,6 +16,7 @@ public class Shooter {
     public DcMotorEx flywheel;
 
     double maxRPM = 6000;
+    boolean usePID = false;
 
     Servo hoodServo1;
     Servo hoodServo2;
@@ -44,16 +45,16 @@ public class Shooter {
         hoodServo2.setDirection(Servo.Direction.REVERSE);
         hoodServo2.setPosition(0);
 
-        shooterPID = new PIDFController(new PIDFCoefficients(
-                Constants.Shooter.P,
-                Constants.Shooter.I,
-                Constants.Shooter.D,
-                Constants.Shooter.F));
+        shooterPID = new PIDFController(Constants.Shooter.shooterVelocityPID);
         shooterPID.reset();
+        shooterPID.updateFeedForwardInput(1);
     }
 
     public void setPower(double power){
         flywheel.setPower(power);
+    }
+    public void casualModeOn(){
+        usePID = false;
     }
     public double getRPM(){
         return flywheel.getVelocity() * 60 / Constants.Shooter.ticksPerRevolution;
@@ -69,8 +70,8 @@ public class Shooter {
     public void setHood(double set){
         if (hoodPos != set) {
             hoodPos = Math.max(Math.min(set, 0.5), 0);
-            hoodServo1.setPosition(set);
-            hoodServo2.setPosition(set);
+            hoodServo1.setPosition(hoodPos);
+            hoodServo2.setPosition(hoodPos);
         }
     }
     
@@ -93,6 +94,12 @@ public class Shooter {
 
     // targetRPM is in ticks/sec
     public void setTargetRPM(double targetRPM) {
+        usePID = true;
+        if (targetRPM > 3000) {
+            setPID(true);
+        } else {
+            setPID(false);
+        }
         double targetVel = rpmToVelocity(targetRPM);
         shooterPID.setTargetPosition(targetVel);
         shooterSpin = true;
@@ -107,12 +114,12 @@ public class Shooter {
         return shooterPID.run();
     }
 
-    public void setPID() {
-        shooterPID.setCoefficients(new PIDFCoefficients(
-                Constants.Shooter.P,
-                Constants.Shooter.I,
-                Constants.Shooter.D,
-                Constants.Shooter.F));
+    public void setPID(boolean fast) {
+        shooterPID.setCoefficients(Constants.Shooter.shooterVelocityPID);
+        if (fast) {
+        } else {
+//            shooterPID.setCoefficients(Constants.Shooter.slowPid);
+        }
     }
 
     public PIDFCoefficients getPID() {
@@ -120,9 +127,11 @@ public class Shooter {
     }
 
     public void update() {
-        if (shooterSpin){
+        if (shooterSpin && usePID) {
             shooterPID.updatePosition(flywheel.getVelocity());  // ticks/sec
             setPower(shooterPID.run());
+        } else if (shooterSpin) {
+            setPower(0.2);
         }
     }
 

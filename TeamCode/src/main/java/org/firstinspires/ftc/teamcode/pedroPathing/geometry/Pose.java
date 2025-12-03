@@ -154,6 +154,24 @@ public final class Pose implements FuturePose {
     }
 
     /**
+     * Adds a vector to this pose, with a scale variable.
+     * Useful for adding a velocity with time to a pose.
+     *
+     * @param other the vector to add
+     * @param scale scalar that the vector will be multiplied by
+     * @return the resulting pose
+     */
+    public Pose plusVector(Vector other, double scale) {
+
+        Vector scaledVector = other.times(scale);
+
+        return new Pose(
+                x + scaledVector.getXComponent(),
+                y + scaledVector.getYComponent(),
+                heading);
+    }
+
+    /**
      * Adds another pose to this pose, converting coordinate systems if necessary.
      *
      * @param other the pose to add
@@ -163,7 +181,8 @@ public final class Pose implements FuturePose {
         Pose inCurrentCoordinates = coordinateSystem == other.coordinateSystem ? other :
                 other.getAsCoordinateSystem(
                         coordinateSystem);
-        return new Pose(x + inCurrentCoordinates.x,
+        return new Pose(
+                x + inCurrentCoordinates.x,
                 y + inCurrentCoordinates.y,
                 heading + inCurrentCoordinates.heading,
                 coordinateSystem);
@@ -381,13 +400,14 @@ public final class Pose implements FuturePose {
     }
 
     /**
-     * Returns a string representation of the pose in the format (x, y, heading in degrees).
+     * Returns a string representation of the pose in the format (x, y, heading in degrees)
+     * rounded to the nearest hundredth.
      *
      * @return a string representation of the pose
      */
     @Override
     public String toString() {
-        return "(" + Math.round(getX() * 100)/100 + ", " + Math.round(getY() * 100)/100 + ", " + Math.round(Math.toDegrees(getHeading()) * 100)/100 + ")";
+        return "(" + Math.round(getX() * 100.0) / 100.0 + ", " + Math.round(getY() * 100.0) / 100.0 + ", " + Math.round(Math.toDegrees(getHeading()) * 100.0) / 100.0 + ")";
     }
 
     /**

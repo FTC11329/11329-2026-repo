@@ -1,14 +1,13 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.bylazar.configurables.annotations.Configurable;
-import com.qualcomm.hardware.bosch.BNO055IMU;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
+import org.firstinspires.ftc.teamcode.pedroPathing.control.PIDFCoefficients;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 
 @Config
@@ -19,7 +18,8 @@ public class Constants {
 
     @Config
     public static class Indexer {
-        public static double spindexPower = 1;
+        public static double spindexPower = 0.9;
+        public static double scanningPower = 0.5;
         public static double transferPower = 1;
 
         public static double secondsFor2 = 1.6; // todo remove after 2nd comp
@@ -32,6 +32,14 @@ public class Constants {
     }
 
     public static class Vision {
+        public static Pose redGoal = new Pose(66, -66);
+        public static Pose blueGoal = new Pose(66, 66);
+
+        public static Pose blueReset = new Pose(7.5, 39.7);
+        public static Pose redReset = new Pose(7.5, -39.7);
+
+
+
         public static Pose redTag = new Pose(55.64, -58.34);
         public static Pose blueTag = new Pose(55.64, 58.34);
 
@@ -43,18 +51,28 @@ public class Constants {
     }
     @Config
     public static class Turret {
-        public static double P = 0.016;
-        public static double I = 0.00043;
-        public static double D = 0.0004;
-        public static double F = 0;
+        public static double closeEnough = 2;
+
+        public static double P = 0.0207;
+        public static double I = 0.000085;
+        public static double D = 0.00056;
+        public static double leftF = -0.03;
+        public static double rightF = 0.11;
+
+        public static PIDFCoefficients turretPID = new PIDFCoefficients(P, I, D, 1);
+//        public static double P = 0;
+//        public static double I = 0;
+//        public static double D = 0;
+//        public static double F = 0;
     }
     public static class Shooter {
-        public static double closeEnoughRPM = 40;
+        public static double closeEnoughRPM = 1000;
         public static double ticksPerRevolution = 28;
-        public static double P = 0.01;
-        public static double I = 0;
-        public static double D = 0;
-        public static double F = 0;
+        public static double P = 0.015;
+        public static double I = 0.00008;
+        public static double D = 0.000001;
+        public static double F = 0.085;
+        public static PIDFCoefficients shooterVelocityPID = new PIDFCoefficients(P, I, D, F);
     }
     public static class Color {
 
