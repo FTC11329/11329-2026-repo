@@ -267,6 +267,11 @@ public class FollowerConstants {
         return this;
     }
 
+    public FollowerConstants integralSecondaryTranslational(PIDFCoefficients integralSecondaryTranslational) {
+        this.integralSecondaryTranslational = integralSecondaryTranslational;
+        return this;
+    }
+
     public FollowerConstants useSecondaryHeadingPIDF(boolean useSecondaryHeadingPIDF) {
         this.useSecondaryHeadingPIDF = useSecondaryHeadingPIDF;
         return this;

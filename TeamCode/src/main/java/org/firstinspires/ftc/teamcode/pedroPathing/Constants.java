@@ -7,6 +7,8 @@ import org.firstinspires.ftc.teamcode.pedroPathing.core.FollowerBuilder;
 import org.firstinspires.ftc.teamcode.pedroPathing.core.drivetrains.MecanumConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.core.localization.constants.PinpointConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.paths.PathConstraints;
+
+import com.bylazar.ftcontrol.panels.configurables.annotations.Configurable;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -14,15 +16,24 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
+@Configurable
+@com.bylazar.configurables.annotations.Configurable
 public class Constants {
     public static FollowerConstants followerConstants = new FollowerConstants()
             .mass(9.97)
-            .forwardZeroPowerAcceleration(-32.39971547811005)
-            .lateralZeroPowerAcceleration(-71.3025081310961)
+            .forwardZeroPowerAcceleration(-46.54367)
+            .lateralZeroPowerAcceleration(-87.7)
             .useSecondaryDrivePIDF(false)
             .useSecondaryTranslationalPIDF(false)
-            .headingPIDFCoefficients(new PIDFCoefficients(1, 0, 0.01, 0))
-            .useSecondaryHeadingPIDF(false)
+            .headingPIDFCoefficients(new PIDFCoefficients(0.85, 0, 0.006, 0.05))
+            .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(3.0, 0.02, 0.15, 0.03))
+            .useSecondaryHeadingPIDF(true)
+            .headingPIDFSwitch(0.1)
+            .translationalPIDFCoefficients(new PIDFCoefficients(0.107, 0, 0.012, 0.048))
+            .secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(0.21, 0, 0.018, 0.027))
+            .integralSecondaryTranslational(new PIDFCoefficients(0,0,0,0.12))
+            .useSecondaryTranslationalPIDF(true)
+            .translationalPIDFSwitch(1)
             ;
     public static PinpointConstants localizerConstants = new PinpointConstants()
             .forwardPodY(-5.866)
@@ -45,8 +56,8 @@ public class Constants {
             .leftRearMotorDirection(DcMotorEx.Direction.REVERSE)
             .rightFrontMotorDirection(DcMotorEx.Direction.FORWARD)
             .rightRearMotorDirection(DcMotorEx.Direction.FORWARD)
-            .xVelocity(67.06706418014888)
-            .yVelocity(48.79219788078248)
+            .xVelocity(72.39374)
+            .yVelocity(57.32301)
             ;
     public static Follower createFollower(HardwareMap hardwareMap) {
         return new FollowerBuilder(followerConstants, hardwareMap)

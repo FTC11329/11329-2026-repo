@@ -457,11 +457,11 @@ public class Robot {
 //            panelsTelemetry.debug("wave3: $wave3");
 //            panelsTelemetry.debug("wave4: $wave4");
 //
-//            panelsTelemetry.graph("wave", turret.turretPID.getTargetPosition());
-//            panelsTelemetry.graph("wave2", turret.getAngle());
-//            panelsTelemetry.graph("wave3", shooter.shooterPID.getTargetPosition());
-//            panelsTelemetry.graph("wave4", shooter.getVelocity());
-//            panelsTelemetry.update(telemetry);
+            panelsTelemetry.graph("wave", turret.turretPID.getTargetPosition());
+            panelsTelemetry.graph("wave2", turret.getAngle());
+            panelsTelemetry.graph("wave3", shooter.shooterPID.getTargetPosition());
+            panelsTelemetry.graph("wave4", shooter.getVelocity());
+            panelsTelemetry.update(telemetry);
 
         }
     }

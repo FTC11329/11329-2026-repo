@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.bylazar.configurables.annotations.Configurable;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -10,13 +11,12 @@ import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.pedroPathing.control.PIDFCoefficients;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 
-@Config
 public class Constants {
     // todo replace all placeholders with real constants
     public static double PlacholdereDouble = 0;
     public static boolean PlaceHOLDERboooLEAN = false;
 
-    @Config
+    @com.bylazar.ftcontrol.panels.configurables.annotations.Configurable
     public static class Indexer {
         public static double spindexPower = 0.9;
         public static double scanningPower = 0.5;
@@ -26,6 +26,8 @@ public class Constants {
         public static double secondsFor1 = 0.8;
         public static double secondsForHole = 0.1;
     }
+
+    @Configurable
     public static class Intake {
         public static double intakePower = 1;
         public static double spitPower = -0.75;
@@ -49,9 +51,10 @@ public class Constants {
         public static double pitch = 80;
         public static double tagAngle = 80;
     }
-    @Config
+
     public static class Turret {
         public static double closeEnough = 2;
+
 
         public static double P = 0.0207;
         public static double I = 0.000085;
