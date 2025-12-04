@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Robot {
-    // Todo make private
+    // Todo make private exept follower
     public Stilts stilts;
     public Intake intake;
     public Turret turret;
@@ -193,6 +193,10 @@ public class Robot {
 
     public void qBall(BallColor[] qdColors) {
         queuedBalls.addAll(Arrays.asList(qdColors));
+    }
+
+    public void casualShooterModeOn() {
+        shooter.casualModeOn();
     }
 
     //corrects the hood, turret, and shooter rpm

@@ -95,11 +95,6 @@ public class Shooter {
     // targetRPM is in ticks/sec
     public void setTargetRPM(double targetRPM) {
         usePID = true;
-        if (targetRPM > 3000) {
-            setPID(true);
-        } else {
-            setPID(false);
-        }
         double targetVel = rpmToVelocity(targetRPM);
         shooterPID.setTargetPosition(targetVel);
         shooterSpin = true;
@@ -114,12 +109,8 @@ public class Shooter {
         return shooterPID.run();
     }
 
-    public void setPID(boolean fast) {
+    public void setPID() {
         shooterPID.setCoefficients(Constants.Shooter.shooterVelocityPID);
-        if (fast) {
-        } else {
-//            shooterPID.setCoefficients(Constants.Shooter.slowPid);
-        }
     }
 
     public PIDFCoefficients getPID() {

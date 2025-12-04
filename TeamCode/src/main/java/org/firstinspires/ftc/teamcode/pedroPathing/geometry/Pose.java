@@ -172,6 +172,35 @@ public final class Pose implements FuturePose {
     }
 
     /**
+     * Adds a delta x to this pose.
+     * 
+     * @param deltaX the change in x
+     */
+    public void addX(double deltaX) {
+        this.x += deltaX;
+    }
+
+    /**
+     * Adds a delta y to this pose.
+     * 
+     * @param deltaY the change in y
+     */
+    public void addY(double deltaY) {
+        this.y += deltaY;
+    }
+
+
+    /**
+     * Adds a delta heading to this pose.
+     * 
+     * @param deltaHeading the change in heading
+     */
+
+    public void addHeading(double deltaHeading) {
+        this.heading = this.heading + deltaHeading;
+    }
+
+    /**
      * Adds another pose to this pose, converting coordinate systems if necessary.
      *
      * @param other the pose to add

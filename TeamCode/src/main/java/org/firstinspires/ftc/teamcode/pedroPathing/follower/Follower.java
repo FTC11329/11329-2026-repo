@@ -1093,10 +1093,22 @@ public class Follower {
     //returns the distance from targetPose
     public Pose getErrorCartesian(Pose targetPose) {
         Pose tempPose = new Pose();
-        tempPose.setX(Math.abs(getPose().getX() - targetPose.getX()));
-        tempPose.setY(Math.abs(getPose().getY() - targetPose.getY()));
-        tempPose.setHeading(Math.abs(getPose().getHeading() - targetPose.getHeading()));
+        tempPose.setX(getErrorX(targetPose));
+        tempPose.setY(getErrorY(targetPose));
+        tempPose.setHeading(getErrorHeading(targetPose));
         return tempPose;
+    }
+
+    public double getErrorX(Pose targetPose) {
+        return Math.abs(getPose().getX() - targetPose.getX());
+    }
+
+    public double getErrorY(Pose targetPose) {
+        return Math.abs(getPose().getY() - targetPose.getY());
+    }
+
+    public double getErrorHeading(Pose targetPose) {
+        return Math.abs(getPose().getHeading() - targetPose.getHeading());
     }
 
     public double getErrorDistance(Pose targetPose) {

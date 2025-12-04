@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.util.BallColor;
@@ -45,11 +46,22 @@ public class MainTeleop extends OpMode {
     FancyButton queuePurple;
     FancyButton overrideShootPosition;
     FancyButton debug;
+    FancyButton fastChangeInit;
+    FancyButton movePoseUpInit;
+    FancyButton movePoseDownInit;
+    FancyButton movePoseLeftInit;
+    FancyButton movePoseRightInit;
+    FancyButton rotatePoseRightInit;
+    FancyButton rotatePoseLeftInit;
 
     public double hoodAngle = 20;
     public double rpm = 3000;
+    public Pose startPose;
     @Override
     public void init() {
+        //todo add logic to get position at the end of auto
+        startPose = new Pose(0,0,0);
+
         robot = new Robot(telemetry, hardwareMap, RobotSide.Blue);
 
         intake = new FancyButton(FancyButton.PressType.Toggle);
@@ -59,6 +71,76 @@ public class MainTeleop extends OpMode {
         autoShoot = new FancyButton(FancyButton.PressType.Toggle);
         overrideShootPosition = new FancyButton(FancyButton.PressType.LongPress);
         debug = new FancyButton(FancyButton.PressType.Toggle);
+        fastChangeInit = new FancyButton(FancyButton.PressType.LongPress);
+        movePoseUpInit = new FancyButton(FancyButton.PressType.LongPress);
+        movePoseDownInit = new FancyButton(FancyButton.PressType.LongPress);
+        movePoseLeftInit = new FancyButton(FancyButton.PressType.LongPress);
+        movePoseRightInit = new FancyButton(FancyButton.PressType.LongPress);
+        rotatePoseLeftInit = new FancyButton(FancyButton.PressType.LongPress);
+        rotatePoseRightInit = new FancyButton(FancyButton.PressType.LongPress);
+    }
+
+    @Override
+    public void init_loop() {
+        telemetry.addLine("Use gamepad 2 Dpad to change Start Position");
+
+        fastChangeInit.checkStatus(gamepad2.right_bumper);
+        movePoseUpInit.checkStatus(gamepad2.dpad_up);
+        movePoseDownInit.checkStatus(gamepad2.dpad_down);
+        movePoseLeftInit.checkStatus(gamepad2.dpad_left);
+        movePoseRightInit.checkStatus(gamepad2.dpad_right);
+        rotatePoseLeftInit.checkStatus(gamepad2.left_trigger > 0.2);
+        rotatePoseRightInit.checkStatus(gamepad2.right_trigger > 0.2);
+
+        double moveSpeed = 0.25; // inches per press
+        double rotateSpeed = 5; // degrees per press
+        if (fastChangeInit.startPress) {
+            moveSpeed = 1;
+            rotateSpeed = 45;
+        } else if (fastChangeInit.endPress) {
+            moveSpeed = 0.25;
+            rotateSpeed = 5;
+        }
+
+        if (RobotSide == RobotSide.Blue) {
+            if (movePoseUpInit.startPress) {
+                startPose.addY(-moveSpeed);
+            }
+            if (movePoseDownInit.startPress) {
+                startPose.addY(moveSpeed);
+            }
+            if (movePoseLeftInit.startPress) {
+                startPose.addX(moveSpeed);
+            }
+            if (movePoseRightInit.startPress) {
+                startPose.addX(-moveSpeed);
+            }
+        } else {
+            if (movePoseUpInit.startPress) {
+                startPose.addY(moveSpeed);
+            }
+            if (movePoseDownInit.startPress) {
+                startPose.addY(-moveSpeed);
+            }
+            if (movePoseLeftInit.startPress) {
+                startPose.addX(-moveSpeed);
+            }
+            if (movePoseRightInit.startPress) {
+                startPose.addX(moveSpeed);
+            }
+        }
+        if (rotatePoseRightInit.startPress) {
+            startPose.addHeading(-rotateSpeed);
+        }
+        if (rotatePoseLeftInit.startPress) {
+            startPose.addHeading(rotateSpeed);
+        }
+
+        telemetry.addData("Start Pose", startPose);
+    }
+
+    @Override public void start() {
+        robot.follower.setStartingPose(startPose);
     }
 
     @Override
