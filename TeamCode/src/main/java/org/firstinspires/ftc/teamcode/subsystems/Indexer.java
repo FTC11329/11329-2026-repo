@@ -192,4 +192,15 @@ public class Indexer {
     public void setMotor(double set) {
         feeder.setPower(set);
     }
+
+    public void update(double distanceToGoal) {
+        if (spindexer1.getPower() == 0) {
+            return;
+        }
+        if (distanceToGoal > Constants.Indexer.farDistance) {
+            setIndexerPower(Constants.Indexer.farSpindexPower);
+        } else {
+            setIndexerPower(Constants.Indexer.spindexPower);
+        }
+    }
 }

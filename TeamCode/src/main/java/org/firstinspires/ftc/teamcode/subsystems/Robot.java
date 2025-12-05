@@ -38,6 +38,9 @@ public class Robot {
 
     double startTime;
 
+    Pose lastCamPose = new Pose(0,0,0);
+    // Offset pose to aim for
+    public Pose offsetPose = new Pose(0,0,0);
     //This is the balls that the shooter prepares to shoot
     public ArrayList<BallColor> queuedBalls = new ArrayList<>();
     //This is an array of the 3 special colors of the games MOTIF
@@ -213,7 +216,7 @@ public class Robot {
         } else {
             goal = Constants.Vision.redGoal;
         }
-
+        goal = goal.plus(offsetPose);
         // Est Time In Flight for ball at current pose
         double timeInFlight = shooterTestValues.get(curPose.distanceFrom(goal)).timeInFlight;
 
@@ -296,10 +299,11 @@ public class Robot {
     // shoots balls in queue or any ball
     public void shootQueue(boolean override) {
         if (!inShootingZone() && !override){
-            indexer.spinIndexer(false);
             indexer.transfer(false);
             return;
         }
+
+        
 
         if (queuedBalls.isEmpty()) {
             shootAny();
@@ -321,10 +325,10 @@ public class Robot {
     double pictureTime = 0;
     public void shooterUpdate() {
         // Takes Picture every ___ ms
-        if (pictureTime + 500 < time.milliseconds()) {
-            pictureTime = time.milliseconds();
-            autoSetCurrentPose();
-        }
+        // if (pictureTime + 500 < time.milliseconds()) {
+            // pictureTime = time.milliseconds();
+            // autoSetCurrentPose();
+        // }
 
         shooter.update();
     }
@@ -341,9 +345,9 @@ public class Robot {
 
 
     public void autoSetCurrentPose() {
-        Pose pos = vision.getRobotPose();
+        lastCamPose = vision.getRobotPose();
         if (pos != null){
-//            follower.setPose(pos);
+           follower.setPose(lastCamPose);
         }
     }
     public Pose getCurrentPose() {
@@ -365,7 +369,7 @@ public class Robot {
     }
 
     public void spindexerUpdate() {
-
+        indexer.update(curPose.distanceFrom(goal));
     }
 
     public void stopIndexer() {
@@ -421,6 +425,9 @@ public class Robot {
 
             telemetry.addLine("=== SHOOTER ===");
             telemetry.addData("Shooter RPM", shooter.getRPM());
+            telemetry.addData("Tar Shooter VEL", shooter.shooterPID.getTargetPosition());
+            telemetry.addData("Shooter VEL", shooter.getVelocity());
+            telemetry.addData("Shooter ERR", shooter.shooterPID.getError());
             telemetry.addData("Hood Angle", shooter.getHoodPosDeg());
 
             telemetry.addLine("=== Turret ===");
@@ -439,8 +446,8 @@ public class Robot {
 
             telemetry.addLine("=== POSITION ===");
             telemetry.addData("guess pose", getCurrentPose());
-            telemetry.addData("last cam pose", getCurrentPose());
-            telemetry.addData("PP Pose", getCurrentPose());
+            telemetry.addData("last cam pose", lastCamPose);
+            telemetry.addData("offset", offsetPose());
             telemetry.addData("in shooting zone", inShootingZone());
 
             telemetry.addLine("=== QUEUE ===");
@@ -454,16 +461,12 @@ public class Robot {
 //            telemetry.addData("in shooting zone", inShootingZone());
 //            telemetry.addData("hood", shooter.getHoodPosDeg());
 //            telemetry.addData("rpm", shooter.getRPM());
-//            panelsTelemetry.debug("wave: $wave");
-//            panelsTelemetry.debug("wave2: $wave2");
-//            panelsTelemetry.debug("wave3: $wave3");
-//            panelsTelemetry.debug("wave4: $wave4");
-//
-            panelsTelemetry.graph("wave", turret.turretPID.getTargetPosition());
-            panelsTelemetry.graph("wave2", turret.getAngle());
-            panelsTelemetry.graph("wave3", shooter.shooterPID.getTargetPosition());
-            panelsTelemetry.graph("wave4", shooter.getVelocity());
-            panelsTelemetry.update(telemetry);
+
+            // panelsTelemetry.graph("wave", turret.turretPID.getTargetPosition());
+            // panelsTelemetry.graph("wave2", turret.getAngle());
+            // panelsTelemetry.graph("wave3", shooter.shooterPID.getTargetPosition());
+            // panelsTelemetry.graph("wave4", shooter.getVelocity());
+            // panelsTelemetry.update(telemetry);
 
         }
     }

@@ -44,16 +44,21 @@ public class MainTeleop {
     // PressHolds
     FancyButton intake;
     FancyButton spitIntake;
+
     FancyButton autoShoot;
     FancyButton queueGreen;
     FancyButton queuePurple;
+
     FancyButton overrideShootPosition;
+    FancyButton panicShoot;
+
     FancyButton debug;
+    FancyButton takePhoto;
     FancyButton fastChangeInit;
-    FancyButton movePoseUpInit;
-    FancyButton movePoseDownInit;
-    FancyButton movePoseLeftInit;
-    FancyButton movePoseRightInit;
+    FancyButton movePoseUp;
+    FancyButton movePoseDown;
+    FancyButton movePoseLeft;
+    FancyButton movePoseRight;
     FancyButton rotatePoseRightInit;
     FancyButton rotatePoseLeftInit;
 
@@ -85,16 +90,23 @@ public class MainTeleop {
 
         intake = new FancyButton(FancyButton.PressType.Toggle);
         spitIntake = new FancyButton(FancyButton.PressType.LongPress);
+
         queueGreen = new FancyButton(FancyButton.PressType.LongPress);
         queuePurple = new FancyButton(FancyButton.PressType.LongPress);
         autoShoot = new FancyButton(FancyButton.PressType.Toggle);
+
         overrideShootPosition = new FancyButton(FancyButton.PressType.LongPress);
+        panicShoot = new FancyButton(FancyButton.PressType.Toggle);
+
+        takePhoto = new FancyButton(FancyButton.PressType.LongPress);
         debug = new FancyButton(FancyButton.PressType.Toggle);
+
+        takePhoto = new FancyButton(FancyButton.PressType.LongPress);
         fastChangeInit = new FancyButton(FancyButton.PressType.LongPress);
-        movePoseUpInit = new FancyButton(FancyButton.PressType.LongPress);
-        movePoseDownInit = new FancyButton(FancyButton.PressType.LongPress);
-        movePoseLeftInit = new FancyButton(FancyButton.PressType.LongPress);
-        movePoseRightInit = new FancyButton(FancyButton.PressType.LongPress);
+        movePoseUp = new FancyButton(FancyButton.PressType.LongPress);
+        movePoseDown = new FancyButton(FancyButton.PressType.LongPress);
+        movePoseLeft = new FancyButton(FancyButton.PressType.LongPress);
+        movePoseRight = new FancyButton(FancyButton.PressType.LongPress);
         rotatePoseLeftInit = new FancyButton(FancyButton.PressType.LongPress);
         rotatePoseRightInit = new FancyButton(FancyButton.PressType.LongPress);
 
@@ -105,10 +117,10 @@ public class MainTeleop {
         telemetry.addLine("Use gamepad 2 Dpad to change Start Position");
 
         fastChangeInit.checkStatus(gamepad2.right_bumper);
-        movePoseUpInit.checkStatus(gamepad2.dpad_up);
-        movePoseDownInit.checkStatus(gamepad2.dpad_down);
-        movePoseLeftInit.checkStatus(gamepad2.dpad_left);
-        movePoseRightInit.checkStatus(gamepad2.dpad_right);
+        movePoseUp.checkStatus(gamepad2.dpad_up);
+        movePoseDown.checkStatus(gamepad2.dpad_down);
+        movePoseLeft.checkStatus(gamepad2.dpad_left);
+        movePoseRight.checkStatus(gamepad2.dpad_right);
         rotatePoseLeftInit.checkStatus(gamepad2.left_trigger > 0.2);
         rotatePoseRightInit.checkStatus(gamepad2.right_trigger > 0.2);
 
@@ -123,29 +135,29 @@ public class MainTeleop {
         }
 
         if (robotSide == RobotSide.Blue) {
-            if (movePoseUpInit.startPress) {
+            if (movePoseUp.startPress) {
                 startPose.addY(-moveSpeed);
             }
-            if (movePoseDownInit.startPress) {
+            if (movePoseDown.startPress) {
                 startPose.addY(moveSpeed);
             }
-            if (movePoseLeftInit.startPress) {
+            if (movePoseLeft.startPress) {
                 startPose.addX(moveSpeed);
             }
-            if (movePoseRightInit.startPress) {
+            if (movePoseRight.startPress) {
                 startPose.addX(-moveSpeed);
             }
         } else {
-            if (movePoseUpInit.startPress) {
+            if (movePoseUp.startPress) {
                 startPose.addY(moveSpeed);
             }
-            if (movePoseDownInit.startPress) {
+            if (movePoseDown.startPress) {
                 startPose.addY(-moveSpeed);
             }
-            if (movePoseLeftInit.startPress) {
+            if (movePoseLeft.startPress) {
                 startPose.addX(-moveSpeed);
             }
-            if (movePoseRightInit.startPress) {
+            if (movePoseRight.startPress) {
                 startPose.addX(moveSpeed);
             }
         }
@@ -164,13 +176,22 @@ public class MainTeleop {
     }
 
     public void loop() {
-        intake.checkStatus(gamepad1.left_bumper); // Toggle on to intake
-        spitIntake.checkStatus(gamepad1.b); // Hold to spit
+        intake.checkStatus(gamepad2.left_bumper); // Toggle on to intake
+        spitIntake.checkStatus(gamepad1.b || gamepad2.b); // Hold to spit
 
-        queueGreen.checkStatus(gamepad1.y); // Press to queue green
-        queuePurple.checkStatus(gamepad1.x); // Press to queue purple
-        autoShoot.checkStatus(gamepad1.a); // Toggle to turn on auto shoot
-        overrideShootPosition.checkStatus(gamepad1.back); // hold to turn on ignore position
+        // queueGreen.checkStatus(gamepad2.y); // Press to queue green
+        // queuePurple.checkStatus(gamepad2.x); // Press to queue purple
+        autoShoot.checkStatus(gamepad2.a); // Toggle to turn on auto shoot
+
+        overrideShootPosition.checkStatus(gamepad2.back); // hold to turn on ignore position
+        panicShoot.checkStatus(gamepad2.ps); // toggle to turn on panic shoot mode
+
+        movePoseUp.checkStatus(gamepad2.dpad_up);  
+        movePoseDown.checkStatus(gamepad2.dpad_down);  //Buttons to control where the robot aims
+        movePoseLeft.checkStatus(gamepad2.dpad_left);
+        movePoseRight.checkStatus(gamepad2.dpad_right);
+
+
         debug.checkStatus(gamepad1.start); // hold to print telemetry
 
 
@@ -195,35 +216,86 @@ public class MainTeleop {
                 robot.stopIntake();
             }
         }
+        
+        if (!panicShoot.isOn) {
+            if (autoShoot.isOn) {
+                robot.prepareShooter();
+                robot.shootQueue(overrideShootPosition.isOn);
+            } else if (autoShoot.endPress){
+                robot.shooter.casualModeOn();
+                robot.stopIndexer();
+            }
+        }
 
-        if (autoShoot.isOn) {
-            robot.prepareShooter();
-            robot.shootQueue(overrideShootPosition.isOn);
-        } else if (autoShoot.endPress){
-            robot.shooter.casualModeOn();
-            robot.stopIndexer();
+        // Panic shoot mode
+        if (panicShoot.startPress) {
+            // distance 71.6
+            robot.shooter.setTargetRPM(2336);
+            robot.shooter.setHoodAngleDeg(35);
+            robot.turret.setTargetDegree(0);
         }
-        if (queuePurple.startPress) {
-            robot.qBall(BallColor.Purple);
+        if (panicShoot.isOn) {
+            if (overrideShootPosition.startPress) {
+                robot.indexer.spinIndexer(true);
+                robot.indexer.transfer(true);
+            } else if (overrideShootPosition.endPress) {
+                robot.stopIndexer();
+            }
         }
-        if (queueGreen.startPress) {
-            robot.qBall(BallColor.Green);
+
+        // Take Photo to set position
+        if (takePhoto.startPress) {
+            robot.autoSetCurrentPose();
         }
+        
+
+        // Changing our aim
+        if (robotSide == RobotSide.Blue) {
+            if (movePoseUp.startPress) {
+                robot.offsetPose.addY(-1);
+            }
+            if (movePoseDown.startPress) {
+                robot.offsetPose.addY(1);
+            }
+            if (movePoseLeft.startPress) {
+                robot.offsetPose.addX(1);
+            }
+            if (movePoseRight.startPress) {
+                robot.offsetPose.addX(-1);
+            }
+        } else {
+            if (movePoseUp.startPress) {
+                robot.offsetPose.addY(1);
+            }
+            if (movePoseDown.startPress) {
+                robot.offsetPose.addY(-1);
+            }
+            if (movePoseLeft.startPress) {
+                robot.offsetPose.addX(-1);
+            }
+            if (movePoseRight.startPress) {
+                robot.offsetPose.addX(1);
+            }
+        }
+
+        
+            
+        // if (queuePurple.startPress) {
+            // robot.qBall(BallColor.Purple);
+        // }
+        // if (queueGreen.startPress) {
+            // robot.qBall(BallColor.Green);
+        // }
 
         robot.update(debug.isOn);
         telemetry.addData("distance", robot.getCurrentPose().distanceFrom(Constants.Vision.blueGoal));
 
-//
-//        telemetry.addData("current", robot.shooter.flywheel.getCurrent(CurrentUnit.AMPS));
-//
 //        double deltaTime = time.milliseconds() - lastTime;
 //        telemetry.addData("Loop Time", deltaTime);
 //        lastTime = time.milliseconds();
 
 //        telemetry.addData("Encoder RPM", robot.shooter.getRPM());
 //        telemetry.addData("Hood angle", robot.shooter.getHoodPosDeg());
-//
-//        telemetry.addData("turret power", gamepad2.right_trigger - gamepad2.left_trigger);
     }
 
     public void stop() {

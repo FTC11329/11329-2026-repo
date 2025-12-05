@@ -436,7 +436,7 @@ public final class Pose implements FuturePose {
      */
     @Override
     public String toString() {
-        return "(" + Math.round(getX() * 100.0) / 100.0 + ", " + Math.round(getY() * 100.0) / 100.0 + ", " + Math.round(Math.toDegrees(getHeading()) * 100.0) / 100.0 + ")";
+        return String.format("(%.2f, %.2f, %.2f)", getX(), getY(), Math.toDegrees(getHeading()));
     }
 
     /**

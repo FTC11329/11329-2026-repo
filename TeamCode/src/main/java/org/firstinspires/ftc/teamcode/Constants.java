@@ -18,7 +18,11 @@ public class Constants {
 
     @com.bylazar.ftcontrol.panels.configurables.annotations.Configurable
     public static class Indexer {
-        public static double spindexPower = 0.8;
+        public static double spindexPower = 0.9;
+
+        public static double farSpindexPower = 0.3;
+        public static double farDistance = 90;
+
         public static double scanningPower = 0.5;
         public static double transferPower = 1;
 
