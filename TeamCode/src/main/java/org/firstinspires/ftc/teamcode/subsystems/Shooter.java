@@ -69,7 +69,7 @@ public class Shooter {
     // Set hood from 0-1
     public void setHood(double set){
         if (hoodPos != set) {
-            hoodPos = Math.max(Math.min(set, 0.5), 0);
+            hoodPos = Math.max(Math.min(set, (Constants.Shooter.maxHoodAngle - 5) / 80), 0);
             hoodServo1.setPosition(hoodPos);
             hoodServo2.setPosition(hoodPos);
         }
@@ -122,7 +122,7 @@ public class Shooter {
             shooterPID.updatePosition(flywheel.getVelocity());  // ticks/sec
             setPower(shooterPID.run());
         } else if (shooterSpin) {
-            setPower(0.2);
+            setPower(0.5);
         }
     }
 

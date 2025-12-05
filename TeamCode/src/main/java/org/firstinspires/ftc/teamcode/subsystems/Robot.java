@@ -60,7 +60,7 @@ public class Robot {
         vision = new Vision(hardwareMap, robotSide);
         indexer = new Indexer(hardwareMap);
         shooter = new Shooter(hardwareMap);
-        turret = new Turret(hardwareMap);
+        turret = new Turret(hardwareMap, robotSide);
         follower = org.firstinspires.ftc.teamcode.pedroPathing.Constants.createFollower(hardwareMap);
         drivetrain = new Drivetrain(hardwareMap);
         time = new ElapsedTime();
@@ -69,6 +69,7 @@ public class Robot {
 
         shooterTimer = new ElapsedTime();
         shooterTestValues = new ShooterTestValues();
+        follower.resetIMU();
     }
     // VISION**************************************************************************************~
     public void getMotif() {
@@ -183,7 +184,7 @@ public class Robot {
 
     // SHOOTER*************************************************************************************~
     public boolean readyToShoot() {
-        return shooter.closeEnoughToTarget() && turret.closeEnoughToTarget();
+        return shooter.closeEnoughToTarget() && turret.closeEnoughToTarget(getCurrentPose());
     }
 
     // Adds a ball of color ball color to queuedBalls list
@@ -240,9 +241,6 @@ public class Robot {
 
     public void shootAny() {
         indexer.spinIndexer(true);
-        telemetry.addData("r", readyToShoot());
-        telemetry.addData("s", shooter.closeEnoughToTarget());
-        telemetry.addData("t", turret.closeEnoughToTarget());
         indexer.transfer(readyToShoot());
     }
 

@@ -44,12 +44,8 @@ public class PoseTracker {
      */
     public PoseTracker(Localizer localizer) {
         this.localizer = localizer;
+        localizer.resetIMU();
 
-        try {
-            localizer.resetIMU();
-        } catch (InterruptedException ignored) {
-            System.out.println("PoseTracker: resetIMU() interrupted");
-        }
     }
 
 
@@ -327,7 +323,7 @@ public class PoseTracker {
     /**
      * This resets the IMU of the localizer.
      */
-    public void resetIMU() throws InterruptedException {
+    public void resetIMU() {
         localizer.resetIMU();
     }
 

@@ -2,8 +2,12 @@ package org.firstinspires.ftc.teamcode.teleops;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
@@ -34,8 +38,7 @@ import org.firstinspires.ftc.teamcode.util.RobotSide;
 //      }
 //   }
 
-@TeleOp(name = "Main Teleop", group = "                                                      group")
-public class MainTeleop extends OpMode {
+public class MainTeleop {
     //This is where we introduce the tele-operated controls
     Robot robot;
     // PressHolds
@@ -54,15 +57,31 @@ public class MainTeleop extends OpMode {
     FancyButton rotatePoseRightInit;
     FancyButton rotatePoseLeftInit;
 
+    Gamepad gamepad1;
+    Gamepad gamepad2;
+    Telemetry telemetry;
+    RobotSide robotSide;
+    HardwareMap hardwareMap;
+
+    public MainTeleop(Gamepad gamepad1, Gamepad gamepad2, Telemetry telemetry, HardwareMap hardwareMap, RobotSide robotSide) {
+        this.gamepad1 = gamepad1;
+        this.gamepad2 = gamepad2;
+        this.telemetry = telemetry;
+        this.hardwareMap = hardwareMap;
+        this.robotSide = robotSide;
+    }
+
+    ElapsedTime time;
+    double lastTime;
     public double hoodAngle = 20;
     public double rpm = 3000;
     public Pose startPose;
-    @Override
+
     public void init() {
         //todo add logic to get position at the end of auto
         startPose = new Pose(0,0,0);
 
-        robot = new Robot(telemetry, hardwareMap, RobotSide.Blue);
+        robot = new Robot(telemetry, hardwareMap, robotSide);
 
         intake = new FancyButton(FancyButton.PressType.Toggle);
         spitIntake = new FancyButton(FancyButton.PressType.LongPress);
@@ -78,9 +97,10 @@ public class MainTeleop extends OpMode {
         movePoseRightInit = new FancyButton(FancyButton.PressType.LongPress);
         rotatePoseLeftInit = new FancyButton(FancyButton.PressType.LongPress);
         rotatePoseRightInit = new FancyButton(FancyButton.PressType.LongPress);
+
+        time = new ElapsedTime();
     }
 
-    @Override
     public void init_loop() {
         telemetry.addLine("Use gamepad 2 Dpad to change Start Position");
 
@@ -102,7 +122,7 @@ public class MainTeleop extends OpMode {
             rotateSpeed = 5;
         }
 
-        if (RobotSide == RobotSide.Blue) {
+        if (robotSide == RobotSide.Blue) {
             if (movePoseUpInit.startPress) {
                 startPose.addY(-moveSpeed);
             }
@@ -139,11 +159,10 @@ public class MainTeleop extends OpMode {
         telemetry.addData("Start Pose", startPose);
     }
 
-    @Override public void start() {
+    public void start() {
         robot.follower.setStartingPose(startPose);
     }
 
-    @Override
     public void loop() {
         intake.checkStatus(gamepad1.left_bumper); // Toggle on to intake
         spitIntake.checkStatus(gamepad1.b); // Hold to spit
@@ -168,15 +187,13 @@ public class MainTeleop extends OpMode {
 
         if (spitIntake.startPress) {
             robot.spitIntake();
-            if (intake.isOn){
-                // Makes the intake toggle correct
-                intake.checkStatus(false);
-                intake.checkStatus(true);
-                intake.checkStatus(false);
-            }
         }
         if (spitIntake.endPress) {
-            robot.stopIntake();
+            if (intake.isOn){
+                robot.intakeManual();
+            } else {
+                robot.stopIntake();
+            }
         }
 
         if (autoShoot.isOn) {
@@ -194,62 +211,21 @@ public class MainTeleop extends OpMode {
         }
 
         robot.update(debug.isOn);
+        telemetry.addData("distance", robot.getCurrentPose().distanceFrom(Constants.Vision.blueGoal));
 
-//        robot.update();
-//        shoot.checkStatus(gamepad1.x);
-//        if (shoot.isOn && intake.isOn){
-//            intake.checkStatus(false);
-//            intake.checkStatus(true);
-//            intake.checkStatus(false);
-//        }else {
-//            intake.checkStatus(gamepad1.a);
-//        }
-//        robot.drivetrain.teleopMovement(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, gamepad1.left_bumper);
-//
-//        //TURRET : 2 x
-//        robot.turret.setPower(gamepad2.left_stick_x);
-//        telemetry.addData("turret velocity encoder", robot.turret.encoder.getVelocity());
-//        telemetry.addData("turret position encoder", robot.turret.encoder.getCurrentPosition());
-//
-//        //INTAKE : a
-//        robot.intake.setIntakePower(gamepad1.a ? 1 : 0);
-//
-//        //INDEXER : b
-//        robot.indexer.setIndexerPower(gamepad1.b ? 1 : 0);
-//
-//        //SHOOTER : y
-//        if (gamepad1.y){
-//            robot.passiveShoot(6000, false);
-//        }
-//
-//        //Shooter 2 : 2 a, and y
-//        robot.shooter.setPower(gamepad2.a ? 1 : 0);
-//
-//        telemetry.addData("Spindexer Power", -gamepad1.left_stick_y);
-//
-//        //TRANSFER
-//        robot.indexer.setIndexerToShooterPower(gamepad1.x ? 1 : -gamepad2.right_stick_x);
-//
-//        telemetry.addData("indexer to shooter power", -gamepad2.right_stick_x);
-//
-//
-//        telemetry.addData("intake Power", gamepad1.right_trigger - gamepad1.left_trigger);
-//
-//        telemetry.addData("shooter power", -gamepad2.left_stick_y);
-//
-//        angle += -gamepad2.right_stick_y * 0.5;
-//        robot.shooter.setHoodDeg(angle);
-//        telemetry.addData("shooter angle", angle);
-//
 //
 //        telemetry.addData("current", robot.shooter.flywheel.getCurrent(CurrentUnit.AMPS));
 //
-        telemetry.addData("Encoder RPM", robot.shooter.getRPM());
-        telemetry.addData("Hood angle", robot.shooter.getHoodPosDeg());
+//        double deltaTime = time.milliseconds() - lastTime;
+//        telemetry.addData("Loop Time", deltaTime);
+//        lastTime = time.milliseconds();
+
+//        telemetry.addData("Encoder RPM", robot.shooter.getRPM());
+//        telemetry.addData("Hood angle", robot.shooter.getHoodPosDeg());
 //
 //        telemetry.addData("turret power", gamepad2.right_trigger - gamepad2.left_trigger);
     }
-    @Override
+
     public void stop() {
         robot.stopAllSubsystems();
     }

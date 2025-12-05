@@ -5,6 +5,8 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
+import org.firstinspires.ftc.teamcode.pedroPathing.geometry.BezierCurve;
+import org.firstinspires.ftc.teamcode.pedroPathing.geometry.FuturePose;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.paths.Path;
 import org.firstinspires.ftc.teamcode.pedroPathing.paths.PathChain;
@@ -24,26 +26,27 @@ public class BlueCloseAuto extends OpMode {
 	
 	private double shootTime = 5.0; // seconds to shoot all 3 balls
 	private double shootPower = 0.5; // power to move while shooting
+	private double intaketime = 0.8; // seconds to fully intake balls after reaching intakeEnd
 
 	// POSES *******************************~
 
-	private Pose startPose = new Pose(65, 36, Math.toRadians(90));
+	private Pose startPose = new Pose(62.5, 36, Math.toRadians(90));
     private Pose endShoot1Pose = new Pose(12, 12, Math.toRadians(90));
 
-    private Pose intake1StartPose = new Pose(12, 30, Math.toRadians(90));
-    private Pose intake1EndPose = new Pose(12, 48, Math.toRadians(90));
-    private Pose pushGateEndPose = new Pose(0, 52, Math.toRadians(90));
+    private Pose intake1StartPose = new Pose(12, 32, Math.toRadians(90));
+    private Pose intake1EndPose = new Pose(12, 47, Math.toRadians(90));
+    private Pose pushGateEndPose = new Pose(0, 53.5, Math.toRadians(100));
     private Pose startShoot2Pose = new Pose(36, 36, Math.toRadians(135));
     private Pose endShoot2Pose = new Pose(12, 12, Math.toRadians(135));
 
-    private Pose intake2StartPose = new Pose(-12, 30, Math.toRadians(90));
-    private Pose intake2EndPose = new Pose(-12, 48, Math.toRadians(90));
+    private Pose intake2StartPose = new Pose(-12, 32, Math.toRadians(90));
+    private Pose intake2EndPose = new Pose(-12, 47, Math.toRadians(90));
     private Pose startShoot3Pose = new Pose(24, 24, Math.toRadians(135));
     private Pose endShoot3Pose = new Pose(12, 12, Math.toRadians(135));
 
-    private Pose intake3Pose = new Pose(-36, 30, Math.toRadians(90));
-    private Pose intake3EndPose = new Pose(-36, 48, Math.toRadians(90));
-    private Pose startShoot4Pose = new Pose(12, 12, Math.toRadians(135));
+    private Pose intake3StartPose = new Pose(-36, 32, Math.toRadians(90));
+    private Pose intake3EndPose = new Pose(-36, 47, Math.toRadians(90));
+    private Pose shoot4Pose = new Pose(12, 12, Math.toRadians(135));
 
     private Pose toSTunnelControlPoint = new Pose(-24, 30, Math.toRadians(0));
     private Pose startSTunnelPose = new Pose(-30, 60, Math.toRadians(110));
@@ -58,29 +61,16 @@ public class BlueCloseAuto extends OpMode {
 	private Path shootPath1;
 
 	private PathChain firstMovement;
-	private Path moveToIntake1;
-	private Path grabIntake1;
-	private Path pushGate1;
-	private Path moveToShoot2;
 
 	private Path shootPath2;
 
 	private PathChain secondMovement;
-	private Path moveToIntake2;
-	private Path grabIntake2;
-	private Path moveToShoot3;
 
 	private Path shootPath3;
 
 	private PathChain thirdMovement;
-	private Path moveToIntake3;
-	private Path grabIntake3;
-	private Path moveToShoot4;
 
 	private PathChain sTunnelMovement;
-	private Path moveToSTunnel;;
-	private Path intakeSTunnel;
-	private Path moveToShoot5;
 
 	private Path shootPath5;
 
@@ -88,7 +78,42 @@ public class BlueCloseAuto extends OpMode {
 
 
 	public void buildPaths() {
-		shootPath1 = robot.follower.linearPathBuilder(startPose, shoo));
+		shootPath1 = robot.follower.linearPathBuilder(startPose, endShoot1Pose);
+
+		firstMovement = robot.follower.pathBuilder()
+				.addPath(robot.follower.linearPathBuilder(endShoot1Pose, intake1StartPose))
+				.addPath(robot.follower.linearPathBuilder(intake1StartPose, intake1EndPose))
+				.addPath(robot.follower.linearPathBuilder(intake1EndPose, pushGateEndPose))
+				.addPath(robot.follower.linearPathBuilder(pushGateEndPose, startShoot2Pose))
+				.build();
+
+		shootPath2 = robot.follower.linearPathBuilder(startShoot2Pose, endShoot2Pose);
+
+		secondMovement = robot.follower.pathBuilder()
+				.addPath(robot.follower.linearPathBuilder(endShoot2Pose, intake2StartPose))
+				.addPath(robot.follower.linearPathBuilder(intake2StartPose, intake2EndPose))
+				.addPath(robot.follower.linearPathBuilder(intake2EndPose, startShoot3Pose))
+				.build();
+
+		shootPath3 = robot.follower.linearPathBuilder(startShoot3Pose, endShoot2Pose);
+
+		thirdMovement = robot.follower.pathBuilder()
+				.addPath(robot.follower.linearPathBuilder(endShoot3Pose, intake3StartPose))
+				.addPath(robot.follower.linearPathBuilder(intake3StartPose, intake3EndPose))
+				.addPath(robot.follower.linearPathBuilder(intake3EndPose, shoot4Pose))
+				.build();
+
+		sTunnelMovement = robot.follower.pathBuilder()
+				.addPath(new BezierCurve(shoot4Pose, toSTunnelControlPoint, startSTunnelPose))
+				.addPath(robot.follower.linearPathBuilder(startSTunnelPose, endSTunnelPose))
+				.addPath(robot.follower.linearPathBuilder(endSTunnelPose, startShoot5Pose))
+				.build();
+
+		shootPath5 = robot.follower.linearPathBuilder(startShoot5Pose, endShoot5Pose);
+
+		endAutoPath = robot.follower.linearPathBuilder(endShoot5Pose, endPose);
+
+
 	}
 
 	public void autonomousPathUpdate() {
@@ -96,9 +121,9 @@ public class BlueCloseAuto extends OpMode {
 			case run:
 				prepareToShoot = true;
 				shoot = true;
-				setPathState(pathState);
 				robot.follower.followPath(shootPath1);
 				robot.follower.setMaxPower(shootPower);
+				setPathState(BlueCloseAutoPhases.shoot1);
 				break;
 			case shoot1:
 				if (pathTimer.getElapsedTimeSeconds() > shootTime) {
@@ -106,21 +131,26 @@ public class BlueCloseAuto extends OpMode {
 					shoot = false;
 					robot.follower.followPath(firstMovement);
 					robot.follower.setMaxPower(1.0);
-					setPathState(BlueCloseAutoPhases.firstMovement);
+					setPathState(BlueCloseAutoPhases.moveToIntake1);
 				}
 				break;
 			case moveToIntake1:
-				if (robot.follower.getErrorY(intake1StartPose) < 1) {
+				if (robot.follower.getCurrentPathNumber() == 2) {
 					robot.intakeManual();
 					setPathState(BlueCloseAutoPhases.intaking1);
 				}
 				break;
 			case intaking1:
-				if (robot.follower.getPose().getX() > 18) {
-					robot.stopIntake();
+				if (robot.follower.getCurrentPathNumber() == 2) {
+					setPathState(BlueCloseAutoPhases.stillIntaking1);
+				}
+				break;
+			case stillIntaking1:
+				if (pathTimer.getElapsedTimeSeconds() > intaketime) {
 					prepareToShoot = true;
 					shoot = true;
-					setPathState(BlueCloseAutoPhases.shootPath2);
+					robot.stopIntake();
+					setPathState(BlueCloseAutoPhases.goToShoot2);
 				}
 				break;
 			case goToShoot2:
@@ -128,7 +158,7 @@ public class BlueCloseAuto extends OpMode {
 					robot.follower.followPath(shootPath2);
 					robot.follower.setMaxPower(shootPower);
 
-					setPathState(BlueCloseAutoPhases.moveToIntake2);
+					setPathState(BlueCloseAutoPhases.shoot2);
 				}
 				break;
 			case shoot2:
@@ -147,15 +177,21 @@ public class BlueCloseAuto extends OpMode {
 				}
 				break;
 			case intaking2:
-				if (pathTimer.getElapsedTimeSeconds() > 1.5) {
+				if (robot.follower.getCurrentPathNumber() == 2) {
+					setPathState(BlueCloseAutoPhases.stillIntaking2);
+				}
+				break;
+			case stillIntaking2:
+				if (pathTimer.getElapsedTimeSeconds() > intaketime) {
+					robot.stopIntake();
+					shoot = true;
 					prepareToShoot = true;
-					setPathState(BlueCloseAutoPhases.goToShoot3);
+					setPathState(BlueCloseAutoPhases.goToShoot4);
 				}
 				break;
 			case goToShoot3:
 				if (robot.follower.getErrorDistance(startShoot3Pose) < 5) {
 					robot.stopIntake();
-					shoot = true;
 					robot.follower.followPath(shootPath3);
 					robot.follower.setMaxPower(shootPower);
 					setPathState(BlueCloseAutoPhases.shootPath3);
@@ -171,22 +207,27 @@ public class BlueCloseAuto extends OpMode {
 				}
 				break;
 			case moveToIntake3:
-				if (robot.follower.getErrorY(intake3Pose) < 1) {
+				if (robot.follower.getErrorY(intake3StartPose) < 1) {
 					robot.intakeManual();
 					setPathState(BlueCloseAutoPhases.intaking3);
 				}
 				break;
 			case intaking3:
-				if (pathTimer.getElapsedTimeSeconds() > 2.5) {
+				if (robot.follower.getCurrentPathNumber() == 2) {
+					setPathState(BlueCloseAutoPhases.stillIntaking3);
+				}
+				break;
+			case stillIntaking3:
+				if (pathTimer.getElapsedTimeSeconds() > intaketime) {
+					robot.stopIntake();
 					prepareToShoot = true;
+					shoot = true;
 					setPathState(BlueCloseAutoPhases.goToShoot4);
 				}
 				break;
 			case goToShoot4:
-				if (robot.follower.getErrorDistance(startShoot4Pose) < 5) {
-					robot.stopIntake();
-					shoot = true;
-					setPathState(BlueCloseAutoPhases.shootPath4);
+				if (robot.follower.getErrorDistance(shoot4Pose) < 1.5) {
+					setPathState(BlueCloseAutoPhases.shoot4);
 				}
 				break;
 			case shoot4:
@@ -200,15 +241,18 @@ public class BlueCloseAuto extends OpMode {
 			case moveToSTunnel:
 				if (robot.follower.getErrorY(startSTunnelPose) < 1) {
 					robot.intakeManual();
-					setPathState(BlueCloseAutoPhases.grabbingSTunnel);
+					setPathState(BlueCloseAutoPhases.intakingSTunnel);
 				}
 				break;
 			case intakingSTunnel:
-				if (robot.follower.getErrorDistance(endSTunnelPose) < 3) {
+				if (robot.follower.getCurrentPathNumber() == 2) {
+					setPathState(BlueCloseAutoPhases.stillIntaking4);
+				}
+				break;
+			case stillIntaking4:
+				if (pathTimer.getElapsedTimeSeconds() > intaketime) {
 					robot.stopIntake();
-					prepareToShoot = true;
-					shoot = true;
-					setPathState(BlueCloseAutoPhases.shootPath5);
+					setPathState(BlueCloseAutoPhases.shoot5);
 				}
 				break;
 			case shoot5:
@@ -247,7 +291,7 @@ public class BlueCloseAuto extends OpMode {
 	@Override
 	public void start() {
 		opmodeTimer.resetTimer();
-		setPathState(0);
+		setPathState(BlueCloseAutoPhases.run);
 	}
 	/** This is the main loop of the OpMode, it will run repeatedly after clicking "Play". **/
 	@Override
@@ -260,7 +304,8 @@ public class BlueCloseAuto extends OpMode {
 		}
 		if (shoot) {
 			robot.shootQueue(false);
-		} else if (lastShoot && !shoot) {
+		}
+		if (lastShoot && !shoot) {
 			robot.stopIndexer();
 		}
 		lastShoot = shoot;

@@ -222,6 +222,13 @@ public class PinpointLocalizer implements Localizer {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+        odo.recalibrateIMU();
+
+        try {
+            Thread.sleep(300);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**

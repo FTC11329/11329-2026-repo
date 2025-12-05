@@ -1115,4 +1115,8 @@ public class Follower {
         return Pose.cartesianToPolar(getErrorCartesian(targetPose).getX(), getErrorCartesian(targetPose).getY())[0];
     }
 
+    public void resetIMU() {
+        poseTracker.resetIMU();
+    }
+
 }

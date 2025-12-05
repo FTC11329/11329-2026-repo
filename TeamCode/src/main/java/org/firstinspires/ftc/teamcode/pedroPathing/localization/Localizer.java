@@ -92,7 +92,7 @@ public interface Localizer {
     /**
      * This resets the IMU of the localizer, if applicable.
      */
-    void resetIMU() throws InterruptedException;
+    void resetIMU();
 
     /**
      * This is overridden to return the IMU's heading estimate, if there is one.

@@ -18,7 +18,7 @@ public class Constants {
 
     @com.bylazar.ftcontrol.panels.configurables.annotations.Configurable
     public static class Indexer {
-        public static double spindexPower = 0.9;
+        public static double spindexPower = 0.8;
         public static double scanningPower = 0.5;
         public static double transferPower = 1;
 
@@ -34,8 +34,8 @@ public class Constants {
     }
 
     public static class Vision {
-        public static Pose redGoal = new Pose(66, -66);
-        public static Pose blueGoal = new Pose(66, 66);
+        public static Pose redGoal = new Pose(60, -60);
+        public static Pose blueGoal = new Pose(60, 60);
 
         public static Pose blueReset = new Pose(7.5, 39.7);
         public static Pose redReset = new Pose(7.5, -39.7);
@@ -53,7 +53,8 @@ public class Constants {
     }
 
     public static class Turret {
-        public static double closeEnough = 2;
+        public static double closeEnough = 10; //Inches
+        public static double turretOffset = 1;
 
 
         public static double P = 0.0207;
@@ -69,6 +70,7 @@ public class Constants {
 //        public static double F = 0;
     }
     public static class Shooter {
+        public static double maxHoodAngle = 53.5;
         public static double closeEnoughRPM = 1000;
         public static double ticksPerRevolution = 28;
         public static double P = 0.015;

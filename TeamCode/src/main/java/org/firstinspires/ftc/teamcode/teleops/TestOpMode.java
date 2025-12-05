@@ -127,8 +127,8 @@ public class TestOpMode extends OpMode {
 
         robotPose = robot.getCurrentPose();
         lastShooterRPM = shooterRPM;
-//        robot.prepareShooter();
-        robot.update(true);
+        robot.prepareShooter();
+        robot.update(false);
 
 //        deltaTime = time.milliseconds() - lastTime;
 //        telemetry.addData("Loop Time", deltaTime);

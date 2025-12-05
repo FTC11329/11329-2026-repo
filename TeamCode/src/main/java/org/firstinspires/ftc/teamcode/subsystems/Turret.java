@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import com.bylazar.ftcontrol.panels.plugins.html.primitives.P;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -8,6 +9,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.control.PIDFCoefficients;
 import org.firstinspires.ftc.teamcode.pedroPathing.control.PIDFController;
+import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
+import org.firstinspires.ftc.teamcode.util.RobotSide;
 
 public class Turret {
     // declaring motor variables
@@ -16,6 +19,8 @@ public class Turret {
 
     double hoodPos = 0;
 
+    Pose goalPose;
+
     public final DcMotorEx encoder;
     // Constants — CHANGE FOR YOUR ROBOT
     private static final int TICKS_PER_REV = 4096;   // or your encoder type
@@ -23,7 +28,7 @@ public class Turret {
 
      public PIDFController turretPID;
 
-    public Turret(HardwareMap hardwareMap){
+    public Turret(HardwareMap hardwareMap, RobotSide robotSide){
 
         turretServo1 = hardwareMap.get(CRServo.class, "turret1");
         turretServo1.setDirection(CRServo.Direction.FORWARD);
@@ -36,6 +41,11 @@ public class Turret {
         encoder.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         turretPID = new PIDFController(Constants.Turret.turretPID);
         turretPID.updateFeedForwardInput(Constants.Turret.rightF);
+        if (robotSide == RobotSide.Blue) {
+            goalPose = new Pose(72, 72);
+        } else {
+            goalPose = new Pose(72, -72);
+        }
     }
 
     public void setTargetDeg(double deg) {
@@ -47,7 +57,7 @@ public class Turret {
             robotDeg += 360;
         }
 
-        turretPID.setTargetPosition(robotDeg);
+        turretPID.setTargetPosition(robotDeg + Constants.Turret.turretOffset);
     }
 
     public void update() {
@@ -84,7 +94,7 @@ public class Turret {
     public double getTicks() {
         return encoder.getCurrentPosition();
     }
-    public boolean closeEnoughToTarget() {
-        return Math.abs(turretPID.getError()) <= Constants.Turret.closeEnough;
+    public boolean closeEnoughToTarget(Pose robotPose) {
+        return robotPose.distanceFrom(goalPose) * Math.sin(Math.toRadians(Math.abs(turretPID.getError()))) <= Constants.Turret.closeEnough;
     }
 }
