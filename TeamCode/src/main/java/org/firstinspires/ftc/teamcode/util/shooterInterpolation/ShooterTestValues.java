@@ -16,11 +16,10 @@ public class ShooterTestValues {
         shooterMap.put(55.1, new ShooterState(2332, 42.2, 0.64));
         shooterMap.put(60.7, new ShooterState(2484, 43.7, 0.61));
         shooterMap.put(65.6, new ShooterState(2480, 45, 0.53));
-        shooterMap.put(69.97, new ShooterState(2608, 43.4, 0.58));
-        shooterMap.put(75.3, new ShooterState(2892, 41.9, 0.55));
-        shooterMap.put(80.8, new ShooterState(2500, 43.4, 0.63));
-        shooterMap.put(85.47, new ShooterState(2828, 40.1, 0.5)); //0
-        shooterMap.put(90.3, new ShooterState(2944, 40.1, 0)); //0
+        shooterMap.put(71.6, new ShooterState(2336, 35, 0.44));
+        shooterMap.put(75.8, new ShooterState(2420, 35, 0.47));
+        shooterMap.put(82.7, new ShooterState(2500, 32.3, 0.58));
+        shooterMap.put(90.5, new ShooterState(2620, 35.3, 0.62));
         shooterMap.put(95.2, new ShooterState(3076, 40.1, 0)); //0
         shooterMap.put(99.8, new ShooterState(3112, 38, 0)); //0
         shooterMap.put(108.75, new ShooterState(3236, 38.6, 0)); //0
