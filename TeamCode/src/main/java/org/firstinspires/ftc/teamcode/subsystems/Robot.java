@@ -12,8 +12,10 @@ import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
+import org.firstinspires.ftc.teamcode.util.shooterInterpolation.NewShooterTestValues;
 import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterState;
 import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterTestValues;
+import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterValuesParent;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,6 +35,7 @@ public class Robot {
 
 
     ShooterTestValues shooterTestValues;
+    NewShooterTestValues newShooterTestValues;
     public ElapsedTime shooterTimer;
     TelemetryManager panelsTelemetry;
 
@@ -52,6 +55,8 @@ public class Robot {
     //This is a PUBLIC variable: [turret anlge, hood angle, shooter RPM]
     double[] shootingParams;
     boolean doAutoIntake = false;
+    Pose goal = new Pose(0,0,0);
+
 
     Telemetry telemetry;
     public Robot(Telemetry telemetry, HardwareMap hardwareMap, RobotSide robotSide) {
@@ -72,6 +77,7 @@ public class Robot {
 
         shooterTimer = new ElapsedTime();
         shooterTestValues = new ShooterTestValues();
+        newShooterTestValues = new NewShooterTestValues();
         follower.resetIMU();
     }
     // VISION**************************************************************************************~
@@ -203,22 +209,28 @@ public class Robot {
         shooter.casualModeOn();
     }
 
-    //corrects the hood, turret, and shooter rpm
     public void prepareShooter() {
+        prepareShooter(false);
+    }
+
+    //corrects the hood, turret, and shooter rpm
+    public void prepareShooter(boolean oldvalues) {
 
         // Gets current Pose
         Pose curPose = getCurrentPose();
 
         // Gets goal Pose
-        Pose goal;
         if (robotSide == RobotSide.Blue)  {
             goal = Constants.Vision.blueGoal;
         } else {
             goal = Constants.Vision.redGoal;
         }
+
+        ShooterValuesParent stv = oldvalues ? shooterTestValues : newShooterTestValues;
+
         goal = goal.plus(offsetPose);
         // Est Time In Flight for ball at current pose
-        double timeInFlight = shooterTestValues.get(curPose.distanceFrom(goal)).timeInFlight;
+        double timeInFlight = stv.get(curPose.distanceFrom(goal)).timeInFlight;
 
         // Logic for future pose
         Pose futrPose = curPose.plusVector(follower.getVelocity(), timeInFlight);
@@ -232,7 +244,7 @@ public class Robot {
         turret.setTargetDeg(angleToGoal - Math.toDegrees(futrPose.getHeading()));
 
         // Gets shooter params based on future pose
-        ShooterState futureShooterParams = shooterTestValues.get(futrPose.distanceFrom(goal));
+        ShooterState futureShooterParams = stv.get(futrPose.distanceFrom(goal));
 
         // Sets shooter rpm
         shooter.setTargetRPM(futureShooterParams.rpm);
@@ -346,7 +358,7 @@ public class Robot {
 
     public void autoSetCurrentPose() {
         lastCamPose = vision.getRobotPose();
-        if (pos != null){
+        if (lastCamPose != null){
            follower.setPose(lastCamPose);
         }
     }
@@ -369,7 +381,7 @@ public class Robot {
     }
 
     public void spindexerUpdate() {
-        indexer.update(curPose.distanceFrom(goal));
+        indexer.update(getCurrentPose().distanceFrom(goal));
     }
 
     public void stopIndexer() {
@@ -447,7 +459,7 @@ public class Robot {
             telemetry.addLine("=== POSITION ===");
             telemetry.addData("guess pose", getCurrentPose());
             telemetry.addData("last cam pose", lastCamPose);
-            telemetry.addData("offset", offsetPose());
+            telemetry.addData("offset", offsetPose);
             telemetry.addData("in shooting zone", inShootingZone());
 
             telemetry.addLine("=== QUEUE ===");

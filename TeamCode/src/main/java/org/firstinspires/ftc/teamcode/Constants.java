@@ -34,7 +34,8 @@ public class Constants {
     @Configurable
     public static class Intake {
         public static double intakePower = 1;
-        public static double spitPower = -0.75;
+        public static double spitPower = -0.67; //67 67 67 67 67 67 67 67 67 67
+        public static double spitTime = 0.3;
     }
 
     public static class Vision {

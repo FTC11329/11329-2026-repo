@@ -201,6 +201,19 @@ public class PathBuilder {
      *         This will be reached at the end of the Path if no end t-value is specified.
      * @return This returns itself with the updated data.
      */
+    public PathBuilder setLinearHeadingInterpolation(Pose startHeading, Pose endHeading) {
+        this.paths.get(paths.size() - 1).setLinearHeadingInterpolation(startHeading.getHeading(), endHeading.getHeading());
+        return this;
+    }
+
+    /**
+     * This sets a linear heading interpolation on the last Path added to the PathBuilder.
+     *
+     * @param startHeading The start of the linear heading interpolation.
+     * @param endHeading The end of the linear heading interpolation.
+     *         This will be reached at the end of the Path if no end t-value is specified.
+     * @return This returns itself with the updated data.
+     */
     public PathBuilder setLinearHeadingInterpolation(double startHeading, double endHeading) {
         this.paths.get(paths.size() - 1).setLinearHeadingInterpolation(startHeading, endHeading);
         return this;
@@ -286,6 +299,17 @@ public class PathBuilder {
                 new HeadingInterpolator.PiecewiseNode(0, startTime, HeadingInterpolator.constant(startHeading)),
                 HeadingInterpolator.PiecewiseNode.linear(startTime, endTime, startHeading, endHeading)
         );
+        return this;
+    }
+
+    /**
+     * This sets a constant heading interpolation on the last Path added to the PathBuilder.
+     *
+     * @param setHeading The constant heading specified.
+     * @return This returns itself with the updated data.
+     */
+    public PathBuilder setConstantHeadingInterpolation(Pose setHeading) {
+        this.paths.get(paths.size() - 1).setConstantHeadingInterpolation(setHeading.getHeading());
         return this;
     }
 

@@ -231,8 +231,8 @@ public class MainTeleop {
         if (panicShoot.startPress) {
             // distance 71.6
             robot.shooter.setTargetRPM(2336);
-            robot.shooter.setHoodAngleDeg(35);
-            robot.turret.setTargetDegree(0);
+            robot.shooter.setHoodDeg(35);
+            robot.turret.setTargetDeg(0);
         }
         if (panicShoot.isOn) {
             if (overrideShootPosition.startPress) {

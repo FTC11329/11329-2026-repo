@@ -4,28 +4,24 @@ package org.firstinspires.ftc.teamcode.autos;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
-import org.firstinspires.ftc.teamcode.pedroPathing.geometry.BezierCurve;
-import org.firstinspires.ftc.teamcode.pedroPathing.geometry.FuturePose;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.paths.Path;
 import org.firstinspires.ftc.teamcode.pedroPathing.paths.PathChain;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
-import org.firstinspires.ftc.teamcode.util.AutoEnums.BlueCloseAutoPhases;
+import org.firstinspires.ftc.teamcode.util.AutoEnums.BlueFarAutoPhases;
 
-@Autonomous(name = "BlueCloseAuto", group = "zautos")
-public class BlueCloseAuto extends OpMode {
+@Autonomous(name = "Blue Far Auto", group = "zautos")
+public class BlueFarAuto extends OpMode {
 	private Robot robot;
 	private Timer pathTimer, actionTimer, opmodeTimer;
-	private BlueCloseAutoPhases pathState;
+	private BlueFarAutoPhases pathState;
 	private boolean prepareToShoot = false;
 	private boolean shoot = false;
 	private boolean lastShoot = false;
 	
 	private double shootTime = 2.5; // seconds to shoot all 3 balls
-	private double shootPower = 0.5; // power to move while shooting
 	private double maxPower = 0.7; // power to move while shooting
 	private double intaketime = 0.8; // seconds to fully intake balls after reaching intakeEnd
 
@@ -39,10 +35,10 @@ public class BlueCloseAuto extends OpMode {
     private Pose intakeHumanEndPose = new Pose(-62, 60, Math.toRadians(90));
 
     private Pose intake2StartPose = new Pose(-36, 32, Math.toRadians(90));
-    private Pose intake2EndPose = new Pose(-36, 47, Math.toRadians(90));
+    private Pose intake2EndPose = new Pose(-36, 58, Math.toRadians(90));
 
     private Pose intake3StartPose = new Pose(-12, 32, Math.toRadians(90));
-    private Pose intake3EndPose = new Pose(-12, 47, Math.toRadians(90));
+    private Pose intake3EndPose = new Pose(-12, 58, Math.toRadians(90));
 
 	private Pose endPose = new Pose(0, 48, Math.toRadians(135));
 
@@ -66,16 +62,16 @@ public class BlueCloseAuto extends OpMode {
 				.build();
 
 		secondMovement = robot.follower.pathBuilder()
-				.addPath(robot.follower.linearPathBuilder(shoot, intake2StartPose))
+				.addPath(robot.follower.linearPathBuilder(shootPose, intake2StartPose))
 				.addPath(robot.follower.linearPathBuilder(intake2StartPose, intake2EndPose))
 				.addPath(robot.follower.linearPathBuilder(intake2EndPose, shootPose))
 				.build();
 
 
 		thirdMovement = robot.follower.pathBuilder()
-				.addPath(robot.follower.linearPathBuilder(shoot, intake2StartPose))
-				.addPath(robot.follower.linearPathBuilder(intake2StartPose, intake2EndPose))
-				.addPath(robot.follower.linearPathBuilder(intake2EndPose, shootPose))
+				.addPath(robot.follower.linearPathBuilder(shootPose, intake3StartPose))
+				.addPath(robot.follower.linearPathBuilder(intake3StartPose, intake3EndPose))
+				.addPath(robot.follower.linearPathBuilder(intake3EndPose, shootPose))
 				.build();
 
 		endAutoPath = robot.follower.linearPathBuilder(shootPose, endPose);
@@ -88,12 +84,12 @@ public class BlueCloseAuto extends OpMode {
 			case run:
 				robot.follower.setMaxPower(maxPower);
 				prepareToShoot = true;
-				setPathState(BlueCloseAutoPhases.prepShot1);
+				setPathState(BlueFarAutoPhases.prepShot1);
 				break;
 			case prepShot1:
 				if (pathTimer.getElapsedTimeSeconds() > 2) {
 					shoot = true;
-					setPathState(BlueCloseAutoPhases.shoot1);
+					setPathState(BlueFarAutoPhases.shoot1);
 				}
 				break;
 			case shoot1:
@@ -102,27 +98,25 @@ public class BlueCloseAuto extends OpMode {
 					shoot = false;
 					robot.intakeManual();
 					robot.follower.followPath(firstMovement);
-					setPathState(BlueCloseAutoPhases.moveToIntake1);
+					setPathState(BlueFarAutoPhases.intaking1);
 				}
 				break;
-			case moveToIntake1:
+			case intaking1:
 				if (robot.follower.getCurrentPathNumber() == 2) {
 					prepareToShoot = true;
 					shoot = true;
-					setPathState(BlueCloseAutoPhases.stillIntaking1);
+					setPathState(BlueFarAutoPhases.stillIntaking1);
 				}
 				break;
 			case stillIntaking1:
 				if (pathTimer.getElapsedTimeSeconds() > intaketime) {
-					setPathState(BlueCloseAutoPhases.goToShoot2);
+//					robot.stopIntake();
+					setPathState(BlueFarAutoPhases.goToShoot2);
 				}
 				break;
 			case goToShoot2:
 				if (robot.follower.getErrorDistance(shootPose) < 1.5) {
-					robot.follower.followPath(secondMovement);
-					robot.follower.setMaxPower(shootPower);
-
-					setPathState(BlueCloseAutoPhases.shoot2);
+					setPathState(BlueFarAutoPhases.shoot2);
 				}
 				break;
 			case shoot2:
@@ -132,31 +126,25 @@ public class BlueCloseAuto extends OpMode {
 					robot.intakeManual();
 					robot.follower.followPath(secondMovement);
 					robot.follower.setMaxPower(maxPower);
-					setPathState(BlueCloseAutoPhases.moveToIntake2);
-				}
-				break;
-			case moveToIntake2:
-				if (robot.follower.getErrorY(intake2StartPose) < 1) {
-					setPathState(BlueCloseAutoPhases.intaking2);
+					setPathState(BlueFarAutoPhases.intaking2);
 				}
 				break;
 			case intaking2:
 				if (robot.follower.getCurrentPathNumber() == 2) {
-					setPathState(BlueCloseAutoPhases.stillIntaking2);
+					shoot = true;
+					prepareToShoot = true;
+					setPathState(BlueFarAutoPhases.stillIntaking2);
 				}
 				break;
 			case stillIntaking2:
 				if (pathTimer.getElapsedTimeSeconds() > intaketime) {
-					shoot = true;
-					prepareToShoot = true;
-					setPathState(BlueCloseAutoPhases.goToShoot3);
+//					robot.stopIntake();
+					setPathState(BlueFarAutoPhases.goToShoot3);
 				}
 				break;
 			case goToShoot3:
-				if (robot.follower.getErrorDistance(startShoot3Pose) < 5) {
-					robot.follower.followPath(shootPath3);
-					robot.follower.setMaxPower(shootPower);
-					setPathState(BlueCloseAutoPhases.shoot3);
+				if (robot.follower.getErrorDistance(shootPose) < 1.5) {
+					setPathState(BlueFarAutoPhases.shoot3);
 				}
 				break;
 			case shoot3:
@@ -166,61 +154,39 @@ public class BlueCloseAuto extends OpMode {
 					robot.intakeManual();
 					robot.follower.followPath(thirdMovement);
 					robot.follower.setMaxPower(maxPower);
-					setPathState(BlueCloseAutoPhases.moveToIntake3);
+					setPathState(BlueFarAutoPhases.moveToIntake3);
 				}
 				break;
 			case moveToIntake3:
 				if (robot.follower.getErrorY(intake3StartPose) < 1) {
-					setPathState(BlueCloseAutoPhases.intaking3);
+//					robot.manualIntake();
+					setPathState(BlueFarAutoPhases.intaking3);
 				}
 				break;
 			case intaking3:
 				if (robot.follower.getCurrentPathNumber() == 2) {
-					setPathState(BlueCloseAutoPhases.stillIntaking3);
+					prepareToShoot = true;
+					shoot = true;
+					setPathState(BlueFarAutoPhases.stillIntaking3);
 				}
 				break;
 			case stillIntaking3:
 				if (pathTimer.getElapsedTimeSeconds() > intaketime) {
-					prepareToShoot = true;
-					shoot = true;
-					setPathState(BlueCloseAutoPhases.goToShoot4);
+//					robot.stopIntake();
+					setPathState(BlueFarAutoPhases.goToShoot4);
 				}
 				break;
 			case goToShoot4:
-				if (robot.follower.getErrorDistance(shoot4Pose) < 1.5) {
-					setPathState(BlueCloseAutoPhases.shoot4);
+				if (robot.follower.getErrorDistance(shootPose) < 1.5) {
+					setPathState(BlueFarAutoPhases.shoot4);
 				}
 				break;
 			case shoot4:
 				if (pathTimer.getElapsedTimeSeconds() > shootTime) {
 					prepareToShoot = false;
 					shoot = false;
-					robot.follower.followPath(sTunnelMovement);
-					setPathState(BlueCloseAutoPhases.moveToSTunnel);
-				}
-				break;
-			case moveToSTunnel:
-				if (robot.follower.getErrorY(startSTunnelPose) < 1) {
-					robot.intakeManual();
-					setPathState(BlueCloseAutoPhases.intakingSTunnel);
-				}
-				break;
-			case intakingSTunnel:
-				if (robot.follower.getCurrentPathNumber() == 2) {
-					setPathState(BlueCloseAutoPhases.stillIntaking4);
-				}
-				break;
-			case stillIntaking4:
-				if (pathTimer.getElapsedTimeSeconds() > intaketime) {
-					setPathState(BlueCloseAutoPhases.shoot5);
-				}
-				break;
-			case shoot5:
-				if (pathTimer.getElapsedTimeSeconds() > shootTime) {
-					prepareToShoot = false;
-					shoot = false;
 					robot.follower.followPath(endAutoPath);
-					setPathState(BlueCloseAutoPhases.endAuto);
+					setPathState(BlueFarAutoPhases.endAuto);
 				}
 				break;
 
@@ -228,7 +194,7 @@ public class BlueCloseAuto extends OpMode {
 	}
 
 	/** These change the states of the paths and actions. It will also reset the timers of the individual switches **/
-	public void setPathState(BlueCloseAutoPhases pState) {
+	public void setPathState(BlueFarAutoPhases pState) {
 		pathState = pState;
 		pathTimer.resetTimer();
 	}
@@ -251,7 +217,7 @@ public class BlueCloseAuto extends OpMode {
 	@Override
 	public void start() {
 		opmodeTimer.resetTimer();
-		setPathState(BlueCloseAutoPhases.run);
+		setPathState(BlueFarAutoPhases.run);
 	}
 	/** This is the main loop of the OpMode, it will run repeatedly after clicking "Play". **/
 	@Override
