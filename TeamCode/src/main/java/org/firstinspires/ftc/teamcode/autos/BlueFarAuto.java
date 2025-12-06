@@ -229,29 +229,31 @@ public class BlueFarAuto extends OpMode {
 	@Override
 	public void loop() {
 		// These loop the movements of the robot, these must be called continuously in order to work
-		if (false) {
-			switch (robot.follower.getCurrentPathNumber()) {
-				case 0:
-					robot.follower.setMaxPower(maxPower);
-					break;
-				case 1:
-					robot.follower.setMaxPower(maxPower);
-					break;
-				case 3:
-					robot.follower.setMaxPower(maxPower);
-					break;
-			}
-		} else {
-			switch (robot.follower.getCurrentPathNumber()) {
-				case 0:
-					robot.follower.setMaxPower(maxPower);
-					break;
-				case 1:
-					robot.follower.setMaxPower(intakePower);
-					break;
-				case 2:
-					robot.follower.setMaxPower(maxPower);
-					break;
+		if (robot.follower.getFollowingPathChain()) {
+			if (false) {
+				switch (robot.follower.getCurrentPathNumber()) {
+					case 0:
+						robot.follower.setMaxPower(maxPower);
+						break;
+					case 1:
+						robot.follower.setMaxPower(maxPower);
+						break;
+					case 3:
+						robot.follower.setMaxPower(maxPower);
+						break;
+				}
+			} else {
+				switch (robot.follower.getCurrentPathNumber()) {
+					case 0:
+						robot.follower.setMaxPower(maxPower);
+						break;
+					case 1:
+						robot.follower.setMaxPower(intakePower);
+						break;
+					case 2:
+						robot.follower.setMaxPower(maxPower);
+						break;
+				}
 			}
 		}
 

@@ -41,7 +41,7 @@ public class BlueCloseAuto extends OpMode {
     private Pose intake1StartPose = new Pose(12, 32, Math.toRadians(90));
     private Pose intake1EndPose = new Pose(12, 48, Math.toRadians(90));
     private Pose pushGateStartPose = new Pose(6, 48.3, Math.toRadians(90));
-    private Pose pushGateEndPose = new Pose(4, 53.2, Math.toRadians(190));
+    private Pose pushGateEndPose = new Pose(4, 53.2, Math.toRadians(90));
     private Pose startShoot2Pose = new Pose(36, 36, Math.toRadians(135));
     private Pose endShoot2Pose = new Pose(12, 12, Math.toRadians(135));
 
@@ -172,7 +172,7 @@ public class BlueCloseAuto extends OpMode {
 				}
 				break;
 			case goToShoot2:
-				if (robot.follower.getErrorDistance(startShoot2Pose) < 1.5) {
+				if (robot.follower.getErrorDistance(startShoot2Pose) < 1.5) { //todo: timeout??
 					robot.follower.followPath(shootPath2);
 					robot.follower.setMaxPower(shootPower);
 
@@ -190,7 +190,7 @@ public class BlueCloseAuto extends OpMode {
 				}
 				break;
 			case moveToIntake2:
-				if (robot.follower.getErrorY(intake2StartPose) < 1) {
+				if (robot.follower.getErrorY(intake2StartPose) < 1) { //todo: timeout??
 //					robot.intakeManual();
 					setPathState(CloseAutoPhases.intaking2);
 				}
@@ -209,7 +209,7 @@ public class BlueCloseAuto extends OpMode {
 				}
 				break;
 			case goToShoot3:
-				if (robot.follower.getErrorDistance(startShoot3Pose) < 5) {
+				if (robot.follower.getErrorDistance(startShoot3Pose) < 5) { //todo: timeout
 					robot.follower.followPath(shootPath3);
 					robot.follower.setMaxPower(shootPower);
 					setPathState(CloseAutoPhases.shoot3);
@@ -226,7 +226,7 @@ public class BlueCloseAuto extends OpMode {
 				}
 				break;
 			case moveToIntake3:
-				if (robot.follower.getErrorY(intake3StartPose) < 1) {
+				if (robot.follower.getErrorY(intake3StartPose) < 1) { //todo: timeout
 //					robot.intakeManual();
 					setPathState(CloseAutoPhases.intaking3);
 				}
@@ -245,7 +245,7 @@ public class BlueCloseAuto extends OpMode {
 				}
 				break;
 			case goToShoot4:
-				if (robot.follower.getErrorDistance(shoot4Pose) < 1.5) {
+				if (robot.follower.getErrorDistance(shoot4Pose) < 1.5) { //todo: timeout
 					setPathState(CloseAutoPhases.shoot4);
 				}
 				break;
@@ -258,7 +258,7 @@ public class BlueCloseAuto extends OpMode {
 				}
 				break;
 			case moveToSTunnel:
-				if (robot.follower.getErrorY(startSTunnelPose) < 1) {
+				if (robot.follower.getErrorY(startSTunnelPose) < 1) { //todo: timeout
 					robot.intakeManual();
 					setPathState(CloseAutoPhases.intakingSTunnel);
 				}
@@ -317,50 +317,54 @@ public class BlueCloseAuto extends OpMode {
 	@Override
 	public void start() {
 		opmodeTimer.resetTimer();
+		robot.follower.setStartingPose(startPose);
 		setPathState(CloseAutoPhases.run);
 	}
 	/** This is the main loop of the OpMode, it will run repeatedly after clicking "Play". **/
 	@Override
 	public void loop() {
 		// These loop the movements of the robot, these must be called continuously in order to work
-		if (robot.follower.getCurrentPathChain() == firstMovement) {
-			switch (robot.follower.getCurrentPathNumber()) {
-				case 0:
-					robot.follower.setMaxPower(maxPower);
-					break;
-				case 1:
-					robot.follower.setMaxPower(intakePower);
-					break;
-				case 2:
-					robot.follower.setMaxPower(toGatePower);
-					break;
-				case 3:
-					robot.follower.setMaxPower(maxPower);
-					break;
-			}
-		} else  if (robot.follower.getCurrentPathChain() == secondMovement) {
-			switch (robot.follower.getCurrentPathNumber()) {
-				case 0:
-					robot.follower.setMaxPower(maxPower);
-					break;
-				case 1:
-					robot.follower.setMaxPower(intakePower);
-					break;
-				case 2:
-					robot.follower.setMaxPower(maxPower);
-					break;
-			}
-		} else  if (robot.follower.getCurrentPathChain() == thirdMovement) {
-			switch (robot.follower.getCurrentPathNumber()) {
-				case 0:
-					robot.follower.setMaxPower(maxPower);
-					break;
-				case 1:
-					robot.follower.setMaxPower(maxPower);
-					break;
-				case 2:
-					robot.follower.setMaxPower(maxPower);
-					break;
+
+		if (robot.follower.getFollowingPathChain()) {
+			if (robot.follower.getCurrentPathChain() == firstMovement) {
+				switch (robot.follower.getCurrentPathNumber()) {
+					case 0:
+						robot.follower.setMaxPower(maxPower);
+						break;
+					case 1:
+						robot.follower.setMaxPower(intakePower);
+						break;
+					case 2:
+						robot.follower.setMaxPower(toGatePower);
+						break;
+					case 3:
+						robot.follower.setMaxPower(toGatePower);
+						break;
+				}
+			} else if (robot.follower.getCurrentPathChain() == secondMovement) {
+				switch (robot.follower.getCurrentPathNumber()) {
+					case 0:
+						robot.follower.setMaxPower(maxPower);
+						break;
+					case 1:
+						robot.follower.setMaxPower(intakePower);
+						break;
+					case 2:
+						robot.follower.setMaxPower(maxPower);
+						break;
+				}
+			} else if (robot.follower.getCurrentPathChain() == thirdMovement) {
+				switch (robot.follower.getCurrentPathNumber()) {
+					case 0:
+						robot.follower.setMaxPower(maxPower);
+						break;
+					case 1:
+						robot.follower.setMaxPower(maxPower);
+						break;
+					case 2:
+						robot.follower.setMaxPower(maxPower);
+						break;
+				}
 			}
 		}
 
@@ -373,7 +377,7 @@ public class BlueCloseAuto extends OpMode {
 		if (shoot) {
 			robot.shootQueue(false);
 		}
-		if (!shoot) {
+		if (!shoot && lastShoot) {
 			robot.indexer.transfer(false);
 		}
 		lastShoot = shoot;

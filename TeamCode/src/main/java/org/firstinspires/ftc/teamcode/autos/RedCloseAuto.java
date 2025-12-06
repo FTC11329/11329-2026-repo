@@ -32,6 +32,7 @@ public class RedCloseAuto extends OpMode {
 	private double shootPower = 0.5; // power to move while shooting
 	private double maxPower = 1; // max power to move
 	private double intakePower = 0.65; // max power to intake
+	private double intakeHumanPower = 0.65; // max power to intake
 	private double toGatePower = 0.75; // max power to move to gate
 	private double intaketime = 1; // seconds to fully intake balls after reaching intakeEnd
 
@@ -150,6 +151,7 @@ public class RedCloseAuto extends OpMode {
 				if (pathTimer.getElapsedTimeSeconds() > shootTime) {
 					prepareToShoot = false;
 					shoot = false;
+					robot.indexer.transfer(false);
 					robot.follower.followPath(firstMovement);
 					usingShootPower = false;
 					robot.follower.setMaxPower(maxPower);
@@ -188,6 +190,7 @@ public class RedCloseAuto extends OpMode {
 				if (pathTimer.getElapsedTimeSeconds() > shootTime) {
 					prepareToShoot = false;
 					shoot = false;
+					robot.indexer.transfer(false);
 					robot.intakeManual();
 					robot.follower.followPath(secondMovement);
 					usingShootPower = false;
@@ -226,6 +229,7 @@ public class RedCloseAuto extends OpMode {
 				if (pathTimer.getElapsedTimeSeconds() > shootTime) {
 					prepareToShoot = false;
 					shoot = false;
+					robot.indexer.transfer(false);
 					robot.intakeManual();
 					robot.follower.followPath(thirdMovement);
 					usingShootPower = false;
@@ -261,6 +265,7 @@ public class RedCloseAuto extends OpMode {
 				if (pathTimer.getElapsedTimeSeconds() > shootTime) {
 					prepareToShoot = false;
 					shoot = false;
+					robot.indexer.transfer(false);
 					robot.follower.followPath(sTunnelMovement);
 					setPathState(CloseAutoPhases.moveToSTunnel);
 				}
@@ -293,6 +298,7 @@ public class RedCloseAuto extends OpMode {
 				if (pathTimer.getElapsedTimeSeconds() > shootTime) {
 					prepareToShoot = false;
 					shoot = false;
+					robot.indexer.transfer(false);
 					robot.follower.followPath(endAutoPath);
 					setPathState(CloseAutoPhases.endAuto);
 				}
@@ -332,45 +338,58 @@ public class RedCloseAuto extends OpMode {
 	@Override
 	public void loop() {
 		// These loop the movements of the robot, these must be called continuously in order to work
-		if (usingShootPower) {
-		} else if (robot.follower.getCurrentPathChain() == firstMovement) {
-			switch (robot.follower.getCurrentPathNumber()) {
-				case 0:
-					robot.follower.setMaxPower(maxPower);
-					break;
-				case 1:
-					robot.follower.setMaxPower(intakePower);
-					break;
-				case 2:
-					robot.follower.setMaxPower(toGatePower);
-					break;
-				case 3:
-					robot.follower.setMaxPower(maxPower);
-					break;
-			}
-		} else  if (robot.follower.getCurrentPathChain() == secondMovement) {
-			switch (robot.follower.getCurrentPathNumber()) {
-				case 0:
-					robot.follower.setMaxPower(maxPower);
-					break;
-				case 1:
-					robot.follower.setMaxPower(intakePower);
-					break;
-				case 2:
-					robot.follower.setMaxPower(maxPower);
-					break;
-			}
-		} else  if (robot.follower.getCurrentPathChain() == thirdMovement) {
-			switch (robot.follower.getCurrentPathNumber()) {
-				case 0:
-					robot.follower.setMaxPower(maxPower);
-					break;
-				case 1:
-					robot.follower.setMaxPower(maxPower);
-					break;
-				case 2:
-					robot.follower.setMaxPower(maxPower);
-					break;
+		if (robot.follower.getFollowingPathChain()) {
+			if (robot.follower.getCurrentPathChain() == firstMovement) {
+				switch (robot.follower.getCurrentPathNumber()) {
+					case 0:
+						robot.follower.setMaxPower(maxPower);
+						break;
+					case 1:
+						robot.follower.setMaxPower(intakePower);
+						break;
+					case 2:
+						robot.follower.setMaxPower(toGatePower);
+						break;
+					case 3:
+						robot.follower.setMaxPower(maxPower);
+						break;
+				}
+			} else  if (robot.follower.getCurrentPathChain() == secondMovement) {
+				switch (robot.follower.getCurrentPathNumber()) {
+					case 0:
+						robot.follower.setMaxPower(maxPower);
+						break;
+					case 1:
+						robot.follower.setMaxPower(intakePower);
+						break;
+					case 2:
+						robot.follower.setMaxPower(maxPower);
+						break;
+				}
+			} else  if (robot.follower.getCurrentPathChain() == thirdMovement) {
+				switch (robot.follower.getCurrentPathNumber()) {
+					case 0:
+						robot.follower.setMaxPower(maxPower);
+						break;
+					case 1:
+						robot.follower.setMaxPower(maxPower);
+						break;
+					case 2:
+						robot.follower.setMaxPower(maxPower);
+						break;
+				}
+			} else  if (robot.follower.getCurrentPathChain() == sTunnelMovement) {
+				switch (robot.follower.getCurrentPathNumber()) {
+					case 0:
+						robot.follower.setMaxPower(maxPower);
+						break;
+					case 1:
+						robot.follower.setMaxPower(maxPower);
+						break;
+					case 2:
+						robot.follower.setMaxPower(maxPower);
+						break;
+				}
 			}
 		}
 
@@ -383,7 +402,7 @@ public class RedCloseAuto extends OpMode {
 		if (shoot) {
 			robot.shootQueue(false);
 		}
-		if (!shoot) {
+		if (!shoot && lastShoot) {
 			robot.indexer.transfer(false);
 		}
 		lastShoot = shoot;

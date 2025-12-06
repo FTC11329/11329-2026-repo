@@ -55,7 +55,7 @@ public class Constants {
     }
 
     public static class Turret {
-        public static double closeEnough = 11; //Inches
+        public static double closeEnough = 12; //Inches
         public static double turretOffset = 0;
 
 
@@ -73,10 +73,10 @@ public class Constants {
     }
     public static class Shooter {
         public static double maxHoodAngle = 53.5;
-        public static double closeEnoughRPM = 40;
+        public static double closeEnoughRPM = 90;
         public static double ticksPerRevolution = 28;
         public static double P = 0.015;
-        public static double I = 0.00008;
+        public static double I = 0;
         public static double D = 0.000001;
         public static double F = 0.085;
         public static PIDFCoefficients shooterVelocityPID = new PIDFCoefficients(P, I, D, F);

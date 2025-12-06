@@ -140,7 +140,7 @@ public class MainTeleop {
 
     public void loop() {
         intake.checkStatus(gamepad2.left_bumper); // Toggle on to intake
-        spitIntake.checkStatus(gamepad1.b || gamepad2.b); // Hold to spit
+        spitIntake.checkStatus(gamepad1.left_bumper || gamepad2.b); // Hold to spit
 
         // queueGreen.checkStatus(gamepad2.y); // Press to queue green
         // queuePurple.checkStatus(gamepad2.x); // Press to queue purple
@@ -158,7 +158,7 @@ public class MainTeleop {
         takePhoto.checkStatus(gamepad2.y);
         debug.checkStatus(gamepad1.start); // hold to print telemetry
 
-        deleteme.checkStatus(gamepad1.left_bumper);
+        deleteme.checkStatus(false);
 
 
         robot.drivetrain.teleopMovement(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, gamepad1.right_bumper);
@@ -185,7 +185,7 @@ public class MainTeleop {
         
         if (!panicShoot.isOn) {
             if (autoShoot.isOn) {
-                robot.prepareShooter(deleteme.isOn);
+                robot.prepareShooter();
                 robot.shootQueue(overrideShootPosition.isOn);
             } else if (autoShoot.endPress){
                 robot.shooter.casualModeOn();
@@ -220,29 +220,37 @@ public class MainTeleop {
         // Changing our aim
         if (robotSide == RobotSide.Blue) {
             if (movePoseUp.startPress) {
-                robot.offsetPose.addY(-1);
-            }
-            if (movePoseDown.startPress) {
                 robot.offsetPose.addY(1);
-            }
-            if (movePoseLeft.startPress) {
                 robot.offsetPose.addX(1);
             }
-            if (movePoseRight.startPress) {
+            if (movePoseDown.startPress) {
+                robot.offsetPose.addY(-1);
                 robot.offsetPose.addX(-1);
+            }
+            if (movePoseLeft.startPress) {
+                robot.offsetPose.addY(1);
+                robot.offsetPose.addX(-1);
+            }
+            if (movePoseRight.startPress) {
+                robot.offsetPose.addY(-1);
+                robot.offsetPose.addX(1);
             }
         } else {
             if (movePoseUp.startPress) {
-                robot.offsetPose.addY(1);
+                robot.offsetPose.addY(-1);
+                robot.offsetPose.addX(1);
             }
             if (movePoseDown.startPress) {
-                robot.offsetPose.addY(-1);
-            }
-            if (movePoseLeft.startPress) {
+                robot.offsetPose.addY(1);
                 robot.offsetPose.addX(-1);
             }
-            if (movePoseRight.startPress) {
+            if (movePoseLeft.startPress) {
+                robot.offsetPose.addY(1);
                 robot.offsetPose.addX(1);
+            }
+            if (movePoseRight.startPress) {
+                robot.offsetPose.addY(-1);
+                robot.offsetPose.addX(-1);
             }
             if (resetPose.startPress) {
                 robot.offsetPose = new Pose(0,0,0);

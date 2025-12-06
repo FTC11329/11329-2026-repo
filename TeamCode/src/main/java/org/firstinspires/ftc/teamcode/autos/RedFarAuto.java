@@ -103,6 +103,7 @@ public class RedFarAuto extends OpMode {
 				if (pathTimer.getElapsedTimeSeconds() > shootTime) {
 					prepareToShoot = false;
 					shoot = false;
+					robot.indexer.transfer(false);
 					robot.intakeManual();
 					robot.follower.followPath(toWall1);
 					setPathState(FarAutoPhases.intaking1);
@@ -131,6 +132,7 @@ public class RedFarAuto extends OpMode {
 				if (pathTimer.getElapsedTimeSeconds() > shootTime) {
 					prepareToShoot = false;
 					shoot = false;
+					robot.indexer.transfer(false);
 					robot.intakeManual();
 					robot.follower.followPath(secondMovement);
 					robot.follower.setMaxPower(maxPower);
@@ -159,6 +161,7 @@ public class RedFarAuto extends OpMode {
 				if (pathTimer.getElapsedTimeSeconds() > shootTime) {
 					prepareToShoot = false;
 					shoot = false;
+					robot.indexer.transfer(false);
 					robot.intakeManual();
 					robot.follower.followPath(thirdMovement);
 					robot.follower.setMaxPower(maxPower);
@@ -193,6 +196,7 @@ public class RedFarAuto extends OpMode {
 				if (pathTimer.getElapsedTimeSeconds() > shootTime) {
 					prepareToShoot = false;
 					shoot = false;
+					robot.indexer.transfer(false);
 					robot.follower.followPath(endAutoPath);
 					setPathState(FarAutoPhases.endAuto);
 				}
@@ -233,29 +237,31 @@ public class RedFarAuto extends OpMode {
 	public void loop() {
 		gamepadStop.checkStatus(gamepad1.ps);
 		// These loop the movements of the robot, these must be called continuously in order to work
-		if (false) {
-			switch (robot.follower.getCurrentPathNumber()) {
-				case 0:
-					robot.follower.setMaxPower(maxPower);
-					break;
-				case 1:
-					robot.follower.setMaxPower(maxPower);
-					break;
-				case 3:
-					robot.follower.setMaxPower(maxPower);
-					break;
-			}
-		} else {
-			switch (robot.follower.getCurrentPathNumber()) {
-				case 0:
-					robot.follower.setMaxPower(maxPower);
-					break;
-				case 1:
-					robot.follower.setMaxPower(intakePower);
-					break;
-				case 2:
-					robot.follower.setMaxPower(maxPower);
-					break;
+		if (robot.follower.getFollowingPathChain()) {
+			if (false) {
+				switch (robot.follower.getCurrentPathNumber()) {
+					case 0:
+						robot.follower.setMaxPower(maxPower);
+						break;
+					case 1:
+						robot.follower.setMaxPower(maxPower);
+						break;
+					case 3:
+						robot.follower.setMaxPower(maxPower);
+						break;
+				}
+			} else {
+				switch (robot.follower.getCurrentPathNumber()) {
+					case 0:
+						robot.follower.setMaxPower(maxPower);
+						break;
+					case 1:
+						robot.follower.setMaxPower(intakePower);
+						break;
+					case 2:
+						robot.follower.setMaxPower(maxPower);
+						break;
+				}
 			}
 		}
 
@@ -267,7 +273,7 @@ public class RedFarAuto extends OpMode {
 		if (shoot) {
 			robot.shootQueue(false);
 		}
-		if (!shoot) {
+		if (!shoot && lastShoot) {
 			robot.indexer.transfer(false);
 		}
 		if (opmodeTimer.getElapsedTimeSeconds() < 29) {

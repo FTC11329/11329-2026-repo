@@ -460,6 +460,7 @@ public class Robot {
             telemetry.addData("guess pose", getCurrentPose());
             telemetry.addData("last cam pose", lastCamPose);
             telemetry.addData("offset", offsetPose);
+            telemetry.addData("offset", getCurrentPose().distanceFrom(goal));
             telemetry.addData("in shooting zone", inShootingZone());
 
             telemetry.addLine("=== QUEUE ===");
