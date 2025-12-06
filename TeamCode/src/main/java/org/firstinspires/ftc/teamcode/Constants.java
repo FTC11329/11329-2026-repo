@@ -12,15 +12,12 @@ import org.firstinspires.ftc.teamcode.pedroPathing.control.PIDFCoefficients;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 
 public class Constants {
-    // todo replace all placeholders with real constants
-    public static double PlacholdereDouble = 0;
-    public static boolean PlaceHOLDERboooLEAN = false;
 
     @com.bylazar.ftcontrol.panels.configurables.annotations.Configurable
     public static class Indexer {
         public static double spindexPower = 0.9;
 
-        public static double farSpindexPower = 0.3;
+        public static double farSpindexPower = 0.9;
         public static double farDistance = 90;
 
         public static double scanningPower = 0.5;
@@ -58,8 +55,8 @@ public class Constants {
     }
 
     public static class Turret {
-        public static double closeEnough = 10; //Inches
-        public static double turretOffset = 1;
+        public static double closeEnough = 11; //Inches
+        public static double turretOffset = 0;
 
 
         public static double P = 0.0207;
@@ -76,7 +73,7 @@ public class Constants {
     }
     public static class Shooter {
         public static double maxHoodAngle = 53.5;
-        public static double closeEnoughRPM = 1000;
+        public static double closeEnoughRPM = 40;
         public static double ticksPerRevolution = 28;
         public static double P = 0.015;
         public static double I = 0.00008;

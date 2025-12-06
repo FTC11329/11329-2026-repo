@@ -62,6 +62,8 @@ public class MainTeleop {
     FancyButton rotatePoseRightInit;
     FancyButton rotatePoseLeftInit;
 
+    FancyButton deleteme;
+
     Gamepad gamepad1;
     Gamepad gamepad2;
     Telemetry telemetry;
@@ -109,6 +111,8 @@ public class MainTeleop {
         movePoseRight = new FancyButton(FancyButton.PressType.LongPress);
         rotatePoseLeftInit = new FancyButton(FancyButton.PressType.LongPress);
         rotatePoseRightInit = new FancyButton(FancyButton.PressType.LongPress);
+
+        deleteme = new FancyButton(FancyButton.PressType.Toggle);
 
         time = new ElapsedTime();
     }
@@ -191,8 +195,9 @@ public class MainTeleop {
         movePoseLeft.checkStatus(gamepad2.dpad_left);
         movePoseRight.checkStatus(gamepad2.dpad_right);
 
-
         debug.checkStatus(gamepad1.start); // hold to print telemetry
+
+        deleteme.checkStatus(gamepad1.left_bumper);
 
 
         robot.drivetrain.teleopMovement(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, gamepad1.right_bumper);
@@ -219,7 +224,7 @@ public class MainTeleop {
         
         if (!panicShoot.isOn) {
             if (autoShoot.isOn) {
-                robot.prepareShooter();
+                robot.prepareShooter(deleteme.isOn);
                 robot.shootQueue(overrideShootPosition.isOn);
             } else if (autoShoot.endPress){
                 robot.shooter.casualModeOn();

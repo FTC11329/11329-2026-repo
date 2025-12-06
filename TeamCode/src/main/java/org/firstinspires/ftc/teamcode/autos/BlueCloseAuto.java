@@ -23,10 +23,12 @@ public class BlueCloseAuto extends OpMode {
 	private boolean shoot = false;
 	private boolean lastShoot = false;
 	
-	private double shootTime = 2.5; // seconds to shoot all 3 balls
+	private double shootTime = 2.8; // seconds to shoot all 3 balls
 	private double shootPower = 0.5; // power to move while shooting
-	private double maxPower = 0.7; // max power to move
-	private double intaketime = 0.8; // seconds to fully intake balls after reaching intakeEnd
+	private double maxPower = 1; // max power to move
+	private double intakePower = 0.6; // max power to intake
+	private double toGatePower = 0.8; // max power to intake
+	private double intaketime = 1; // seconds to fully intake balls after reaching intakeEnd
 
 	// POSES *******************************~
 
@@ -34,23 +36,24 @@ public class BlueCloseAuto extends OpMode {
     private Pose endShoot1Pose = new Pose(12, 12, Math.toRadians(90));
 
     private Pose intake1StartPose = new Pose(12, 32, Math.toRadians(90));
-    private Pose intake1EndPose = new Pose(12, 44.6, Math.toRadians(90));
-    private Pose pushGateEndPose = new Pose(0, 53.8, Math.toRadians(100));
+    private Pose intake1EndPose = new Pose(12, 48, Math.toRadians(90));
+    private Pose pushGateStartPose = new Pose(4, 48.3, Math.toRadians(100));
+    private Pose pushGateEndPose = new Pose(4, 53.2, Math.toRadians(100));
     private Pose startShoot2Pose = new Pose(36, 36, Math.toRadians(135));
     private Pose endShoot2Pose = new Pose(12, 12, Math.toRadians(135));
 
     private Pose intake2StartPose = new Pose(-12, 32, Math.toRadians(90));
-    private Pose intake2EndPose = new Pose(-12, 58, Math.toRadians(90));
+    private Pose intake2EndPose = new Pose(-12, 54, Math.toRadians(90));
     private Pose startShoot3Pose = new Pose(24, 24, Math.toRadians(135));
     private Pose endShoot3Pose = new Pose(12, 12, Math.toRadians(135));
 
     private Pose intake3StartPose = new Pose(-36, 32, Math.toRadians(90));
-    private Pose intake3EndPose = new Pose(-36, 58, Math.toRadians(90));
+    private Pose intake3EndPose = new Pose(-36, 54, Math.toRadians(90));
     private Pose shoot4Pose = new Pose(12, 12, Math.toRadians(135));
 
     private Pose toSTunnelControlPoint = new Pose(-24, 30, Math.toRadians(0));
-    private Pose startSTunnelPose = new Pose(-30, 60, Math.toRadians(110));
-    private Pose endSTunnelPose = new Pose(-50, 60, Math.toRadians(90));
+    private Pose startSTunnelPose = new Pose(-27, 59.42, Math.toRadians(155));
+    private Pose endSTunnelPose = new Pose(-53, 63, Math.toRadians(180));
 	private Pose startShoot5Pose = new Pose(12, 12, Math.toRadians(135));
 	private Pose endShoot5Pose = new Pose(24, 24, Math.toRadians(135));
 
@@ -83,7 +86,8 @@ public class BlueCloseAuto extends OpMode {
 		firstMovement = robot.follower.pathBuilder()
 				.addPath(robot.follower.linearPathBuilder(endShoot1Pose, intake1StartPose))
 				.addPath(robot.follower.linearPathBuilder(intake1StartPose, intake1EndPose))
-				.addPath(robot.follower.linearPathBuilder(intake1EndPose, pushGateEndPose))
+				.addPath(robot.follower.linearPathBuilder(intake1EndPose, pushGateStartPose))
+				.addPath(robot.follower.linearPathBuilder(pushGateStartPose, pushGateEndPose))
 				.addPath(robot.follower.linearPathBuilder(pushGateEndPose, startShoot2Pose))
 				.setConstantHeadingInterpolation(startShoot2Pose.getHeading())
 				.build();
@@ -124,13 +128,14 @@ public class BlueCloseAuto extends OpMode {
 	public void autonomousPathUpdate() {
 		switch (pathState) {
 			case run:
+				robot.intakeManual();
 				prepareToShoot = true;
 				robot.follower.followPath(shootPath1);
 				robot.follower.setMaxPower(shootPower);
 				setPathState(BlueCloseAutoPhases.prepShot1);
 				break;
 			case prepShot1:
-				if (pathTimer.getElapsedTimeSeconds() > 2) {
+				if (pathTimer.getElapsedTimeSeconds() > 1.75) {
 					shoot = true;
 					setPathState(BlueCloseAutoPhases.shoot1);
 				}
@@ -139,7 +144,6 @@ public class BlueCloseAuto extends OpMode {
 				if (pathTimer.getElapsedTimeSeconds() > shootTime) {
 					prepareToShoot = false;
 					shoot = false;
-					robot.intakeManual();
 					robot.follower.followPath(firstMovement);
 					robot.follower.setMaxPower(maxPower);
 					setPathState(BlueCloseAutoPhases.moveToIntake1);
@@ -316,6 +320,48 @@ public class BlueCloseAuto extends OpMode {
 	@Override
 	public void loop() {
 		// These loop the movements of the robot, these must be called continuously in order to work
+		if (robot.follower.getCurrentPathChain() == firstMovement) {
+			switch (robot.follower.getCurrentPathNumber()) {
+				case 0:
+					robot.follower.setMaxPower(maxPower);
+					break;
+				case 1:
+					robot.follower.setMaxPower(intakePower);
+					break;
+				case 2:
+					robot.follower.setMaxPower(toGatePower);
+					break;
+				case 3:
+					robot.follower.setMaxPower(maxPower);
+					break;
+			}
+		} else  if (robot.follower.getCurrentPathChain() == secondMovement) {
+			switch (robot.follower.getCurrentPathNumber()) {
+				case 0:
+					robot.follower.setMaxPower(maxPower);
+					break;
+				case 1:
+					robot.follower.setMaxPower(intakePower);
+					break;
+				case 2:
+					robot.follower.setMaxPower(maxPower);
+					break;
+			}
+		} else  if (robot.follower.getCurrentPathChain() == thirdMovement) {
+			switch (robot.follower.getCurrentPathNumber()) {
+				case 0:
+					robot.follower.setMaxPower(maxPower);
+					break;
+				case 1:
+					robot.follower.setMaxPower(maxPower);
+					break;
+				case 2:
+					robot.follower.setMaxPower(maxPower);
+					break;
+			}
+		}
+
+
 		if (prepareToShoot) {
 			robot.prepareShooter();
 		} else {

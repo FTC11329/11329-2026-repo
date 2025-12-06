@@ -23,7 +23,6 @@ public class Shooter {
 
     double targetVelocity;
 
-
     double hoodPos = 0;
     public PIDFController shooterPID;
     
@@ -89,7 +88,7 @@ public class Shooter {
     }
 
     public boolean closeEnoughToTarget() {
-        return Math.abs(shooterPID.getError()) <= rpmToVelocity(Constants.Shooter.closeEnoughRPM);
+        return shooterPID.getError() - Constants.Shooter.closeEnoughRPM < 0;
     }
 
     // targetRPM is in ticks/sec
@@ -125,5 +124,4 @@ public class Shooter {
             setPower(0.5);
         }
     }
-
 }

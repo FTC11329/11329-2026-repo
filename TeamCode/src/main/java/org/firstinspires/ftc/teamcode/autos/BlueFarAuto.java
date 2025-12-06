@@ -20,31 +20,32 @@ public class BlueFarAuto extends OpMode {
 	private boolean prepareToShoot = false;
 	private boolean shoot = false;
 	private boolean lastShoot = false;
-	
-	private double shootTime = 2.5; // seconds to shoot all 3 balls
-	private double maxPower = 0.7; // power to move while shooting
-	private double intaketime = 0.8; // seconds to fully intake balls after reaching intakeEnd
+
+	private double shootTime = 4; // seconds to shoot all 3 balls
+	private double maxPower = 1; // max power to move
+	private double intakePower = 0.6; // max power to intake
+	private double intaketime = 1; // seconds to fully intake balls after reaching intakeEnd
 
 	// POSES *******************************~
 
-	private Pose startPose = new Pose(-60, 12, Math.toRadians(90));
-    private Pose shootPose = new Pose(-60, 12, Math.toRadians(135));
+	private Pose startPose = new Pose(-63.65, 16.8, Math.toRadians(90));
+    private Pose shootPose = new Pose(-60, 12, Math.toRadians(90));
 
-
-    private Pose intakeHumanStartPose = new Pose(-60, 48, Math.toRadians(135));
-    private Pose intakeHumanEndPose = new Pose(-62, 60, Math.toRadians(90));
+//    private Pose intakeHumanStartPose = new Pose(-52.06, 56.14, Math.toRadians(90));
+    private Pose intakeHumanEndPose = new Pose(-62.15, 62, Math.toRadians(90));
 
     private Pose intake2StartPose = new Pose(-36, 32, Math.toRadians(90));
-    private Pose intake2EndPose = new Pose(-36, 58, Math.toRadians(90));
+    private Pose intake2EndPose = new Pose(-36, 54, Math.toRadians(90));
 
     private Pose intake3StartPose = new Pose(-12, 32, Math.toRadians(90));
-    private Pose intake3EndPose = new Pose(-12, 58, Math.toRadians(90));
+    private Pose intake3EndPose = new Pose(-12, 54, Math.toRadians(90));
 
-	private Pose endPose = new Pose(0, 48, Math.toRadians(135));
+	private Pose endPose = new Pose(0, 36, Math.toRadians(90));
 
 	// PATHS *******************************~
 
-	private PathChain firstMovement;
+	private Path toWall1;
+	private Path toShoot1;
 
 	private PathChain secondMovement;
 
@@ -55,11 +56,8 @@ public class BlueFarAuto extends OpMode {
 
 	public void buildPaths() {
 
-		firstMovement = robot.follower.pathBuilder()
-				.addPath(robot.follower.linearPathBuilder(startPose, intakeHumanStartPose))
-				.addPath(robot.follower.linearPathBuilder(intakeHumanStartPose, intakeHumanEndPose))
-				.addPath(robot.follower.linearPathBuilder(intakeHumanEndPose, shootPose))
-				.build();
+		toWall1 = robot.follower.linearPathBuilder(startPose, intakeHumanEndPose);
+		toShoot1 = robot.follower.linearPathBuilder(intakeHumanEndPose, shootPose);
 
 		secondMovement = robot.follower.pathBuilder()
 				.addPath(robot.follower.linearPathBuilder(shootPose, intake2StartPose))
@@ -97,20 +95,21 @@ public class BlueFarAuto extends OpMode {
 					prepareToShoot = false;
 					shoot = false;
 					robot.intakeManual();
-					robot.follower.followPath(firstMovement);
+					robot.follower.followPath(toWall1);
 					setPathState(BlueFarAutoPhases.intaking1);
 				}
 				break;
 			case intaking1:
-				if (robot.follower.getCurrentPathNumber() == 2) {
+				if (robot.follower.getErrorDistance(intakeHumanEndPose) < 1) {
 					prepareToShoot = true;
 					shoot = true;
 					setPathState(BlueFarAutoPhases.stillIntaking1);
 				}
 				break;
 			case stillIntaking1:
-				if (pathTimer.getElapsedTimeSeconds() > intaketime) {
+				if (pathTimer.getElapsedTimeSeconds() > 0.3) {
 //					robot.stopIntake();
+					robot.follower.followPath(toShoot1);
 					setPathState(BlueFarAutoPhases.goToShoot2);
 				}
 				break;
@@ -223,6 +222,32 @@ public class BlueFarAuto extends OpMode {
 	@Override
 	public void loop() {
 		// These loop the movements of the robot, these must be called continuously in order to work
+		if (false) {
+			switch (robot.follower.getCurrentPathNumber()) {
+				case 0:
+					robot.follower.setMaxPower(maxPower);
+					break;
+				case 1:
+					robot.follower.setMaxPower(maxPower);
+					break;
+				case 3:
+					robot.follower.setMaxPower(maxPower);
+					break;
+			}
+		} else {
+			switch (robot.follower.getCurrentPathNumber()) {
+				case 0:
+					robot.follower.setMaxPower(maxPower);
+					break;
+				case 1:
+					robot.follower.setMaxPower(intakePower);
+					break;
+				case 2:
+					robot.follower.setMaxPower(maxPower);
+					break;
+			}
+		}
+
 		if (prepareToShoot) {
 			robot.prepareShooter();
 		} else {

@@ -582,7 +582,7 @@ public class Follower {
      * this will return the current path number. For holding Points, this will also return 0.
      * @return returns the current path number.
      */
-    public double getCurrentPathNumber() {
+    public int getCurrentPathNumber() {
         if (!followingPathChain) return 0;
         return chainIndex;
     }

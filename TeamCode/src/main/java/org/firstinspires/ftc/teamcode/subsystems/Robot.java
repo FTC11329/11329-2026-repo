@@ -226,7 +226,7 @@ public class Robot {
             goal = Constants.Vision.redGoal;
         }
 
-        ShooterValuesParent stv = oldvalues ? shooterTestValues : newShooterTestValues;
+        ShooterValuesParent stv = shooterTestValues;
 
         goal = goal.plus(offsetPose);
         // Est Time In Flight for ball at current pose
