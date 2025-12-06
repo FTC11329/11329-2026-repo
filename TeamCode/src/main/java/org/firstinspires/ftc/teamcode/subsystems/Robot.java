@@ -59,7 +59,7 @@ public class Robot {
 
 
     Telemetry telemetry;
-    public Robot(Telemetry telemetry, HardwareMap hardwareMap, RobotSide robotSide) {
+    public Robot(Telemetry telemetry, HardwareMap hardwareMap, RobotSide robotSide, int startTurretTicks) {
         this.telemetry = telemetry;
         this.robotSide = robotSide;
         panelsTelemetry = Panels.getTelemetry();
@@ -68,7 +68,7 @@ public class Robot {
         vision = new Vision(hardwareMap, robotSide);
         indexer = new Indexer(hardwareMap);
         shooter = new Shooter(hardwareMap);
-        turret = new Turret(hardwareMap, robotSide);
+        turret = new Turret(hardwareMap, startTurretTicks, robotSide);
         follower = org.firstinspires.ftc.teamcode.pedroPathing.Constants.createFollower(hardwareMap);
         drivetrain = new Drivetrain(hardwareMap);
         time = new ElapsedTime();

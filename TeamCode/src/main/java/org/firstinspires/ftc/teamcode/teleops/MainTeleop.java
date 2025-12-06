@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.util.BallColor;
+import org.firstinspires.ftc.teamcode.util.EndValuesStorer;
 import org.firstinspires.ftc.teamcode.util.FancyButton;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
 
@@ -59,6 +60,7 @@ public class MainTeleop {
     FancyButton movePoseDown;
     FancyButton movePoseLeft;
     FancyButton movePoseRight;
+    FancyButton resetPose;
     FancyButton rotatePoseRightInit;
     FancyButton rotatePoseLeftInit;
 
@@ -85,10 +87,12 @@ public class MainTeleop {
     public Pose startPose;
 
     public void init() {
-        //todo add logic to get position at the end of auto
-        startPose = new Pose(0,0,0);
+        EndValuesStorer endValuesStorer = new EndValuesStorer();
+        EndValuesStorer.EndValues endValues = endValuesStorer.loadEndValues();
+        int startTurretTicks = endValues.turretTicks;
+        startPose = new Pose(endValues.robotX, endValues.robotY, endValues.robotHeading);
 
-        robot = new Robot(telemetry, hardwareMap, robotSide);
+        robot = new Robot(telemetry, hardwareMap, robotSide, startTurretTicks);
 
         intake = new FancyButton(FancyButton.PressType.Toggle);
         spitIntake = new FancyButton(FancyButton.PressType.LongPress);
@@ -100,7 +104,6 @@ public class MainTeleop {
         overrideShootPosition = new FancyButton(FancyButton.PressType.LongPress);
         panicShoot = new FancyButton(FancyButton.PressType.Toggle);
 
-        takePhoto = new FancyButton(FancyButton.PressType.LongPress);
         debug = new FancyButton(FancyButton.PressType.Toggle);
 
         takePhoto = new FancyButton(FancyButton.PressType.LongPress);
@@ -120,6 +123,7 @@ public class MainTeleop {
     public void init_loop() {
         telemetry.addLine("Use gamepad 2 Dpad to change Start Position");
 
+        resetPose.checkStatus(gamepad2.y);
         fastChangeInit.checkStatus(gamepad2.right_bumper);
         movePoseUp.checkStatus(gamepad2.dpad_up);
         movePoseDown.checkStatus(gamepad2.dpad_down);
@@ -127,6 +131,10 @@ public class MainTeleop {
         movePoseRight.checkStatus(gamepad2.dpad_right);
         rotatePoseLeftInit.checkStatus(gamepad2.left_trigger > 0.2);
         rotatePoseRightInit.checkStatus(gamepad2.right_trigger > 0.2);
+
+        if (resetPose.startPress) {
+            startPose = new Pose(0,0,0);
+        }
 
         double moveSpeed = 0.25; // inches per press
         double rotateSpeed = 5; // degrees per press
@@ -190,7 +198,8 @@ public class MainTeleop {
         overrideShootPosition.checkStatus(gamepad2.back); // hold to turn on ignore position
         panicShoot.checkStatus(gamepad2.ps); // toggle to turn on panic shoot mode
 
-        movePoseUp.checkStatus(gamepad2.dpad_up);  
+        resetPose.checkStatus(gamepad2.y);
+        movePoseUp.checkStatus(gamepad2.dpad_up);
         movePoseDown.checkStatus(gamepad2.dpad_down);  //Buttons to control where the robot aims
         movePoseLeft.checkStatus(gamepad2.dpad_left);
         movePoseRight.checkStatus(gamepad2.dpad_right);
@@ -280,6 +289,9 @@ public class MainTeleop {
             }
             if (movePoseRight.startPress) {
                 robot.offsetPose.addX(1);
+            }
+            if (resetPose.startPress) {
+                robot.offsetPose = new Pose(0,0,0);
             }
         }
 

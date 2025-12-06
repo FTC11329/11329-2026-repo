@@ -18,6 +18,8 @@ public class Turret {
     CRServo turretServo2;
 
     double hoodPos = 0;
+    int encoderOffset = 0;
+
 
     Pose goalPose;
 
@@ -28,7 +30,7 @@ public class Turret {
 
      public PIDFController turretPID;
 
-    public Turret(HardwareMap hardwareMap, RobotSide robotSide){
+    public Turret(HardwareMap hardwareMap, int startTurretTicks, RobotSide robotSide){
 
         turretServo1 = hardwareMap.get(CRServo.class, "turret1");
         turretServo1.setDirection(CRServo.Direction.FORWARD);
@@ -39,6 +41,12 @@ public class Turret {
         encoder = hardwareMap.get(DcMotorEx.class, "encoder");
         encoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         encoder.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        int actual = encoder.getCurrentPosition();  // usually 0 after reset
+        encoderOffset = startTurretTicks - actual;  // virtual starting point
+
+
+
         turretPID = new PIDFController(Constants.Turret.turretPID);
         turretPID.updateFeedForwardInput(Constants.Turret.rightF);
         if (robotSide == RobotSide.Blue) {
@@ -82,17 +90,17 @@ public class Turret {
     }
 
     // Converts raw encoder ticks to turret angle
-    public double ticksToDegrees(int ticks) {
+    public double ticksToDegrees(double ticks) {
         double motorRevs = ticks / (double) TICKS_PER_REV;
         double turretRevs = motorRevs / GEAR_RATIO;
         return turretRevs * 360.0;
     }
 
     public double getAngle() {
-        return ticksToDegrees(encoder.getCurrentPosition());
+        return ticksToDegrees(getTicks());
     }
-    public double getTicks() {
-        return encoder.getCurrentPosition();
+    public int getTicks() {
+        return encoder.getCurrentPosition() + encoderOffset;
     }
     public boolean closeEnoughToTarget(Pose robotPose) {
         return robotPose.distanceFrom(goalPose) * Math.sin(Math.toRadians(Math.abs(turretPID.getError()))) <= Constants.Turret.closeEnough;

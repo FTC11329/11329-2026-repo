@@ -12,12 +12,12 @@ import org.firstinspires.ftc.teamcode.pedroPathing.paths.Path;
 import org.firstinspires.ftc.teamcode.pedroPathing.paths.PathChain;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
+import org.firstinspires.ftc.teamcode.util.AutoEnums.CloseAutoPhases;
 import org.firstinspires.ftc.teamcode.util.EndValuesStorer;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
-import org.firstinspires.ftc.teamcode.util.AutoEnums.CloseAutoPhases;
 
-@Autonomous(name = "Blue Close Auto", group = "  autos")
-public class BlueCloseAuto extends OpMode {
+@Autonomous(name = "Red Close Auto", group = "  autos")
+public class RedCloseAuto extends OpMode {
 	private Robot robot;
 	private Timer pathTimer, actionTimer, opmodeTimer;
 	private CloseAutoPhases pathState;
@@ -35,24 +35,24 @@ public class BlueCloseAuto extends OpMode {
 
 	// POSES *******************************~
 
-	private Pose startPose = new Pose(62.5, 36, Math.toRadians(90));
-    private Pose endShoot1Pose = new Pose(12, 12, Math.toRadians(90));
+	private Pose startPose = new Pose(62.5, -36, Math.toRadians(270));
+    private Pose endShoot1Pose = new Pose(12, -12, Math.toRadians(270));
 
-    private Pose intake1StartPose = new Pose(12, 32, Math.toRadians(90));
-    private Pose intake1EndPose = new Pose(12, 48, Math.toRadians(90));
-    private Pose pushGateStartPose = new Pose(4, 48.3, Math.toRadians(100));
-    private Pose pushGateEndPose = new Pose(4, 53.2, Math.toRadians(100));
-    private Pose startShoot2Pose = new Pose(36, 36, Math.toRadians(135));
-    private Pose endShoot2Pose = new Pose(12, 12, Math.toRadians(135));
+    private Pose intake1StartPose = new Pose(12, -32, Math.toRadians(270));
+    private Pose intake1EndPose = new Pose(12, -48, Math.toRadians(270));
+    private Pose pushGateStartPose = new Pose(4, -48.3, Math.toRadians(260));
+    private Pose pushGateEndPose = new Pose(4, -53.2, Math.toRadians(260));
+    private Pose startShoot2Pose = new Pose(36, -36, Math.toRadians(45));
+    private Pose endShoot2Pose = new Pose(12, -12, Math.toRadians(45));
 
-    private Pose intake2StartPose = new Pose(-12, 32, Math.toRadians(90));
-    private Pose intake2EndPose = new Pose(-12, 54, Math.toRadians(90));
-    private Pose startShoot3Pose = new Pose(24, 24, Math.toRadians(135));
-    private Pose endShoot3Pose = new Pose(12, 12, Math.toRadians(135));
+    private Pose intake2StartPose = new Pose(-12, -32, Math.toRadians(270));
+    private Pose intake2EndPose = new Pose(-12, -54, Math.toRadians(270));
+    private Pose startShoot3Pose = new Pose(24, -24, Math.toRadians(45));
+    private Pose endShoot3Pose = new Pose(12, -12, Math.toRadians(45));
 
-    private Pose intake3StartPose = new Pose(-36, 32, Math.toRadians(90));
-    private Pose intake3EndPose = new Pose(-36, 54, Math.toRadians(90));
-    private Pose shoot4Pose = new Pose(12, 12, Math.toRadians(135));
+    private Pose intake3StartPose = new Pose(-36, -32, Math.toRadians(270));
+    private Pose intake3EndPose = new Pose(-36, -54, Math.toRadians(270));
+    private Pose shoot4Pose = new Pose(12, -12, Math.toRadians(45));
 
     private Pose toSTunnelControlPoint = new Pose(-24, 30, Math.toRadians(0));
     private Pose startSTunnelPose = new Pose(-27, 59.42, Math.toRadians(155));
@@ -305,7 +305,7 @@ public class BlueCloseAuto extends OpMode {
 		pathTimer = new Timer();
 		opmodeTimer = new Timer();
 		opmodeTimer.resetTimer();
-		robot = new Robot(telemetry, hardwareMap, RobotSide.Blue, 0);
+		robot = new Robot(telemetry, hardwareMap, RobotSide.Red, 0);
 		robot.follower.setStartingPose(startPose);
 		buildPaths();
 	}
@@ -400,6 +400,7 @@ public class BlueCloseAuto extends OpMode {
 		telemetry.update();
 	}
 
+	/** We do not use this because everything should automatically disable **/
 	@Override
 	public void stop() {
 		EndValuesStorer endValuesStorer = new EndValuesStorer();

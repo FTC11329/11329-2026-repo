@@ -10,12 +10,12 @@ import org.firstinspires.ftc.teamcode.pedroPathing.paths.Path;
 import org.firstinspires.ftc.teamcode.pedroPathing.paths.PathChain;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
+import org.firstinspires.ftc.teamcode.util.AutoEnums.FarAutoPhases;
 import org.firstinspires.ftc.teamcode.util.EndValuesStorer;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
-import org.firstinspires.ftc.teamcode.util.AutoEnums.FarAutoPhases;
 
 @Autonomous(name = "Blue Far Auto", group = " autos")
-public class BlueFarAuto extends OpMode {
+public class RedFarAuto extends OpMode {
 	private Robot robot;
 	private Timer pathTimer, actionTimer, opmodeTimer;
 	private FarAutoPhases pathState;
@@ -31,19 +31,19 @@ public class BlueFarAuto extends OpMode {
 
 	// POSES *******************************~
 
-	private Pose startPose = new Pose(-63.65, 16.8, Math.toRadians(90));
-    private Pose shootPose = new Pose(-60, 12, Math.toRadians(90));
+	private Pose startPose = new Pose(-63.65, -16.8, Math.toRadians(270));
+    private Pose shootPose = new Pose(-60, -12, Math.toRadians(270));
 
-    private Pose intakeHumanStartPose = new Pose(-55.2, 60.3, Math.toRadians(128));
-    private Pose intakeHumanEndPose = new Pose(-62, 59, Math.toRadians(85));
+    private Pose intakeHumanStartPose = new Pose(-55.2, -60.3, Math.toRadians(308));
+    private Pose intakeHumanEndPose = new Pose(-62, -59, Math.toRadians(275));
 
-    private Pose intake2StartPose = new Pose(-36, 32, Math.toRadians(90));
-    private Pose intake2EndPose = new Pose(-36, 54, Math.toRadians(90));
+    private Pose intake2StartPose = new Pose(-36, -32, Math.toRadians(270));
+    private Pose intake2EndPose = new Pose(-36, -54, Math.toRadians(270));
 
-    private Pose intake3StartPose = new Pose(-12, 32, Math.toRadians(90));
-    private Pose intake3EndPose = new Pose(-12, 54, Math.toRadians(90));
+    private Pose intake3StartPose = new Pose(-12, -32, Math.toRadians(270));
+    private Pose intake3EndPose = new Pose(-12, -54, Math.toRadians(270));
 
-	private Pose endPose = new Pose(0, 36, Math.toRadians(90));
+	private Pose endPose = new Pose(0, -36, Math.toRadians(270));
 
 	// PATHS *******************************~
 
