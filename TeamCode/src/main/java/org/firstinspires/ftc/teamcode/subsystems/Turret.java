@@ -18,7 +18,7 @@ public class Turret {
     CRServo turretServo2;
 
     double hoodPos = 0;
-    int encoderOffset = 0;
+    public int encoderOffset;
 
 
     Pose goalPose;

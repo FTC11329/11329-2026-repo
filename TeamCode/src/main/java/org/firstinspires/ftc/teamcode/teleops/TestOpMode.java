@@ -47,7 +47,7 @@ public class TestOpMode extends OpMode {
     @Override
     public void init() {
         //do stuff init
-        robot = new Robot(telemetry, hardwareMap, RobotSide.Blue);
+        robot = new Robot(telemetry, hardwareMap, RobotSide.Blue, 0);
         toggle = new FancyButton(FancyButton.PressType.Toggle);
         toggle2 = new FancyButton(FancyButton.PressType.Toggle);
         press1 = new FancyButton(FancyButton.PressType.LongPress);

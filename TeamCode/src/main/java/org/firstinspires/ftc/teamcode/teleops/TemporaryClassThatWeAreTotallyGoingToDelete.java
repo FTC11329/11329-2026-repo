@@ -18,7 +18,7 @@ public class TemporaryClassThatWeAreTotallyGoingToDelete extends OpMode {
     TelemetryManager panelsTelemetry;
     @Override
     public void init() {
-        robot = new Robot(telemetry, hardwareMap, RobotSide.Blue);
+        robot = new Robot(telemetry, hardwareMap, RobotSide.Blue, 0);
         panelsTelemetry = Panels.getTelemetry();
     }
 

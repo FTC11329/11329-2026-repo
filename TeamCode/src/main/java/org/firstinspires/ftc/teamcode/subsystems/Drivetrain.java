@@ -26,6 +26,7 @@ public class Drivetrain {
         rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
 
     }
+
     // sets power of each motor
     public void setPower(double set) {
         leftFront.setPower(set);
@@ -34,17 +35,7 @@ public class Drivetrain {
         rightBack.setPower(set);
 
     }
-    /** dricetraine
-     * drivetrain
-     * drivetrine
-     * drivetrine
-     * drivrtrine
-     * drivrtrine
-     * drivrtrine
-     * drivrtrine
-     * rdvirtrine
-     */
-    //
+
     public void teleopMovement(double forwardBackPower, double strafePower, double turning, boolean TURBO) {
         double speed = 0.6;
         // TURBO MODE
@@ -52,21 +43,20 @@ public class Drivetrain {
             speed = 1;
         }
         //MATH
-//        leftFront.setPower((forwardBackPower + strafePower + turning) * speed);
-//        leftBack.setPower((forwardBackPower  - strafePower + turning) * speed);
-//        rightFront.setPower((forwardBackPower - strafePower - turning) * speed);
-//        rightBack.setPower((forwardBackPower + strafePower - turning) * speed);
-
-        setSafePower(leftFront, ((forwardBackPower + strafePower + turning) * speed));
-        setSafePower(leftBack, ((forwardBackPower  - strafePower + turning) * speed));
-        setSafePower(rightFront, ((forwardBackPower - strafePower - turning) * speed));
-        setSafePower(rightBack, ((forwardBackPower + strafePower - turning) * speed));
+        leftFront.setPower((forwardBackPower + strafePower + turning) * speed);
+        leftBack.setPower((forwardBackPower - strafePower + turning) * speed);
+        rightFront.setPower((forwardBackPower - strafePower - turning) * speed);
+        rightBack.setPower((forwardBackPower + strafePower - turning) * speed);
     }
-    // todo remove once ve have power switch v2
-    void setSafePower(DcMotorEx motor, double targetPower){
-        final double SLEW_RATE = 0.4;
-        double currentPower = motor.getPower();
-        double desiredChange = targetPower - currentPower;
-        double limitedChange = Math.max(-SLEW_RATE, Math.min(desiredChange, SLEW_RATE));
-        motor.setPower(currentPower += limitedChange);
-    }}
+    public void stopASAP() {
+        leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        leftFront.setPower(0);
+        leftBack.setPower(0);
+        rightFront.setPower(0);
+        rightBack.setPower(0);
+    }
+}

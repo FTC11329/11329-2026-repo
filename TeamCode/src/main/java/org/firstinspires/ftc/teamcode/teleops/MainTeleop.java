@@ -55,14 +55,11 @@ public class MainTeleop {
 
     FancyButton debug;
     FancyButton takePhoto;
-    FancyButton fastChangeInit;
     FancyButton movePoseUp;
     FancyButton movePoseDown;
     FancyButton movePoseLeft;
     FancyButton movePoseRight;
     FancyButton resetPose;
-    FancyButton rotatePoseRightInit;
-    FancyButton rotatePoseLeftInit;
 
     FancyButton deleteme;
 
@@ -106,14 +103,12 @@ public class MainTeleop {
 
         debug = new FancyButton(FancyButton.PressType.Toggle);
 
+        resetPose = new FancyButton(FancyButton.PressType.LongPress);
         takePhoto = new FancyButton(FancyButton.PressType.LongPress);
-        fastChangeInit = new FancyButton(FancyButton.PressType.LongPress);
         movePoseUp = new FancyButton(FancyButton.PressType.LongPress);
         movePoseDown = new FancyButton(FancyButton.PressType.LongPress);
         movePoseLeft = new FancyButton(FancyButton.PressType.LongPress);
         movePoseRight = new FancyButton(FancyButton.PressType.LongPress);
-        rotatePoseLeftInit = new FancyButton(FancyButton.PressType.LongPress);
-        rotatePoseRightInit = new FancyButton(FancyButton.PressType.LongPress);
 
         deleteme = new FancyButton(FancyButton.PressType.Toggle);
 
@@ -124,67 +119,23 @@ public class MainTeleop {
         telemetry.addLine("Use gamepad 2 Dpad to change Start Position");
 
         resetPose.checkStatus(gamepad2.y);
-        fastChangeInit.checkStatus(gamepad2.right_bumper);
-        movePoseUp.checkStatus(gamepad2.dpad_up);
-        movePoseDown.checkStatus(gamepad2.dpad_down);
-        movePoseLeft.checkStatus(gamepad2.dpad_left);
-        movePoseRight.checkStatus(gamepad2.dpad_right);
-        rotatePoseLeftInit.checkStatus(gamepad2.left_trigger > 0.2);
-        rotatePoseRightInit.checkStatus(gamepad2.right_trigger > 0.2);
 
         if (resetPose.startPress) {
             startPose = new Pose(0,0,0);
-        }
-
-        double moveSpeed = 0.25; // inches per press
-        double rotateSpeed = 5; // degrees per press
-        if (fastChangeInit.startPress) {
-            moveSpeed = 1;
-            rotateSpeed = 45;
-        } else if (fastChangeInit.endPress) {
-            moveSpeed = 0.25;
-            rotateSpeed = 5;
-        }
-
-        if (robotSide == RobotSide.Blue) {
-            if (movePoseUp.startPress) {
-                startPose.addY(-moveSpeed);
-            }
-            if (movePoseDown.startPress) {
-                startPose.addY(moveSpeed);
-            }
-            if (movePoseLeft.startPress) {
-                startPose.addX(moveSpeed);
-            }
-            if (movePoseRight.startPress) {
-                startPose.addX(-moveSpeed);
-            }
-        } else {
-            if (movePoseUp.startPress) {
-                startPose.addY(moveSpeed);
-            }
-            if (movePoseDown.startPress) {
-                startPose.addY(-moveSpeed);
-            }
-            if (movePoseLeft.startPress) {
-                startPose.addX(-moveSpeed);
-            }
-            if (movePoseRight.startPress) {
-                startPose.addX(moveSpeed);
-            }
-        }
-        if (rotatePoseRightInit.startPress) {
-            startPose.addHeading(-rotateSpeed);
-        }
-        if (rotatePoseLeftInit.startPress) {
-            startPose.addHeading(rotateSpeed);
+            robot.turret.encoderOffset = 0;
         }
 
         telemetry.addData("Start Pose", startPose);
+        telemetry.addData("Encoder Offset", robot.turret.encoderOffset);
+        robot.follower.setPose(startPose);
+        robot.follower.update();
+        telemetry.addData("Encoder Offset", robot.getCurrentPose());
+        telemetry.update();
     }
 
     public void start() {
-        robot.follower.setStartingPose(startPose);
+        robot.follower.setPose(startPose);
+        robot.follower.update();
     }
 
     public void loop() {
@@ -204,6 +155,7 @@ public class MainTeleop {
         movePoseLeft.checkStatus(gamepad2.dpad_left);
         movePoseRight.checkStatus(gamepad2.dpad_right);
 
+        takePhoto.checkStatus(gamepad2.y);
         debug.checkStatus(gamepad1.start); // hold to print telemetry
 
         deleteme.checkStatus(gamepad1.left_bumper);
@@ -237,7 +189,9 @@ public class MainTeleop {
                 robot.shootQueue(overrideShootPosition.isOn);
             } else if (autoShoot.endPress){
                 robot.shooter.casualModeOn();
-                robot.stopIndexer();
+                if (intake.isOn) {
+                    robot.stopIndexer();
+                }
             }
         }
 
@@ -305,7 +259,7 @@ public class MainTeleop {
         // }
 
         robot.update(debug.isOn);
-        telemetry.addData("distance", robot.getCurrentPose().distanceFrom(Constants.Vision.blueGoal));
+//        telemetry.addData("distance", robot.getCurrentPose().distanceFrom(Constants.Vision.blueGoal));
 
 //        double deltaTime = time.milliseconds() - lastTime;
 //        telemetry.addData("Loop Time", deltaTime);

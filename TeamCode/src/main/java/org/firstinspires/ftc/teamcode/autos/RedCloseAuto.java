@@ -22,6 +22,8 @@ public class RedCloseAuto extends OpMode {
 	private Timer pathTimer, actionTimer, opmodeTimer;
 	private CloseAutoPhases pathState;
 	private boolean prepareToShoot = false;
+	private boolean usingShootPower = true;
+
 	private boolean shoot = false;
 	private boolean lastShoot = false;
 	private boolean stopAuto = false;
@@ -29,8 +31,8 @@ public class RedCloseAuto extends OpMode {
 	private double shootTime = 2.8; // seconds to shoot all 3 balls
 	private double shootPower = 0.5; // power to move while shooting
 	private double maxPower = 1; // max power to move
-	private double intakePower = 0.6; // max power to intake
-	private double toGatePower = 0.8; // max power to intake
+	private double intakePower = 0.65; // max power to intake
+	private double toGatePower = 0.75; // max power to move to gate
 	private double intaketime = 1; // seconds to fully intake balls after reaching intakeEnd
 
 	// POSES *******************************~
@@ -40,27 +42,27 @@ public class RedCloseAuto extends OpMode {
 
     private Pose intake1StartPose = new Pose(12, -32, Math.toRadians(270));
     private Pose intake1EndPose = new Pose(12, -48, Math.toRadians(270));
-    private Pose pushGateStartPose = new Pose(4, -48.3, Math.toRadians(260));
-    private Pose pushGateEndPose = new Pose(4, -53.2, Math.toRadians(260));
-    private Pose startShoot2Pose = new Pose(36, -36, Math.toRadians(45));
-    private Pose endShoot2Pose = new Pose(12, -12, Math.toRadians(45));
+    private Pose pushGateStartPose = new Pose(6, -48.3, Math.toRadians(270));
+    private Pose pushGateEndPose = new Pose(4, -53.2, Math.toRadians(270));
+    private Pose startShoot2Pose = new Pose(36, -36, Math.toRadians(225));
+    private Pose endShoot2Pose = new Pose(12, -12, Math.toRadians(225));
 
     private Pose intake2StartPose = new Pose(-12, -32, Math.toRadians(270));
     private Pose intake2EndPose = new Pose(-12, -54, Math.toRadians(270));
-    private Pose startShoot3Pose = new Pose(24, -24, Math.toRadians(45));
-    private Pose endShoot3Pose = new Pose(12, -12, Math.toRadians(45));
+    private Pose startShoot3Pose = new Pose(24, -24, Math.toRadians(225));
+    private Pose endShoot3Pose = new Pose(12, -12, Math.toRadians(225));
 
     private Pose intake3StartPose = new Pose(-36, -32, Math.toRadians(270));
     private Pose intake3EndPose = new Pose(-36, -54, Math.toRadians(270));
-    private Pose shoot4Pose = new Pose(12, -12, Math.toRadians(45));
+    private Pose shoot4Pose = new Pose(12, -12, Math.toRadians(225));
 
-    private Pose toSTunnelControlPoint = new Pose(-24, 30, Math.toRadians(0));
-    private Pose startSTunnelPose = new Pose(-27, 59.42, Math.toRadians(155));
-    private Pose endSTunnelPose = new Pose(-53, 63, Math.toRadians(180));
-	private Pose startShoot5Pose = new Pose(12, 12, Math.toRadians(135));
-	private Pose endShoot5Pose = new Pose(24, 24, Math.toRadians(135));
+    private Pose toSTunnelControlPoint = new Pose(-24, -30, Math.toRadians(0));
+    private Pose startSTunnelPose = new Pose(-27, -59.42, Math.toRadians(205));
+    private Pose endSTunnelPose = new Pose(-53, -63, Math.toRadians(180));
+	private Pose startShoot5Pose = new Pose(12, -12, Math.toRadians(225));
+	private Pose endShoot5Pose = new Pose(24, -24, Math.toRadians(225));
 
-	private Pose endPose = new Pose(0, 48, Math.toRadians(135));
+	private Pose endPose = new Pose(0, -48, Math.toRadians(225));
 
 	// PATHS *******************************~
 
@@ -134,6 +136,7 @@ public class RedCloseAuto extends OpMode {
 				robot.intakeManual();
 				prepareToShoot = true;
 				robot.follower.followPath(shootPath1);
+				usingShootPower = true;
 				robot.follower.setMaxPower(shootPower);
 				setPathState(CloseAutoPhases.prepShot1);
 				break;
@@ -148,6 +151,7 @@ public class RedCloseAuto extends OpMode {
 					prepareToShoot = false;
 					shoot = false;
 					robot.follower.followPath(firstMovement);
+					usingShootPower = false;
 					robot.follower.setMaxPower(maxPower);
 					setPathState(CloseAutoPhases.moveToIntake1);
 				}
@@ -174,6 +178,7 @@ public class RedCloseAuto extends OpMode {
 			case goToShoot2:
 				if (robot.follower.getErrorDistance(startShoot2Pose) < 1.5) {
 					robot.follower.followPath(shootPath2);
+					usingShootPower = true;
 					robot.follower.setMaxPower(shootPower);
 
 					setPathState(CloseAutoPhases.shoot2);
@@ -185,6 +190,7 @@ public class RedCloseAuto extends OpMode {
 					shoot = false;
 					robot.intakeManual();
 					robot.follower.followPath(secondMovement);
+					usingShootPower = false;
 					robot.follower.setMaxPower(maxPower);
 					setPathState(CloseAutoPhases.moveToIntake2);
 				}
@@ -211,6 +217,7 @@ public class RedCloseAuto extends OpMode {
 			case goToShoot3:
 				if (robot.follower.getErrorDistance(startShoot3Pose) < 5) {
 					robot.follower.followPath(shootPath3);
+					usingShootPower = true;
 					robot.follower.setMaxPower(shootPower);
 					setPathState(CloseAutoPhases.shoot3);
 				}
@@ -221,6 +228,7 @@ public class RedCloseAuto extends OpMode {
 					shoot = false;
 					robot.intakeManual();
 					robot.follower.followPath(thirdMovement);
+					usingShootPower = false;
 					robot.follower.setMaxPower(maxPower);
 					setPathState(CloseAutoPhases.moveToIntake3);
 				}
@@ -304,6 +312,7 @@ public class RedCloseAuto extends OpMode {
 	public void init() {
 		pathTimer = new Timer();
 		opmodeTimer = new Timer();
+		actionTimer = new Timer();
 		opmodeTimer.resetTimer();
 		robot = new Robot(telemetry, hardwareMap, RobotSide.Red, 0);
 		robot.follower.setStartingPose(startPose);
@@ -323,7 +332,8 @@ public class RedCloseAuto extends OpMode {
 	@Override
 	public void loop() {
 		// These loop the movements of the robot, these must be called continuously in order to work
-		if (robot.follower.getCurrentPathChain() == firstMovement) {
+		if (usingShootPower) {
+		} else if (robot.follower.getCurrentPathChain() == firstMovement) {
 			switch (robot.follower.getCurrentPathNumber()) {
 				case 0:
 					robot.follower.setMaxPower(maxPower);
@@ -373,12 +383,12 @@ public class RedCloseAuto extends OpMode {
 		if (shoot) {
 			robot.shootQueue(false);
 		}
-		if (lastShoot && !shoot) {
-			robot.stopIndexer();
+		if (!shoot) {
+			robot.indexer.transfer(false);
 		}
 		lastShoot = shoot;
 		robot.update();
-		if (opmodeTimer.getElapsedTimeSeconds() < 29.5) {
+		if (opmodeTimer.getElapsedTimeSeconds() < 29) {
 			autonomousPathUpdate();
 		} else {
 			if (!stopAuto) {
@@ -400,7 +410,6 @@ public class RedCloseAuto extends OpMode {
 		telemetry.update();
 	}
 
-	/** We do not use this because everything should automatically disable **/
 	@Override
 	public void stop() {
 		EndValuesStorer endValuesStorer = new EndValuesStorer();

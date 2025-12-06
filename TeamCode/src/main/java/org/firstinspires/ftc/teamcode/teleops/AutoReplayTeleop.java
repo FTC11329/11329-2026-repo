@@ -42,7 +42,7 @@ public class AutoReplayTeleop {
     }
 
     public void init() {
-        robot = new Robot(telemetry, hardwareMap, RobotSide.Blue);
+        robot = new Robot(telemetry, hardwareMap, RobotSide.Blue, 0);
         autoReplay = new AutoReplayTime(robot.follower, telemetry, gamepadInfo1, gamepad2);
 
         intake = new FancyButton(FancyButton.PressType.Toggle);

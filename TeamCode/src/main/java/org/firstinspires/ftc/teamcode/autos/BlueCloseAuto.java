@@ -30,7 +30,7 @@ public class BlueCloseAuto extends OpMode {
 	private double shootPower = 0.5; // power to move while shooting
 	private double maxPower = 1; // max power to move
 	private double intakePower = 0.6; // max power to intake
-	private double toGatePower = 0.8; // max power to intake
+	private double toGatePower = 0.75; // max power to move to gate
 	private double intaketime = 1; // seconds to fully intake balls after reaching intakeEnd
 
 	// POSES *******************************~
@@ -40,8 +40,8 @@ public class BlueCloseAuto extends OpMode {
 
     private Pose intake1StartPose = new Pose(12, 32, Math.toRadians(90));
     private Pose intake1EndPose = new Pose(12, 48, Math.toRadians(90));
-    private Pose pushGateStartPose = new Pose(4, 48.3, Math.toRadians(100));
-    private Pose pushGateEndPose = new Pose(4, 53.2, Math.toRadians(100));
+    private Pose pushGateStartPose = new Pose(6, 48.3, Math.toRadians(90));
+    private Pose pushGateEndPose = new Pose(4, 53.2, Math.toRadians(190));
     private Pose startShoot2Pose = new Pose(36, 36, Math.toRadians(135));
     private Pose endShoot2Pose = new Pose(12, 12, Math.toRadians(135));
 
@@ -373,12 +373,12 @@ public class BlueCloseAuto extends OpMode {
 		if (shoot) {
 			robot.shootQueue(false);
 		}
-		if (lastShoot && !shoot) {
-			robot.stopIndexer();
+		if (!shoot) {
+			robot.indexer.transfer(false);
 		}
 		lastShoot = shoot;
 		robot.update();
-		if (opmodeTimer.getElapsedTimeSeconds() < 29.5) {
+		if (opmodeTimer.getElapsedTimeSeconds() < 29) {
 			autonomousPathUpdate();
 		} else {
 			if (!stopAuto) {

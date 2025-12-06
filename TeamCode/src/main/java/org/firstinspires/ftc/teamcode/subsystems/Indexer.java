@@ -33,8 +33,8 @@ public class Indexer {
     public Indexer(HardwareMap hardwaremap){
         spindexer1 = hardwaremap.get(CRServo.class, "spindexer1");
         spindexer2 = hardwaremap.get(CRServo.class, "spindexer2");
-        spindexer1.setDirection(DcMotorSimple.Direction.FORWARD);
-        spindexer2.setDirection(DcMotorSimple.Direction.FORWARD);
+        spindexer1.setDirection(DcMotorSimple.Direction.REVERSE);
+        spindexer2.setDirection(DcMotorSimple.Direction.REVERSE);
 
         feeder = hardwaremap.get(DcMotorEx.class, "transfer");
         feeder.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);

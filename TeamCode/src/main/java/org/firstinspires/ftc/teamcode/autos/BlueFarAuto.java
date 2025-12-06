@@ -263,10 +263,10 @@ public class BlueFarAuto extends OpMode {
 		if (shoot) {
 			robot.shootQueue(false);
 		}
-		if (lastShoot && !shoot) {
-			robot.stopIndexer();
+		if (!shoot) {
+			robot.indexer.transfer(false);
 		}
-		if (opmodeTimer.getElapsedTimeSeconds() < 29.5) {
+		if (opmodeTimer.getElapsedTimeSeconds() < 29) {
 			autonomousPathUpdate();
 		} else {
 			if (!stopAuto) {

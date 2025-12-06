@@ -470,15 +470,16 @@ public class Robot {
                 telemetry.addData("qball", ball);
             }
 
+
 //            telemetry.addData("in shooting zone", inShootingZone());
 //            telemetry.addData("hood", shooter.getHoodPosDeg());
 //            telemetry.addData("rpm", shooter.getRPM());
 
-            // panelsTelemetry.graph("wave", turret.turretPID.getTargetPosition());
-            // panelsTelemetry.graph("wave2", turret.getAngle());
-            // panelsTelemetry.graph("wave3", shooter.shooterPID.getTargetPosition());
-            // panelsTelemetry.graph("wave4", shooter.getVelocity());
-            // panelsTelemetry.update(telemetry);
+//             panelsTelemetry.graph("turret target", turret.turretPID.getTargetPosition());
+//             panelsTelemetry.graph("turret actual", turret.getAngle());
+//             panelsTelemetry.graph("shooter target", shooter.shooterPID.getTargetPosition());
+//             panelsTelemetry.graph("shooter actual", shooter.getVelocity());
+//             panelsTelemetry.update(telemetry);
 
         }
     }

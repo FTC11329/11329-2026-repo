@@ -21,7 +21,7 @@ public class Localization extends OpMode {
 
     @Override
     public void init() {
-        robot = new Robot(telemetry, hardwareMap, RobotSide.Blue);
+        robot = new Robot(telemetry, hardwareMap, RobotSide.Blue, 0);
         titles = Arrays.asList("startPose", "scorePose", "collectI1", "collectF1", "collectI2", "collectF2","collectI3", "collectF3");
         poses = Arrays.asList(null, null, null, null, null, null, null, null);
     }
