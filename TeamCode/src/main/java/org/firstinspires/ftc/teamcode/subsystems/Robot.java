@@ -293,7 +293,13 @@ public class Robot {
 
             shotTime = newShotTime;
         }
+        ShooterState futureShooterParams = stv.get(getCurrentPose().distanceFrom(correctedGoal));
 
+        // Sets shooter rpm
+        shooter.setTargetRPM(futureShooterParams.rpm);
+
+        // gets hood angle
+        shooter.setHoodDeg(futureShooterParams.hoodAngle);
     }
 
     public void shootAny() {
