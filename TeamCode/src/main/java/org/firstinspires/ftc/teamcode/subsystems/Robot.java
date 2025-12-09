@@ -10,6 +10,7 @@ import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.Drawing;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
+import org.firstinspires.ftc.teamcode.pedroPathing.math.Vector;
 import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
 import org.firstinspires.ftc.teamcode.util.shooterInterpolation.NewShooterTestValues;
@@ -19,6 +20,7 @@ import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterValuesPar
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.function.Function;
 
 public class Robot {
     // Todo make private exept follower
@@ -228,7 +230,7 @@ public class Robot {
 
         ShooterValuesParent stv = shooterTestValues;
 
-        goal = goal.plus(offsetPose);
+        goal = goal.plus(offsetPose); //Todo: get rid of
         // Est Time In Flight for ball at current pose
         double timeInFlight = stv.get(curPose.distanceFrom(goal)).timeInFlight;
 
@@ -251,6 +253,46 @@ public class Robot {
 
         // gets hood angle
         shooter.setHoodDeg(futureShooterParams.hoodAngle);
+
+    }
+
+    public void shootOnTheFly () {
+        Pose robotPose = getCurrentPose();
+
+        if (robotSide == RobotSide.Blue)  {
+            goal = Constants.Vision.blueGoal;
+        } else {
+            goal = Constants.Vision.redGoal;
+        }
+
+        ShooterValuesParent stv = shooterTestValues;
+        Vector robotVelocity = follower.getVelocity();
+        Vector robotAcceleration = follower.getVelocity();
+
+        double goalPositionIterations = 3; // increase for accuracy decrease for efficiency
+        double accelerationCompensationFactor = .2; //tune to account for change in velocity as ball is shot
+
+        double shotTime = stv.get(robotPose.distanceFrom(goal)).timeInFlight;
+
+        Pose correctedGoal = new Pose();
+        for (int i = 0; i < goalPositionIterations; i++) { //todo: ensure that velocity and acceleration units match
+            double virtualGoalX = goal.getX()
+                    - shotTime * (robotVelocity.getXComponent()
+                    + robotAcceleration.getXComponent() * accelerationCompensationFactor);
+            double virtualGoalY = goal.getY()
+                    - shotTime * (robotVelocity.getYComponent()
+                    + robotAcceleration.getYComponent() * accelerationCompensationFactor);
+
+            correctedGoal = new Pose(virtualGoalX, virtualGoalY);
+
+            double newShotTime = stv.get(robotPose.distanceFrom(correctedGoal)).timeInFlight;
+
+            if (Math.abs(newShotTime - shotTime) <= 0.010) {
+                break;
+            }
+
+            shotTime = newShotTime;
+        }
 
     }
 
