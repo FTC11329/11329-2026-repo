@@ -23,7 +23,11 @@ public class Timer {
      * This resets the Timer's start time to the current time using System.currentTimeMillis().
      */
     public void resetTimer() {
-        startTime = System.currentTimeMillis();
+        resetTimer(0);
+    }
+
+    public resetTimer(double startMs) {
+        startTime = System.currentTimeMillis() + startMs;
     }
 
     /**

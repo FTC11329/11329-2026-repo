@@ -17,6 +17,7 @@ import org.firstinspires.ftc.teamcode.util.shooterInterpolation.NewShooterTestVa
 import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterState;
 import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterTestValues;
 import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterValuesParent;
+//todo import java.awt.Shape to make the inShootingZone() better 
 
 import java.util.ArrayList;
 import java.util.Arrays;

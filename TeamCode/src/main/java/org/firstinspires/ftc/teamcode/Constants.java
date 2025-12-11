@@ -17,6 +17,19 @@ public class Constants {
     public static class Indexer {
         public static double spindexPower = 0.9;
 
+        public static double timeToMoveIndexer1Index = 0.9;
+
+        public static double StoreTlBTr012Revrese = 0; //todo set
+        public static double StoreTlBTr120 = 0.;
+        public static double StoreTlBTr201 = 0;
+        public static double StoreTlBTr012 = 0;
+
+        public static double TransferTBlBr012Reverse = 0; //todo set
+        public static double TransferTBlBr120 = 0;
+        public static double TransferTBlBr201 = 0;
+        public static double TransferTBlBr012 = 0;
+
+
         public static double farSpindexPower = 0.9;
         public static double farDistance = 90;
 
