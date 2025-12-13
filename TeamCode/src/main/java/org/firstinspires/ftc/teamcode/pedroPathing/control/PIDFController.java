@@ -108,10 +108,13 @@ public class PIDFController implements Controller {
      * This is used to set the target position if the PIDF is being run with current position and
      * target position inputs rather than error inputs.
      *
+     * This also resets the I and D terms so that we avoid integral windup and derivative kick.
      * @param set this sets the target position.
      */
     public void setTargetPosition(double set) {
         targetPosition = set;
+        errorIntegral = 0;
+        error = targetPosition - position;
     }
 
     /**
