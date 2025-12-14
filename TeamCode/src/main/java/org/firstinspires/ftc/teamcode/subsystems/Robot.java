@@ -214,11 +214,11 @@ public class Robot {
     }
 
     public void prepareShooter() {
-        shootOnTheFly(true);
+        prepareShooter(true);
     }
 
     //corrects the hood, turret, and shooter rpm
-    public void prepareShooter(boolean oldvalues) {
+    public void prepareShooter(boolean deleteMeIfYouWant) {
 
         // Gets current Pose
         Pose curPose = getCurrentPose();
@@ -233,22 +233,27 @@ public class Robot {
         ShooterValuesParent stv = shooterTestValues;
 
         goal = goal.plus(offsetPose); //Todo: get rid of
-        // Est Time In Flight for ball at current pose
-        double timeInFlight = stv.get(curPose.distanceFrom(goal)).timeInFlight;
 
-        // Logic for future pose
-        Pose futrPose = curPose.plusVector(follower.getVelocity(), timeInFlight);
+        Pose futrGoal = goal;
+
+        for (int i = 0; i <= 3; i++) {
+            // Est Time In Flight for ball at current pose
+            double timeInFlight = stv.get(curPose.distanceFrom(futrGoal)).timeInFlight;
+
+            // Logic for future pose
+            futrGoal = goal.plusVector(follower.getVelocity(), - timeInFlight);
+        }
 
         // Logic for heading to goal
-        double deltaX = goal.getX() - futrPose.getX();
-        double deltaY = goal.getY() - futrPose.getY();
+        double deltaX = futrGoal.getX() - curPose.getX();
+        double deltaY = futrGoal.getY() - curPose.getY();
         double angleToGoal = Math.toDegrees(Math.atan2(deltaY, deltaX));
 
         // Sets Turret angle
-        turret.setTargetDeg(angleToGoal - Math.toDegrees(futrPose.getHeading()));
+        turret.setTargetDeg(angleToGoal - Math.toDegrees(curPose.getHeading()));
 
         // Gets shooter params based on future pose
-        ShooterState futureShooterParams = stv.get(futrPose.distanceFrom(goal));
+        ShooterState futureShooterParams = stv.get(curPose.distanceFrom(futrGoal));
 
         // Sets shooter rpm
         shooter.adjustTargetRPM(futureShooterParams.rpm);
@@ -494,6 +499,7 @@ public class Robot {
         turretUpdate();
         teleopUpdate();
         follower.update();
+        telemetry.addData("distance", getCurrentPose().distanceFrom(goal));
         if (debug) {
             Drawing.drawDebug(follower);
             telemetry.addLine("=== VISION ===");
@@ -524,7 +530,7 @@ public class Robot {
             telemetry.addData("guess pose", getCurrentPose());
             telemetry.addData("last cam pose", lastCamPose);
             telemetry.addData("offset", offsetPose);
-            telemetry.addData("offset", getCurrentPose().distanceFrom(goal));
+            telemetry.addData("distance", getCurrentPose().distanceFrom(goal));
             telemetry.addData("in shooting zone", inShootingZone());
 
             telemetry.addLine("=== QUEUE ===");

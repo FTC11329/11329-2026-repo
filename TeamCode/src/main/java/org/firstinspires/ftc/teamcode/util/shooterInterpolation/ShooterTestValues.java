@@ -1,9 +1,13 @@
 package org.firstinspires.ftc.teamcode.util.shooterInterpolation;
 
+import com.bylazar.ftcontrol.panels.configurables.annotations.Configurable;
+
+@Configurable
+@com.bylazar.configurables.annotations.Configurable
 public class ShooterTestValues implements ShooterValuesParent {
     private final ShooterTreeInterpolation shooterMap = new ShooterTreeInterpolation();
 
-    private final double ADDITION = -3; // + shooter farther
+    private final double ADDITION = 2; // + shooter farther
     private final double FAR_ADDITION = 3; // + shooter farther
     public ShooterTestValues() {
         // Distance units must have a consistent unit

@@ -71,6 +71,7 @@ public class AutoReplayTeleop {
         robot = new Robot(telemetry, hardwareMap, robotSide, startTurretTicks);
         autoReplay = new AutoReplayTime(robot.follower, telemetry, gamepadInfo1, gamepadInfo2);
         autoReplay.init();
+        autoReplay.init();
 
         intake = new FancyButton(FancyButton.PressType.Toggle);
         spitIntake = new FancyButton(FancyButton.PressType.LongPress);
@@ -99,7 +100,7 @@ public class AutoReplayTeleop {
     public void init_loop() {
         telemetry.addLine("Use gamepad 2 Dpad to change Start Position");
 
-        resetPose.checkStatus(gamepad2.y);
+        resetPose.checkStatus(gamepadInfo2.y);
 
         if (resetPose.startPress) {
             startPose = new Pose(0,0,0);
@@ -128,6 +129,7 @@ public class AutoReplayTeleop {
             gamepad2 = autoReplay.getGamepad2();
         }
         else{
+            robot.drivetrain.teleopMovement(-gamepadInfo1.left_stick_y, gamepadInfo1.left_stick_x, gamepadInfo1.right_stick_x, gamepadInfo1.right_bumper);
             gamepad1 = gamepadInfo1;
             gamepad2 = gamepadInfo2;
         }

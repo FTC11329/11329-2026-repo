@@ -68,7 +68,7 @@ public class Constants {
     }
 
     public static class Turret {
-        public static double closeEnough = 12; //Inches
+        public static double closeEnough = 8; //Inches
         public static double turretOffset = 0;
 
 
