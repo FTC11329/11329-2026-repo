@@ -21,6 +21,7 @@ public class SplineCurve implements Curve {
     private final List<Pose> controlVelocities;
     private final List<Double> times;
     private final ElapsedTime timer;
+    private float startTime = 0;
 
     private double totalTime;
     private PathConstraints pathConstraints;
@@ -85,9 +86,9 @@ public class SplineCurve implements Curve {
 
         length = approximateLength();
         initializePanelsDrawingPoints();
+        startTime = System.nanoTime();
 
         initialized = true;
-        timer.reset();
     }
 
     private void initializePanelsDrawingPoints() {

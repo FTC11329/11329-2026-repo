@@ -214,7 +214,7 @@ public class Robot {
     }
 
     public void prepareShooter() {
-        shootOnTheFly(false);
+        shootOnTheFly(true);
     }
 
     //corrects the hood, turret, and shooter rpm
@@ -276,7 +276,7 @@ public class Robot {
         Vector robotAcceleration = follower.getAcceleration();
 
         double goalPositionIterations = 3; // increase for accuracy decrease for efficiency
-        double accelerationCompensationFactor = .2; //tune to account for change in velocity as ball is shot
+        double accelerationCompensationFactor = 0; //tune to account for change in velocity as ball is shot
 
         double shotTime = shooterTestValues.get(robotPose.distanceFrom(goal)).timeInFlight;
 
@@ -299,13 +299,23 @@ public class Robot {
 
             shotTime = newShotTime;
         }
+
         ShooterState futureShooterParams = shooterTestValues.get(getCurrentPose().distanceFrom(correctedGoal));
+
+        // Logic for heading to goal
+        double deltaX = correctedGoal.getX() - robotPose.getX();
+        double deltaY = correctedGoal.getY() - robotPose.getY();
+        double angleToGoal = Math.toDegrees(Math.atan2(deltaY, deltaX));
+
+        // Sets Turret angle
+        turret.setTargetDeg(angleToGoal - Math.toDegrees(angleToGoal));
 
         // Sets shooter rpm
         shooter.adjustTargetRPM(futureShooterParams.rpm);
 
         // gets hood angle
         shooter.setHoodDeg(futureShooterParams.hoodAngle);
+        telemetry.addData("HoodAngle", futureShooterParams.hoodAngle);
     }
 
     public void shootAny() {

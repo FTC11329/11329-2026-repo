@@ -103,6 +103,6 @@ public class Turret {
         return encoder.getCurrentPosition() + encoderOffset;
     }
     public boolean closeEnoughToTarget(Pose robotPose) {
-        return robotPose.distanceFrom(goalPose) * Math.sin(Math.toRadians(Math.abs(turretPID.getError()))) <= Constants.Turret.closeEnough;
+        return robotPose.distanceFrom(goalPose) * Math.sin(Math.toRadians(Math.abs(turretPID.getError()/4))) <= Constants.Turret.closeEnough;
     }
 }
