@@ -257,7 +257,7 @@ public class Robot {
 
     }
 
-    public void shootOnTheFly () {
+    public void shootOnTheFly (boolean oldValues) {
         Pose robotPose = getCurrentPose();
 
         if (robotSide == RobotSide.Blue)  {
@@ -266,14 +266,17 @@ public class Robot {
             goal = Constants.Vision.redGoal;
         }
 
-        ShooterValuesParent stv = shooterTestValues;
+        ShooterValuesParent shooterTestValues;
+        if (oldValues) {shooterTestValues = this.shooterTestValues;}
+        else {shooterTestValues = newShooterTestValues;}
+
         Vector robotVelocity = follower.getVelocity();
-        Vector robotAcceleration = follower.getVelocity();
+        Vector robotAcceleration = follower.getAcceleration();
 
         double goalPositionIterations = 3; // increase for accuracy decrease for efficiency
         double accelerationCompensationFactor = .2; //tune to account for change in velocity as ball is shot
 
-        double shotTime = stv.get(robotPose.distanceFrom(goal)).timeInFlight;
+        double shotTime = shooterTestValues.get(robotPose.distanceFrom(goal)).timeInFlight;
 
         Pose correctedGoal = new Pose();
         for (int i = 0; i < goalPositionIterations; i++) { //todo: ensure that velocity and acceleration units match
@@ -286,7 +289,7 @@ public class Robot {
 
             correctedGoal = new Pose(virtualGoalX, virtualGoalY);
 
-            double newShotTime = stv.get(robotPose.distanceFrom(correctedGoal)).timeInFlight;
+            double newShotTime = shooterTestValues.get(robotPose.distanceFrom(correctedGoal)).timeInFlight;
 
             if (Math.abs(newShotTime - shotTime) <= 0.010) {
                 break;
@@ -294,7 +297,7 @@ public class Robot {
 
             shotTime = newShotTime;
         }
-        ShooterState futureShooterParams = stv.get(getCurrentPose().distanceFrom(correctedGoal));
+        ShooterState futureShooterParams = shooterTestValues.get(getCurrentPose().distanceFrom(correctedGoal));
 
         // Sets shooter rpm
         shooter.setTargetRPM(futureShooterParams.rpm);
