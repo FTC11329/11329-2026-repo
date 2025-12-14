@@ -10,6 +10,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.control.PIDFCoefficients;
 import org.firstinspires.ftc.teamcode.pedroPathing.control.PIDFController;
+import org.firstinspires.ftc.teamcode.pedroPathing.control.MovingPIDFController;
 
 public class Shooter {
     // declaring motor variables
@@ -24,7 +25,7 @@ public class Shooter {
     double targetVelocity;
 
     double hoodPos = 0;
-    public PIDFController shooterPID;
+    public MovingPIDFController shooterPID;
     
     boolean shooterSpin;
 
@@ -44,7 +45,7 @@ public class Shooter {
         hoodServo2.setDirection(Servo.Direction.REVERSE);
         hoodServo2.setPosition(0);
 
-        shooterPID = new PIDFController(Constants.Shooter.shooterVelocityPID);
+        shooterPID = new MovingPIDFController(Constants.Shooter.shooterVelocityPID);
         shooterPID.reset();
         shooterPID.updateFeedForwardInput(1);
     }
@@ -97,6 +98,16 @@ public class Shooter {
         double targetVel = rpmToVelocity(targetRPM);
         shooterPID.setTargetPosition(targetVel);
         shooterSpin = true;
+    }
+    // this is for when you want to continuously change the RPM of the flywheel
+    public void adjustTargetRPM(double targetRPM) {
+        usePID = true;
+        double targetVel = rpmToVelocity(targetRPM);
+        shooterPID.moveTargetPosition(targetVel);
+        shooterSpin = true;
+    }
+    public void resetController() {
+        shooterPID.resetController();
     }
 
     public void stopShooter(){

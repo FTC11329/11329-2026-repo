@@ -82,6 +82,7 @@ public class Robot {
         shooterTestValues = new ShooterTestValues();
         newShooterTestValues = new NewShooterTestValues();
         follower.resetIMU();
+        shooter.resetController();
     }
     // VISION**************************************************************************************~
     public void getMotif() {
@@ -250,7 +251,7 @@ public class Robot {
         ShooterState futureShooterParams = stv.get(futrPose.distanceFrom(goal));
 
         // Sets shooter rpm
-        shooter.setTargetRPM(futureShooterParams.rpm);
+        shooter.adjustTargetRPM(futureShooterParams.rpm);
 
         // gets hood angle
         shooter.setHoodDeg(futureShooterParams.hoodAngle);
@@ -265,6 +266,7 @@ public class Robot {
         } else {
             goal = Constants.Vision.redGoal;
         }
+        goal = goal.plus(offsetPose);
 
         ShooterValuesParent shooterTestValues;
         if (oldValues) {shooterTestValues = this.shooterTestValues;}
@@ -300,7 +302,7 @@ public class Robot {
         ShooterState futureShooterParams = shooterTestValues.get(getCurrentPose().distanceFrom(correctedGoal));
 
         // Sets shooter rpm
-        shooter.setTargetRPM(futureShooterParams.rpm);
+        shooter.adjustTargetRPM(futureShooterParams.rpm);
 
         // gets hood angle
         shooter.setHoodDeg(futureShooterParams.hoodAngle);
