@@ -26,7 +26,7 @@ public class Timer {
         resetTimer(0);
     }
 
-    public resetTimer(double startMs) {
+    public void resetTimer(long startMs) {
         startTime = System.currentTimeMillis() + startMs;
     }
 

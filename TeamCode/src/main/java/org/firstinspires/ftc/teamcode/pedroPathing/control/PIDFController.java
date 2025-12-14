@@ -113,8 +113,8 @@ public class PIDFController implements Controller {
      */
     public void setTargetPosition(double set) {
         targetPosition = set;
-        errorIntegral = 0;
-        error = targetPosition - position;
+//        errorIntegral = 0;
+//        error = targetPosition - position;
     }
 
     /**

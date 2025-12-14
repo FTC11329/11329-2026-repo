@@ -249,7 +249,7 @@ public class AutoReplayTime {
             y[i] = currentReplayStates.poseList.get(i).y;
             theta[i] = currentReplayStates.poseList.get(i).heading;
         }
-
+        velocities.add(new Pose((x[0] - x[1]) / (t[0] - t[1]), (y[0] - y[1]) / (t[0] - t[1]), (theta[0] - theta[1]) / (t[0] - t[1])));
         for (int i = 1; i < n; i += 1){
             double dt = t[i - 1] - t[i];
             velocities.add(new Pose((x[i - 1] - x[i]) / dt, (y[i - 1] - y[i]) / dt, (theta[i - 1] - theta[i]) / dt));

@@ -1,9 +1,23 @@
+package org.firstinspires.ftc.teamcode.subsystems;
+
+import com.qualcomm.hardware.rev.RevColorSensorV3;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.NormalizedRGBA;
+import com.qualcomm.robotcore.hardware.Servo;
+
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.util.BallColor;
+import org.firstinspires.ftc.teamcode.util.ColorFunctions;
 import org.firstinspires.ftc.teamcode.util.IndexerEnums;
 
-public class SmartIndexer {
+import java.util.Arrays;
+
+
+/*public class SmartIndexer {
     // declaring motor variables
     Servo spindexer1;
     Servo spindexer2;
@@ -516,3 +530,5 @@ public class SmartIndexer {
         //     1   2 | 2   0 | 0   1 | 1   2 
 
 }
+
+ */

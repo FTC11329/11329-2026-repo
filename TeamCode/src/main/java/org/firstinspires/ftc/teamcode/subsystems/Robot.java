@@ -214,7 +214,7 @@ public class Robot {
     }
 
     public void prepareShooter() {
-        prepareShooter(false);
+        shootOnTheFly(false);
     }
 
     //corrects the hood, turret, and shooter rpm

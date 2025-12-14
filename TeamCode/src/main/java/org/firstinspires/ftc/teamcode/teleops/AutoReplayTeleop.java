@@ -70,6 +70,7 @@ public class AutoReplayTeleop {
 
         robot = new Robot(telemetry, hardwareMap, robotSide, startTurretTicks);
         autoReplay = new AutoReplayTime(robot.follower, telemetry, gamepadInfo1, gamepadInfo2);
+        autoReplay.init();
 
         intake = new FancyButton(FancyButton.PressType.Toggle);
         spitIntake = new FancyButton(FancyButton.PressType.LongPress);

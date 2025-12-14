@@ -17,6 +17,11 @@ public class AutoReplayMode extends OpMode {
     }
 
     @Override
+    public void start(){
+        autoReplay.start();
+    }
+
+    @Override
     public void loop() {
         autoReplay.loop();
     }
