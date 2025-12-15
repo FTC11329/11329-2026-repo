@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.teleops;
 
-import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.bylazar.ftcontrol.panels.Panels;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -28,14 +27,14 @@ public class PIDFTunerTurret extends OpMode {
 
     public double p, i, d, f = 0;
 
-    FtcDashboard dashboard;
+    Panels dashboard;
 
     @Override
     public void init() {
         robot = new Robot(telemetry, hardwareMap, RobotSide.Blue, 0);
         titles = Arrays.asList("startPose", "scorePose", "collectI1", "collectF1", "collectI2", "collectF2","collectI3", "collectF3");
         poses = Arrays.asList(null, null, null, null, null, null, null, null);
-        dashboard = FtcDashboard.getInstance();
+        dashboard = Panels.getInstance();
     }
 
     @Override
@@ -70,9 +69,6 @@ public class PIDFTunerTurret extends OpMode {
         telemetry.addData("i", i);
         telemetry.addData("d", d);
         telemetry.addData("f", f);
-        TelemetryPacket packet = new TelemetryPacket();
-        packet.put("Motor Velocity", robot.shooter.getRPM()); // motor speed in ticks/sec
-        dashboard.sendTelemetryPacket(packet);
 
         robot.update();
     }
