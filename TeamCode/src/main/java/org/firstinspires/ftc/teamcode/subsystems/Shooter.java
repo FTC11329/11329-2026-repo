@@ -106,6 +106,8 @@ public class Shooter {
         shooterPID.moveTargetPosition(targetVel);
         shooterSpin = true;
     }
+    public double getTargetRpm() {return targetVelocity * 60 / Constants.Shooter.ticksPerRevolution;}
+    public double getTargetHoodAngle() {}
     public void resetController() {
         shooterPID.resetController();
     }

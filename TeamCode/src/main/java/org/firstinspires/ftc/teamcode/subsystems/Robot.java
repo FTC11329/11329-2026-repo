@@ -263,6 +263,50 @@ public class Robot {
         shooter.setHoodDeg(futureShooterParams.hoodAngle);
 
     }
+    public void prepareShooter(Double rpmOffset, Double hoodAngleOffset) {
+
+        // Gets current Pose
+        Pose curPose = getCurrentPose();
+
+        // Gets goal Pose
+        if (robotSide == RobotSide.Blue)  {
+            goal = Constants.Vision.blueGoal;
+        } else {
+            goal = Constants.Vision.redGoal;
+        }
+
+        ShooterValuesParent stv = shooterTestValues;
+
+        goal = goal.plus(offsetPose); //Todo: get rid of
+
+        Pose futrGoal = goal;
+
+        for (int i = 0; i <= 3; i++) {
+            // Est Time In Flight for ball at current pose
+            double timeInFlight = stv.get(curPose.distanceFrom(futrGoal)).timeInFlight;
+
+            // Logic for future pose
+            futrGoal = goal.plusVector(follower.getVelocity(), - timeInFlight);
+        }
+
+        // Logic for heading to goal
+        double deltaX = futrGoal.getX() - curPose.getX();
+        double deltaY = futrGoal.getY() - curPose.getY();
+        double angleToGoal = Math.toDegrees(Math.atan2(deltaY, deltaX));
+
+        // Sets Turret angle
+        turret.setTargetDeg(angleToGoal - Math.toDegrees(curPose.getHeading()));
+
+        // Gets shooter params based on future pose
+        ShooterState futureShooterParams = stv.get(curPose.distanceFrom(futrGoal));
+
+        // Sets shooter rpm
+        shooter.adjustTargetRPM(futureShooterParams.rpm + rpmOffset);
+
+        // gets hood angle
+        shooter.setHoodDeg(futureShooterParams.hoodAngle + hoodAngleOffset);
+
+    }
 
     public void shootOnTheFly (boolean oldValues) {
         Pose robotPose = getCurrentPose();
