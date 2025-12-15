@@ -8,7 +8,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.core.drivetrains.MecanumConst
 import org.firstinspires.ftc.teamcode.pedroPathing.core.localization.constants.PinpointConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.paths.PathConstraints;
 
-import com.bylazar.ftcontrol.panels.configurables.annotations.Configurable;
+import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -17,7 +17,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 @Configurable
-@com.bylazar.configurables.annotations.Configurable
 public class Constants {
     public static FollowerConstants followerConstants = new FollowerConstants()
             .mass(9.97)

@@ -1,7 +1,8 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import com.bylazar.ftcontrol.panels.Panels;
-import com.bylazar.ftcontrol.panels.integration.TelemetryManager;
+import com.bylazar.panels.Panels;
+import com.bylazar.telemetry.PanelsTelemetry;
+import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -65,7 +66,7 @@ public class Robot {
     public Robot(Telemetry telemetry, HardwareMap hardwareMap, RobotSide robotSide, int startTurretTicks) {
         this.telemetry = telemetry;
         this.robotSide = robotSide;
-        panelsTelemetry = Panels.getTelemetry();
+        panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
         stilts = new Stilts(hardwareMap);
         intake = new Intake(hardwareMap);
         vision = new Vision(hardwareMap, robotSide);
@@ -546,11 +547,11 @@ public class Robot {
 //            telemetry.addData("hood", shooter.getHoodPosDeg());
 //            telemetry.addData("rpm", shooter.getRPM());
 
-//             panelsTelemetry.graph("turret target", turret.turretPID.getTargetPosition());
-//             panelsTelemetry.graph("turret actual", turret.getAngle());
-//             panelsTelemetry.graph("shooter target", shooter.shooterPID.getTargetPosition());
-//             panelsTelemetry.graph("shooter actual", shooter.getVelocity());
-//             panelsTelemetry.update(telemetry);
+             panelsTelemetry.addData("turret target", turret.turretPID.getTargetPosition());
+             panelsTelemetry.addData("turret actual", turret.getAngle());
+             panelsTelemetry.addData("shooter target", shooter.shooterPID.getTargetPosition());
+             panelsTelemetry.addData("shooter actual", shooter.getVelocity());
+             panelsTelemetry.update(telemetry);
 
         }
     }

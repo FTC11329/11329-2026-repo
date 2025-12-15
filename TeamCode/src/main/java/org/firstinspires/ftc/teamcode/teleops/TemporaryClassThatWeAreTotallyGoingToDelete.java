@@ -1,7 +1,8 @@
 package org.firstinspires.ftc.teamcode.teleops;
 
-import com.bylazar.ftcontrol.panels.Panels;
-import com.bylazar.ftcontrol.panels.integration.TelemetryManager;
+import com.bylazar.panels.Panels;
+import com.bylazar.telemetry.PanelsTelemetry;
+import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -19,7 +20,7 @@ public class TemporaryClassThatWeAreTotallyGoingToDelete extends OpMode {
     @Override
     public void init() {
         robot = new Robot(telemetry, hardwareMap, RobotSide.Blue, 0);
-        panelsTelemetry = Panels.getTelemetry();
+        panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
     }
 
     @Override
@@ -28,8 +29,8 @@ public class TemporaryClassThatWeAreTotallyGoingToDelete extends OpMode {
         double power2 = -gamepad1.left_stick_y;
         panelsTelemetry.debug("wave: $wave");
         panelsTelemetry.debug("wave2: $wave2");
-        panelsTelemetry.graph("wave", power1);
-        panelsTelemetry.graph("wave2", power2);
+        panelsTelemetry.addData("wave", power1);
+        panelsTelemetry.addData("wave2", power2);
         panelsTelemetry.update(telemetry);
         robot.turret.setPower(power1);
     }

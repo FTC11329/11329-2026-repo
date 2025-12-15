@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.teleops;
 
-import com.bylazar.ftcontrol.panels.Panels;
+import com.bylazar.panels.Panels;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -34,7 +34,7 @@ public class PIDFTuner extends OpMode {
         robot = new Robot(telemetry, hardwareMap, RobotSide.Blue, 0);
         titles = Arrays.asList("startPose", "scorePose", "collectI1", "collectF1", "collectI2", "collectF2","collectI3", "collectF3");
         poses = Arrays.asList(null, null, null, null, null, null, null, null);
-        dashboard = Panels.getInstance();
+        dashboard = Panels.INSTANCE;
     }
 
     @Override

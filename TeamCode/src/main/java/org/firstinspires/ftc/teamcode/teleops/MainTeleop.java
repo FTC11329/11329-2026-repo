@@ -117,7 +117,7 @@ public class MainTeleop {
 
     public void init_loop() {
         telemetry.addLine("Use gamepad 2 Dpad to change Start Position");
-        telemetry.addData("Actually Working", true);
+        telemetry.addData("If this works, I get to go home", true);
 
         resetPose.checkStatus(gamepad2.y);
 

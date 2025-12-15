@@ -55,12 +55,13 @@ repositories {
 
 dependencies {
     implementation project(':FtcRobotController')
+
     annotationProcessor files('lib/OpModeAnnotationProcessor.jar')
 
-    implementation 'com.bylazar:ftcontrol:0.6.8'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.7'
 
     implementation 'dev.frozenmilk.sinister:Sloth:0.2.4'
 
-    implementation "com.bylazar:configurables:1.0.4"
+    implementation 'com.bylazar:fullpanels:1.0.10'
+    implementation "com.bylazar:graph:1.0.4"
 }

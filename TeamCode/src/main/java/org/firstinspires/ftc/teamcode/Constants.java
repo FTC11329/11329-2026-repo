@@ -10,9 +10,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.pedroPathing.control.PIDFCoefficients;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 
+@Configurable
 public class Constants {
 
-    @com.bylazar.ftcontrol.panels.configurables.annotations.Configurable
     public static class Indexer {
         public static double spindexPower = 0.9;
 

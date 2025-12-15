@@ -8,12 +8,12 @@ import static org.firstinspires.ftc.teamcode.pedroPathing.Tuning.stopRobot;
 import static org.firstinspires.ftc.teamcode.pedroPathing.Tuning.telemetryM;
 
 import com.bylazar.configurables.PanelsConfigurables;
-import com.bylazar.configurables.annotations.Configurable;
+
 import com.bylazar.configurables.annotations.IgnoreConfigurable;
+
 import com.bylazar.field.FieldManager;
 import com.bylazar.field.PanelsField;
 import com.bylazar.field.Style;
-import com.bylazar.ftcontrol.panels.Panels;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
@@ -728,7 +728,7 @@ class LateralZeroPowerAccelerationTuner extends OpMode {
  * @version 1.0, 3/12/2024
  */
 class TranslationalTuner extends OpMode {
-    com.bylazar.ftcontrol.panels.integration.TelemetryManager panelsTelemetry;
+    TelemetryManager panelsTelemetry;
 
     public static double DISTANCE = 40;
     private boolean forward = true;
@@ -738,7 +738,7 @@ class TranslationalTuner extends OpMode {
 
     @Override
     public void init() {
-        panelsTelemetry = Panels.getTelemetry();
+        panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
     }
 
     /** This initializes the Follower and creates the forward and backward Paths. */
@@ -786,9 +786,9 @@ class TranslationalTuner extends OpMode {
         telemetryM.addData("heading error", follower.drivetrain.vectors[2]);
         telemetryM.update(telemetry);
 
-        panelsTelemetry.graph("errorx", follower.getTranslationalError().getXComponent());
-        panelsTelemetry.graph("errory", follower.getTranslationalError().getYComponent());
-        panelsTelemetry.graph("0", 0);
+        panelsTelemetry.addData("errorx", follower.getTranslationalError().getXComponent());
+        panelsTelemetry.addData("errory", follower.getTranslationalError().getYComponent());
+        panelsTelemetry.addData("0", 0);
         panelsTelemetry.update(telemetry);
 
     }
@@ -806,7 +806,7 @@ class TranslationalTuner extends OpMode {
  * @version 1.0, 3/12/2024
  */
 class HeadingTuner extends OpMode {
-    com.bylazar.ftcontrol.panels.integration.TelemetryManager panelsTelemetry;
+    TelemetryManager panelsTelemetry;
 
     public static double DISTANCE = 40;
     private boolean forward = true;
@@ -816,7 +816,7 @@ class HeadingTuner extends OpMode {
 
     @Override
     public void init() {
-        panelsTelemetry = Panels.getTelemetry();
+        panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
     }
 
     /**
@@ -865,8 +865,8 @@ class HeadingTuner extends OpMode {
 
         telemetryM.debug("Turn the robot manually to test the Heading PIDF(s).");
         telemetryM.update(telemetry);
-        panelsTelemetry.graph("error", follower.getHeadingError());
-        panelsTelemetry.graph("0", 0);
+        panelsTelemetry.addData("error", follower.getHeadingError());
+        panelsTelemetry.addData("0", 0);
         panelsTelemetry.update(telemetry);
     }
 }
@@ -881,7 +881,7 @@ class HeadingTuner extends OpMode {
  * @version 1.0, 3/12/2024
  */
 class DriveTuner extends OpMode {
-    com.bylazar.ftcontrol.panels.integration.TelemetryManager panelsTelemetry;
+    TelemetryManager panelsTelemetry;
 
     public static double DISTANCE = 40;
     private boolean forward = true;
@@ -891,7 +891,7 @@ class DriveTuner extends OpMode {
 
     @Override
     public void init() {
-        panelsTelemetry = Panels.getTelemetry();
+        panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
     }
 
     /**
@@ -949,9 +949,9 @@ class DriveTuner extends OpMode {
 
         telemetryM.debug("Driving forward?: " + forward);
         telemetryM.update(telemetry);
-        panelsTelemetry.graph("error", follower.getDriveError());
-        panelsTelemetry.graph("time", time);
-        panelsTelemetry.graph("0", 0);
+        panelsTelemetry.addData("error", follower.getDriveError());
+        panelsTelemetry.addData("time", time);
+        panelsTelemetry.addData("0", 0);
         panelsTelemetry.update(telemetry);
     }
 }

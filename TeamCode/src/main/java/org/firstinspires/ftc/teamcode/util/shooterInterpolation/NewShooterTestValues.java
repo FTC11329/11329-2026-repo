@@ -1,9 +1,8 @@
 package org.firstinspires.ftc.teamcode.util.shooterInterpolation;
 
-import com.bylazar.ftcontrol.panels.configurables.annotations.Configurable;
+import com.bylazar.configurables.annotations.Configurable;
 
 @Configurable
-@com.bylazar.configurables.annotations.Configurable
 public class NewShooterTestValues implements ShooterValuesParent{
     private static final ShooterTreeInterpolation shooterMap = new ShooterTreeInterpolation();
 
