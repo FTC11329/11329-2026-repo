@@ -6,27 +6,19 @@ import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
-import org.firstinspires.ftc.robotcore.external.navigation.Position;
-import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
-import org.firstinspires.ftc.teamcode.pedroPathing.math.Matrix;
 import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
 import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterState;
-import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterTestValues;
+import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterTestValuesV1;
 
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 public class Vision {
-    ShooterTestValues shooterTestValues;
+    ShooterTestValuesV1 shooterTestValuesV1;
 
 
     RobotSide robotSide;
@@ -46,7 +38,7 @@ public class Vision {
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
         limelight.start();
 
-        shooterTestValues = new ShooterTestValues();
+        shooterTestValuesV1 = new ShooterTestValuesV1();
     }
 
     public Pose getRobotPose() {
@@ -102,7 +94,7 @@ public class Vision {
         double dst = distancePose.returnPolar()[0];
         double heading = distancePose.returnPolar()[1];
         // This extracts what the optimal shooting paramaters are from interpolating tested values
-        ShooterState shooterState = shooterTestValues.get(dst);
+        ShooterState shooterState = shooterTestValuesV1.get(dst);
         // This converts the Hood Angle and RPM to actual velocity vectors
         double vx = Math.cos(Math.toRadians(shooterState.hoodAngle)) * RPMToVelocity(shooterState.rpm);
         double vy = Math.sin(Math.toRadians(shooterState.hoodAngle)) * RPMToVelocity(shooterState.rpm);

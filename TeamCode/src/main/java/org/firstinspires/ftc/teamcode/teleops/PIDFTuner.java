@@ -12,7 +12,6 @@ import org.firstinspires.ftc.teamcode.util.RobotSide;
 
 import java.util.Arrays;
 import java.util.List;
-
 @TeleOp(name = "Shooter PIDF tuner", group = "zgroup")
 public class PIDFTuner extends OpMode {
     //This is where we introduce the tele-operated controls

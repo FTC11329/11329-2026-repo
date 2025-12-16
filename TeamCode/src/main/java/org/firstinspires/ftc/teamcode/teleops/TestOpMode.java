@@ -99,31 +99,6 @@ public class TestOpMode extends OpMode {
             robot.indexer.setIndexerPower(0);
             robot.intake.setIntakePower(0);
         }
-        if (gamepad2.dpad_up) {
-            shooterDeg += 0.3;
-        } else if (gamepad2.dpad_down) {
-            shooterDeg -= 0.3;
-        }
-        telemetry.addData("shooter Deg", shooterDeg);
-        robot.shooter.setHoodDeg(shooterDeg);
-
-        if (gamepad2.y) {
-            shooterRPM += 4;
-        } else if (gamepad2.a) {
-            shooterRPM -= 4;
-        }
-        if (press1.startPress) {
-            shooterRPM += 500;
-        } else if (press2.startPress) {
-            shooterRPM -= 500;
-        }
-
-        if (lastShooterRPM != shooterRPM) {
-            robot.setShooterTargetRPM(shooterRPM);
-        }
-        telemetry.addData("tar shooterRPM", shooterRPM);
-        telemetry.addData("Distance", robot.getCurrentPose().distanceFrom(Constants.Vision.blueGoal));
-
 
         robotPose = robot.getCurrentPose();
         lastShooterRPM = shooterRPM;

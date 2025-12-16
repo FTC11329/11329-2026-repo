@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 public class Constants {
 
     public static class Indexer {
-        public static double spindexPower = 0.9;
+        public static double spindexPower = 0.45;
 
         public static double timeToMoveIndexer1Index = 0.9;
 
@@ -85,7 +85,7 @@ public class Constants {
     }
     public static class Shooter {
         public static double maxHoodAngle = 53.5;
-        public static double closeEnoughRPM = 90;
+        public static double closeEnoughRPM = 50;
         public static double ticksPerRevolution = 28;
         public static double P = 0.015;
         public static double I = 0;

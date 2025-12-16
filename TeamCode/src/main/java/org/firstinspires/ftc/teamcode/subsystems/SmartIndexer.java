@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.util.BallColor;
@@ -17,7 +18,7 @@ import org.firstinspires.ftc.teamcode.util.IndexerEnums;
 import java.util.Arrays;
 
 
-/*public class SmartIndexer {
+public class SmartIndexer {
     // declaring motor variables
     Servo spindexer1;
     Servo spindexer2;
@@ -47,8 +48,8 @@ import java.util.Arrays;
     public SmartIndexer(HardwareMap hardwaremap) {
         spindexer1 = hardwaremap.get(Servo.class, "spindexer1");
         spindexer2 = hardwaremap.get(Servo.class, "spindexer2");
-        spindexer1.setDirection(DcMotorSimple.Direction.FORWARD);
-        spindexer2.setDirection(DcMotorSimple.Direction.FORWARD);
+        spindexer1.setDirection(Servo.Direction.FORWARD);
+        spindexer2.setDirection(Servo.Direction.FORWARD);
 
         feeder = hardwaremap.get(DcMotorEx.class, "transfer");
         feeder.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -63,7 +64,8 @@ import java.util.Arrays;
     }
 
     // DO NOT USE THESE FUNCTIONS TO MOVE THE INDEXER DURING NORMAL OPERATION. USE UPDATE() INSTEAD
-    private void setIndexerPos(double set) {
+    //todo p100000 make private
+    public void setIndexerPos(double set) {
         if (lastIndexerPos != set) {
             lastIndexerPos = set;
             spindexer1.setPosition(set);
@@ -103,7 +105,7 @@ import java.util.Arrays;
         return colorSensor.getNormalizedColors();
     }
     public BallColor getColor(){
-        return ColorFunctions.toColor(getColorRGBA(), getDistance(DistanceUnit.INCH));
+        return ColorFunctions.toColor(getColorRGBA(), getDistance());
     }
     public double getDistance(){
         return colorSensor.getDistance(DistanceUnit.INCH);
@@ -133,60 +135,62 @@ import java.util.Arrays;
     // Helper method to calculate rotations needed to move a ball to top
     private int calculateRotationsToTop(int ballIndex) {
         // Simplified: assume we want to rotate clockwise
-        return (ballIndex - currentIndexAtBottem + 3) % 3;
+        return (ballIndex - getCurrentIndexAtBottem() + 3) % 3;
     }
     // Functions to get current index positions ***************************************~
     // Gets the current index at the bottom and shooter positions based on current state
     public int getCurrentIndexAtBottem(){
         switch (currentIndexerState) {
-            case IndexerEnums.StoreTlBTr012Revrese:
+            case StoreTlBTr012Revrese:
                 return 1;
-            case IndexerEnums.StoreTlBTr120:
+            case StoreTlBTr120:
                 return 2;
-            case IndexerEnums.StoreTlBTr201:
+            case StoreTlBTr201:
                 return 0;
-            case IndexerEnums.StoreTlBTr012:
+            case StoreTlBTr012:
                 return 1;
         }
+        return -2000000000;
     }
 
     // Gets the current index at the shooter position based on current state
     public int getCurrentIndexAtShooter(){
         switch (currentIndexerState) {
-            case IndexerEnums.TransferTBlBr012Reverse:
+            case TransferTBlBr012Reverse:
                 return 0;
-            case IndexerEnums.TransferTBlBr120:
+            case TransferTBlBr120:
                 return 1;
-            case IndexerEnums.TransferTBlBr201:
+            case TransferTBlBr201:
                 return 2;
-            case IndexerEnums.TransferTBlBr012:
+            case TransferTBlBr012:
                 return 0;
         }
+        return -2000000000;
     }
 
     // Functions to get order of indexer states ***************************************~
     // Returns the prefered order of indexer states to store a new ball based on current state
     public IndexerEnums[] getPreferedIndexToStore() {
         switch (currentIndexerState) {
-            case IndexerEnums.StoreTlBTr012Revrese:
+            case StoreTlBTr012Revrese:
                 return new IndexerEnums[]{
                     IndexerEnums.StoreTlBTr120,
                     IndexerEnums.StoreTlBTr201,
                     IndexerEnums.StoreTlBTr012
                 };
-            case IndexerEnums.StoreTlBTr120:
+            case StoreTlBTr120:
                 return new IndexerEnums[]{
                     IndexerEnums.StoreTlBTr201,
                     IndexerEnums.StoreTlBTr012Revrese,
                     IndexerEnums.StoreTlBTr012
                 };
-            case IndexerEnums.StoreTlBTr201:
+            case StoreTlBTr201:
                 return new IndexerEnums[]{
                     IndexerEnums.StoreTlBTr120,
                     IndexerEnums.StoreTlBTr012,
                     IndexerEnums.StoreTlBTr012Revrese
                 };
-            case IndexerEnums.StoreTlBTr012:
+            case StoreTlBTr012:
                 return new IndexerEnums[] {
                     IndexerEnums.StoreTlBTr201,
                     IndexerEnums.StoreTlBTr120,
@@ -199,31 +203,32 @@ import java.util.Arrays;
     // Returns the prefered order of indexer states to transfer a new ball based on current state
     public IndexerEnums[] getPreferedIndexToTransfer() {
         switch (currentIndexerState) {
-            case IndexerEnums.StoreTlBTr012Revrese:
+            case StoreTlBTr012Revrese:
                 return new IndexerEnums[]{
                     IndexerEnums.TransferTBlBr012,
                     IndexerEnums.TransferTBlBr120,
                     IndexerEnums.TransferTBlBr201
                 };
-            case IndexerEnums.StoreTlBTr120:
+            case StoreTlBTr120:
                 return new IndexerEnums[]{
                     IndexerEnums.TransferTBlBr120,
                     IndexerEnums.TransferTBlBr012Reverse,
                     IndexerEnums.TransferTBlBr201
                 };
-            case IndexerEnums.StoreTlBTr201:
+            case StoreTlBTr201:
                 return new IndexerEnums[]{
                     IndexerEnums.TransferTBlBr120,
                     IndexerEnums.TransferTBlBr201,
                     IndexerEnums.TransferTBlBr012Reverse // or 012, either works
                 };
-            case IndexerEnums.StoreTlBTr012:
+            case StoreTlBTr012:
                 return new IndexerEnums[] {
                     IndexerEnums.TransferTBlBr201,
                     IndexerEnums.TransferTBlBr012,
                     IndexerEnums.TransferTBlBr120
                 };
         }
+        return null;
     }
 
     // Functions for converting a Indexer Enum to ball colors ******************************~
@@ -239,6 +244,7 @@ import java.util.Arrays;
             case StoreTlBTr012:
                 return hasBalls[1];
         }
+        return null;
     }
 
     // Returns the ball color at the top left or top right position if it were at given a store state
@@ -253,6 +259,7 @@ import java.util.Arrays;
             case StoreTlBTr012:
                 return new BallColor[]{hasBalls[0], hasBalls[2]};
         }
+        return null;
     }
     
     // Returns the ball color at the top position if it were at given a transfer state
@@ -267,6 +274,7 @@ import java.util.Arrays;
             case TransferTBlBr012:
                 return hasBalls[0];
         }
+        return null;
     }
 
     // Functions for deciding a state based on a ball color ******************************~
@@ -293,6 +301,7 @@ import java.util.Arrays;
                 return state;
             }
         }
+        return null;
     }
 
     // Returns the correct store state to move to for being ready to transfer a ball of given color
@@ -321,6 +330,7 @@ import java.util.Arrays;
                 }
             }
         }
+        return null;
     }
     
     // Returns the correct transfer state to move to for transferring a ball of given color
@@ -338,6 +348,7 @@ import java.util.Arrays;
                 return state;
             }
         }
+        return null;
     }
 
     // Functions to decide how long we are moving ***************************************~
@@ -362,8 +373,8 @@ import java.util.Arrays;
         };
 
         // Finds the indexes of the current and target states
-        int currentStateIndex = null;
-        int targetStateIndex = null;
+        int currentStateIndex = -10000000;
+        int targetStateIndex = -1000;
         for (int i = 0; i < IndexerStatesOrder.length; i++) {
             if (IndexerStatesOrder[i] == currentIndexerState) {
                 currentStateIndex = i;
@@ -385,37 +396,37 @@ import java.util.Arrays;
         movingTimer.resetTimer(getTimeToMoveToState(state));
         currentIndexerState = state;
         switch (state) {
-            case IndexerEnums.StoreTlBTr012Revrese:
-                setIndexerPos(Constants.StoreTlBTr012Revrese);
+            case StoreTlBTr012Revrese:
+                setIndexerPos(Constants.Indexer.StoreTlBTr012Revrese);
                 return;
 
-            case IndexerEnums.StoreTlBTr120:
-                setIndexerPos(Constants.StoreTlBTr120);
+            case StoreTlBTr120:
+                setIndexerPos(Constants.Indexer.StoreTlBTr120);
                 return;
 
-            case IndexerEnums.StoreTlBTr201:
-                setIndexerPos(Constants.StoreTlBTr201);
+            case StoreTlBTr201:
+                setIndexerPos(Constants.Indexer.StoreTlBTr201);
                 return;
 
-            case IndexerEnums.StoreTlBTr012:
-                setIndexerPos(Constants.StoreTlBTr012);
+            case StoreTlBTr012:
+                setIndexerPos(Constants.Indexer.StoreTlBTr012);
                 return;
 
 
-            case IndexerEnums.TransferTBlBr012Reverse:
-                setIndexerPos(Constants.TransferTBlBr012Reverse);
+            case TransferTBlBr012Reverse:
+                setIndexerPos(Constants.Indexer.TransferTBlBr012Reverse);
                 return;
 
-            case IndexerEnums.TransferTBlBr120:
-                setIndexerPos(Constants.TransferTBlBr120);
+            case TransferTBlBr120:
+                setIndexerPos(Constants.Indexer.TransferTBlBr120);
                 return;
 
-            case IndexerEnums.TransferTBlBr201:
-                setIndexerPos(Constants.TransferTBlBr201);
+            case TransferTBlBr201:
+                setIndexerPos(Constants.Indexer.TransferTBlBr201);
                 return;
 
-            case IndexerEnums.TransferTBlBr012:
-                setIndexerPos(Constants.TransferTBlBr012);
+            case TransferTBlBr012:
+                setIndexerPos(Constants.Indexer.TransferTBlBr012);
                 return;
         }
     }
@@ -423,31 +434,35 @@ import java.util.Arrays;
     // Returns if the given state is a store state
     public boolean isAStoreState(IndexerEnums state) {
         switch (state) {
-            case IndexerEnums.StoreTlBTr012Revrese:
+            case StoreTlBTr012Revrese:
                 return true;
 
-            case IndexerEnums.StoreTlBTr120:
+            case StoreTlBTr120:
                 return true;
 
-            case IndexerEnums.StoreTlBTr201:
+            case StoreTlBTr201:
                 return true;
 
-            case IndexerEnums.StoreTlBTr012:
+            case StoreTlBTr012:
                 return true;
 
 
-            case IndexerEnums.TransferTBlBr012Reverse:
+            case TransferTBlBr012Reverse:
                 return false;
 
-            case IndexerEnums.TransferTBlBr120:
+            case TransferTBlBr120:
                 return false;
 
-            case IndexerEnums.TransferTBlBr201:
+            case TransferTBlBr201:
                 return false;
 
-            case IndexerEnums.TransferTBlBr012:
+            case TransferTBlBr012:
                 return false;
         }
+
+        System.exit(0); // todo remove i hate jews-netanyahu
+
+        return false;
     }
 
 
@@ -473,7 +488,7 @@ import java.util.Arrays;
 
         if (readyToShoot) {
             allowIntakeing = false;
-            setIntakePos(getCorrectTransferStateForTransfer(transferColor));
+            setIndexerPos(getCorrectTransferStateForTransfer(transferColor));
         }
 
         if (movingTimer.getElapsedTimeSeconds() > 0) {
@@ -486,7 +501,7 @@ import java.util.Arrays;
                 if (readyToShoot) {
                     inShootingMode = true;
                 } else {
-                    setIntakePos(getCorrectStoreStateAfterIntake());
+                    setIndexerPos(getCorrectStoreStateAfterIntake());
                 }
             }
         }
@@ -496,11 +511,11 @@ import java.util.Arrays;
             transfer(readyToShoot);
             if (ballHasLeftShooter) {
                 hasBalls[getCurrentIndexAtShooter()] = BallColor.None;
-                setIntakePos(getCorrectStoreStateAfterIntake());
+                setIndexerPos(getCorrectStoreStateAfterIntake());
                 inShootingMode = false;
             }
             if (cancelShoot) {
-                setIntakePos    (getCorrectStoreStateAfterIntake());
+                setIndexerPos(getCorrectStoreStateAfterIntake());
                 inShootingMode = false;
             }
         } 
@@ -530,5 +545,3 @@ import java.util.Arrays;
         //     1   2 | 2   0 | 0   1 | 1   2 
 
 }
-
- */

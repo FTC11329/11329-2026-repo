@@ -214,10 +214,12 @@ public class TestingShooterValues {
         } else {
             goal = Constants.Vision.redGoal;
         }
-        telemetry.addData("distance", robot.getCurrentPose().distanceFrom(goal));
 
-        telemetry.addData("Encoder RPM", robot.shooter.getRPM());
+        telemetry.addData("distance", robot.getCurrentPose().distanceFrom(goal));
+        telemetry.addData("Actual RPM", robot.shooter.getRPM());
+        telemetry.addData("Target RPM", robot.shooter.getTargetRpm());
         telemetry.addData("Hood angle", robot.shooter.getHoodPosDeg());
+        telemetry.update();
     }
 
     public void stop() {

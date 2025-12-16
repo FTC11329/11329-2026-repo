@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import com.bylazar.panels.Panels;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -14,15 +13,14 @@ import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.math.Vector;
 import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
-import org.firstinspires.ftc.teamcode.util.shooterInterpolation.NewShooterTestValues;
+import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterTestValuesV2;
 import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterState;
-import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterTestValues;
+import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterTestValuesV1;
 import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterValuesParent;
 //todo import java.awt.Shape to make the inShootingZone() better 
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.function.Function;
 
 public class Robot {
     // Todo make private exept follower
@@ -38,8 +36,8 @@ public class Robot {
     public RobotSide robotSide;
 
 
-    ShooterTestValues shooterTestValues;
-    NewShooterTestValues newShooterTestValues;
+    ShooterTestValuesV1 shooterTestValuesV1;
+    ShooterTestValuesV2 shooterTestValuesV2;
     public ElapsedTime shooterTimer;
     TelemetryManager panelsTelemetry;
 
@@ -80,8 +78,8 @@ public class Robot {
         follower.setStartingPose(new Pose(0,0,0));
 
         shooterTimer = new ElapsedTime();
-        shooterTestValues = new ShooterTestValues();
-        newShooterTestValues = new NewShooterTestValues();
+        shooterTestValuesV1 = new ShooterTestValuesV1();
+        shooterTestValuesV2 = new ShooterTestValuesV2();
         follower.resetIMU();
         shooter.resetController();
     }
@@ -231,9 +229,9 @@ public class Robot {
             goal = Constants.Vision.redGoal;
         }
 
-        ShooterValuesParent stv = shooterTestValues;
+        ShooterValuesParent stv = shooterTestValuesV1;
 
-        goal = goal.plus(offsetPose); //Todo: get rid of
+        goal = goal.plus(offsetPose);
 
         Pose futrGoal = goal;
 
@@ -275,30 +273,21 @@ public class Robot {
             goal = Constants.Vision.redGoal;
         }
 
-        ShooterValuesParent stv = shooterTestValues;
+        ShooterValuesParent stv = shooterTestValuesV1;
 
-        goal = goal.plus(offsetPose); //Todo: get rid of
+        goal = goal.plus(offsetPose);
 
-        Pose futrGoal = goal;
-
-        for (int i = 0; i <= 3; i++) {
-            // Est Time In Flight for ball at current pose
-            double timeInFlight = stv.get(curPose.distanceFrom(futrGoal)).timeInFlight;
-
-            // Logic for future pose
-            futrGoal = goal.plusVector(follower.getVelocity(), - timeInFlight);
-        }
 
         // Logic for heading to goal
-        double deltaX = futrGoal.getX() - curPose.getX();
-        double deltaY = futrGoal.getY() - curPose.getY();
+        double deltaX = goal.getX() - curPose.getX();
+        double deltaY = goal.getY() - curPose.getY();
         double angleToGoal = Math.toDegrees(Math.atan2(deltaY, deltaX));
 
         // Sets Turret angle
         turret.setTargetDeg(angleToGoal - Math.toDegrees(curPose.getHeading()));
 
         // Gets shooter params based on future pose
-        ShooterState futureShooterParams = stv.get(curPose.distanceFrom(futrGoal));
+        ShooterState futureShooterParams = stv.get(curPose.distanceFrom(goal));
 
         // Sets shooter rpm
         shooter.adjustTargetRPM(futureShooterParams.rpm + rpmOffset);
@@ -308,7 +297,7 @@ public class Robot {
 
     }
 
-    public void shootOnTheFly (boolean oldValues) {
+    public void shootOnTheFly(boolean oldValues) {
         Pose robotPose = getCurrentPose();
 
         if (robotSide == RobotSide.Blue)  {
@@ -319,8 +308,8 @@ public class Robot {
         goal = goal.plus(offsetPose);
 
         ShooterValuesParent shooterTestValues;
-        if (oldValues) {shooterTestValues = this.shooterTestValues;}
-        else {shooterTestValues = newShooterTestValues;}
+        if (oldValues) {shooterTestValues = this.shooterTestValuesV1;}
+        else {shooterTestValues = shooterTestValuesV2;}
 
         Vector robotVelocity = follower.getVelocity();
         Vector robotAcceleration = follower.getAcceleration();
@@ -591,13 +580,14 @@ public class Robot {
 //            telemetry.addData("hood", shooter.getHoodPosDeg());
 //            telemetry.addData("rpm", shooter.getRPM());
 
-             panelsTelemetry.addData("turret target", turret.turretPID.getTargetPosition());
-             panelsTelemetry.addData("turret actual", turret.getAngle());
-             panelsTelemetry.addData("shooter target", shooter.shooterPID.getTargetPosition());
-             panelsTelemetry.addData("shooter actual", shooter.getVelocity());
-             panelsTelemetry.update(telemetry);
+//        panelsTelemetry.addData("turret target", turret.turretPID.getTargetPosition());
+//        panelsTelemetry.addData("turret actual", turret.getAngle());
+            panelsTelemetry.addData("shooter target", shooter.getTargetRpm());
+            panelsTelemetry.addData("shooter actual", shooter.getRPM());
+            panelsTelemetry.update(telemetry);
 
         }
+
     }
 
     public void stopAllSubsystems() {
