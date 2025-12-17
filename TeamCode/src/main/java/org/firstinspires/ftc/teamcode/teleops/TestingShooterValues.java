@@ -8,6 +8,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
+import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.EndValuesStorer;
 import org.firstinspires.ftc.teamcode.util.FancyButton;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
@@ -144,7 +145,6 @@ public class TestingShooterValues {
         }
         if (intake.endPress) {
             robot.stopIntake();
-            robot.stopIndexer();
         }
 
         if (spitIntake.startPress) {
@@ -157,40 +157,20 @@ public class TestingShooterValues {
                 robot.stopIntake();
             }
         }
-        
-        if (!panicShoot.isOn) {
-            if (autoShoot.isOn) {
-                robot.prepareShooter(rpmOffset, hoodAngleOffset);
-                robot.shootQueue(overrideShootPosition.isOn);
-            } else if (autoShoot.endPress){
-                robot.shooter.casualModeOn();
-                if (intake.isOn) {
-                    robot.stopIndexer();
-                }
-            }
-        }
-
-        // Panic shoot mode
-        if (panicShoot.startPress) {
-            // distance 71.6
-            robot.shooter.setTargetRPM(2336);
-            robot.shooter.setHoodDeg(35);
-            robot.turret.setTargetDeg(0);
-        }
-        if (panicShoot.isOn) {
-            if (overrideShootPosition.startPress) {
-                robot.indexer.spinIndexer(true);
-                robot.indexer.transfer(true);
-            } else if (overrideShootPosition.endPress) {
-                robot.stopIndexer();
-            }
-        }
-
         // Take Photo to set position
-        if (takePhoto.startPress) {
+        if (takePhoto.isOn) {
             robot.autoSetCurrentPose();
         }
-        
+
+        if (queuePurple.startPress) {
+            robot.qBall(BallColor.Purple);
+        }
+        if (queueGreen.startPress) {
+            robot.qBall(BallColor.Green);
+        }
+
+        robot.autoShoot(autoShoot.isOn);
+
 
         if (moveHoodUp.startPress) {
             hoodAngleOffset += 2;

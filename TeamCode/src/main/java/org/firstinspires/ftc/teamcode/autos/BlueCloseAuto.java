@@ -374,13 +374,7 @@ public class BlueCloseAuto extends OpMode {
 		} else {
 			robot.casualShooterModeOn();
 		}
-		if (shoot) {
-			robot.shootQueue(false);
-		}
-		if (!shoot && lastShoot) {
-			robot.indexer.transfer(false);
-		}
-		lastShoot = shoot;
+		robot.autoShoot(true);
 		robot.update();
 		if (opmodeTimer.getElapsedTimeSeconds() < 29) {
 			autonomousPathUpdate();
@@ -392,7 +386,6 @@ public class BlueCloseAuto extends OpMode {
 				robot.turret.setTargetDeg(robot.turret.getAngle());
 				robot.shooter.setTargetRPM(0);
 				robot.shooter.setHoodDeg(5);
-				robot.indexer.transfer(false);
 				stopAuto = true;
 			}
 		}

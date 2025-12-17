@@ -160,7 +160,6 @@ public class AutoReplayTeleop {
         }
         if (intake.endPress) {
             robot.stopIntake();
-            robot.stopIndexer();
         }
 
         if (spitIntake.startPress) {
@@ -173,40 +172,19 @@ public class AutoReplayTeleop {
                 robot.stopIntake();
             }
         }
-
-        if (!panicShoot.isOn) {
-            if (autoShoot.isOn) {
-                robot.prepareShooter();
-                robot.shootQueue(overrideShootPosition.isOn);
-            } else if (autoShoot.endPress){
-                robot.shooter.casualModeOn();
-                if (intake.isOn) {
-                    robot.stopIndexer();
-                }
-            }
-        }
-
-        // Panic shoot mode
-        if (panicShoot.startPress) {
-            // distance 71.6
-            robot.shooter.setTargetRPM(2336);
-            robot.shooter.setHoodDeg(35);
-            robot.turret.setTargetDeg(0);
-        }
-        if (panicShoot.isOn) {
-            if (overrideShootPosition.startPress) {
-                robot.indexer.spinIndexer(true);
-                robot.indexer.transfer(true);
-            } else if (overrideShootPosition.endPress) {
-                robot.stopIndexer();
-            }
-        }
-
         // Take Photo to set position
-        if (takePhoto.startPress) {
+        if (takePhoto.isOn) {
             robot.autoSetCurrentPose();
         }
 
+        if (queuePurple.startPress) {
+            robot.qBall(BallColor.Purple);
+        }
+        if (queueGreen.startPress) {
+            robot.qBall(BallColor.Green);
+        }
+
+        robot.autoShoot(autoShoot.isOn);
 
         // Changing our aim
         if (robotSide == RobotSide.Blue) {

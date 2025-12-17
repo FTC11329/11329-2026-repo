@@ -36,7 +36,7 @@ public class Turret {
         turretServo2 = hardwareMap.get(CRServo.class, "turret2");
         turretServo2.setDirection(CRServo.Direction.FORWARD);
 
-        encoder = hardwareMap.get(DcMotorEx.class, "transfer"); //name = "encoder" for absolute, currently broken
+        encoder = hardwareMap.get(DcMotorEx.class, "transfer"); //name = "encoder" for absolute, currently broken in electrical
         encoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         encoder.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 

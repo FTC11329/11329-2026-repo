@@ -15,10 +15,11 @@ import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.ColorFunctions;
 import org.firstinspires.ftc.teamcode.util.IndexerEnums;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 
-public class SmartIndexer {
+public class SmartIndexerWNoTRev {
     // declaring motor variables
     Servo spindexer1;
     Servo spindexer2;
@@ -31,21 +32,26 @@ public class SmartIndexer {
     private BallColor beReadyToTransferColor = BallColor.None;
     private BallColor transferColor = BallColor.None;
 
-    BallColor[] hasBalls = new BallColor[3];
+    private BallColor[] hasBalls = new BallColor[3];
+
+    //This is the balls that the shooter prepares to shoot
+    private ArrayList<BallColor> queuedBalls = new ArrayList<>();
+    boolean force = true;
 
     double lastIndexerPos;
     double lastTransferPower;
 
     boolean inShootingMode = false;
-    boolean allowIntakeing = true;
+    private boolean allowIntaking = true;
 
     Timer movingTimer;
+    Timer transferTimer;
 
     //HOW THIS CLASS WORKS:
     // On initialization the indexer starts with index 0 at top left, index 1 in the intake opening (bottem), and index 2 top right
     // When we move the indexer, THIS IS NO LONGER THE CASE. When we rotate the indexer, the holes will stay at the same index but be in differnet spots
 
-    public SmartIndexer(HardwareMap hardwaremap) {
+    public SmartIndexerWNoTRev(HardwareMap hardwaremap) {
         spindexer1 = hardwaremap.get(Servo.class, "spindexer1");
         spindexer2 = hardwaremap.get(Servo.class, "spindexer2");
         spindexer1.setDirection(Servo.Direction.REVERSE);
@@ -58,14 +64,15 @@ public class SmartIndexer {
 
         colorSensor = hardwaremap.get(RevColorSensorV3.class, "spindexerColorSensor");
         movingTimer = new Timer();
+        transferTimer = new Timer();
         hasBalls[0] = BallColor.None;
         hasBalls[1] = BallColor.None;
         hasBalls[2] = BallColor.None;
+        setIndexerPos(currentIndexerState);
     }
 
     // DO NOT USE THESE FUNCTIONS TO MOVE THE INDEXER DURING NORMAL OPERATION. USE UPDATE() INSTEAD
-    //todo p100000 make private
-    public void setIndexerPos(double set) {
+    private void setIndexerPos(double set) {
         if (lastIndexerPos != set) {
             lastIndexerPos = set;
             spindexer1.setPosition(set);
@@ -84,13 +91,26 @@ public class SmartIndexer {
         setIndexerToShooterPower(set ? Constants.Indexer.transferPower : 0);
     }
 
+    // Getter functions outside
+
+
+    public boolean allowIntakeing() {
+        return allowIntaking;
+    }
+
+    public BallColor[] getHasBalls() {
+        return hasBalls;
+    }
+
+    public ArrayList<BallColor> getQueuedBalls() {
+        return queuedBalls;
+    }
+
     // Moves a ball of color to the transfer
     // if ball of color is not in the has balls and force is false it will move any ball to the transfer
-    public void shootWhenReady(BallColor color, boolean force) {
-        // a stupid way to check if color is in hasBalls
-        if (Arrays.stream(hasBalls).anyMatch(c -> c == color) || force) {
-            transferColor = color;
-        }
+    public void queueColor(BallColor color, boolean force) {
+        queuedBalls.add(color);
+        this.force = force;
     }
 
     public void beReadyToShoot(BallColor color) {
@@ -131,12 +151,7 @@ public class SmartIndexer {
         }
         return true;
     }
-    
-    // Helper method to calculate rotations needed to move a ball to top
-    private int calculateRotationsToTop(int ballIndex) {
-        // Simplified: assume we want to rotate clockwise
-        return (ballIndex - getCurrentIndexAtBottem() + 3) % 3;
-    }
+
     // Functions to get current index positions ***************************************~
     // Gets the current index at the bottom and shooter positions based on current state
     public int getCurrentIndexAtBottem(){
@@ -162,16 +177,15 @@ public class SmartIndexer {
                 return 1;
             case TransferTBlBr201:
                 return 2;
-            case TransferTBlBr012:
-                return 0;
         }
         return -2000000000;
     }
 
     // Functions to get order of indexer states ***************************************~
     // Returns the prefered order of indexer states to store a new ball based on current state
-    public IndexerEnums[] getPreferedIndexToStore() {
+    public IndexerEnums[] getPreferredIndexToStore() {
         switch (currentIndexerState) {
+            // From a store Position
             case StoreTlBTr012Revrese:
                 return new IndexerEnums[]{
                     IndexerEnums.StoreTlBTr120,
@@ -196,6 +210,25 @@ public class SmartIndexer {
                     IndexerEnums.StoreTlBTr120,
                     IndexerEnums.StoreTlBTr012Revrese
                 };
+            // Transfer States
+            case TransferTBlBr012Reverse:
+                return new IndexerEnums[] {
+                    IndexerEnums.StoreTlBTr120,
+                    IndexerEnums.StoreTlBTr012,
+                    IndexerEnums.StoreTlBTr201
+                };
+            case TransferTBlBr120:
+                return new IndexerEnums[] {
+                    IndexerEnums.StoreTlBTr120,
+                    IndexerEnums.StoreTlBTr201,
+                    IndexerEnums.StoreTlBTr012Revrese
+                };
+            case TransferTBlBr201:
+                return new IndexerEnums[] {
+                    IndexerEnums.StoreTlBTr201,
+                    IndexerEnums.StoreTlBTr012,
+                    IndexerEnums.StoreTlBTr120
+                };
         }
         return null;
     }
@@ -205,7 +238,7 @@ public class SmartIndexer {
         switch (currentIndexerState) {
             case StoreTlBTr012Revrese:
                 return new IndexerEnums[]{
-                    IndexerEnums.TransferTBlBr012,
+                    IndexerEnums.TransferTBlBr012Reverse,
                     IndexerEnums.TransferTBlBr120,
                     IndexerEnums.TransferTBlBr201
                 };
@@ -219,9 +252,28 @@ public class SmartIndexer {
                 return new IndexerEnums[]{
                     IndexerEnums.TransferTBlBr120,
                     IndexerEnums.TransferTBlBr201,
-                    IndexerEnums.TransferTBlBr012Reverse // or 012, either works
+                    IndexerEnums.TransferTBlBr012Reverse
                 };
             case StoreTlBTr012:
+                return new IndexerEnums[] {
+                    IndexerEnums.TransferTBlBr201,
+                    IndexerEnums.TransferTBlBr120,
+                    IndexerEnums.TransferTBlBr012Reverse
+                };
+            // Transfer States
+            case TransferTBlBr012Reverse:
+                return new IndexerEnums[] {
+                    IndexerEnums.TransferTBlBr120,
+                    IndexerEnums.TransferTBlBr012,
+                    IndexerEnums.TransferTBlBr201
+                };
+            case TransferTBlBr120:
+                return new IndexerEnums[] {
+                    IndexerEnums.TransferTBlBr120,
+                    IndexerEnums.TransferTBlBr201,
+                    IndexerEnums.TransferTBlBr012
+                };
+            case TransferTBlBr201:
                 return new IndexerEnums[] {
                     IndexerEnums.TransferTBlBr201,
                     IndexerEnums.TransferTBlBr012,
@@ -248,7 +300,7 @@ public class SmartIndexer {
     }
 
     // Returns the ball color at the top left or top right position if it were at given a store state
-    public BallColor[] ballColorsAtReadyToShoot(IndexerEnums state) {
+    public BallColor[] ballColorsAtReadyToShoot(IndexerEnums state) { //todo This is wrong for now because we dont have T Rev anymore but I dont wanna change it because it will break other logic, will require a large rewrite if we mess with it
         switch (state) {
             case StoreTlBTr012Revrese:
                 return new BallColor[]{hasBalls[0], hasBalls[2]};
@@ -271,8 +323,6 @@ public class SmartIndexer {
                 return hasBalls[1];
             case TransferTBlBr201:
                 return hasBalls[2];
-            case TransferTBlBr012:
-                return hasBalls[0];
         }
         return null;
     }
@@ -288,12 +338,12 @@ public class SmartIndexer {
                 return currentIndexerState;
             } else {
                 // if we are not at a store state then return the closest prefered state
-                return getPreferedIndexToStore()[0];
+                return getPreferredIndexToStore()[0];
             }
         }
 
         // Gets the prefered order to store
-        IndexerEnums[] preferedStoreOrder = getPreferedIndexToStore();
+        IndexerEnums[] preferedStoreOrder = getPreferredIndexToStore();
 
         // Finds the first state in the order where the intake position is empty
         for (IndexerEnums state : preferedStoreOrder) {
@@ -308,7 +358,7 @@ public class SmartIndexer {
     public IndexerEnums getCorrectStoreStateForBeReadyToTransfer(BallColor color) {
         
         // Gets the prefered order to store
-        IndexerEnums[] preferedStoreOrder = getPreferedIndexToStore();
+        IndexerEnums[] preferedStoreOrder = getPreferredIndexToStore();
 
         // If hasBalls is not full than there is a spot such that the correct color is ready and there is nothing in the intake slot
         if (!isHasBallsFull()) {
@@ -336,10 +386,10 @@ public class SmartIndexer {
     // Returns the correct transfer state to move to for transferring a ball of given color
     public IndexerEnums getCorrectTransferStateForTransfer(BallColor color) {
         // Gets the prefered order to transfer
-        IndexerEnums[] preferedTransferOrder = getPreferedIndexToTransfer();
+        IndexerEnums[] preferredTransferOrder = getPreferedIndexToTransfer();
 
         // Finds the first state in the order where the ball color is at the transfer position
-        for (IndexerEnums state : preferedTransferOrder) {
+        for (IndexerEnums state : preferredTransferOrder) {
             if (ballColorsAtTransferPosition(state) == color) {
                 // if ball is correct color
                 return state;
@@ -369,7 +419,6 @@ public class SmartIndexer {
             IndexerEnums.StoreTlBTr201,
             IndexerEnums.TransferTBlBr201,
             IndexerEnums.StoreTlBTr012,
-            IndexerEnums.TransferTBlBr012
         };
 
         // Finds the indexes of the current and target states
@@ -424,10 +473,6 @@ public class SmartIndexer {
             case TransferTBlBr201:
                 setIndexerPos(Constants.Indexer.TransferTBlBr201);
                 return;
-
-            case TransferTBlBr012:
-                setIndexerPos(Constants.Indexer.TransferTBlBr012);
-                return;
         }
     }
 
@@ -455,9 +500,6 @@ public class SmartIndexer {
 
             case TransferTBlBr201:
                 return false;
-
-            case TransferTBlBr012:
-                return false;
         }
 
         System.exit(0); // todo remove
@@ -465,9 +507,18 @@ public class SmartIndexer {
         return false;
     }
 
+    // uses time to figure out if ball has left
+    public void update(boolean cancelShoot, boolean readyToShoot, boolean autoShoot) {
+        if (lastTransferPower == 0) {
+            transferTimer.resetTimer();
+        }
+
+        boolean ballHasLeft = transferTimer.getElapsedTimeSeconds() > Constants.Indexer.timeToTransfer;
+        update(cancelShoot, readyToShoot, ballHasLeft, autoShoot);
+    }
 
     // Combines all the functions above to move the indexer smartly based on current goals *******************************~
-    public void update(boolean cancelShoot, boolean readyToShoot, boolean ballHasLeftShooter) {
+    public void update(boolean cancelShoot, boolean readyToShoot, boolean ballHasLeftShooter, boolean autoShoot) {
         // readyToShoot = we are in shooter zone, and we have balls to shoot, and our spinners are close enough
         // if readyToShoot,
         //      allow intaking false 
@@ -486,17 +537,35 @@ public class SmartIndexer {
         //      if readyToShoot,
         //          spin transfer
 
-        if (readyToShoot) {
-            allowIntakeing = false;
-            setIndexerPos(getCorrectTransferStateForTransfer(transferColor));
+        allowIntaking = isAStoreState(currentIndexerState) && movingTimer.getElapsedTimeSeconds() > 0 && !isHasBallsFull();
+
+
+        // if nothing is in transferColor than try to put the most recent queue in there
+        if (transferColor == BallColor.None && !queuedBalls.isEmpty()) {
+            BallColor seeIfWeHaveColor = queuedBalls.get(0);
+            // a stupid way to check if color is in hasBalls
+            if (Arrays.stream(hasBalls).anyMatch(c -> c == seeIfWeHaveColor)) {
+                queuedBalls.remove(0);
+                transferColor = seeIfWeHaveColor;
+            } else if (force && seeIfWeHaveColor != BallColor.None) {
+                queuedBalls.remove(0); //HERE
+                transferColor = BallColor.Any;
+            }
+        }
+
+        if (readyToShoot && (transferColor != BallColor.None || autoShoot) && isAStoreState(currentIndexerState) && movingTimer.getElapsedTimeSeconds() > 0) {
+            if (transferColor != BallColor.None) {
+                setIndexerPos(getCorrectTransferStateForTransfer(transferColor));
+            } else {
+                setIndexerPos(getCorrectTransferStateForTransfer(BallColor.Any));
+            }
         }
 
         if (movingTimer.getElapsedTimeSeconds() > 0) {
             // Indexer stopped spinning
             if (isAStoreState(currentIndexerState)) {
                 // at a store state
-                allowIntakeing = true;
-            } else {
+            } else if (!inShootingMode) {
                 // at a transfer state
                 if (readyToShoot) {
                     inShootingMode = true;
@@ -508,13 +577,22 @@ public class SmartIndexer {
 
         if (inShootingMode && movingTimer.getElapsedTimeSeconds() > 0) {
             // Shooting Mode
+            // spins transfer wheel if we are ready to shoot
             transfer(readyToShoot);
             if (ballHasLeftShooter) {
+                transferColor = BallColor.None;
                 hasBalls[getCurrentIndexAtShooter()] = BallColor.None;
-                setIndexerPos(getCorrectStoreStateAfterIntake());
-                inShootingMode = false;
+
+                // if we probebly want to shoot more
+                if (autoShoot && !isHasBallsEmpty()) {
+                    getCorrectTransferStateForTransfer(BallColor.Any);
+                } else {
+                    setIndexerPos(getCorrectStoreStateAfterIntake());
+                    inShootingMode = false;
+                }
             }
             if (cancelShoot) {
+                transferColor = BallColor.None;
                 setIndexerPos(getCorrectStoreStateAfterIntake());
                 inShootingMode = false;
             }

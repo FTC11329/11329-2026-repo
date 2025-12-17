@@ -88,15 +88,11 @@ public class TestOpMode extends OpMode {
         press11.checkStatus(gamepad1.left_trigger > 0.5);
 
         if (toggle2.startPress) {
-            robot.indexer.transfer(true);
         } else if (toggle2.endPress) {
-            robot.indexer.transfer(false);
         }
         if (toggle.startPress) {
-            robot.indexer.setIndexerPower(1);
             robot.intake.setIntakePower(1);
         } else if (toggle.endPress) {
-            robot.indexer.setIndexerPower(0);
             robot.intake.setIntakePower(0);
         }
 

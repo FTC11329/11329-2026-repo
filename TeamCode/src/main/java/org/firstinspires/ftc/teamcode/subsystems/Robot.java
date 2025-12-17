@@ -28,7 +28,7 @@ public class Robot {
     public Intake intake;
     public Turret turret;
     public Vision vision;
-    public Indexer indexer;
+    public SmartIndexerWNoTRev indexer;
     public Shooter shooter;
     public Follower follower;
     public Drivetrain drivetrain;
@@ -43,11 +43,13 @@ public class Robot {
 
     double startTime;
 
+    boolean intakeToggle = false;
+    boolean spitIntake = false;
+    boolean autoShoot = false;
+
     Pose lastCamPose = new Pose(0,0,0);
     // Offset pose to aim for
     public Pose offsetPose = new Pose(0,0,0);
-    //This is the balls that the shooter prepares to shoot
-    public ArrayList<BallColor> queuedBalls = new ArrayList<>();
     //This is an array of the 3 special colors of the games MOTIF
     public BallColor[] motif = null;
     //This is SPECIFICALLY for auto, it is the balls in the ramp
@@ -68,7 +70,7 @@ public class Robot {
         stilts = new Stilts(hardwareMap);
         intake = new Intake(hardwareMap);
         vision = new Vision(hardwareMap, robotSide);
-        indexer = new Indexer(hardwareMap);
+        indexer = new SmartIndexerWNoTRev(hardwareMap);
         shooter = new Shooter(hardwareMap);
         turret = new Turret(hardwareMap, startTurretTicks, robotSide);
         follower = org.firstinspires.ftc.teamcode.pedroPathing.Constants.createFollower(hardwareMap);
@@ -201,11 +203,10 @@ public class Robot {
 
     // Adds a ball of color ball color to queuedBalls list
     public void qBall(BallColor qdColor) {
-        queuedBalls.add(qdColor);
+        qBall(qdColor, true);
     }
-
-    public void qBall(BallColor[] qdColors) {
-        queuedBalls.addAll(Arrays.asList(qdColors));
+    public void qBall(BallColor qdColor, boolean force) {
+        indexer.queueColor(qdColor, force);
     }
 
     public void casualShooterModeOn() {
@@ -213,55 +214,11 @@ public class Robot {
     }
 
     public void prepareShooter() {
-        prepareShooter(true);
+        prepareShooter(0,0);
     }
 
     //corrects the hood, turret, and shooter rpm
-    public void prepareShooter(boolean deleteMeIfYouWant) {
-
-        // Gets current Pose
-        Pose curPose = getCurrentPose();
-
-        // Gets goal Pose
-        if (robotSide == RobotSide.Blue)  {
-            goal = Constants.Vision.blueGoal;
-        } else {
-            goal = Constants.Vision.redGoal;
-        }
-
-        ShooterValuesParent stv = shooterTestValuesV1;
-
-        goal = goal.plus(offsetPose);
-
-        Pose futrGoal = goal;
-
-        for (int i = 0; i <= 3; i++) {
-            // Est Time In Flight for ball at current pose
-            double timeInFlight = stv.get(curPose.distanceFrom(futrGoal)).timeInFlight;
-
-            // Logic for future pose
-            futrGoal = goal.plusVector(follower.getVelocity(), - timeInFlight);
-        }
-
-        // Logic for heading to goal
-        double deltaX = futrGoal.getX() - curPose.getX();
-        double deltaY = futrGoal.getY() - curPose.getY();
-        double angleToGoal = Math.toDegrees(Math.atan2(deltaY, deltaX));
-
-        // Sets Turret angle
-        turret.setTargetDeg(angleToGoal - Math.toDegrees(curPose.getHeading()));
-
-        // Gets shooter params based on future pose
-        ShooterState futureShooterParams = stv.get(curPose.distanceFrom(futrGoal));
-
-        // Sets shooter rpm
-        shooter.adjustTargetRPM(futureShooterParams.rpm);
-
-        // gets hood angle
-        shooter.setHoodDeg(futureShooterParams.hoodAngle);
-
-    }
-    public void prepareShooter(Double rpmOffset, Double hoodAngleOffset) {
+    public void prepareShooter(double rpmOffset, double hoodAngleOffset) {
 
         // Gets current Pose
         Pose curPose = getCurrentPose();
@@ -294,147 +251,14 @@ public class Robot {
 
         // gets hood angle
         shooter.setHoodDeg(futureShooterParams.hoodAngle + hoodAngleOffset);
-
-    }
-
-    public void shootOnTheFly(boolean oldValues) {
-        Pose robotPose = getCurrentPose();
-
-        if (robotSide == RobotSide.Blue)  {
-            goal = Constants.Vision.blueGoal;
-        } else {
-            goal = Constants.Vision.redGoal;
-        }
-        goal = goal.plus(offsetPose);
-
-        ShooterValuesParent shooterTestValues;
-        if (oldValues) {shooterTestValues = this.shooterTestValuesV1;}
-        else {shooterTestValues = shooterTestValuesV2;}
-
-        Vector robotVelocity = follower.getVelocity();
-        Vector robotAcceleration = follower.getAcceleration();
-
-        double goalPositionIterations = 3; // increase for accuracy decrease for efficiency
-        double accelerationCompensationFactor = 0; //tune to account for change in velocity as ball is shot
-
-        double shotTime = shooterTestValues.get(robotPose.distanceFrom(goal)).timeInFlight;
-
-        Pose correctedGoal = new Pose();
-        for (int i = 0; i < goalPositionIterations; i++) { //todo: ensure that velocity and acceleration units match
-            double virtualGoalX = goal.getX()
-                    - shotTime * (robotVelocity.getXComponent()
-                    + robotAcceleration.getXComponent() * accelerationCompensationFactor);
-            double virtualGoalY = goal.getY()
-                    - shotTime * (robotVelocity.getYComponent()
-                    + robotAcceleration.getYComponent() * accelerationCompensationFactor);
-
-            correctedGoal = new Pose(virtualGoalX, virtualGoalY);
-
-            double newShotTime = shooterTestValues.get(robotPose.distanceFrom(correctedGoal)).timeInFlight;
-
-            if (Math.abs(newShotTime - shotTime) <= 0.010) {
-                break;
-            }
-
-            shotTime = newShotTime;
-        }
-
-        ShooterState futureShooterParams = shooterTestValues.get(getCurrentPose().distanceFrom(correctedGoal));
-
-        // Logic for heading to goal
-        double deltaX = correctedGoal.getX() - robotPose.getX();
-        double deltaY = correctedGoal.getY() - robotPose.getY();
-        double angleToGoal = Math.toDegrees(Math.atan2(deltaY, deltaX));
-
-        // Sets Turret angle
-        turret.setTargetDeg(angleToGoal - Math.toDegrees(angleToGoal));
-
-        // Sets shooter rpm
-        shooter.adjustTargetRPM(futureShooterParams.rpm);
-
-        // gets hood angle
-        shooter.setHoodDeg(futureShooterParams.hoodAngle);
-        telemetry.addData("HoodAngle", futureShooterParams.hoodAngle);
-    }
-
-    public void shootAny() {
-        indexer.spinIndexer(true);
-        indexer.transfer(readyToShoot());
-    }
-
-    public boolean shootArtifact(BallColor ballColor) {
-        switch (oneBallCase) {
-            case 0:
-                indexer.transfer(false);
-                if (indexer.spinUntil(ballColor)) {
-                    oneBallCase = 1;
-                }
-                return false;
-            case 1:
-                indexer.transfer(false);
-                if (readyToShoot()) {
-                    startTime = time.milliseconds();
-                    oneBallCase = 2;
-                }
-                return false;
-            case 2:
-                indexer.transfer(true);
-                indexer.spinIndexer(true);
-                if (time.milliseconds() - startTime < 500) {
-                    oneBallCase = 0;
-                    indexer.transfer(false);
-                    indexer.spinIndexer(false);
-                    return true;
-                }
-                return false;
-        }
-        return false;
-    }
-
-    // Loops through and removes balls from quedballs after firing them
-    public boolean shootQueueInMotif() {
-        if (!inShootingZone()) {
-            return false;
-        }
-        if (queuedBalls.isEmpty()) {
-            return true;
-        }
-        BallColor current = nextArtifactInMotif();
-        if (shootArtifact(current)) {
-            if (queuedBalls.contains(current)) {
-                queuedBalls.remove(current);
-            } else {
-                queuedBalls.remove(0);
-            }
-            ramp.add(current);
-        }
-        return false;
-    }
-
-    // shoots balls in queue or any ball
-    public void shootQueue(boolean override) {
-        if (!inShootingZone() && !override){
-            indexer.transfer(false);
-            return;
-        }
-
-        
-
-        if (queuedBalls.isEmpty()) {
-            shootAny();
-            return;
-        }
-        BallColor soonToBeShotBall = queuedBalls.get(0);
-
-        if (shootArtifact(soonToBeShotBall)) {
-            if (!queuedBalls.isEmpty()) {
-                queuedBalls.remove(0);
-            }
-        }
     }
 
     public void setShooterTargetRPM(double set) {
         shooter.setTargetRPM(set);
+    }
+
+    public void autoShoot(boolean autoShoot) {
+        this.autoShoot = autoShoot;
     }
 
     double pictureTime = 0;
@@ -447,17 +271,6 @@ public class Robot {
 
         shooter.update();
     }
-
-    // Uses curent ramp state and current motif to get the next color of ball we shoot
-    public BallColor nextArtifactInMotif(){
-        if (motif != null){
-            if (queuedBalls.contains(motif[(ramp.size() - 1) % 3])){
-                return motif[(ramp.size() - 1) % 3];
-            }
-        }
-        return queuedBalls.isEmpty() ? BallColor.Any : queuedBalls.get(0);
-    }
-
 
     public void autoSetCurrentPose() {
         lastCamPose = vision.getRobotPose();
@@ -472,30 +285,50 @@ public class Robot {
 
     // INTAKE SYSTEM*******************************************************************************~
     public void spinIntake() {
-        intake.setIntakePower(Constants.Intake.intakePower);
+        spinIntake(true);
+    }
+    public void spinIntake(boolean set) {
+        if (set) {
+            spitIntake = false;
+        }
+        intakeToggle = set;
     }
     public void intakeUpdate() {
-
+        if (intakeToggle && indexer.allowIntakeing() && !spitIntake) {
+            intake.setIntakePower(Constants.Intake.intakePower);
+        } else if (spitIntake) {
+            intake.setIntakePower(Constants.Intake.spitPower);
+        } else {
+            intake.setIntakePower(0);
+        }
     }
 
     // SPINDEXER***********************************************************************************~
-    public void spinIndexer() {
-        indexer.setIndexerPower(Constants.Indexer.spindexPower);
-    }
 
+
+    // for auto
     public void spindexerUpdate() {
-        indexer.update(getCurrentPose().distanceFrom(goal));
+        spindexerUpdate(false);
     }
 
-    public void stopIndexer() {
-        indexer.spinIndexer(false);
-        indexer.transfer(false);
+    // for before we have a way to detect if a ball hs left shooter
+    public void spindexerUpdate(boolean cancelShoot) {
+        indexer.update(cancelShoot, readyToShoot(), autoShoot);
     }
+
+    // for teleopp
+    public void spindexerUpdate(boolean cancelShoot, boolean ballHasLeftShooter) {
+        indexer.update(cancelShoot, readyToShoot(), ballHasLeftShooter, autoShoot);
+    }
+
 
     // TELE-OP*************************************************************************************~
     public void intakeManual() {
-        spinIntake();
-        spinIndexer();
+        if (indexer.allowIntakeing()) {
+            spinIntake();
+        } else {
+            stopIntake();
+        }
     }
 
     public void autoIntake3() {
@@ -503,7 +336,10 @@ public class Robot {
     }
 
     public void spitIntake() {
-        intake.setIntakePower(Constants.Intake.spitPower);
+        spitIntake(true);
+    }
+    public void spitIntake(boolean set) {
+        spitIntake = set;
     }
 
     public void teleopUpdate() {
@@ -518,7 +354,7 @@ public class Robot {
     }
 
     public void stopIntake() {
-        intake.setIntakePower(0);
+        spinIntake(false);
     }
 
 
@@ -527,9 +363,12 @@ public class Robot {
         update(false);
     }
     public void update(boolean debug) {
+        update(debug, false);
+    }
+    public void update(boolean debug, boolean cancelShoot) {
         shooterUpdate();
         intakeUpdate();
-        spindexerUpdate();
+        spindexerUpdate(cancelShoot);
         turretUpdate();
         teleopUpdate();
         follower.update();
@@ -568,10 +407,10 @@ public class Robot {
             telemetry.addData("in shooting zone", inShootingZone());
 
             telemetry.addLine("=== QUEUE ===");
-            if (queuedBalls.isEmpty()) {
+            if (indexer.getQueuedBalls().isEmpty()) {
                 telemetry.addLine("Nothing in queue");
             }
-            for (BallColor ball : queuedBalls) {
+            for (BallColor ball : indexer.getQueuedBalls()) {
                 telemetry.addData("qball", ball);
             }
 
@@ -592,22 +431,11 @@ public class Robot {
 
     public void stopAllSubsystems() {
         oneBallCase = 0;
-        queuedBalls = new ArrayList<>();
-        indexer.transfer(false);
         shooter.stopShooter();
         shooter.setHoodDeg(0);
-        stopIndexer();
         stopIntake();
     }
 
     // TESTING*************************************************************************************~
-    //Shoots one ball
-    public void passiveShoot(double RPM, boolean intake) {
-        indexer.setIndexerPower(Constants.Indexer.spindexPower);
-        indexer.transfer(true);
-        shooter.setTargetRPM(RPM);
-        if (intake) {
-            intakeManual();
-        }
-    }
+
 }

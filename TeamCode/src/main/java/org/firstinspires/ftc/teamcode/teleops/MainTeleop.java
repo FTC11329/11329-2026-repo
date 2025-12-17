@@ -156,7 +156,7 @@ public class MainTeleop {
         movePoseLeft.checkStatus(gamepad2.dpad_left);
         movePoseRight.checkStatus(gamepad2.dpad_right);
 
-        takePhoto.checkStatus(gamepad2.y);
+        takePhoto.checkStatus(gamepad2.y); // hold to take photo
         debug.checkStatus(gamepad1.start); // hold to print telemetry
 
         deleteme.checkStatus(false);
@@ -170,53 +170,32 @@ public class MainTeleop {
         }
         if (intake.endPress) {
             robot.stopIntake();
-            robot.stopIndexer();
         }
 
         if (spitIntake.startPress) {
             robot.spitIntake();
         }
         if (spitIntake.endPress) {
+            robot.spitIntake(false);
             if (intake.isOn){
                 robot.intakeManual();
             } else {
                 robot.stopIntake();
             }
         }
-        
-        if (!panicShoot.isOn) {
-            if (autoShoot.isOn) {
-                robot.prepareShooter();
-                robot.shootQueue(overrideShootPosition.isOn);
-            } else if (autoShoot.endPress){
-                robot.shooter.casualModeOn();
-                if (intake.isOn) {
-                    robot.stopIndexer();
-                }
-            }
-        }
-
-        // Panic shoot mode
-        if (panicShoot.startPress) {
-            // distance 71.6
-            robot.shooter.setTargetRPM(2336);
-            robot.shooter.setHoodDeg(35);
-            robot.turret.setTargetDeg(0);
-        }
-        if (panicShoot.isOn) {
-            if (overrideShootPosition.startPress) {
-                robot.indexer.spinIndexer(true);
-                robot.indexer.transfer(true);
-            } else if (overrideShootPosition.endPress) {
-                robot.stopIndexer();
-            }
-        }
-
         // Take Photo to set position
-        if (takePhoto.startPress) {
+        if (takePhoto.isOn) {
             robot.autoSetCurrentPose();
         }
-        
+
+        if (queuePurple.startPress) {
+            robot.qBall(BallColor.Purple);
+        }
+        if (queueGreen.startPress) {
+            robot.qBall(BallColor.Green);
+        }
+
+        robot.autoShoot(autoShoot.isOn);
 
         // Changing our aim
         if (robotSide == RobotSide.Blue) {
@@ -257,25 +236,44 @@ public class MainTeleop {
                 robot.offsetPose = new Pose(0,0,0);
             }
         }
-
-        
-            
-        // if (queuePurple.startPress) {
-            // robot.qBall(BallColor.Purple);
-        // }
-        // if (queueGreen.startPress) {
-            // robot.qBall(BallColor.Green);
-        // }
-
         robot.update(debug.isOn);
+
+        double deltaTime = time.milliseconds() - lastTime;
+        telemetry.addData("Loop Time", deltaTime);
+        lastTime = time.milliseconds();
+
 //        telemetry.addData("distance", robot.getCurrentPose().distanceFrom(Constants.Vision.blueGoal));
-
-//        double deltaTime = time.milliseconds() - lastTime;
-//        telemetry.addData("Loop Time", deltaTime);
-//        lastTime = time.milliseconds();
-
 //        telemetry.addData("Encoder RPM", robot.shooter.getRPM());
 //        telemetry.addData("Hood angle", robot.shooter.getHoodPosDeg());
+
+        /* //todo implement some type of panic shoot before comp
+        if (!panicShoot.isOn) {
+            if (autoShoot.isOn) {
+                robot.prepareShooter();
+            } else if (autoShoot.endPress){
+                robot.shooter.casualModeOn();
+                if (intake.isOn) {
+                    robot.stopIndexer();
+                }
+            }
+        }
+
+        // Panic shoot mode
+        if (panicShoot.startPress) {
+            // distance 71.6
+            robot.shooter.setTargetRPM(2336);
+            robot.shooter.setHoodDeg(35);
+            robot.turret.setTargetDeg(0);
+        }
+        if (panicShoot.isOn) {
+            if (overrideShootPosition.startPress) {
+                robot.indexer.spinIndexer(true);
+                robot.indexer.transfer(true);
+            } else if (overrideShootPosition.endPress) {
+                robot.stopIndexer();
+            }
+        }
+*/
     }
 
     public void stop() {

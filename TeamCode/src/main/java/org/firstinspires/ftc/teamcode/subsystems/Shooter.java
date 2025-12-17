@@ -134,7 +134,11 @@ public class Shooter {
     public void update() {
         if (shooterSpin && usePID) {
             shooterPID.updatePosition(flywheel.getVelocity());  // ticks/sec
-            setPower(shooterPID.run());
+            if (shooterPID.getTargetPosition() > 10) {
+                setPower(shooterPID.run());
+            } else {
+                setPower(0);
+            }
         } else if (shooterSpin) {
             setPower(0.5);
         }

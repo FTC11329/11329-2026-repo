@@ -16,17 +16,27 @@ public class Constants {
     public static class Indexer {
         public static double spindexPower = 0.45;
 
-        public static double timeToMoveIndexer1Index = 0.9;
+        public static double timeToMoveIndexer1Index = 0.25;
+        public static double timeToTransfer = 0.5;
 
-        public static double StoreTlBTr012Revrese = 0; //todo set
-        public static double StoreTlBTr120 = 0.;
-        public static double StoreTlBTr201 = 0;
-        public static double StoreTlBTr012 = 0;
+        public static double StoreTlBTr012Reverse = 0;
+        public static double StoreTlBTr120 = 0.332;
+        public static double StoreTlBTr201 = 0.684;
+        public static double StoreTlBTr012 = 1;
 
-        public static double TransferTBlBr012Reverse = 0; //todo set
-        public static double TransferTBlBr120 = 0;
-        public static double TransferTBlBr201 = 0;
-        public static double TransferTBlBr012 = 0;
+        public static double TransferTBlBr012Reverse = 0.16;
+        public static double TransferTBlBr120 = 0.51;
+        public static double TransferTBlBr201 = 0.864;
+        public static double TransferTBlBr012 = 0; // todo remove if we dont want it
+
+        // Store States
+        //Reverse
+        // 0   2 | 1   0 | 2   1 | 0   2
+        //   1   |   2   |   0   |   1
+        // Transfer States
+        //    Reverse
+        //       0   |   1   |   2   |   0
+        //     1   2 | 2   0 | 0   1 | 1   2
 
 
         public static double farSpindexPower = 0.9;
@@ -94,13 +104,19 @@ public class Constants {
         public static PIDFCoefficients shooterVelocityPID = new PIDFCoefficients(P, I, D, F);
     }
     public static class Color {
+        //hole green 2.05
 
-        public static double[] green = {0.0097, 0.0421, 0.0318, 0.9807}; //0.2503
-        public static double[] greenFar = {0, 0, 0, 0};
-        public static double[] purple = {0.0253, 0.0336, 0.0632, 0.9909}; //0.2503
-        public static double[] purpleFar = {0, 0, 0, 0};
-        public static double[] none = {0.0004, 0.0008, 0.0007, 0.0234}; // 1.67
-        public static double[] none2 = {0.0005, 0.001, 0.0009, 0.0396}; //1.52
+        public static double[] green = {0.0059, 0.0242, 0.0196, 0.947}; //0.311
+        public static double[] greenFar = {0.0007, 0.0027, 0.0023, 0.1934}; //0.85
+        public static double[] greenWeird = {0.0029, 0.0121, 0.0101, 0.82}; //0.43
+        public static double[] greenFakeHole = {0.0015, 0.0067, 0.0054, 0.575}; //0.73
+
+        public static double[] purple = {0.0104, 0.013, 0.0276, 0.95}; //0.36
+        public static double[] purpleFar = {0.0035, 0.0045, 0.0094, 0.689}; //0.64
+        public static double[] purpleWeird = {0.0018, 0.0023, 0.0049, 0.376}; //0.77
+
+        public static double[] none = {0.0003, 0.0007, 0.0006, 0.0187}; //1.97
+        public static double[] none2 = {0, 0, 0, 0}; // unused
 
         public static double backDst = 1;
     }

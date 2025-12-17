@@ -262,12 +262,8 @@ public class BlueFarAuto extends OpMode {
 		} else {
 			robot.casualShooterModeOn();
 		}
-		if (shoot) {
-			robot.shootQueue(false);
-		}
-		if (!shoot) {
-			robot.indexer.transfer(false);
-		}
+		robot.autoShoot(true);
+		robot.update();
 		if (opmodeTimer.getElapsedTimeSeconds() < 29) {
 			autonomousPathUpdate();
 		} else {
@@ -278,12 +274,9 @@ public class BlueFarAuto extends OpMode {
 				robot.turret.setTargetDeg(robot.turret.getAngle());
 				robot.shooter.setTargetRPM(0);
 				robot.shooter.setHoodDeg(5);
-				robot.indexer.transfer(false);
 				stopAuto = true;
 			}
 		}
-		lastShoot = shoot;
-		robot.update();
 
 		// Feedback to Driver Hub for debugging
 		telemetry.addData("path state", pathState);

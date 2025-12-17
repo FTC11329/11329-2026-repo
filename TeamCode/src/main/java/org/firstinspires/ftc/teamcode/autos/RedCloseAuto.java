@@ -151,7 +151,6 @@ public class RedCloseAuto extends OpMode {
 				if (pathTimer.getElapsedTimeSeconds() > shootTime) {
 					prepareToShoot = false;
 					shoot = false;
-					robot.indexer.transfer(false);
 					robot.follower.followPath(firstMovement);
 					usingShootPower = false;
 					robot.follower.setMaxPower(maxPower);
@@ -190,7 +189,6 @@ public class RedCloseAuto extends OpMode {
 				if (pathTimer.getElapsedTimeSeconds() > shootTime) {
 					prepareToShoot = false;
 					shoot = false;
-					robot.indexer.transfer(false);
 					robot.intakeManual();
 					robot.follower.followPath(secondMovement);
 					usingShootPower = false;
@@ -229,7 +227,6 @@ public class RedCloseAuto extends OpMode {
 				if (pathTimer.getElapsedTimeSeconds() > shootTime) {
 					prepareToShoot = false;
 					shoot = false;
-					robot.indexer.transfer(false);
 					robot.intakeManual();
 					robot.follower.followPath(thirdMovement);
 					usingShootPower = false;
@@ -265,7 +262,6 @@ public class RedCloseAuto extends OpMode {
 				if (pathTimer.getElapsedTimeSeconds() > shootTime) {
 					prepareToShoot = false;
 					shoot = false;
-					robot.indexer.transfer(false);
 					robot.follower.followPath(sTunnelMovement);
 					setPathState(CloseAutoPhases.moveToSTunnel);
 				}
@@ -298,7 +294,6 @@ public class RedCloseAuto extends OpMode {
 				if (pathTimer.getElapsedTimeSeconds() > shootTime) {
 					prepareToShoot = false;
 					shoot = false;
-					robot.indexer.transfer(false);
 					robot.follower.followPath(endAutoPath);
 					setPathState(CloseAutoPhases.endAuto);
 				}
@@ -399,13 +394,7 @@ public class RedCloseAuto extends OpMode {
 		} else {
 			robot.casualShooterModeOn();
 		}
-		if (shoot) {
-			robot.shootQueue(false);
-		}
-		if (!shoot && lastShoot) {
-			robot.indexer.transfer(false);
-		}
-		lastShoot = shoot;
+		robot.autoShoot(true);
 		robot.update();
 		if (opmodeTimer.getElapsedTimeSeconds() < 29) {
 			autonomousPathUpdate();
@@ -417,7 +406,6 @@ public class RedCloseAuto extends OpMode {
 				robot.turret.setTargetDeg(robot.turret.getAngle());
 				robot.shooter.setTargetRPM(0);
 				robot.shooter.setHoodDeg(5);
-				robot.indexer.transfer(false);
 				stopAuto = true;
 			}
 		}

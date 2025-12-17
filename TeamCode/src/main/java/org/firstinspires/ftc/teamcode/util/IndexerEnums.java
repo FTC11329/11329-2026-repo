@@ -10,14 +10,14 @@ public enum IndexerEnums {
     TransferTBlBr012Reverse,
     TransferTBlBr120,
     TransferTBlBr201,
-    TransferTBlBr012
+    TransferTBlBr012 // todo remove if we dont want it
 
     // Store States
     //Reverse
     // 0   2 | 1   0 | 2   1 | 0   2 
     //   1   |   2   |   0   |   1   
     // Transfer States 
-    //    Reverse
+    //    Reverse                    V Doesn't currently exist
     //       0   |   1   |   2   |   0   
     //     1   2 | 2   0 | 0   1 | 1   2 
 }

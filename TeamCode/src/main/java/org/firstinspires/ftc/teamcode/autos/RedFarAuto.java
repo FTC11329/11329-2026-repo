@@ -103,7 +103,6 @@ public class RedFarAuto extends OpMode {
 				if (pathTimer.getElapsedTimeSeconds() > shootTime) {
 					prepareToShoot = false;
 					shoot = false;
-					robot.indexer.transfer(false);
 					robot.intakeManual();
 					robot.follower.followPath(toWall1);
 					setPathState(FarAutoPhases.intaking1);
@@ -132,7 +131,6 @@ public class RedFarAuto extends OpMode {
 				if (pathTimer.getElapsedTimeSeconds() > shootTime) {
 					prepareToShoot = false;
 					shoot = false;
-					robot.indexer.transfer(false);
 					robot.intakeManual();
 					robot.follower.followPath(secondMovement);
 					robot.follower.setMaxPower(maxPower);
@@ -161,7 +159,6 @@ public class RedFarAuto extends OpMode {
 				if (pathTimer.getElapsedTimeSeconds() > shootTime) {
 					prepareToShoot = false;
 					shoot = false;
-					robot.indexer.transfer(false);
 					robot.intakeManual();
 					robot.follower.followPath(thirdMovement);
 					robot.follower.setMaxPower(maxPower);
@@ -196,7 +193,6 @@ public class RedFarAuto extends OpMode {
 				if (pathTimer.getElapsedTimeSeconds() > shootTime) {
 					prepareToShoot = false;
 					shoot = false;
-					robot.indexer.transfer(false);
 					robot.follower.followPath(endAutoPath);
 					setPathState(FarAutoPhases.endAuto);
 				}
@@ -270,12 +266,8 @@ public class RedFarAuto extends OpMode {
 		} else {
 			robot.casualShooterModeOn();
 		}
-		if (shoot) {
-			robot.shootQueue(false);
-		}
-		if (!shoot && lastShoot) {
-			robot.indexer.transfer(false);
-		}
+		robot.autoShoot(true);
+		robot.update();
 		if (opmodeTimer.getElapsedTimeSeconds() < 29) {
 			autonomousPathUpdate();
 		} else {
@@ -284,13 +276,10 @@ public class RedFarAuto extends OpMode {
 				robot.turret.setTargetDeg(robot.turret.getAngle());
 				robot.shooter.setTargetRPM(0);
 				robot.shooter.setHoodDeg(5);
-				robot.indexer.transfer(false);
 				robot.drivetrain.stopASAP();
 				stopAuto = true;
 			}
 		}
-		lastShoot = shoot;
-		robot.update();
 
 		// Feedback to Driver Hub for debugging
 		telemetry.addData("path state", pathState);
