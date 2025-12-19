@@ -16,17 +16,17 @@ public class Constants {
     public static class Indexer {
         public static double spindexPower = 0.45;
 
-        public static double timeToMoveIndexer1Index = 0.25;
-        public static double timeToTransfer = 0.5;
+        public static double timeToMoveIndexer1Index = 0.4;
+        public static double timeToTransfer = 0.75;
 
-        public static double StoreTlBTr012Reverse = 0;
-        public static double StoreTlBTr120 = 0.332;
-        public static double StoreTlBTr201 = 0.684;
+        public static double StoreTlBTr012Reverse = 1;
+        public static double StoreTlBTr120 = 0.2904;
+        public static double StoreTlBTr201 = 0.6436;
         public static double StoreTlBTr012 = 1;
 
-        public static double TransferTBlBr012Reverse = 0.16;
-        public static double TransferTBlBr120 = 0.51;
-        public static double TransferTBlBr201 = 0.864;
+        public static double TransferTBlBr012Reverse = 0.1184;
+        public static double TransferTBlBr120 = 0.47;
+        public static double TransferTBlBr201 = 0.8332;
         public static double TransferTBlBr012 = 0; // todo remove if we dont want it
 
         // Store States

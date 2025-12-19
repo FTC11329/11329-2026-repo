@@ -45,7 +45,7 @@ public class SmartIndexerWNoTRev {
     private boolean allowIntaking = true;
 
     Timer movingTimer;
-    Timer transferTimer;
+    public Timer transferTimer;
 
     //HOW THIS CLASS WORKS:
     // On initialization the indexer starts with index 0 at top left, index 1 in the intake opening (bottem), and index 2 top right
@@ -264,19 +264,19 @@ public class SmartIndexerWNoTRev {
             case TransferTBlBr012Reverse:
                 return new IndexerEnums[] {
                     IndexerEnums.TransferTBlBr120,
-                    IndexerEnums.TransferTBlBr012,
+                    IndexerEnums.TransferTBlBr012Reverse,
                     IndexerEnums.TransferTBlBr201
                 };
             case TransferTBlBr120:
                 return new IndexerEnums[] {
                     IndexerEnums.TransferTBlBr120,
                     IndexerEnums.TransferTBlBr201,
-                    IndexerEnums.TransferTBlBr012
+                    IndexerEnums.TransferTBlBr012Reverse
                 };
             case TransferTBlBr201:
                 return new IndexerEnums[] {
                     IndexerEnums.TransferTBlBr201,
-                    IndexerEnums.TransferTBlBr012,
+                    IndexerEnums.TransferTBlBr012Reverse,
                     IndexerEnums.TransferTBlBr120
                 };
         }
@@ -393,7 +393,7 @@ public class SmartIndexerWNoTRev {
             if (ballColorsAtTransferPosition(state) == color) {
                 // if ball is correct color
                 return state;
-            } else if (beReadyToTransferColor != BallColor.Any && ballColorsAtTransferPosition(state) != BallColor.None) {
+            } else if (color == BallColor.Any && ballColorsAtTransferPosition(state) != BallColor.None) {
                 // if looking for any ball and ball is not none
                 return state;
             }
@@ -501,10 +501,13 @@ public class SmartIndexerWNoTRev {
             case TransferTBlBr201:
                 return false;
         }
+        return true;
+    }
 
-        System.exit(0); // todo remove
-
-        return false;
+    public void deleteMe(IndexerEnums indexerEnums) {
+        switch (indexerEnums) {
+            case TransferTBlBr012:
+        }
     }
 
     // uses time to figure out if ball has left
@@ -553,7 +556,7 @@ public class SmartIndexerWNoTRev {
             }
         }
 
-        if (readyToShoot && (transferColor != BallColor.None || autoShoot) && isAStoreState(currentIndexerState) && movingTimer.getElapsedTimeSeconds() > 0) {
+        if (readyToShoot && (transferColor != BallColor.None || autoShoot) && !isHasBallsEmpty() && isAStoreState(currentIndexerState) && movingTimer.getElapsedTimeSeconds() > 0) {
             if (transferColor != BallColor.None) {
                 setIndexerPos(getCorrectTransferStateForTransfer(transferColor));
             } else {
@@ -585,11 +588,12 @@ public class SmartIndexerWNoTRev {
 
                 // if we probebly want to shoot more
                 if (autoShoot && !isHasBallsEmpty()) {
-                    getCorrectTransferStateForTransfer(BallColor.Any);
+                    setIndexerPos(getCorrectTransferStateForTransfer(BallColor.Any));
                 } else {
                     setIndexerPos(getCorrectStoreStateAfterIntake());
                     inShootingMode = false;
                 }
+                transfer(false);
             }
             if (cancelShoot) {
                 transferColor = BallColor.None;

@@ -198,7 +198,7 @@ public class Robot {
 
     // SHOOTER*************************************************************************************~
     public boolean readyToShoot() {
-        return shooter.closeEnoughToTarget() && turret.closeEnoughToTarget(getCurrentPose());
+        return shooter.closeEnoughToTarget() && turret.closeEnoughToTarget(getCurrentPose()) && inShootingZone() && shooter.getRPM() > 100;
     }
 
     // Adds a ball of color ball color to queuedBalls list

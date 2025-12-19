@@ -197,6 +197,11 @@ public class MainTeleop {
 
         robot.autoShoot(autoShoot.isOn);
 
+        if (autoShoot.isOn) {
+            robot.prepareShooter();
+        } else if (autoShoot.endPress) {
+            robot.casualShooterModeOn();
+        }
         // Changing our aim
         if (robotSide == RobotSide.Blue) {
             if (movePoseUp.startPress) {
@@ -239,7 +244,11 @@ public class MainTeleop {
         robot.update(debug.isOn);
 
         double deltaTime = time.milliseconds() - lastTime;
-        telemetry.addData("Loop Time", deltaTime);
+        for (BallColor i : robot.indexer.getHasBalls()) {
+            telemetry.addData("BALLER", i);
+        }
+        telemetry.addData("loopTimes", deltaTime);
+        telemetry.addData("time", robot.indexer.transferTimer.getElapsedTimeSeconds());
         lastTime = time.milliseconds();
 
 //        telemetry.addData("distance", robot.getCurrentPose().distanceFrom(Constants.Vision.blueGoal));
