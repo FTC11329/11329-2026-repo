@@ -38,9 +38,9 @@ public class TemporaryClassThatWeAreTotallyGoingToDelete extends OpMode {
     @Override
     public void loop() {
         if (gamepad1.dpad_up) {
-            postion += 0.0004;
+            postion += 0.004;
         } else if (gamepad1.dpad_down){
-            postion -= 0.0004;
+            postion -= 0.004;
         }
         telemetry.addData("Pos", postion);
         servo1.setPosition(postion);

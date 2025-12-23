@@ -261,6 +261,22 @@ public class Robot {
         this.autoShoot = autoShoot;
     }
 
+    public void prepareTurret() {
+        Pose curPose = getCurrentPose();
+        if (robotSide == RobotSide.Blue)  {
+            goal = Constants.Vision.blueGoal;
+        } else {
+            goal = Constants.Vision.redGoal;
+        }
+
+        double deltaX = goal.getX() - curPose.getX();
+        double deltaY = goal.getY() - curPose.getY();
+        double angleToGoal = Math.toDegrees(Math.atan2(deltaY, deltaX));
+
+        // Sets Turret angle
+        turret.setTargetDeg(angleToGoal - Math.toDegrees(curPose.getHeading()));
+    }
+
     double pictureTime = 0;
     public void shooterUpdate() {
         // Takes Picture every ___ ms

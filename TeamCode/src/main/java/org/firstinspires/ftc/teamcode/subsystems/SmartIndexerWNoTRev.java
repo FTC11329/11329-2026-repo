@@ -80,7 +80,7 @@ public class SmartIndexerWNoTRev {
         }
     }
 
-    private void setIndexerToShooterPower(double set) {
+    public void setIndexerToShooterPower(double set) {
         if (lastTransferPower != set) {
             lastTransferPower = set;
             feeder.setPower(set);
