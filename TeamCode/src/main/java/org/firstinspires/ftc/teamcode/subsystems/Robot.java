@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.math.Vector;
 import org.firstinspires.ftc.teamcode.util.BallColor;
+import org.firstinspires.ftc.teamcode.util.IndexerLogic;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
 import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterTestValuesV2;
 import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterState;
@@ -28,7 +29,7 @@ public class Robot {
     public Intake intake;
     public Turret turret;
     public Vision vision;
-    public SmartIndexerWNoTRev indexer;
+    public IndexerLogic indexer;
     public Shooter shooter;
     public Follower follower;
     public Drivetrain drivetrain;
@@ -45,7 +46,7 @@ public class Robot {
 
     boolean intakeToggle = false;
     boolean spitIntake = false;
-    boolean autoShoot = false;
+    boolean isIntaking = false;
 
     Pose lastCamPose = new Pose(0,0,0);
     // Offset pose to aim for
@@ -53,7 +54,7 @@ public class Robot {
     //This is an array of the 3 special colors of the games MOTIF
     public BallColor[] motif = null;
     //This is SPECIFICALLY for auto, it is the balls in the ramp
-    public ArrayList<BallColor> ramp = new ArrayList<BallColor>();
+    public ArrayList<BallColor> ramp = new ArrayList<>();
     //This is a varibale used in the ShootArtifact function to keep track of the shooting Phase
     int oneBallCase = 0;
     //This is a PUBLIC variable: [turret anlge, hood angle, shooter RPM]
@@ -63,14 +64,17 @@ public class Robot {
 
 
     Telemetry telemetry;
-    public Robot(Telemetry telemetry, HardwareMap hardwareMap, RobotSide robotSide, int startTurretTicks) {
+    public Robot(Telemetry telemetry, HardwareMap hardwareMap, RobotSide robotSide, int startTurretTicks, int startIndexerTicks) {
+        this(telemetry, hardwareMap, robotSide, startTurretTicks, startIndexerTicks, new BallColor[]{BallColor.None, BallColor.None, BallColor.None});
+    }
+    public Robot(Telemetry telemetry, HardwareMap hardwareMap, RobotSide robotSide, int startTurretTicks, int startIndexerTicks, BallColor[] ballsInIndexer) {
         this.telemetry = telemetry;
         this.robotSide = robotSide;
         panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
         stilts = new Stilts(hardwareMap);
         intake = new Intake(hardwareMap);
         vision = new Vision(hardwareMap, robotSide);
-        indexer = new SmartIndexerWNoTRev(hardwareMap);
+        indexer = new IndexerLogic(hardwareMap, ballsInIndexer, startIndexerTicks);
         shooter = new Shooter(hardwareMap);
         turret = new Turret(hardwareMap, startTurretTicks, robotSide);
         follower = org.firstinspires.ftc.teamcode.pedroPathing.Constants.createFollower(hardwareMap);
@@ -203,10 +207,7 @@ public class Robot {
 
     // Adds a ball of color ball color to queuedBalls list
     public void qBall(BallColor qdColor) {
-        qBall(qdColor, true);
-    }
-    public void qBall(BallColor qdColor, boolean force) {
-        indexer.queueColor(qdColor, force);
+        indexer.addToBackQueue(qdColor);
     }
 
     public void casualShooterModeOn() {
@@ -255,10 +256,6 @@ public class Robot {
 
     public void setShooterTargetRPM(double set) {
         shooter.setTargetRPM(set);
-    }
-
-    public void autoShoot(boolean autoShoot) {
-        this.autoShoot = autoShoot;
     }
 
     public void prepareTurret() {
@@ -321,20 +318,15 @@ public class Robot {
 
     // SPINDEXER***********************************************************************************~
 
+    public void isIntaking(boolean isIntaking) {
+        this.isIntaking = isIntaking;
+    }
+
+
 
     // for auto
     public void spindexerUpdate() {
-        spindexerUpdate(false);
-    }
-
-    // for before we have a way to detect if a ball hs left shooter
-    public void spindexerUpdate(boolean cancelShoot) {
-        indexer.update(cancelShoot, readyToShoot(), autoShoot);
-    }
-
-    // for teleopp
-    public void spindexerUpdate(boolean cancelShoot, boolean ballHasLeftShooter) {
-        indexer.update(cancelShoot, readyToShoot(), ballHasLeftShooter, autoShoot);
+        indexer.update(hasShot, isIntaking);
     }
 
 

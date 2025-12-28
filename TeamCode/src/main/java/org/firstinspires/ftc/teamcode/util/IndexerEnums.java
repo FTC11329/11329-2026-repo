@@ -9,9 +9,9 @@ public enum IndexerEnums {
     // Order for Shooting positions from top to bottomLeft To bottomRight
     TransferTBlBr012Reverse,
     TransferTBlBr120,
+
     TransferTBlBr201,
     TransferTBlBr012 // todo remove if we dont want it
-
     // Store States
     //Reverse
     // 0   2 | 1   0 | 2   1 | 0   2 

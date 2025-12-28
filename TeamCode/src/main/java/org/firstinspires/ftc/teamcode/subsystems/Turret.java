@@ -40,10 +40,7 @@ public class Turret {
         encoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         encoder.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        int actual = encoder.getCurrentPosition();  // usually 0 after reset
-        encoderOffset = startTurretTicks - actual;  // virtual starting point
-
-
+        encoderOffset = startTurretTicks;
 
         turretPID = new PIDFController(Constants.Turret.turretPID);
         turretPID.updateFeedForwardInput(Constants.Turret.rightF);

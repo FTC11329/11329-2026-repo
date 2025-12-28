@@ -13,7 +13,12 @@ import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 @Configurable
 public class Constants {
 
+    @Configurable
     public static class Indexer {
+        public static PIDFCoefficients pidfCoefficients = new PIDFCoefficients(0,0,0,0);
+
+        public static double indexerTolerance = Math.PI / 18;
+
         public static double spindexPower = 0.45;
 
         public static double timeToMoveIndexer1Index = 0.4;

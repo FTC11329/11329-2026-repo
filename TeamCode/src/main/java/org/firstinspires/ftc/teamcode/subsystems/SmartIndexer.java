@@ -534,6 +534,7 @@ public class SmartIndexer {
             }
         }
     }
+   
         
         // Store States
         //Reverse
