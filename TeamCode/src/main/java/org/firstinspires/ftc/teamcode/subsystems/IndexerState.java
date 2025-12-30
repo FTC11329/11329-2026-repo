@@ -6,23 +6,22 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Constants;
-import org.firstinspires.ftc.teamcode.pedroPathing.control.PIDFController;
 import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.ColorFunctions;
 import org.firstinspires.ftc.teamcode.util.IndexerEnumsNew;
+import org.firstinspires.ftc.teamcode.util.SuperDuperPID;
+
 import static java.lang.Math.PI;
-import static java.lang.Math.pow;
 
 public class IndexerState {
 
     private IndexerEnumsNew indexerPosition = IndexerEnumsNew.intake0;
     private BallColor[] ballCells;
-    public PIDFController pidfController;
+    public SuperDuperPID pidfController;
 
     private DcMotorEx encoder;
     private CRServo spindexer1;
@@ -32,7 +31,6 @@ public class IndexerState {
 
     public boolean atPosition = true;
     private int encoderOffset;
-    private boolean deleteme = false;
 
     public IndexerState(HardwareMap hardwareMap, BallColor[] ballCells, int startIndexerTicks) {
         this.ballCells = ballCells;
@@ -47,7 +45,7 @@ public class IndexerState {
 
         colorSensor = hardwareMap.get(RevColorSensorV3.class, "spindexerColorSensor");
 
-        pidfController = new PIDFController(Constants.Indexer.pidfCoefficients);
+        pidfController = new SuperDuperPID(Constants.Indexer.pidfCoefficients);
         pidfController.updateFeedForwardInput(1);
         encoderOffset = startIndexerTicks;
 
@@ -68,7 +66,7 @@ public class IndexerState {
 
                 double targetAngle = convertEnumToAbsoluteAngle(targetEnum);
 
-                double distanceFromAngleToTarget = findSmallestAngleToIndex(targetAngle);
+                double distanceFromAngleToTarget = Math.abs(findSmallestAngleToIndex(targetAngle));
 
                 if (distanceFromAngleToTarget < smallestDistance) {
                     smallestDistance = distanceFromAngleToTarget;
@@ -86,7 +84,7 @@ public class IndexerState {
 
 
     public double findSmallestAngleToIndex(double targetAngle) {
-        return Math.abs(((targetAngle - getAbsoluteEncoderAngle() + PI) % (2 * PI)) - PI);
+        return ((targetAngle - getAbsoluteEncoderAngle() + PI) % (2 * PI)) - PI;
     }
 
 
@@ -94,7 +92,6 @@ public class IndexerState {
         return getContinuousEncoderAngle() % (2 * PI);
     }
 
-    // Converts ticks to radians
     public double getContinuousEncoderAngle() {
         return getEncoderTicks() / 4096.0 * (2 * PI);
     }
@@ -107,7 +104,6 @@ public class IndexerState {
                 return PI / 3;
             case shoot2:
                 return 5 * PI / 3;
-
             case intake0:
                 return 0;
             case intake1:
@@ -115,15 +111,16 @@ public class IndexerState {
             case intake2:
                 return 4 * PI / 3;
         }
-
         return 0;
     }
-
+    public double enumToTicks(IndexerEnumsNew targetIndexerEnum) {
+        return encoder.getCurrentPosition() + ((4096.0 / (2 * PI)) * (findSmallestAngleToIndex(convertEnumToAbsoluteAngle(targetIndexerEnum))));
+    }
     public void setIndexerTarget(IndexerEnumsNew targetIndexerEnum) {
         if (targetIndexerEnum != indexerPosition) {
             atPosition = false;
 
-            double targetPosition = convertEnumToAbsoluteAngle(targetIndexerEnum);
+            double targetPosition = enumToTicks(targetIndexerEnum);
             pidfController.setTargetPosition(targetPosition);
         }
     }
@@ -133,16 +130,14 @@ public class IndexerState {
     }
 
     public void update() {
-        double smallestError = findSmallestAngleToIndex(pidfController.getTargetPosition());
-        pidfController.updateError(smallestError);
-        
-        pidfController.updatePosition(getAbsoluteEncoderAngle());
+
+        pidfController.updateCurrentPosition(encoder.getCurrentPosition());
 
         double power = pidfController.run();
         spindexer1.setPower(power);
         spindexer2.setPower(power);
 
-        if (smallestError < Constants.Indexer.indexerTolerance) {
+        if (pidfController.getError() < Constants.Indexer.indexerTolerance) {
             atPosition = true;
         }
     }

@@ -16,7 +16,7 @@ public class Constants {
     public static class Indexer {
         public static PIDFCoefficients pidfCoefficients = new PIDFCoefficients(0.23,0.012,0.0155,0);
 
-        public static double indexerTolerance = Math.PI / 10;
+        public static double indexerTolerance = 1365; // 12 degrees in ticks
 
         public static double spindexPower = 0.45;
 
