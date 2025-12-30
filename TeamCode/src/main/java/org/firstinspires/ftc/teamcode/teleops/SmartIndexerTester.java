@@ -35,7 +35,7 @@ public class SmartIndexerTester extends OpMode {
         indexerDumbWrapper = new SmartIndexerDumbWrapper(hardwareMap);
         shoot = new FancyButton(FancyButton.PressType.LongPress);
         autoShoot = new FancyButton(FancyButton.PressType.LongPress);
-        robot = new Robot(telemetry, hardwareMap, RobotSide.Blue, 0);
+        robot = new Robot(telemetry, hardwareMap, RobotSide.Blue, 0, 0);
 
         hoodUp = new FancyButton(FancyButton.PressType.LongPress);
         hoodDown = new FancyButton(FancyButton.PressType.LongPress);

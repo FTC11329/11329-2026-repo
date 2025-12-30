@@ -68,7 +68,7 @@ public class AutoReplayTeleop {
         int startTurretTicks = endValues.turretTicks;
         startPose = new Pose(endValues.robotX, endValues.robotY, endValues.robotHeading);
 
-        robot = new Robot(telemetry, hardwareMap, robotSide, startTurretTicks);
+        robot = new Robot(telemetry, hardwareMap, robotSide, startTurretTicks, 0);
         autoReplay = new AutoReplayTime(robot.follower, telemetry, gamepadInfo1, gamepadInfo2);
         autoReplay.init();
         autoReplay.init();
@@ -184,7 +184,7 @@ public class AutoReplayTeleop {
             robot.qBall(BallColor.Green);
         }
 
-        robot.autoShoot(autoShoot.isOn);
+        robot.isIntaking(intake.isOn);
 
         // Changing our aim
         if (robotSide == RobotSide.Blue) {

@@ -6,6 +6,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Constants;
@@ -14,20 +16,23 @@ import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.ColorFunctions;
 import org.firstinspires.ftc.teamcode.util.IndexerEnumsNew;
 import static java.lang.Math.PI;
+import static java.lang.Math.pow;
 
 public class IndexerState {
 
     private IndexerEnumsNew indexerPosition = IndexerEnumsNew.intake0;
     private BallColor[] ballCells;
-    private PIDFController pidfController;
+    public PIDFController pidfController;
 
     private DcMotorEx encoder;
     private CRServo spindexer1;
     private CRServo spindexer2;
     private RevColorSensorV3 colorSensor;
+    private ElapsedTime time;
 
     public boolean atPosition = true;
     private int encoderOffset;
+    private boolean deleteme = false;
 
     public IndexerState(HardwareMap hardwareMap, BallColor[] ballCells, int startIndexerTicks) {
         this.ballCells = ballCells;
@@ -36,7 +41,7 @@ public class IndexerState {
         spindexer1.setDirection(CRServo.Direction.REVERSE);
         spindexer2.setDirection(CRServo.Direction.REVERSE);
 
-        encoder = hardwareMap.get(DcMotorEx.class, "IndexerEncoder");
+        encoder = hardwareMap.get(DcMotorEx.class, "intake");
         encoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         encoder.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
@@ -44,8 +49,12 @@ public class IndexerState {
 
         pidfController = new PIDFController(Constants.Indexer.pidfCoefficients);
         pidfController.updateFeedForwardInput(1);
-
         encoderOffset = startIndexerTicks;
+
+
+
+
+        time = new ElapsedTime();
     }
 
     public void moveToNearest(BallColor tarColor, boolean isAnIntakePosition) {
@@ -110,12 +119,6 @@ public class IndexerState {
         return 0;
     }
 
-//    todo unless we don't need todo
-//    public IndexerEnumsNew convertAngleToNearestEnum() {
-//
-//    }
-
-
     public void setIndexerTarget(IndexerEnumsNew targetIndexerEnum) {
         if (targetIndexerEnum != indexerPosition) {
             atPosition = false;
@@ -130,8 +133,11 @@ public class IndexerState {
     }
 
     public void update() {
-        double smallestError = (((pidfController.getTargetPosition() - getAbsoluteEncoderAngle() + PI) % (2 * PI)) - PI);
+        double smallestError = findSmallestAngleToIndex(pidfController.getTargetPosition());
         pidfController.updateError(smallestError);
+        
+        pidfController.updatePosition(getAbsoluteEncoderAngle());
+
         double power = pidfController.run();
         spindexer1.setPower(power);
         spindexer2.setPower(power);
@@ -165,7 +171,7 @@ public class IndexerState {
 
     public BallColor getColor() {
         if (atPosition) {
-            return ColorFunctions.toColor(getColorRGB(), getDistance());
+            return ColorFunctions.toColor(getColorRGBA(), getDistance());
         } else {
             return BallColor.None;
         }
@@ -175,16 +181,35 @@ public class IndexerState {
         return colorSensor.getDistance(DistanceUnit.INCH);
     }
 
-    public NormalizedRGBA getColorRGB() {
+    public NormalizedRGBA getColorRGBA() {
         return colorSensor.getNormalizedColors();
     }
 
     public IndexerEnumsNew getIndexerPosition() {
         return indexerPosition;
     }
+
     public void setBallCells(BallColor[] ballCells) {
         this.ballCells = ballCells;
     }
+
+    public void setBallCellAtIntakeToRightColor() {
+        switch (indexerPosition) {
+            case intake0:
+                ballCells[0] = getColor();
+                break;
+            case intake1:
+                ballCells[1] = getColor();
+                break;
+            case intake2:
+                ballCells[2] = getColor();
+                break;
+            default:
+                System.exit(0);
+                break;
+        }
+    }
+
     public void removeBallAtIndex(int index) {
         ballCells[index] = BallColor.None;
     }

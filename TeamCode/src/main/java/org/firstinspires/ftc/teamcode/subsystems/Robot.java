@@ -10,7 +10,6 @@ import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.Drawing;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
-import org.firstinspires.ftc.teamcode.pedroPathing.math.Vector;
 import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.IndexerLogic;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
@@ -21,7 +20,6 @@ import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterValuesPar
 //todo import java.awt.Shape to make the inShootingZone() better 
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class Robot {
     // Todo make private exept follower
@@ -322,11 +320,9 @@ public class Robot {
         this.isIntaking = isIntaking;
     }
 
-
-
     // for auto
-    public void spindexerUpdate() {
-        indexer.update(hasShot, isIntaking);
+    public void spindexerUpdate(boolean hasShotButton) {
+        indexer.update(hasShotButton, isIntaking, readyToShoot());
     }
 
 
@@ -373,14 +369,13 @@ public class Robot {
     public void update(boolean debug) {
         update(debug, false);
     }
-    public void update(boolean debug, boolean cancelShoot) {
+    public void update(boolean debug, boolean hasShotButton) {
         shooterUpdate();
         intakeUpdate();
-        spindexerUpdate(cancelShoot);
+        spindexerUpdate(hasShotButton);
         turretUpdate();
         teleopUpdate();
         follower.update();
-        telemetry.addData("distance", getCurrentPose().distanceFrom(goal));
         if (debug) {
             Drawing.drawDebug(follower);
             telemetry.addLine("=== VISION ===");
@@ -400,12 +395,12 @@ public class Robot {
             telemetry.addData("Turret power", turret.turretPID.run());
 
             telemetry.addLine("=== COLOR ===");
-            telemetry.addData("indexer r", indexer.getColorRGBA().red);
-            telemetry.addData("indexer g", indexer.getColorRGBA().green);
-            telemetry.addData("indexer b", indexer.getColorRGBA().blue);
-            telemetry.addData("indexer a", indexer.getColorRGBA().alpha);
-            telemetry.addData("indexer col", indexer.getColor());
-            telemetry.addData("indexer dis", indexer.getDistance());
+            telemetry.addData("indexer r", indexer.indexerState.getColorRGBA().red);
+            telemetry.addData("indexer g", indexer.indexerState.getColorRGBA().green);
+            telemetry.addData("indexer b", indexer.indexerState.getColorRGBA().blue);
+            telemetry.addData("indexer a", indexer.indexerState.getColorRGBA().alpha);
+            telemetry.addData("indexer col", indexer.indexerState.getColor());
+            telemetry.addData("indexer dis", indexer.indexerState.getDistance());
 
             telemetry.addLine("=== POSITION ===");
             telemetry.addData("guess pose", getCurrentPose());
@@ -415,10 +410,10 @@ public class Robot {
             telemetry.addData("in shooting zone", inShootingZone());
 
             telemetry.addLine("=== QUEUE ===");
-            if (indexer.getQueuedBalls().isEmpty()) {
+            if (indexer.getQueue().isEmpty()) {
                 telemetry.addLine("Nothing in queue");
             }
-            for (BallColor ball : indexer.getQueuedBalls()) {
+            for (BallColor ball : indexer.getQueue()) {
                 telemetry.addData("qball", ball);
             }
 
@@ -429,11 +424,16 @@ public class Robot {
 
 //        panelsTelemetry.addData("turret target", turret.turretPID.getTargetPosition());
 //        panelsTelemetry.addData("turret actual", turret.getAngle());
-            panelsTelemetry.addData("shooter target", shooter.getTargetRpm());
-            panelsTelemetry.addData("shooter actual", shooter.getRPM());
-            panelsTelemetry.update(telemetry);
+//            panelsTelemetry.addData("shooter target", shooter.getTargetRpm());
+//            panelsTelemetry.addData("shooter actual", shooter.getRPM());
+//            panelsTelemetry.update(telemetry);
+            panelsTelemetry.addData("Indexer Actual Abso", indexer.indexerState.getAbsoluteEncoderAngle());
+            panelsTelemetry.addData("Indexer Error", indexer.indexerState.pidfController.getError());
+            panelsTelemetry.addData("Indexer Actual Cont", indexer.indexerState.pidfController.run());
 
         }
+        panelsTelemetry.addData("Indexer Target", indexer.indexerState.pidfController.getTargetPosition());
+        panelsTelemetry.update();
 
     }
 

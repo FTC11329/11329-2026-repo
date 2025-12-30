@@ -15,7 +15,7 @@ public class IndexerLogic {
     DcMotorEx feeder;
     double lastTransferPower = 0;
 
-    IndexerState indexerState;
+    public IndexerState indexerState;
     List<BallColor> queue = new ArrayList<>();
     boolean lastHasShot = false;
 
@@ -53,6 +53,10 @@ public class IndexerLogic {
         return color;
     }
 
+    public List<BallColor> getQueue() {
+        return queue;
+    }
+
 
     public void update(boolean hasShot, boolean isIntaking, boolean readyToShoot) {
         //
@@ -74,6 +78,9 @@ public class IndexerLogic {
         // move to nearest ball of right color
         if (isIntaking) {
             if (!indexerState.isBallCellsFull()) {
+                if (indexerState.getColor() != BallColor.None) {
+                    indexerState.setBallCellAtIntakeToRightColor();
+                }
                 indexerState.moveToNearest(BallColor.None, true);
             } else {
                 isIntaking = false;
@@ -81,7 +88,8 @@ public class IndexerLogic {
         }
         if (!isIntaking) {
             if (indexerState.isBallCellsEmpty()) {
-                indexerState.moveToNearest(BallColor.None, true);
+                update(hasShot, true, readyToShoot);
+                return;
             } else {
                 if (queue.isEmpty()) {
                     // auto fire case
@@ -102,7 +110,7 @@ public class IndexerLogic {
         indexerState.update();
     }
 
-    private void setIndexerToShooterPower(double set) {
+    public void setIndexerToShooterPower(double set) {
         if (lastTransferPower != set) {
             lastTransferPower = set;
             feeder.setPower(set);

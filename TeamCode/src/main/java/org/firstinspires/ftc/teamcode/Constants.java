@@ -10,14 +10,13 @@ import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.pedroPathing.control.PIDFCoefficients;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 
-@Configurable
 public class Constants {
 
     @Configurable
     public static class Indexer {
-        public static PIDFCoefficients pidfCoefficients = new PIDFCoefficients(0,0,0,0);
+        public static PIDFCoefficients pidfCoefficients = new PIDFCoefficients(0.23,0.012,0.0155,0);
 
-        public static double indexerTolerance = Math.PI / 18;
+        public static double indexerTolerance = Math.PI / 10;
 
         public static double spindexPower = 0.45;
 
@@ -55,7 +54,6 @@ public class Constants {
         public static double secondsForHole = 0.1;
     }
 
-    @Configurable
     public static class Intake {
         public static double intakePower = 1;
         public static double spitPower = -0.67; //67 67 67 67 67 67 67 67 67 67

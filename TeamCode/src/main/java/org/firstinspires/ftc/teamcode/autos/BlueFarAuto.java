@@ -211,7 +211,7 @@ public class BlueFarAuto extends OpMode {
 		pathTimer = new Timer();
 		opmodeTimer = new Timer();
 		opmodeTimer.resetTimer();
-		robot = new Robot(telemetry, hardwareMap, RobotSide.Blue, 0);
+		robot = new Robot(telemetry, hardwareMap, RobotSide.Blue, 0, 0);
 		robot.follower.setStartingPose(startPose);
 		buildPaths();
 	}
@@ -262,7 +262,7 @@ public class BlueFarAuto extends OpMode {
 		} else {
 			robot.casualShooterModeOn();
 		}
-		robot.autoShoot(true);
+//		robot.autoShoot(true);
 		robot.update();
 		if (opmodeTimer.getElapsedTimeSeconds() < 29) {
 			autonomousPathUpdate();

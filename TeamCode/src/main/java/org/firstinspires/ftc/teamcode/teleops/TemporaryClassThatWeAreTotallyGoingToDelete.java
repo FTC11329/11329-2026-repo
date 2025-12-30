@@ -1,50 +1,40 @@
 package org.firstinspires.ftc.teamcode.teleops;
 
-import com.bylazar.panels.Panels;
-import com.bylazar.telemetry.PanelsTelemetry;
-import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.NormalizedRGBA;
-import com.qualcomm.robotcore.hardware.Servo;
-
-import org.firstinspires.ftc.teamcode.Constants;
-import org.firstinspires.ftc.teamcode.subsystems.Indexer;
-import org.firstinspires.ftc.teamcode.subsystems.Intake;
-import org.firstinspires.ftc.teamcode.subsystems.Robot;
-import org.firstinspires.ftc.teamcode.subsystems.Shooter;
-import org.firstinspires.ftc.teamcode.subsystems.SmartIndexer;
-import org.firstinspires.ftc.teamcode.subsystems.SmartIndexerWNoTRev;
-import org.firstinspires.ftc.teamcode.subsystems.Turret;
-import org.firstinspires.ftc.teamcode.util.FancyButton;
-import org.firstinspires.ftc.teamcode.util.RobotSide;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 @TeleOp(name = "TEST", group = "       group")
 public class TemporaryClassThatWeAreTotallyGoingToDelete extends OpMode {
-    Servo servo1;
-    Servo servo2;
-    double postion = 0;
+    CRServo servo1;
+    CRServo servo2;
+    DcMotorSimple motor1;
+    DcMotorSimple motor2;
+    double power = 1;
 
     @Override
     public void init() {
-        servo1 = hardwareMap.get(Servo.class, "spindexer1");
-        servo2 = hardwareMap.get(Servo.class, "spindexer2");
-        servo1.setDirection(Servo.Direction.REVERSE);
-        servo2.setDirection(Servo.Direction.REVERSE);
+        servo1 = hardwareMap.get(CRServo.class, "spindexer1");
+        servo2 = hardwareMap.get(CRServo.class, "spindexer2");
+        servo1.setDirection(CRServo.Direction.REVERSE);
+        servo2.setDirection(CRServo.Direction.REVERSE);
+
+        motor1 = hardwareMap.get(DcMotorSimple.class, "flywheel");
+        motor1.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        motor2 = hardwareMap.get(DcMotorSimple.class, "transfer");
+        motor2.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        motor1.setPower(0.8);
+        motor2.setPower(0.8);
     }
 
     @Override
     public void loop() {
-        if (gamepad1.dpad_up) {
-            postion += 0.004;
-        } else if (gamepad1.dpad_down){
-            postion -= 0.004;
-        }
-        telemetry.addData("Pos", postion);
-        servo1.setPosition(postion);
-        servo2.setPosition(postion);
-
+        telemetry.addData("Pos", power);
+        servo1.setPower(power);
+        servo2.setPower(power);
     }
 }

@@ -64,7 +64,7 @@ public class TestingShooterValues {
         int startTurretTicks = endValues.turretTicks;
         startPose = new Pose(endValues.robotX, endValues.robotY, endValues.robotHeading);
 
-        robot = new Robot(telemetry, hardwareMap, robotSide, startTurretTicks);
+        robot = new Robot(telemetry, hardwareMap, robotSide, startTurretTicks, 0);
 
         intake = new FancyButton(FancyButton.PressType.Toggle);
         spitIntake = new FancyButton(FancyButton.PressType.LongPress);
@@ -169,7 +169,7 @@ public class TestingShooterValues {
             robot.qBall(BallColor.Green);
         }
 
-        robot.autoShoot(autoShoot.isOn);
+        robot.isIntaking(intake.isOn);
 
 
         if (moveHoodUp.startPress) {

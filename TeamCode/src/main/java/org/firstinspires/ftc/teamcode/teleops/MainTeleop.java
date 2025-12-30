@@ -89,7 +89,8 @@ public class MainTeleop {
         int startTurretTicks = endValues.turretTicks;
         startPose = new Pose(endValues.robotX, endValues.robotY, endValues.robotHeading);
 
-        robot = new Robot(telemetry, hardwareMap, robotSide, startTurretTicks);
+//        robot = new Robot(telemetry, hardwareMap, robotSide, startTurretTicks, 0); todo
+        robot = new Robot(telemetry, hardwareMap, robotSide, 0, 0);
 
         intake = new FancyButton(FancyButton.PressType.Toggle);
         spitIntake = new FancyButton(FancyButton.PressType.LongPress);
@@ -121,7 +122,7 @@ public class MainTeleop {
 
         resetPose.checkStatus(gamepad2.y);
 
-        if (resetPose.startPress) {
+        if (resetPose.startPress || true) {
             startPose = new Pose(0,0,0);
             robot.turret.encoderOffset = 0;
         }
@@ -195,7 +196,7 @@ public class MainTeleop {
             robot.qBall(BallColor.Green);
         }
 
-        robot.autoShoot(autoShoot.isOn);
+        robot.isIntaking(intake.isOn);
 
         if (autoShoot.isOn) {
             robot.prepareShooter();
@@ -241,14 +242,14 @@ public class MainTeleop {
                 robot.offsetPose = new Pose(0,0,0);
             }
         }
-        robot.update(debug.isOn);
+        robot.update(debug.isOn, gamepad2.back);
+
+//        for (BallColor i : robot.indexer.indexerState.getBallCells()) {
+//            telemetry.addData("BALLER", i);
+//        }
 
         double deltaTime = time.milliseconds() - lastTime;
-        for (BallColor i : robot.indexer.getHasBalls()) {
-            telemetry.addData("BALLER", i);
-        }
         telemetry.addData("loopTimes", deltaTime);
-        telemetry.addData("time", robot.indexer.transferTimer.getElapsedTimeSeconds());
         lastTime = time.milliseconds();
 
 //        telemetry.addData("distance", robot.getCurrentPose().distanceFrom(Constants.Vision.blueGoal));

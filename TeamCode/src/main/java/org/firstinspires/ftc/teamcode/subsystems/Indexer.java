@@ -169,7 +169,6 @@ public class Indexer {
 //        }
 //        return balls;
      */
-    //ToDo: Loading
     public void setTransferPower(double set){
         if (lastTransferPower != set){
             lastTransferPower = set;
