@@ -1,6 +1,9 @@
 package org.firstinspires.ftc.teamcode.util;
 
+import static org.firstinspires.ftc.teamcode.pedroPathing.math.MathFunctions.clamp;
+
 import org.firstinspires.ftc.teamcode.pedroPathing.control.PIDFCoefficients;
+import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 
 public class SuperDuperPID {
         private PIDFCoefficients coefficients;
@@ -15,8 +18,9 @@ public class SuperDuperPID {
         private long previousUpdateTimeNano;
         private long deltaTimeNano;
         private boolean integralFreeze;
+        private Timer stuckTime = new Timer();
 
-        public SuperDuperPID(PIDFCoefficients set) {
+    public SuperDuperPID(PIDFCoefficients set) {
             setCoefficients(set);
             reset();
         }
@@ -33,15 +37,23 @@ public class SuperDuperPID {
             boolean stuck = (Math.abs(error) > 0.01) && (Math.abs(measuredVelocity) < stuckThreshold);
 
             if (stuck) {
-                pidOutput += breakawayBoost * Math.signum(error);
-                integralFreeze = true;
+                if (stuckTime.getElapsedTimeSeconds() < .1) {
+                    pidOutput += breakawayBoost * Math.signum(error);
+                    integralFreeze = true;
+                } else {
+                    if (stuckTime.getElapsedTimeSeconds() < .15) {
+                        pidOutput = -pidOutput;
+                    } else {
+                        stuckTime.resetTimer();
+                    }
+                }
             } else {
                 integralFreeze = false;
+                stuckTime.resetTimer();
             }
 
             return pidOutput;
         }
-
         public void updateCurrentPosition(double position) {
             previousPosition = this.position;
             this.position = position;

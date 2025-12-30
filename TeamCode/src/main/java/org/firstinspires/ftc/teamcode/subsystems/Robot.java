@@ -418,7 +418,6 @@ public class Robot {
             }
 
 
-//            telemetry.addData("in shooting zone", inShootingZone());
 //            telemetry.addData("hood", shooter.getHoodPosDeg());
 //            telemetry.addData("rpm", shooter.getRPM());
 
@@ -431,10 +430,14 @@ public class Robot {
             panelsTelemetry.addData("Indexer Error", indexer.indexerState.pidfController.getError());
             panelsTelemetry.addData("Indexer Actual Cont", indexer.indexerState.pidfController.run());
 
+            panelsTelemetry.addData("Indexer Target", indexer.indexerState.pidfController.getTargetPosition());
+            panelsTelemetry.update();
         }
-        panelsTelemetry.addData("Indexer Target", indexer.indexerState.pidfController.getTargetPosition());
-        panelsTelemetry.update();
-
+        telemetry.addData("in shooting zone", inShootingZone());
+        telemetry.addData("ready to shoot", readyToShoot());
+        telemetry.addData("is at position", indexer.indexerState.atPosition);
+        telemetry.addData("is intaking", isIntaking);
+        telemetry.update();
     }
 
     public void stopAllSubsystems() {

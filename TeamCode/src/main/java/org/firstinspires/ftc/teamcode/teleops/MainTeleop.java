@@ -16,29 +16,6 @@ import org.firstinspires.ftc.teamcode.util.EndValuesStorer;
 import org.firstinspires.ftc.teamcode.util.FancyButton;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
 
-//  Shooting logic (in psudo code)
-//  if (togg) {
-//      spin up
-//  }
-//  if ((!failsafeToggle) && (togg and (inShootZone || overrideButton) ) ) {
-//      if ((purple or green) in queue) {
-//          shoot queue
-//      } else {
-//          shoot any
-//      }
-//  } else if (failsafeToggle) {
-//      if (gamepad2.a) {
-//          spin indexer
-//          spin shooter(2000rpm)
-//          setHood (10deg)
-//      }
-//      if (gamepad2.back) {
-//          spin transfer
-//      } else {
-//          don't spin transfer
-//      }
-//   }
-
 public class MainTeleop {
     //This is where we introduce the tele-operated controls
     Robot robot;
@@ -117,9 +94,6 @@ public class MainTeleop {
     }
 
     public void init_loop() {
-        telemetry.addLine("Use gamepad 2 Dpad to change Start Position");
-        telemetry.addData("If this works, I get to go home", true);
-
         resetPose.checkStatus(gamepad2.y);
 
         if (resetPose.startPress || true) {
@@ -168,9 +142,11 @@ public class MainTeleop {
 
         if (intake.startPress) {
             robot.intakeManual();
+            robot.isIntaking(true);
         }
         if (intake.endPress) {
             robot.stopIntake();
+            robot.isIntaking(false);
         }
 
         if (spitIntake.startPress) {
@@ -196,7 +172,6 @@ public class MainTeleop {
             robot.qBall(BallColor.Green);
         }
 
-        robot.isIntaking(intake.isOn);
 
         if (autoShoot.isOn) {
             robot.prepareShooter();

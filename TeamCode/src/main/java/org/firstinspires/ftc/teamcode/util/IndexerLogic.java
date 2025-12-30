@@ -59,7 +59,6 @@ public class IndexerLogic {
 
 
     public void update(boolean hasShot, boolean isIntaking, boolean readyToShoot) {
-        //
         if (hasShot && !lastHasShot) {
             lastHasShot = true;
         } else if (!hasShot) {

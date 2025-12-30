@@ -163,14 +163,26 @@ public class IndexerState {
     public BallColor[] getBallCells() {
         return ballCells;
     }
-
+    private static final long UPDATE_PERIOD_MS = 100;
+    private long lastUpdateTime = 0;
+    private BallColor cachedColor = BallColor.None;
+    // this limits it to checking the intake for a ball to every 100ms for faster performance
     public BallColor getColor() {
-        if (atPosition) {
-            return ColorFunctions.toColor(getColorRGBA(), getDistance());
-        } else {
-            return BallColor.None;
+        long now = System.currentTimeMillis();
+
+        if (now - lastUpdateTime >= UPDATE_PERIOD_MS) {
+            lastUpdateTime = now;
+            if (atPosition) {
+                cachedColor = ColorFunctions.toColor(getColorRGBA(), getDistance());
+            } else {
+                cachedColor = BallColor.None;
+            }
         }
+
+        return cachedColor;
     }
+
+
 
     public double getDistance() {
         return colorSensor.getDistance(DistanceUnit.INCH);
