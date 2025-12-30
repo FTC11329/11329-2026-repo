@@ -13,6 +13,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.IndexerLogic;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
+import org.firstinspires.ftc.teamcode.util.SuperDuperPID;
 import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterTestValuesV2;
 import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterState;
 import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterTestValuesV1;
@@ -59,6 +60,7 @@ public class Robot {
     double[] shootingParams;
     boolean doAutoIntake = false;
     Pose goal = new Pose(0,0,0);
+    int i = 0;
 
 
     Telemetry telemetry;
@@ -426,17 +428,22 @@ public class Robot {
 //            panelsTelemetry.addData("shooter target", shooter.getTargetRpm());
 //            panelsTelemetry.addData("shooter actual", shooter.getRPM());
 //            panelsTelemetry.update(telemetry);
-            panelsTelemetry.addData("Indexer Actual Abso", indexer.indexerState.getAbsoluteEncoderAngle());
-            panelsTelemetry.addData("Indexer Error", indexer.indexerState.pidfController.getError());
-            panelsTelemetry.addData("Indexer Actual Cont", indexer.indexerState.pidfController.run());
 
-            panelsTelemetry.addData("Indexer Target", indexer.indexerState.pidfController.getTargetPosition());
+            telemetry.addData("in shooting zone", inShootingZone());
+            telemetry.addData("ready to shoot", readyToShoot());
+            telemetry.addData("is at position", indexer.indexerState.atPosition);
+            telemetry.addData("is intaking", isIntaking);
+
             panelsTelemetry.update();
         }
-        telemetry.addData("in shooting zone", inShootingZone());
-        telemetry.addData("ready to shoot", readyToShoot());
-        telemetry.addData("is at position", indexer.indexerState.atPosition);
-        telemetry.addData("is intaking", isIntaking);
+        telemetry.addData("P", indexer.indexerState.pidfController.getPTerm());
+        telemetry.addData("I", indexer.indexerState.pidfController.getITerm());
+        telemetry.addData("D", indexer.indexerState.pidfController.getDTerm());
+        telemetry.addData("isStuck", indexer.indexerState.pidfController.getStuck());
+        telemetry.addData("Indexer Error", indexer.indexerState.pidfController.getError());
+        telemetry.addData("raw ticks", indexer.indexerState.getEncoderTicks());
+        telemetry.addData("target ticks", indexer.indexerState.pidfController.getTargetTicks());
+        telemetry.addData("dt", indexer.indexerState.pidfController.getDeltaTime());
         telemetry.update();
     }
 

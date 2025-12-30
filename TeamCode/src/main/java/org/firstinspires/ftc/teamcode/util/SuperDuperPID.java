@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.util;
 
 import static org.firstinspires.ftc.teamcode.pedroPathing.math.MathFunctions.clamp;
 
+import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.control.PIDFCoefficients;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 
@@ -18,6 +19,7 @@ public class SuperDuperPID {
         private long previousUpdateTimeNano;
         private long deltaTimeNano;
         private boolean integralFreeze;
+        private boolean stuck;
         private Timer stuckTime = new Timer();
 
     public SuperDuperPID(PIDFCoefficients set) {
@@ -26,17 +28,18 @@ public class SuperDuperPID {
         }
 
         public double run() {
-            double pidOutput = error * P() + errorDerivative * D() + errorIntegral * I() + feedForwardInput * F();
+            double pidOutput = error * P() + errorDerivative * D() + errorIntegral * I() + feedForwardInput * F() * Math.signum(error);
 
             // adds a boost to break from the wheel
             double measuredVelocity = (position - previousPosition) / (deltaTimeNano / 1e9);
             //todo: tune these constants
             double stuckThreshold = 32; //ticks/second
+            double errorThreshold = Constants.Indexer.indexerTolerance;
             double breakawayBoost = 0.2;
 
-            boolean stuck = (Math.abs(error) > 0.01) && (Math.abs(measuredVelocity) < stuckThreshold);
+            stuck = (Math.abs(error) > 0.01) && (Math.abs(measuredVelocity) < stuckThreshold);
 
-            if (stuck) {
+            if (stuck && error > errorThreshold && false) {
                 if (stuckTime.getElapsedTimeSeconds() < .1) {
                     pidOutput += breakawayBoost * Math.signum(error);
                     integralFreeze = true;
@@ -59,11 +62,12 @@ public class SuperDuperPID {
             this.position = position;
             error = targetPosition - this.position;
 
-            deltaTimeNano = System.nanoTime() - previousUpdateTimeNano;
-            previousUpdateTimeNano = System.nanoTime();
+            long systemTime = System.nanoTime();
+            deltaTimeNano = systemTime - previousUpdateTimeNano;
+            previousUpdateTimeNano = systemTime;
 
-            if (!integralFreeze) {errorIntegral += error * (deltaTimeNano / Math.pow(10.0, 9));}
-            errorDerivative = - (position - previousPosition) / (deltaTimeNano / Math.pow(10.0, 9));
+            if (!integralFreeze) {errorIntegral += error * (deltaTimeNano * 1e-9);}
+            errorDerivative = - (position - previousPosition) / (deltaTimeNano * 1e-9);
         }
 
         public void updateFeedForwardInput(double input) {
@@ -141,4 +145,12 @@ public class SuperDuperPID {
         public double getErrorDerivative() {
             return errorDerivative;
         }
+        public double getTargetTicks() {
+            return targetPosition;
+        }
+        public double getITerm() {return I() * errorIntegral * error;}
+        public double getPTerm() {return P() * error;}
+        public double getDTerm() {return  D() * error;}
+        public boolean getStuck() {return stuck;}
+        public double getDeltaTime() {return deltaTimeNano * 1e-6;}
 }

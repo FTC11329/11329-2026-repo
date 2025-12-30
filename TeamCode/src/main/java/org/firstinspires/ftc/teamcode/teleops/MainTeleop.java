@@ -223,9 +223,9 @@ public class MainTeleop {
 //            telemetry.addData("BALLER", i);
 //        }
 
-        double deltaTime = time.milliseconds() - lastTime;
-        telemetry.addData("loopTimes", deltaTime);
-        lastTime = time.milliseconds();
+//        double deltaTime = time.milliseconds() - lastTime;
+//        telemetry.addData("loopTimes", deltaTime);
+//        lastTime = time.milliseconds();
 
 //        telemetry.addData("distance", robot.getCurrentPose().distanceFrom(Constants.Vision.blueGoal));
 //        telemetry.addData("Encoder RPM", robot.shooter.getRPM());

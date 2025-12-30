@@ -16,10 +16,10 @@ public class TemporaryClassThatWeAreTotallyGoingToDelete extends OpMode {
 
     @Override
     public void init() {
-        servo1 = hardwareMap.get(CRServo.class, "spindexer1");
-        servo2 = hardwareMap.get(CRServo.class, "spindexer2");
-        servo1.setDirection(CRServo.Direction.REVERSE);
-        servo2.setDirection(CRServo.Direction.REVERSE);
+//        servo1 = hardwareMap.get(CRServo.class, "spindexer1");
+//        servo2 = hardwareMap.get(CRServo.class, "spindexer2");
+//        servo1.setDirection(CRServo.Direction.REVERSE);
+//        servo2.setDirection(CRServo.Direction.REVERSE);
 
         motor1 = hardwareMap.get(DcMotorSimple.class, "flywheel");
         motor1.setDirection(DcMotorSimple.Direction.REVERSE);

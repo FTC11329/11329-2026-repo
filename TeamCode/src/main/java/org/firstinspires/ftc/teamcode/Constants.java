@@ -14,9 +14,9 @@ public class Constants {
 
     @Configurable
     public static class Indexer {
-        public static PIDFCoefficients pidfCoefficients = new PIDFCoefficients(0.23,0.012,0.0155,0);
+        public static PIDFCoefficients pidfCoefficients = new PIDFCoefficients(0.000225,0.0,0.0,0.0);
 
-        public static double indexerTolerance = 1365; // 12 degrees in ticks
+        public static double indexerTolerance = 136.5; // 12 degrees in ticks
 
         public static double spindexPower = 0.45;
 
