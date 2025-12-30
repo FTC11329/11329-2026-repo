@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.util;
 public enum IndexerEnumsNew {
     // Orders for Storing positions from topLeft to bottom To topRight
     intake0, intake1, intake2,
-    shoot0, shoot1, shoot2;
+    shoot0, shoot1, shoot2, initial;
 
     // 0   2 | 1   0 | 2   1
     //   1   |   2   |   0

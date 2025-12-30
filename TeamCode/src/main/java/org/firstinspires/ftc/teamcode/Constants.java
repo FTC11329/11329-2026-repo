@@ -14,7 +14,7 @@ public class Constants {
 
     @Configurable
     public static class Indexer {
-        public static PIDFCoefficients pidfCoefficients = new PIDFCoefficients(0.000225,0.0,0.0,0.0);
+        public static PIDFCoefficients pidfCoefficients = new PIDFCoefficients(0.00002,0.0,0.0,0.0541);
 
         public static double indexerTolerance = 136.5; // 12 degrees in ticks
 
@@ -98,6 +98,7 @@ public class Constants {
     }
     public static class Shooter {
         public static double maxHoodAngle = 53.5;
+        public static double minHoodAngle = 0;
         public static double closeEnoughRPM = 50;
         public static double ticksPerRevolution = 28;
         public static double P = 0.015;

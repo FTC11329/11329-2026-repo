@@ -19,7 +19,7 @@ import static java.lang.Math.PI;
 
 public class IndexerState {
 
-    private IndexerEnumsNew indexerPosition = IndexerEnumsNew.intake0;
+    private IndexerEnumsNew indexerPosition = IndexerEnumsNew.initial;
     private BallColor[] ballCells;
     public SuperDuperPID pidfController;
 
@@ -120,7 +120,8 @@ public class IndexerState {
         if (targetIndexerEnum != indexerPosition) {
             atPosition = false;
 
-            double targetTicks = enumToTicks(targetIndexerEnum);
+//            double targetTicks = enumToTicks(targetIndexerEnum);
+            double targetTicks = 2048;
             pidfController.setTargetPosition(targetTicks);
         }
     }

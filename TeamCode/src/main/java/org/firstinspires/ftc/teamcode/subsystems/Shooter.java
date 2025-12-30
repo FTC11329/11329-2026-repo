@@ -69,7 +69,7 @@ public class Shooter {
     // Set hood from 0-1
     public void setHood(double set){
         if (hoodPos != set) {
-            hoodPos = Math.max(Math.min(set, (Constants.Shooter.maxHoodAngle - 5) / 80), 0);
+            hoodPos = Math.max(Math.min(set, (Constants.Shooter.maxHoodAngle - 5) / 80), Constants.Shooter.minHoodAngle / 80);
             hoodServo1.setPosition(hoodPos);
             hoodServo2.setPosition(hoodPos);
         }
