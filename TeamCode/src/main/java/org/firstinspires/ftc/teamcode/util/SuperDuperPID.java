@@ -28,33 +28,13 @@ public class SuperDuperPID {
         }
 
         public double run() {
-            double pidOutput = error * P() + errorDerivative * D() + errorIntegral * I() + feedForwardInput * F() * Math.signum(error);
-
-            // adds a boost to break from the wheel
-            double measuredVelocity = (position - previousPosition) / (deltaTimeNano / 1e9);
-            //todo: tune these constants
-            double stuckThreshold = 32; //ticks/second
-            double errorThreshold = Constants.Indexer.indexerTolerance;
-            double breakawayBoost = 0.2;
-
-            stuck = (Math.abs(error) > 0.01) && (Math.abs(measuredVelocity) < stuckThreshold);
-
-            if (stuck && error > errorThreshold && false) {
-                if (stuckTime.getElapsedTimeSeconds() < .1) {
-                    pidOutput += breakawayBoost * Math.signum(error);
-                    integralFreeze = true;
-                } else {
-                    if (stuckTime.getElapsedTimeSeconds() < .15) {
-                        pidOutput = -pidOutput;
-                    } else {
-                        stuckTime.resetTimer();
-                    }
-                }
+            double pidOutput;
+            if (Math.abs(error) > Constants.Indexer.indexerTolerance) {
+                double kF = error > 0 ? Constants.Indexer.kF_CCW : Constants.Indexer.kF_CW;
+                pidOutput = error * P() + errorDerivative * D() + errorIntegral * I() + feedForwardInput * kF * Math.signum(error);
             } else {
-                integralFreeze = false;
-                stuckTime.resetTimer();
+                return 0;
             }
-
             return pidOutput;
         }
         public void updateCurrentPosition(double position) {
@@ -66,8 +46,10 @@ public class SuperDuperPID {
             deltaTimeNano = systemTime - previousUpdateTimeNano;
             previousUpdateTimeNano = systemTime;
 
-            if (!integralFreeze) {errorIntegral += error * (deltaTimeNano * 1e-9);}
-            errorDerivative = - (position - previousPosition) / (deltaTimeNano * 1e-9);
+            if (Math.abs(error) > Constants.Indexer.indexerTolerance) {
+                errorIntegral += error * (deltaTimeNano * 1e-9);
+                errorDerivative = -(position - previousPosition) / (deltaTimeNano * 1e-9);
+            }
         }
 
         public void updateFeedForwardInput(double input) {
@@ -148,9 +130,13 @@ public class SuperDuperPID {
         public double getTargetTicks() {
             return targetPosition;
         }
+        public double getIntegral() {
+            return errorIntegral;
+        }
         public double getITerm() {return I() * errorIntegral * error;}
         public double getPTerm() {return P() * error;}
         public double getDTerm() {return  D() * error;}
+        public double getFTerm() {return feedForwardInput * F() * Math.signum(error);}
         public boolean getStuck() {return stuck;}
         public double getDeltaTime() {return deltaTimeNano * 1e-6;}
 }

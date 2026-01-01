@@ -4,6 +4,7 @@ import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -19,7 +20,7 @@ import static java.lang.Math.PI;
 
 public class IndexerState {
 
-    private IndexerEnumsNew indexerPosition = IndexerEnumsNew.initial;
+    private IndexerEnumsNew indexerPosition = IndexerEnumsNew.intake0;
     private BallColor[] ballCells;
     public SuperDuperPID pidfController;
 
@@ -27,8 +28,6 @@ public class IndexerState {
     private CRServo spindexer1;
     private CRServo spindexer2;
     private RevColorSensorV3 colorSensor;
-    private ElapsedTime time;
-
     public boolean atPosition = true;
     private int encoderOffset;
 
@@ -36,7 +35,7 @@ public class IndexerState {
         this.ballCells = ballCells;
         spindexer1 = hardwareMap.get(CRServo.class, "spindexer1");
         spindexer2 = hardwareMap.get(CRServo.class, "spindexer2");
-        spindexer1.setDirection(CRServo.Direction.REVERSE);
+        spindexer1.setDirection(CRServo.Direction.FORWARD);
         spindexer2.setDirection(CRServo.Direction.REVERSE);
 
         encoder = hardwareMap.get(DcMotorEx.class, "intake");
@@ -48,11 +47,6 @@ public class IndexerState {
         pidfController = new SuperDuperPID(Constants.Indexer.pidfCoefficients);
         pidfController.updateFeedForwardInput(1);
         encoderOffset = startIndexerTicks;
-
-
-
-
-        time = new ElapsedTime();
     }
 
     public void moveToNearest(BallColor tarColor, boolean isAnIntakePosition) {
@@ -75,7 +69,7 @@ public class IndexerState {
             }
         }
         if (smallestIndex == -1) {
-            System.exit(0);
+            throw new RuntimeException("moveToNearest ball empty");
         }
 
         IndexerEnumsNew targetEnum = IndexerEnumsNew.getEnum(smallestIndex, isAnIntakePosition);
@@ -119,9 +113,8 @@ public class IndexerState {
     public void setIndexerTarget(IndexerEnumsNew targetIndexerEnum) {
         if (targetIndexerEnum != indexerPosition) {
             atPosition = false;
+            double targetTicks = enumToTicks(targetIndexerEnum);
 
-//            double targetTicks = enumToTicks(targetIndexerEnum);
-            double targetTicks = 2048;
             pidfController.setTargetPosition(targetTicks);
         }
     }
@@ -131,14 +124,15 @@ public class IndexerState {
     }
 
     public void update() {
-
         pidfController.updateCurrentPosition(getEncoderTicks());
 
+        setIndexerTarget(IndexerEnumsNew.intake1);
         double power = pidfController.run();
+
         spindexer1.setPower(power);
         spindexer2.setPower(power);
 
-        if (pidfController.getError() < Constants.Indexer.indexerTolerance) {
+        if (Math.abs(pidfController.getError()) < Constants.Indexer.indexerTolerance) {
             atPosition = true;
         }
     }
@@ -213,8 +207,8 @@ public class IndexerState {
                 ballCells[2] = getColor();
                 break;
             default:
-                System.exit(0);
-                break;
+                throw new RuntimeException("tried to add a ball while not at intake position");
+
         }
     }
 

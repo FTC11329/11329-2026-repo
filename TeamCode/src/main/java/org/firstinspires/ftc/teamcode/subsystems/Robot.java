@@ -429,20 +429,33 @@ public class Robot {
 //            panelsTelemetry.addData("shooter actual", shooter.getRPM());
 //            panelsTelemetry.update(telemetry);
 
-            telemetry.addData("in shooting zone", inShootingZone());
-            telemetry.addData("ready to shoot", readyToShoot());
-            telemetry.addData("is at position", indexer.indexerState.atPosition);
-            telemetry.addData("is intaking", isIntaking);
 
+            panelsTelemetry.addData("P", indexer.indexerState.pidfController.getPTerm());
+            panelsTelemetry.addData("I", indexer.indexerState.pidfController.getITerm());
+            panelsTelemetry.addData("D", indexer.indexerState.pidfController.getDTerm());
+            panelsTelemetry.addData("isStuck", indexer.indexerState.pidfController.getStuck());
+            panelsTelemetry.addData("Indexer Error", indexer.indexerState.pidfController.getError());
+            panelsTelemetry.addData("raw ticks", indexer.indexerState.getEncoderTicks());
+            panelsTelemetry.addData("target ticks", indexer.indexerState.pidfController.getTargetTicks());
+            panelsTelemetry.addData("dt", indexer.indexerState.pidfController.getDeltaTime());
             panelsTelemetry.update();
         }
-        telemetry.addData("P", indexer.indexerState.pidfController.getPTerm());
-        telemetry.addData("I", indexer.indexerState.pidfController.getITerm());
-        telemetry.addData("D", indexer.indexerState.pidfController.getDTerm());
-        telemetry.addData("isStuck", indexer.indexerState.pidfController.getStuck());
-        telemetry.addData("Indexer Error", indexer.indexerState.pidfController.getError());
+        // PID Telemetry
+        //        telemetry.addData("P", indexer.indexerState.pidfController.getPTerm());
+//        telemetry.addData("I", indexer.indexerState.pidfController.getITerm());
+//        telemetry.addData("D", indexer.indexerState.pidfController.getDTerm());
+//        telemetry.addData("PID power", indexer.indexerState.pidfController.run());
+//        telemetry.addData("Integral Error", indexer.indexerState.pidfController.getIntegral());
+//        telemetry.addData("F", indexer.indexerState.pidfController.getFTerm());
+//        telemetry.addData("Indexer Error", indexer.indexerState.pidfController.getError());
         telemetry.addData("raw ticks", indexer.indexerState.getEncoderTicks());
         telemetry.addData("target ticks", indexer.indexerState.pidfController.getTargetTicks());
+
+        telemetry.addData("in shooting zone", inShootingZone());
+        telemetry.addData("ready to shoot", readyToShoot());
+        telemetry.addData("is at position", indexer.indexerState.atPosition);
+        telemetry.addData("is intaking", isIntaking);
+        telemetry.addData("indexer state", indexer.indexerState.getIndexerPosition());
         telemetry.addData("dt", indexer.indexerState.pidfController.getDeltaTime());
         telemetry.update();
     }
