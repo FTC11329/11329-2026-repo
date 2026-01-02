@@ -84,6 +84,12 @@ public class IndexerState {
 
     public double getAbsoluteEncoderAngle() {
         return getContinuousEncoderAngle() % (2 * PI);
+//        double angle = getContinuousEncoderAngle();
+//        if (angle >= 0) {
+//            return angle % (2 * PI);
+//        } else {
+//            return (2 * PI) + (angle % (2 * PI));
+//        }
     }
 
     public double getContinuousEncoderAngle() {
@@ -101,9 +107,9 @@ public class IndexerState {
             case intake0:
                 return 0;
             case intake1:
-                return 2 * PI / 3;
-            case intake2:
                 return 4 * PI / 3;
+            case intake2:
+                return 2 * PI / 3;
         }
         return 0;
     }

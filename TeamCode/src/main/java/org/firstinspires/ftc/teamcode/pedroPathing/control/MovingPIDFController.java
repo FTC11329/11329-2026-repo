@@ -21,8 +21,11 @@ public class MovingPIDFController implements Controller {
     private double previousPosition;
     private double targetPosition;
     private double errorIntegral;
-    private double errorDerivative;
+    private double positionDerivative;
     private double feedForwardInput;
+    private double lastError;
+    private double errorDerivative;
+
 
     private long previousUpdateTimeNano;
     private long deltaTimeNano;
@@ -43,7 +46,7 @@ public class MovingPIDFController implements Controller {
      * @return this returns the value of the PIDF from the current error.
      */
     public double run() {
-        return error * P() + errorDerivative * D() + errorIntegral * I() + feedForwardInput * F();
+        return error * P() + positionDerivative * D() + errorIntegral * I() + feedForwardInput * F();
     }
 
     /**
@@ -56,13 +59,15 @@ public class MovingPIDFController implements Controller {
     public void updatePosition(double position) {
         previousPosition = this.position;
         this.position = position;
+        lastError = this.error;
         error = targetPosition - this.position;
 
         deltaTimeNano = System.nanoTime() - previousUpdateTimeNano;
         previousUpdateTimeNano = System.nanoTime();
 
         errorIntegral += error * (deltaTimeNano / Math.pow(10.0, 9));
-        errorDerivative = - (position - previousPosition) / (deltaTimeNano / Math.pow(10.0, 9));
+        positionDerivative = - (position - previousPosition) / (deltaTimeNano / Math.pow(10.0, 9));
+        errorDerivative = (error - lastError) / (deltaTimeNano / Math.pow(10.0, 9));
     }
 
     /**
@@ -80,7 +85,7 @@ public class MovingPIDFController implements Controller {
         previousUpdateTimeNano = nanoTime;
 
         errorIntegral += error * (deltaTimeNano / Math.pow(10.0, 9));
-        errorDerivative = (error - previousError) / (deltaTimeNano / Math.pow(10.0, 9));
+        positionDerivative = (error - previousError) / (deltaTimeNano / Math.pow(10.0, 9));
     }
 
     /**
@@ -101,7 +106,7 @@ public class MovingPIDFController implements Controller {
         position = 0;
         targetPosition = 0;
         errorIntegral = 0;
-        errorDerivative = 0;
+        positionDerivative = 0;
         previousUpdateTimeNano = System.nanoTime();
     }
 
@@ -234,11 +239,14 @@ public class MovingPIDFController implements Controller {
         return error;
     }
 
+    public double getPreviousPosition() {return previousPosition;}
+    public double getLastsError() {return lastError;}
+    public double getErrorDerivative() {return errorDerivative;}
     /**
      * This returns the current derivative of the error.
      * @return the derivative
      */
-    public double getErrorDerivative() {
-        return errorDerivative;
+    public double getPositionDerivative() {
+        return positionDerivative;
     }
 }

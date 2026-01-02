@@ -217,7 +217,7 @@ public class MainTeleop {
                 robot.offsetPose = new Pose(0,0,0);
             }
         }
-        robot.update(debug.isOn, gamepad2.back);
+        robot.update(debug.isOn);
 
 //        for (BallColor i : robot.indexer.indexerState.getBallCells()) {
 //            telemetry.addData("BALLER", i);

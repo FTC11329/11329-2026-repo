@@ -44,7 +44,9 @@ public class IndexerLogic {
     }
 
     public void removeFrontQueue() {
-        queue.remove(0);
+        if (!queue.isEmpty()) {
+            queue.remove(0);
+        }
     }
 
     public BallColor queuePop() {

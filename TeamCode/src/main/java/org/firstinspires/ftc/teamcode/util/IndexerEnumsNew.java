@@ -61,9 +61,9 @@ public enum IndexerEnumsNew {
             case intake0:
             case intake1:
             case intake2:
-                return true;
-            default:
                 return false;
+            default:
+                return true;
         }
     }
 }

@@ -9,7 +9,6 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.control.PIDFCoefficients;
-import org.firstinspires.ftc.teamcode.pedroPathing.control.PIDFController;
 import org.firstinspires.ftc.teamcode.pedroPathing.control.MovingPIDFController;
 
 public class Shooter {
@@ -28,6 +27,13 @@ public class Shooter {
     public MovingPIDFController shooterPID;
     
     boolean shooterSpin;
+
+    boolean isGettingUpToSpeed = true;
+    boolean onceShot = false;
+    double previousError;
+    double derivative;
+
+
 
     public Shooter(HardwareMap hardwareMap){
         flywheel = hardwareMap.get(DcMotorEx.class, "flywheel");
@@ -52,6 +58,20 @@ public class Shooter {
 
     public void setPower(double power){
         flywheel.setPower(power);
+    }
+    public boolean hasShot() {
+        if (closeEnoughToTarget() || isGettingUpToSpeed){
+            onceShot = false;
+            return false;
+        }
+        derivative = shooterPID.getErrorDerivative();
+        previousError = shooterPID.getLastsError();
+
+        if (derivative <= 0 && previousError > 160 && !onceShot) {
+            onceShot = true;
+            return true;
+        }
+        return false;
     }
     public void casualModeOn(){
         usePID = false;
@@ -135,11 +155,19 @@ public class Shooter {
         if (shooterSpin && usePID) {
             shooterPID.updatePosition(flywheel.getVelocity());  // ticks/sec
             if (shooterPID.getTargetPosition() > 10) {
+                if (isGettingUpToSpeed) {
+                    if (shooterPID.getError() < Constants.Shooter.closeEnoughRPM) {
+                        isGettingUpToSpeed = false;
+                    }
+                }
                 setPower(shooterPID.run());
             } else {
                 setPower(0);
             }
         } else if (shooterSpin) {
+            if (!isGettingUpToSpeed) {
+                isGettingUpToSpeed = true;
+            }
             setPower(0.5);
         }
     }
