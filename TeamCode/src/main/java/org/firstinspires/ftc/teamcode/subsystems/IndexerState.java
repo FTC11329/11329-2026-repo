@@ -113,6 +113,8 @@ public class IndexerState {
     public void setIndexerTarget(IndexerEnumsNew targetIndexerEnum) {
         if (targetIndexerEnum != indexerPosition) {
             atPosition = false;
+            indexerPosition = targetIndexerEnum;
+
             double targetTicks = enumToTicks(targetIndexerEnum);
 
             pidfController.setTargetPosition(targetTicks);
@@ -125,8 +127,6 @@ public class IndexerState {
 
     public void update() {
         pidfController.updateCurrentPosition(getEncoderTicks());
-
-        setIndexerTarget(IndexerEnumsNew.intake1);
         double power = pidfController.run();
 
         spindexer1.setPower(power);

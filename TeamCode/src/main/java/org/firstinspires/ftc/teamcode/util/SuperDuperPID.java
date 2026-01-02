@@ -7,7 +7,13 @@ import org.firstinspires.ftc.teamcode.pedroPathing.control.PIDFCoefficients;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 
 public class SuperDuperPID {
-        private PIDFCoefficients coefficients;
+    static final double STUCK_ERROR_TICKS = 200;     // far from target
+    static final double STUCK_VEL_EPS = 5;           // ticks/sec
+    static final long   STUCK_TIME_NS = 80000000;  // 80 ms
+
+    static final double UNSTICK_POWER = 1;        // strong but safe
+
+    private PIDFCoefficients coefficients;
         private double previousPosition;
         private double error;
         private double position;
@@ -20,39 +26,83 @@ public class SuperDuperPID {
         private long deltaTimeNano;
         private boolean integralFreeze;
         private boolean stuck;
-        private Timer stuckTime = new Timer();
+        private double stuckStartTimeNano;
 
     public SuperDuperPID(PIDFCoefficients set) {
             setCoefficients(set);
             reset();
         }
 
-        public double run() {
-            double pidOutput;
-            if (Math.abs(error) > Constants.Indexer.indexerTolerance) {
-                double kF = error > 0 ? Constants.Indexer.kF_CCW : Constants.Indexer.kF_CW;
-                pidOutput = error * P() + errorDerivative * D() + errorIntegral * I() + feedForwardInput * kF * Math.signum(error);
-            } else {
-                return 0;
-            }
-            return pidOutput;
+    public void updateCurrentPosition(double position) {
+        long now = System.nanoTime();
+
+        previousPosition = this.position;
+        this.position = position;
+
+        error = targetPosition - this.position;
+
+        deltaTimeNano = now - previousUpdateTimeNano;
+        previousUpdateTimeNano = now;
+
+        if (deltaTimeNano <= 0) return;
+
+        double dt = deltaTimeNano * 1e-9;
+        double velocity = (position - previousPosition) / dt;
+
+        // PID terms only when not at target
+        if (Math.abs(error) > Constants.Indexer.indexerTolerance) {
+            errorIntegral += error * dt;
+            errorDerivative = -velocity;
+        } else {
+            errorIntegral = 0;
+            errorDerivative = 0;
+            stuckStartTimeNano = -1;
+            stuck = false;
+            return;
         }
-        public void updateCurrentPosition(double position) {
-            previousPosition = this.position;
-            this.position = position;
-            error = targetPosition - this.position;
 
-            long systemTime = System.nanoTime();
-            deltaTimeNano = systemTime - previousUpdateTimeNano;
-            previousUpdateTimeNano = systemTime;
+        // ---------- STUCK DETECTION ----------
+        boolean farFromTarget = Math.abs(error) > STUCK_ERROR_TICKS;
+        boolean barelyMoving  = Math.abs(velocity) < STUCK_VEL_EPS;
 
-            if (Math.abs(error) > Constants.Indexer.indexerTolerance) {
-                errorIntegral += error * (deltaTimeNano * 1e-9);
-                errorDerivative = -(position - previousPosition) / (deltaTimeNano * 1e-9);
+        if (farFromTarget && barelyMoving) {
+            if (stuckStartTimeNano < 0) {
+                stuckStartTimeNano = now;
+            } else if (now - stuckStartTimeNano > STUCK_TIME_NS) {
+                stuck = true;
             }
+        } else {
+            stuckStartTimeNano = -1;
+            stuck = false;
+        }
+    }
+
+    public double run() {
+
+        if (Math.abs(error) <= Constants.Indexer.indexerTolerance) {
+            return 0;
         }
 
-        public void updateFeedForwardInput(double input) {
+        // ---------- UNSTICK OVERRIDE ----------
+        if (stuck) {
+            return UNSTICK_POWER * Math.signum(error);
+        }
+
+        double kF = error > 0
+                ? Constants.Indexer.kF_CCW
+                : Constants.Indexer.kF_CW;
+
+        double pidOutput =
+                error * P()
+                        + errorDerivative * D()
+                        + errorIntegral * I()
+                        + feedForwardInput * kF * Math.signum(error);
+
+        return pidOutput;
+    }
+
+
+    public void updateFeedForwardInput(double input) {
             feedForwardInput = input;
         }
 

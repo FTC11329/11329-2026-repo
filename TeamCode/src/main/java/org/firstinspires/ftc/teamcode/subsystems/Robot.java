@@ -307,7 +307,7 @@ public class Robot {
         intakeToggle = set;
     }
     public void intakeUpdate() {
-        if (intakeToggle && indexer.allowIntakeing() && !spitIntake) {
+        if (intakeToggle /* && indexer.allowIntakeing() */ && !spitIntake) {
             intake.setIntakePower(Constants.Intake.intakePower);
         } else if (spitIntake) {
             intake.setIntakePower(Constants.Intake.spitPower);
@@ -333,7 +333,8 @@ public class Robot {
         if (indexer.allowIntakeing()) {
             spinIntake();
         } else {
-            stopIntake();
+            spinIntake(); //todo
+//            stopIntake();
         }
     }
 
@@ -450,7 +451,11 @@ public class Robot {
 //        telemetry.addData("Indexer Error", indexer.indexerState.pidfController.getError());
         telemetry.addData("raw ticks", indexer.indexerState.getEncoderTicks());
         telemetry.addData("target ticks", indexer.indexerState.pidfController.getTargetTicks());
-
+        int i = 0;
+        for (BallColor index : indexer.indexerState.getBallCells()) {
+            telemetry.addData("BallCell" + i, index);
+            i++;
+        }
         telemetry.addData("in shooting zone", inShootingZone());
         telemetry.addData("ready to shoot", readyToShoot());
         telemetry.addData("is at position", indexer.indexerState.atPosition);

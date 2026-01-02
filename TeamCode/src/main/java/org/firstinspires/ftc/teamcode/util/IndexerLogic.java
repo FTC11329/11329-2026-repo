@@ -75,37 +75,41 @@ public class IndexerLogic {
         }
 
         // move to nearest ball of right color
-        if (isIntaking) {
-            if (!indexerState.isBallCellsFull()) {
-                if (indexerState.getColor() != BallColor.None) {
-                    indexerState.setBallCellAtIntakeToRightColor();
-                }
-                indexerState.moveToNearest(BallColor.None, true);
-            } else {
-                isIntaking = false;
-            }
-        }
-        if (!isIntaking) {
-            if (indexerState.isBallCellsEmpty()) {
-                update(hasShot, true, readyToShoot);
-                return;
-            } else {
-                if (queue.isEmpty()) {
-                    // auto fire case
-                    indexerState.moveToNearest(BallColor.Any, false);
+        if (indexerState.atPosition) {
+            if (isIntaking) {
+                if (!indexerState.isBallCellsFull()) {
+                    if (indexerState.getColor() != BallColor.None) {
+                        indexerState.setBallCellAtIntakeToRightColor();
+                    }
+                    if (!indexerState.isBallCellsFull()) {
+                        indexerState.moveToNearest(BallColor.None, true);
+                    }
                 } else {
-                    indexerState.moveToNearest(getFrontQueue(), false);
+                    isIntaking = false;
                 }
+            }
+
+            if (!isIntaking) {
+                if (indexerState.isBallCellsEmpty()) {
+                    update(hasShot, true, readyToShoot);
+                    return;
+                } else {
+                    if (queue.isEmpty()) {
+                        // auto fire case
+                        indexerState.moveToNearest(BallColor.Any, false);
+                    } else {
+                        indexerState.moveToNearest(getFrontQueue(), false);
+                    }
+                }
+            }
+            if (!isIntaking && indexerState.atPosition && readyToShoot) {
+                setIndexerToShooterPower(Constants.Indexer.transferPower);
+            } else {
+                setIndexerToShooterPower(0);
             }
         }
 
         // spin transfer wheel
-        if (!isIntaking && indexerState.atPosition && readyToShoot) {
-            setIndexerToShooterPower(Constants.Indexer.transferPower);
-        } else {
-            setIndexerToShooterPower(0);
-        }
-
         indexerState.update();
     }
 
