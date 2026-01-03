@@ -30,6 +30,7 @@ public class IndexerState {
     private RevColorSensorV3 colorSensor;
     public boolean atPosition = true;
     private int encoderOffset;
+    private double power;
 
     public IndexerState(HardwareMap hardwareMap, BallColor[] ballCells, int startIndexerTicks) {
         this.ballCells = ballCells;
@@ -45,7 +46,6 @@ public class IndexerState {
         colorSensor = hardwareMap.get(RevColorSensorV3.class, "spindexerColorSensor");
 
         pidfController = new SuperDuperPID(Constants.Indexer.pidfCoefficients);
-        pidfController.updateFeedForwardInput(1);
         encoderOffset = startIndexerTicks;
     }
 
@@ -132,8 +132,8 @@ public class IndexerState {
     }
 
     public void update() {
-        pidfController.updateCurrentPosition(getEncoderTicks());
-        double power = pidfController.run();
+        pidfController.update(getEncoderTicks());
+        power = pidfController.run();
 
         spindexer1.setPower(power);
         spindexer2.setPower(power);
@@ -226,5 +226,6 @@ public class IndexerState {
         this.indexerPosition = indexerPosition;
     }
 
+    public double getPower(){return power;}
 
 }

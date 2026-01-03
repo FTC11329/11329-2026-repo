@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.util;
 
+import static org.firstinspires.ftc.teamcode.Constants.Indexer.kV;
 import static org.firstinspires.ftc.teamcode.pedroPathing.math.MathFunctions.clamp;
 
 import org.firstinspires.ftc.teamcode.Constants;
@@ -7,75 +8,106 @@ import org.firstinspires.ftc.teamcode.pedroPathing.control.PIDFCoefficients;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 
 public class SuperDuperPID {
-    static final double STUCK_ERROR_TICKS = 200;     // far from target
-    static final double STUCK_VEL_EPS = 5;           // ticks/sec
-    static final long   STUCK_TIME_NS = 80000000;  // 80 ms
 
-    static final double UNSTICK_POWER = 1;        // strong but safe
+    /* -------------------- Tunables -------------------- */
 
-    private PIDFCoefficients coefficients;
-        private double previousPosition;
-        private double error;
-        private double position;
-        private double targetPosition;
-        private double errorIntegral;
-        private double errorDerivative;
-        private double feedForwardInput;
+    // Stuck detection
+    private static final double STUCK_ERROR_TICKS = 50;
+    private static final double STUCK_VEL_EPS = 5;          // ticks/sec
+    private static final long   STUCK_TIME_NS = 40_000_000; // 40 ms
+    private static final double UNSTICK_POWER = 0.4;
 
-        private long previousUpdateTimeNano;
-        private long deltaTimeNano;
-        private boolean integralFreeze;
-        private boolean stuck;
-        private double stuckStartTimeNano;
+    // Motion profiling
+    private static final double PROFILE_FADE_TICKS = 75;
+    private double Vmax = 0.4;
+    private double Amax = 0.05;
 
-    public SuperDuperPID(PIDFCoefficients set) {
-            setCoefficients(set);
-            reset();
-        }
+    // Feedforward
+    private double frictionBlendTicks = 20;
+    private double kV = 1.0;
+    private double kF_CW = 0.06;
+    private double kF_CCW = 0.07;
 
-    public void updateCurrentPosition(double position) {
+    // Integral clamp
+    private static final double I_MAX = 0.1;
+
+    /* -------------------- State -------------------- */
+
+    private PIDFCoefficients coeffs;
+
+    private double position;
+    private double prevPosition;
+    private double velocity;
+
+    private double targetPosition;
+    private double error;
+    private double dt;
+
+    private double errorIntegral;
+    private double errorDerivative;
+
+    private double desiredVelocity;
+
+    private long prevTimeNs;
+    private boolean stuck;
+    private long stuckStartNs = -1;
+
+    /* -------------------- Constructor -------------------- */
+
+    public SuperDuperPID(PIDFCoefficients coeffs) {
+        this.coeffs = coeffs;
+        reset();
+    }
+
+    /* -------------------- Update -------------------- */
+
+    public void update(double currentPosition) {
         long now = System.nanoTime();
+        dt = (now - prevTimeNs) * 1e-9;
+        if (dt <= 0) return;
+        prevTimeNs = now;
 
-        previousPosition = this.position;
-        this.position = position;
+        prevPosition = position;
+        position = currentPosition;
 
-        error = targetPosition - this.position;
+        velocity = (position - prevPosition) / dt;
+        error = targetPosition - position;
 
-        deltaTimeNano = now - previousUpdateTimeNano;
-        previousUpdateTimeNano = now;
+        /* ---------- Motion profile ---------- */
 
-        if (deltaTimeNano <= 0) return;
+        double dx = error;
+        double stopDist = (desiredVelocity * desiredVelocity) / (2 * Amax);
 
-        double dt = deltaTimeNano * 1e-9;
-        double velocity = (position - previousPosition) / dt;
-
-        // PID terms only when not at target
-        if (Math.abs(error) > Constants.Indexer.indexerTolerance) {
-            errorIntegral += error * dt;
-            errorDerivative = -velocity;
+        if (Math.abs(dx) > stopDist) {
+            desiredVelocity += Amax * dt * Math.signum(dx);
         } else {
-            errorIntegral = 0;
-            errorDerivative = 0;
-            stuckStartTimeNano = -1;
-            stuck = false;
-            return;
+            desiredVelocity -= Amax * dt * Math.signum(desiredVelocity);
         }
 
-        // ---------- STUCK DETECTION ----------
-        boolean farFromTarget = Math.abs(error) > STUCK_ERROR_TICKS;
-        boolean barelyMoving  = Math.abs(velocity) < STUCK_VEL_EPS;
+        desiredVelocity = clamp(desiredVelocity, -Vmax, Vmax);
 
-        if (farFromTarget && barelyMoving) {
-            if (stuckStartTimeNano < 0) {
-                stuckStartTimeNano = now;
-            } else if (now - stuckStartTimeNano > STUCK_TIME_NS) {
-                stuck = true;
-            }
+        /* ---------- PID terms ---------- */
+
+        errorIntegral += error * dt;
+        errorIntegral = clamp(errorIntegral, -I_MAX, I_MAX);
+
+        errorDerivative = -velocity; // velocity damping
+
+        /* ---------- Stuck detection ---------- */
+
+        boolean far = Math.abs(error) > STUCK_ERROR_TICKS;
+        boolean slow = Math.abs(velocity) < STUCK_VEL_EPS;
+
+        if (far && slow) {
+            if (stuckStartNs < 0) stuckStartNs = now;
+            else if (now - stuckStartNs > STUCK_TIME_NS) stuck = true;
         } else {
-            stuckStartTimeNano = -1;
             stuck = false;
+            stuckStartNs = -1;
         }
     }
+
+    /* -------------------- Output -------------------- */
 
     public double run() {
 
@@ -83,110 +115,65 @@ public class SuperDuperPID {
             return 0;
         }
 
-        // ---------- UNSTICK OVERRIDE ----------
         if (stuck) {
             return UNSTICK_POWER * Math.signum(error);
         }
 
-        double kF = error > 0
-                ? Constants.Indexer.kF_CCW
-                : Constants.Indexer.kF_CW;
+        /* ---------- Feedforward ---------- */
 
-        double pidOutput =
-                error * P()
-                        + errorDerivative * D()
-                        + errorIntegral * I()
-                        + feedForwardInput * kF * Math.signum(error);
+        double kF = (error > 0) ? kF_CCW : kF_CW;
+        double staticFF = kF * Math.tanh(error / frictionBlendTicks);
 
-        return pidOutput;
+        double profileWeight = clamp(Math.abs(error) / PROFILE_FADE_TICKS, 0, 1);
+        double velocityFF = profileWeight * desiredVelocity * kV;
+
+        /* ---------- PID ---------- */
+
+        double output =
+                coeffs.P * error +
+                        coeffs.I * errorIntegral +
+                        coeffs.D * errorDerivative +
+                        staticFF +
+                        velocityFF;
+
+        return clamp(output, -1.0, 1.0);
     }
 
+    /* -------------------- Control -------------------- */
 
-    public void updateFeedForwardInput(double input) {
-            feedForwardInput = input;
-        }
+    public void setTargetPosition(double target) {
+        targetPosition = target;
+        errorIntegral = 0;
+    }
 
-        /**
-         * This resets all the PIDF's error and position values, as well as the time stamps.
-         */
-        public void reset() {
-            error = 0;
-            position = 0;
-            targetPosition = 0;
-            errorIntegral = 0;
-            errorDerivative = 0;
-            previousUpdateTimeNano = System.nanoTime();
-        }
+    public void reset() {
+        position = prevPosition = velocity = 0;
+        error = errorIntegral = errorDerivative = 0;
+        desiredVelocity = 0;
+        stuck = false;
+        stuckStartNs = -1;
+        prevTimeNs = System.nanoTime();
+    }
 
-        /**
-         * This is used to set the target position if the PIDF is being run with current position and
-         * target position inputs rather than error inputs.
-         *
-         * This also resets the I and D terms so that we avoid integral windup and derivative kick.
-         * @param set this sets the target position.
-         */
-        public void setTargetPosition(double set) {
-            targetPosition = set;
-            errorIntegral = 0;
-        }
-        public double getTargetPosition() {
-            return targetPosition;
-        }
+    /* -------------------- Telemetry -------------------- */
 
-        public void setCoefficients(PIDFCoefficients set) {
-            coefficients = set;
-        }
-        public PIDFCoefficients getCoefficients() {
-            return coefficients;
-        }
+    public double getError() { return error; }
+    public double getVelocity() { return velocity; }
+    public double getDesiredVelocity() { return desiredVelocity; }
 
-        public void setP(double set) {
-            coefficients.P = set;
-        }
-        public double P() {
-            return coefficients.P;
-        }
+    public double getPOutput() { return coeffs.P * error; }
+    public double getIOutput() { return coeffs.I * errorIntegral; }
+    public double getDOutput() { return coeffs.D * errorDerivative; }
+    public double getDeltaTime() { return dt;}
+    public double getTargetPosition() { return targetPosition;}
 
-        public void setI(double set) {
-            coefficients.I = set;
-        }
+    public boolean isStuck() { return stuck; }
 
-        public double I() {
-            return coefficients.I;
-        }
+    public PIDFCoefficients getCoefficients() { return coeffs; }
 
-        public void setD(double set) {
-            coefficients.D = set;
-        }
+    /* -------------------- Utils -------------------- */
 
-        public double D() {
-            return coefficients.D;
-        }
-
-        public void setF(double set) {
-            coefficients.F = set;
-        }
-
-        public double F() {
-            return coefficients.F;
-        }
-
-        public double getError() {
-            return error;
-        }
-        public double getErrorDerivative() {
-            return errorDerivative;
-        }
-        public double getTargetTicks() {
-            return targetPosition;
-        }
-        public double getIntegral() {
-            return errorIntegral;
-        }
-        public double getITerm() {return I() * errorIntegral * error;}
-        public double getPTerm() {return P() * error;}
-        public double getDTerm() {return  D() * error;}
-        public double getFTerm() {return feedForwardInput * F() * Math.signum(error);}
-        public boolean getStuck() {return stuck;}
-        public double getDeltaTime() {return deltaTimeNano * 1e-6;}
+    private static double clamp(double v, double lo, double hi) {
+        return Math.max(lo, Math.min(hi, v));
+    }
 }

@@ -14,11 +14,13 @@ public class Constants {
 
     @Configurable
     public static class Indexer {
-        public static PIDFCoefficients pidfCoefficients = new PIDFCoefficients(0.0001,0.000005,0.000005,0.06);
+        public static PIDFCoefficients pidfCoefficients = new PIDFCoefficients(0.0001,0.0000,0.00000,0.0);
         public static Double kF_CW = .06;
         public static Double kF_CCW = .07;
+        public static Double kV = 1.0;
 
-        public static double indexerTolerance = 70; // ~6 degrees in ticks
+
+        public static double indexerTolerance = 50;
 
         public static double spindexPower = 0.45;
 
@@ -86,9 +88,9 @@ public class Constants {
         public static double turretOffset = 0;
 
 
-        public static double P = 0.0207;
-        public static double I = 0.000085;
-        public static double D = 0.00056;
+        public static double P = 0.00003;
+        public static double I = 0.000;
+        public static double D = 0.000002;
         public static double leftF = -0.03;
         public static double rightF = 0.11;
 
@@ -103,8 +105,8 @@ public class Constants {
         public static double minHoodAngle = 0;
         public static double closeEnoughRPM = 50;
         public static double ticksPerRevolution = 28;
-        public static double P = 0.015;
-        public static double I = 0;
+        public static double P = 0.02;
+        public static double I = 0.000015;
         public static double D = 0.000001;
         public static double F = 0.085;
         public static PIDFCoefficients shooterVelocityPID = new PIDFCoefficients(P, I, D, F);

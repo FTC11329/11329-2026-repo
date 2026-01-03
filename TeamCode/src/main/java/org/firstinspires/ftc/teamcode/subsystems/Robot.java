@@ -308,7 +308,7 @@ public class Robot {
         intakeToggle = set;
     }
     public void intakeUpdate() {
-        if (intakeToggle  && indexer.allowIntakeing() && !spitIntake) {
+        if (intakeToggle  /*&& indexer.allowIntakeing() */ && !spitIntake) {
             intake.setIntakePower(Constants.Intake.intakePower);
         } else if (spitIntake) {
             intake.setIntakePower(Constants.Intake.spitPower);
@@ -340,7 +340,8 @@ public class Robot {
         if (indexer.allowIntakeing()) {
             spinIntake();
         } else {
-            stopIntake(); //todo: lock in with mechanical
+            spinIntake();
+//            stopIntake(); //todo: lock in with mechanical
         }
     }
 
@@ -434,25 +435,15 @@ public class Robot {
 //            panelsTelemetry.update(telemetry);
 
 
-            panelsTelemetry.addData("P", indexer.indexerState.pidfController.getPTerm());
-            panelsTelemetry.addData("I", indexer.indexerState.pidfController.getITerm());
-            panelsTelemetry.addData("D", indexer.indexerState.pidfController.getDTerm());
-            panelsTelemetry.addData("isStuck", indexer.indexerState.pidfController.getStuck());
+            panelsTelemetry.addData("P", indexer.indexerState.pidfController.getPOutput());
+            panelsTelemetry.addData("I", indexer.indexerState.pidfController.getIOutput());
+            panelsTelemetry.addData("D", indexer.indexerState.pidfController.getDOutput());
             panelsTelemetry.addData("Indexer Error", indexer.indexerState.pidfController.getError());
             panelsTelemetry.addData("raw ticks", indexer.indexerState.getEncoderTicks());
-            panelsTelemetry.addData("target ticks", indexer.indexerState.pidfController.getTargetTicks());
+            panelsTelemetry.addData("target ticks", indexer.indexerState.pidfController.getTargetPosition());
             panelsTelemetry.addData("dt", indexer.indexerState.pidfController.getDeltaTime());
             panelsTelemetry.update();
             // PID Telemetry
-            //        telemetry.addData("P", indexer.indexerState.pidfController.getPTerm());
-//        telemetry.addData("I", indexer.indexerState.pidfController.getITerm());
-//        telemetry.addData("D", indexer.indexerState.pidfController.getDTerm());
-//        telemetry.addData("PID power", indexer.indexerState.pidfController.run());
-//        telemetry.addData("Integral Error", indexer.indexerState.pidfController.getIntegral());
-//        telemetry.addData("F", indexer.indexerState.pidfController.getFTerm());
-//        telemetry.addData("Indexer Error", indexer.indexerState.pidfController.getError());
-            telemetry.addData("raw ticks", indexer.indexerState.getEncoderTicks());
-            telemetry.addData("target ticks", indexer.indexerState.pidfController.getTargetTicks());
             int i = 0;
             for (BallColor index : indexer.indexerState.getBallCells()) {
                 telemetry.addData("BallCell" + i, index);
@@ -460,20 +451,30 @@ public class Robot {
             }
             telemetry.addData("in shooting zone", inShootingZone());
             telemetry.addData("ready to shoot", readyToShoot());
-            telemetry.addData("is at position", indexer.indexerState.atPosition);
             telemetry.addData("is intaking", isIntaking);
-            telemetry.addData("indexer state", indexer.indexerState.getIndexerPosition());
-            telemetry.addData("dt", indexer.indexerState.pidfController.getDeltaTime());
-            telemetry.update();
+            telemetry.addData("has shot", thingies);
+            panelsTelemetry.addData("derivative", shooter.derivative);
+            panelsTelemetry.addData("once shot", shooter.onceShot);
+            panelsTelemetry.addData("previous error", shooter.previousError);
+            panelsTelemetry.addData("error", shooter.shooterPID.getError());
+            panelsTelemetry.addData("target rpm", shooter.getTargetRpm());
+            panelsTelemetry.addData("actual rpm", shooter.getRPM());
+            panelsTelemetry.update();
         }
-        telemetry.addData("has shot", thingies);
-        panelsTelemetry.addData("actual rpm", shooter.getRPM());
-        panelsTelemetry.addData("derivative", shooter.derivative);
-        panelsTelemetry.addData("once shot", shooter.onceShot);
-        panelsTelemetry.addData("previous error", shooter.previousError);
-        panelsTelemetry.addData("target rpm", shooter.getTargetRpm());
-        panelsTelemetry.addData("error", shooter.shooterPID.getError());
-        panelsTelemetry.update();
+//        telemetry.addData("F", indexer.indexerState.pidfController.getFTerm());
+//        telemetry.addData("raw ticks", indexer.indexerState.getEncoderTicks());
+//        telemetry.addData("target ticks", indexer.indexerState.pidfController.getTargetTicks());
+        telemetry.addData("is at position", indexer.indexerState.atPosition);
+        telemetry.addData("indexer state", indexer.indexerState.getIndexerPosition());
+        telemetry.addData("isStuck", indexer.indexerState.pidfController.isStuck());
+        telemetry.addData("Integral Error", indexer.indexerState.pidfController.getIOutput());
+        telemetry.addData("Indexer Error", indexer.indexerState.pidfController.getError());
+        telemetry.addData("dt", indexer.indexerState.pidfController.getDeltaTime());
+        telemetry.addData("P", indexer.indexerState.pidfController.getPOutput());
+        telemetry.addData("I", indexer.indexerState.pidfController.getIOutput());
+        telemetry.addData("D", indexer.indexerState.pidfController.getDOutput());
+        telemetry.addData("PID power", indexer.indexerState.getPower());
+        telemetry.update();
     }
 
     public void stopAllSubsystems() {
