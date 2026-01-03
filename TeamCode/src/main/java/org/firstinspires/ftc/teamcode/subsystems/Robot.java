@@ -379,7 +379,8 @@ public class Robot {
     public void update(boolean debug) {
         shooterUpdate();
         intakeUpdate();
-        spindexerUpdate();
+//        spindexerUpdate();
+        indexer.indexerState.stepMovement();
         turretUpdate();
         teleopUpdate();
         follower.update();
@@ -439,9 +440,8 @@ public class Robot {
             panelsTelemetry.addData("I", indexer.indexerState.pidfController.getIOutput());
             panelsTelemetry.addData("D", indexer.indexerState.pidfController.getDOutput());
             panelsTelemetry.addData("Indexer Error", indexer.indexerState.pidfController.getError());
-            panelsTelemetry.addData("raw ticks", indexer.indexerState.getEncoderTicks());
-            panelsTelemetry.addData("target ticks", indexer.indexerState.pidfController.getTargetPosition());
             panelsTelemetry.addData("dt", indexer.indexerState.pidfController.getDeltaTime());
+            panelsTelemetry.addData("raw ticks", indexer.indexerState.getEncoderTicks());
             panelsTelemetry.update();
             // PID Telemetry
             int i = 0;
@@ -461,20 +461,21 @@ public class Robot {
             panelsTelemetry.addData("actual rpm", shooter.getRPM());
             panelsTelemetry.update();
         }
-//        telemetry.addData("F", indexer.indexerState.pidfController.getFTerm());
-//        telemetry.addData("raw ticks", indexer.indexerState.getEncoderTicks());
-//        telemetry.addData("target ticks", indexer.indexerState.pidfController.getTargetTicks());
-        telemetry.addData("is at position", indexer.indexerState.atPosition);
-        telemetry.addData("indexer state", indexer.indexerState.getIndexerPosition());
-        telemetry.addData("isStuck", indexer.indexerState.pidfController.isStuck());
-        telemetry.addData("Integral Error", indexer.indexerState.pidfController.getIOutput());
-        telemetry.addData("Indexer Error", indexer.indexerState.pidfController.getError());
-        telemetry.addData("dt", indexer.indexerState.pidfController.getDeltaTime());
-        telemetry.addData("P", indexer.indexerState.pidfController.getPOutput());
-        telemetry.addData("I", indexer.indexerState.pidfController.getIOutput());
-        telemetry.addData("D", indexer.indexerState.pidfController.getDOutput());
-        telemetry.addData("PID power", indexer.indexerState.getPower());
-        telemetry.update();
+        panelsTelemetry.addData("target ticks", indexer.indexerState.pidfController.getTargetPosition());
+        panelsTelemetry.addData("timer", indexer.indexerState.timer);
+        panelsTelemetry.addData("is at position", indexer.indexerState.atPosition);
+        panelsTelemetry.addData("indexer state", indexer.indexerState.getIndexerPosition());
+        panelsTelemetry.addData("isStuck", indexer.indexerState.pidfController.isStuck());
+        panelsTelemetry.addData("Integral Error", indexer.indexerState.pidfController.getIOutput());
+        panelsTelemetry.addData("Indexer Error", indexer.indexerState.pidfController.getError());
+        panelsTelemetry.addData("dt", indexer.indexerState.pidfController.getDeltaTime());
+        panelsTelemetry.addData("P", indexer.indexerState.pidfController.getPOutput());
+        panelsTelemetry.addData("I", indexer.indexerState.pidfController.getIOutput());
+        panelsTelemetry.addData("D", indexer.indexerState.pidfController.getDOutput());
+        panelsTelemetry.addData("velocity", indexer.indexerState.pidfController.getVelocity());
+        panelsTelemetry.addData("desired velocity", indexer.indexerState.pidfController.getDesiredVelocity());
+        panelsTelemetry.addData("PID power", indexer.indexerState.getPower());
+        panelsTelemetry.update();
     }
 
     public void stopAllSubsystems() {

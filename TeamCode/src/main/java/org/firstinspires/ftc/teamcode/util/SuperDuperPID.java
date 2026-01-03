@@ -1,8 +1,5 @@
 package org.firstinspires.ftc.teamcode.util;
 
-import static org.firstinspires.ftc.teamcode.Constants.Indexer.kV;
-import static org.firstinspires.ftc.teamcode.pedroPathing.math.MathFunctions.clamp;
-
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.control.PIDFCoefficients;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
@@ -18,22 +15,29 @@ public class SuperDuperPID {
     private static final double UNSTICK_POWER = 0.4;
 
     // Motion profiling
-    private static final double PROFILE_FADE_TICKS = 75;
-    private double Vmax = 0.4;
-    private double Amax = 0.05;
+    private static final double PROFILE_FADE_TICKS = 200;
+    private static final double MAX_ACHIEVABLE_VELOCITY = 7500;
+    private static final double DECEL_MAX = 1000.0; // ticks/sec^2
 
     // Feedforward
-    private double frictionBlendTicks = 20;
-    private double kV = 1.0;
-    private double kF_CW = 0.06;
-    private double kF_CCW = 0.07;
+    private static final double frictionBlendTicks = 20;
+    private static final double kV = 1.0 / MAX_ACHIEVABLE_VELOCITY;
+    private static final double kF_CW = 0.06;
+    private static final double kF_CCW = 0.07;
+    // PID
+    private static final double kP = 0.0;
+    private static final double kI = 0.0;
+    private static final double kD = 0.0;
+
 
     // Integral clamp
     private static final double I_MAX = 0.1;
+    //derivative filtering
+    private double filteredVelocity = 0;
+    private static final double VEL_ALPHA = 0.15; // 0–1, lower = smoother
+
 
     /* -------------------- State -------------------- */
-
-    private PIDFCoefficients coeffs;
 
     private double position;
     private double prevPosition;
@@ -54,8 +58,7 @@ public class SuperDuperPID {
 
     /* -------------------- Constructor -------------------- */
 
-    public SuperDuperPID(PIDFCoefficients coeffs) {
-        this.coeffs = coeffs;
+    public SuperDuperPID() {
         reset();
     }
 
@@ -70,21 +73,26 @@ public class SuperDuperPID {
         prevPosition = position;
         position = currentPosition;
 
-        velocity = (position - prevPosition) / dt;
+        double rawVelocity = (position - prevPosition) / dt;
+        filteredVelocity += VEL_ALPHA * (rawVelocity - filteredVelocity);
+        velocity = filteredVelocity;
         error = targetPosition - position;
 
-        /* ---------- Motion profile ---------- */
+        /* ---------- Motion profile (stable) ---------- */
 
-        double dx = error;
-        double stopDist = (desiredVelocity * desiredVelocity) / (2 * Amax);
+        double targetVel = Math.signum(error) * MAX_ACHIEVABLE_VELOCITY;
+        /* ---------- Motion profile (braking-limited) ---------- */
 
-        if (Math.abs(dx) > stopDist) {
-            desiredVelocity += Amax * dt * Math.signum(dx);
-        } else {
-            desiredVelocity -= Amax * dt * Math.signum(desiredVelocity);
-        }
+// Maximum velocity that still allows stopping at target
+        double maxVelForStop =
+                Math.sqrt(2.0 * DECEL_MAX * Math.abs(error));
 
-        desiredVelocity = clamp(desiredVelocity, -Vmax, Vmax);
+// Desired velocity is always toward the target,
+// but capped by stopping distance
+        desiredVelocity =
+                Math.signum(error) *
+                        Math.min(MAX_ACHIEVABLE_VELOCITY, maxVelForStop);
+
 
         /* ---------- PID terms ---------- */
 
@@ -98,7 +106,7 @@ public class SuperDuperPID {
         boolean far = Math.abs(error) > STUCK_ERROR_TICKS;
         boolean slow = Math.abs(velocity) < STUCK_VEL_EPS;
 
-        if (far && slow) {
+        if (far && slow && false) {
             if (stuckStartNs < 0) stuckStartNs = now;
             else if (now - stuckStartNs > STUCK_TIME_NS) stuck = true;
         } else {
@@ -125,16 +133,16 @@ public class SuperDuperPID {
         double staticFF = kF * Math.tanh(error / frictionBlendTicks);
 
         double profileWeight = clamp(Math.abs(error) / PROFILE_FADE_TICKS, 0, 1);
-        double velocityFF = profileWeight * desiredVelocity * kV;
+        double velocityFF = /*profileWeight * */desiredVelocity * kV;
 
         /* ---------- PID ---------- */
 
         double output =
-                coeffs.P * error +
-                        coeffs.I * errorIntegral +
-                        coeffs.D * errorDerivative +
-                        staticFF +
-                        velocityFF;
+                kP * error +
+                kI * errorIntegral +
+                kD * errorDerivative +
+                staticFF +
+                velocityFF;
 
         return clamp(output, -1.0, 1.0);
     }
@@ -161,15 +169,13 @@ public class SuperDuperPID {
     public double getVelocity() { return velocity; }
     public double getDesiredVelocity() { return desiredVelocity; }
 
-    public double getPOutput() { return coeffs.P * error; }
-    public double getIOutput() { return coeffs.I * errorIntegral; }
-    public double getDOutput() { return coeffs.D * errorDerivative; }
+    public double getPOutput() { return kP * error; }
+    public double getIOutput() { return kI * errorIntegral; }
+    public double getDOutput() { return kD * errorDerivative; }
     public double getDeltaTime() { return dt;}
     public double getTargetPosition() { return targetPosition;}
 
     public boolean isStuck() { return stuck; }
-
-    public PIDFCoefficients getCoefficients() { return coeffs; }
 
     /* -------------------- Utils -------------------- */
 

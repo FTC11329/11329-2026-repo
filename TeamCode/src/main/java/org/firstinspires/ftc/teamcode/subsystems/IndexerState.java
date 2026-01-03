@@ -31,7 +31,7 @@ public class IndexerState {
     public boolean atPosition = true;
     private int encoderOffset;
     private double power;
-
+    long now = System.currentTimeMillis();
     public IndexerState(HardwareMap hardwareMap, BallColor[] ballCells, int startIndexerTicks) {
         this.ballCells = ballCells;
         spindexer1 = hardwareMap.get(CRServo.class, "spindexer1");
@@ -45,9 +45,31 @@ public class IndexerState {
 
         colorSensor = hardwareMap.get(RevColorSensorV3.class, "spindexerColorSensor");
 
-        pidfController = new SuperDuperPID(Constants.Indexer.pidfCoefficients);
+        pidfController = new SuperDuperPID();
         encoderOffset = startIndexerTicks;
     }
+
+    long lastStepTime = 0;
+    boolean high = false;
+    long timer = -1;
+
+    public void stepMovement() {
+        long now = System.currentTimeMillis();
+
+        if (now - lastStepTime >= 6000) {
+            high = !high;
+            lastStepTime = now;
+
+            pidfController.setTargetPosition(high ? 4096 : 0);
+        }
+
+        pidfController.update(encoder.getCurrentPosition());
+        double power = pidfController.run();
+
+        spindexer1.setPower(power);
+        spindexer2.setPower(power);
+    }
+
 
     public void moveToNearest(BallColor tarColor, boolean isAnIntakePosition) {
         // gets nearest index of

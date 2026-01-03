@@ -14,11 +14,6 @@ public class Constants {
 
     @Configurable
     public static class Indexer {
-        public static PIDFCoefficients pidfCoefficients = new PIDFCoefficients(0.0001,0.0000,0.00000,0.0);
-        public static Double kF_CW = .06;
-        public static Double kF_CCW = .07;
-        public static Double kV = 1.0;
-
 
         public static double indexerTolerance = 50;
 
