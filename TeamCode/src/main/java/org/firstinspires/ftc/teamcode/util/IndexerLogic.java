@@ -70,8 +70,8 @@ public class IndexerLogic {
         }
 
         // Removing after shoot
-        if (hasShot && IndexerEnumsNew.isAShootEnum(indexerState.getIndexerPosition()) && indexerState.atPosition) {
-            int indexToRemove = IndexerEnumsNew.getIndex(indexerState.getIndexerPosition());
+        if (hasShot && IndexerEnums.isAShootEnum(indexerState.getIndexerPosition()) && indexerState.atPosition) {
+            int indexToRemove = IndexerEnums.getIndex(indexerState.getIndexerPosition());
             indexerState.removeBallAtIndex(indexToRemove);
             removeFrontQueue();
         }

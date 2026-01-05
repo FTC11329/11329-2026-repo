@@ -2,22 +2,68 @@ package org.firstinspires.ftc.teamcode.util;
 
 public enum IndexerEnums {
     // Orders for Storing positions from topLeft to bottom To topRight
-    StoreTlBTr012Revrese, 
-    StoreTlBTr120,
-    StoreTlBTr201,
-    StoreTlBTr012,
-    // Order for Shooting positions from top to bottomLeft To bottomRight
-    TransferTBlBr012Reverse,
-    TransferTBlBr120,
+    intake0, intake1, intake2,
+    shoot0, shoot1, shoot2;
 
-    TransferTBlBr201,
-    TransferTBlBr012 // todo remove if we dont want it
-    // Store States
-    //Reverse
-    // 0   2 | 1   0 | 2   1 | 0   2 
-    //   1   |   2   |   0   |   1   
-    // Transfer States 
-    //    Reverse                    V Doesn't currently exist
-    //       0   |   1   |   2   |   0   
-    //     1   2 | 2   0 | 0   1 | 1   2 
+    // 0   2 | 1   0 | 2   1
+    //   1   |   2   |   0
+
+    //       0   |   1   |   2
+    //     1   2 | 2   0 | 0   1
+    public static IndexerEnums getEnum(int index, boolean isAnIntakePosition) {
+        if (isAnIntakePosition) {
+            switch (index) {
+                case 0:
+                    return intake0;
+                case 1:
+                    return intake1;
+                case 2:
+                    return intake2;
+            }
+        } else {
+            switch (index) {
+                case 0:
+                    return shoot0;
+                case 1:
+                    return shoot1;
+                case 2:
+                    return shoot2;
+            }
+        }
+        System.exit(0);
+
+        return getEnum(index, isAnIntakePosition);
+    }
+
+    public static int getIndex(IndexerEnums indexerEnums) {
+        switch (indexerEnums) {
+            case intake0:
+                return 0;
+            case intake1:
+                return 1;
+            case intake2:
+                return 2;
+
+            case shoot0:
+                return 0;
+            case shoot1:
+                return 1;
+            case shoot2:
+                return 2;
+        }
+        System.exit(0);
+
+        return getIndex(indexerEnums);
+    }
+
+    public static boolean isAShootEnum(IndexerEnums indexerEnums) {
+        switch (indexerEnums) { 
+            case intake0:
+            case intake1:
+            case intake2:
+                return false;
+            default:
+                return true;
+        }
+    }
 }

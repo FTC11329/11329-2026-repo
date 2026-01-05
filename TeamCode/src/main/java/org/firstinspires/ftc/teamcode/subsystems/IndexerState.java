@@ -4,23 +4,21 @@ import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.ColorFunctions;
-import org.firstinspires.ftc.teamcode.util.IndexerEnumsNew;
+import org.firstinspires.ftc.teamcode.util.IndexerEnums;
 import org.firstinspires.ftc.teamcode.util.SuperDuperPID;
 
 import static java.lang.Math.PI;
 
 public class IndexerState {
 
-    private IndexerEnumsNew indexerPosition = IndexerEnumsNew.intake0;
+    private IndexerEnums indexerPosition = IndexerEnums.intake0;
     private BallColor[] ballCells;
     public SuperDuperPID pidfController;
 
@@ -37,7 +35,7 @@ public class IndexerState {
         spindexer1 = hardwareMap.get(CRServo.class, "spindexer1");
         spindexer2 = hardwareMap.get(CRServo.class, "spindexer2");
         spindexer1.setDirection(CRServo.Direction.FORWARD);
-        spindexer2.setDirection(CRServo.Direction.REVERSE);
+        spindexer2.setDirection(CRServo.Direction.FORWARD);
 
         encoder = hardwareMap.get(DcMotorEx.class, "intake");
         encoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -49,18 +47,60 @@ public class IndexerState {
         encoderOffset = startIndexerTicks;
     }
 
+    static final int STEP_TICKS = 1366;
+
+    long moveStartTime = 0;
+    double totalTimeMs = 0;
+    int samples = 0;
+
+    double targetPos = 682.6;
+    double avgTimeSec;
+    boolean moving = false;
+    boolean first = true;
+
+    public void averageTime() {
+        long now = System.currentTimeMillis();
+        double pos = encoder.getCurrentPosition();
+
+        pidfController.update(pos);
+        double power = pidfController.run();
+
+        if (!moving) {
+            // Start new move
+            targetPos = pos + STEP_TICKS;
+            pidfController.setTargetPosition(targetPos);
+            moveStartTime = now;
+            moving = true;
+        }
+
+        // Movement finished
+        if (moving && Math.abs(pos - targetPos) < Constants.Indexer.indexerTolerance && power == 0 /*&& Math.abs(pidfController.getVelocity()) < 20 */) {
+            long moveTime = now - moveStartTime;
+            totalTimeMs += moveTime;
+            samples++;
+
+            avgTimeSec = (totalTimeMs / samples) / 1000.0;
+
+            moving = false;
+        }
+
+        spindexer1.setPower(power);
+        spindexer2.setPower(power);
+    }
+
     long lastStepTime = 0;
     boolean high = false;
     long timer = -1;
+    double target;
 
     public void stepMovement() {
         long now = System.currentTimeMillis();
 
-        if (now - lastStepTime >= 6000) {
+        if (now - lastStepTime >= 3000) {
             high = !high;
             lastStepTime = now;
 
-            pidfController.setTargetPosition(high ? 4096 : 0);
+            pidfController.setTargetPosition(target+=STEP_TICKS);
         }
 
         pidfController.update(encoder.getCurrentPosition());
@@ -70,7 +110,6 @@ public class IndexerState {
         spindexer2.setPower(power);
     }
 
-
     public void moveToNearest(BallColor tarColor, boolean isAnIntakePosition) {
         // gets nearest index of
         double smallestDistance = Double.MAX_VALUE;
@@ -78,7 +117,7 @@ public class IndexerState {
 
         for (int index = 0; index < 3; index++) {
             if (ballCells[index] == tarColor || (tarColor == BallColor.Any && ballCells[index] != BallColor.None)) {
-                IndexerEnumsNew targetEnum = IndexerEnumsNew.getEnum(index, isAnIntakePosition);
+                IndexerEnums targetEnum = IndexerEnums.getEnum(index, isAnIntakePosition);
 
                 double targetAngle = convertEnumToAbsoluteAngle(targetEnum);
 
@@ -94,7 +133,7 @@ public class IndexerState {
             throw new RuntimeException("moveToNearest ball empty");
         }
 
-        IndexerEnumsNew targetEnum = IndexerEnumsNew.getEnum(smallestIndex, isAnIntakePosition);
+        IndexerEnums targetEnum = IndexerEnums.getEnum(smallestIndex, isAnIntakePosition);
         setIndexerTarget(targetEnum);
     }
 
@@ -118,7 +157,7 @@ public class IndexerState {
         return getEncoderTicks() / 4096.0 * (2 * PI);
     }
 
-    public double convertEnumToAbsoluteAngle(IndexerEnumsNew indexEnum) {
+    public double convertEnumToAbsoluteAngle(IndexerEnums indexEnum) {
         switch (indexEnum) {
             case shoot0:
                 return PI;
@@ -135,10 +174,10 @@ public class IndexerState {
         }
         return 0;
     }
-    public double enumToTicks(IndexerEnumsNew targetIndexerEnum) {
+    public double enumToTicks(IndexerEnums targetIndexerEnum) {
         return encoder.getCurrentPosition() + ((4096.0 / (2 * PI)) * (findSmallestAngleToIndex(convertEnumToAbsoluteAngle(targetIndexerEnum))));
     }
-    public void setIndexerTarget(IndexerEnumsNew targetIndexerEnum) {
+    public void setIndexerTarget(IndexerEnums targetIndexerEnum) {
         if (targetIndexerEnum != indexerPosition) {
             atPosition = false;
             indexerPosition = targetIndexerEnum;
@@ -215,7 +254,7 @@ public class IndexerState {
         return colorSensor.getNormalizedColors();
     }
 
-    public IndexerEnumsNew getIndexerPosition() {
+    public IndexerEnums getIndexerPosition() {
         return indexerPosition;
     }
 
@@ -244,7 +283,7 @@ public class IndexerState {
         ballCells[index] = BallColor.None;
     }
 
-    public void setIndexerPosition(IndexerEnumsNew indexerPosition) {
+    public void setIndexerPosition(IndexerEnums indexerPosition) {
         this.indexerPosition = indexerPosition;
     }
 

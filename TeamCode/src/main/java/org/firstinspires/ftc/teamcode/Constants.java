@@ -15,7 +15,7 @@ public class Constants {
     @Configurable
     public static class Indexer {
 
-        public static double indexerTolerance = 50;
+        public static double indexerTolerance = 100;
 
         public static double spindexPower = 0.45;
 

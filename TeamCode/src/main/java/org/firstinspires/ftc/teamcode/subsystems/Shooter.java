@@ -32,6 +32,7 @@ public class Shooter {
     boolean onceShot = false;
     double previousError;
     double derivative;
+    double lastPower;
 
 
 
@@ -57,6 +58,7 @@ public class Shooter {
     }
 
     public void setPower(double power){
+        lastPower = power;
         flywheel.setPower(power);
     }
     public boolean hasShot() {
