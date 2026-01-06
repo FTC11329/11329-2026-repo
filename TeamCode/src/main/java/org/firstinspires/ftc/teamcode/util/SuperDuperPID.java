@@ -1,32 +1,37 @@
 package org.firstinspires.ftc.teamcode.util;
 
+import com.bylazar.configurables.annotations.Configurable;
+
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.control.PIDFCoefficients;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 
+@Configurable
 public class SuperDuperPID {
 
     /* -------------------- Tunables -------------------- */
+    // todo: figure out how to add @Configurable so we can tune without having to restart the bot
     // Motion profiling
-    private static final double MAX_ACHIEVABLE_VELOCITY = 7500;
-    private static final double DECEL_MAX = 1000.0; // ticks/sec^2
+
+    private static double MAX_ACHIEVABLE_VELOCITY = 7500;
+    private static double DECEL_MAX = 1000.0;  // ticks/sec^2
 
     // Feedforward
-    private static final double frictionBlendTicks = 20;
-    private static final double kV = 1.0 / MAX_ACHIEVABLE_VELOCITY;
-    private static final double kF_CW = 0.054;
-    private static final double kF_CCW = 0.065;
+    private static double frictionBlendTicks = 20;
+    private static double kV = 1.0 / MAX_ACHIEVABLE_VELOCITY;
+    private static double kF_CW = 0.054;
+    private static double kF_CCW = 0.065;
     // PID
-    private static final double kP = 0.00008; // .00005 < x < .00015
-    private static final double kI = 0.0;
-    private static final double kD = 0.000006;
+    private static double kP = 0.00008; // .00005 < x < .00015
+    private static double kI = 0.0;
+    private static double kD = 0.000006;
 
 
     // Integral clamp
-    private static final double I_MAX = 0.1;
+    private static double I_MAX = 0.1;
     //derivative filtering
     private double filteredVelocity = 0;
-    private static final double VEL_ALPHA = 0.15; // 0–1, lower = smoother
+    private static double VEL_ALPHA = 0.15; // 0–1, lower = smoother
 
 
     /* -------------------- State -------------------- */
