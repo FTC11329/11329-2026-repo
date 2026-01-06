@@ -40,7 +40,7 @@ public class SuperDuperPID {
     private double prevPosition;
     private double velocity;
 
-    private double targetPosition;
+    private double targetPosition = 0;
     private double error;
     private double dt;
 

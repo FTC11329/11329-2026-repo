@@ -19,6 +19,8 @@ import static java.lang.Math.PI;
 public class IndexerState {
 
     private IndexerEnums indexerPosition = IndexerEnums.intake0;
+
+    public int encoderTickPos = 0;
     private BallColor[] ballCells;
     public SuperDuperPID pidfController;
 
@@ -47,13 +49,13 @@ public class IndexerState {
         encoderOffset = startIndexerTicks;
     }
 
-    static final int STEP_TICKS = 1366;
+    static final int STEP_TICKS = 1366 * 3;
 
     long moveStartTime = 0;
     double totalTimeMs = 0;
     int samples = 0;
 
-    double targetPos = 682.6;
+    double encoderTarget = 682.6;
     double avgTimeSec;
     boolean moving = false;
     boolean first = true;
@@ -67,14 +69,14 @@ public class IndexerState {
 
         if (!moving) {
             // Start new move
-            targetPos = pos + STEP_TICKS;
-            pidfController.setTargetPosition(targetPos);
+            encoderTarget = pos + STEP_TICKS;
+            pidfController.setTargetPosition(encoderTarget);
             moveStartTime = now;
             moving = true;
         }
 
         // Movement finished
-        if (moving && Math.abs(pos - targetPos) < Constants.Indexer.indexerTolerance && power == 0 /*&& Math.abs(pidfController.getVelocity()) < 20 */) {
+        if (moving && Math.abs(pos - encoderTarget) < Constants.Indexer.indexerTolerance && power == 0 /*&& Math.abs(pidfController.getVelocity()) < 20 */) {
             long moveTime = now - moveStartTime;
             totalTimeMs += moveTime;
             samples++;
@@ -138,7 +140,7 @@ public class IndexerState {
     }
 
 
-    public double findSmallestAngleToIndex(double targetAngle) {
+    public double findSmallestAngleToIndex(double targetAngle) { //todo: always minimize to intake
         return ((targetAngle - getAbsoluteEncoderAngle() + PI) % (2 * PI)) - PI;
     }
 
@@ -175,7 +177,7 @@ public class IndexerState {
         return 0;
     }
     public double enumToTicks(IndexerEnums targetIndexerEnum) {
-        return encoder.getCurrentPosition() + ((4096.0 / (2 * PI)) * (findSmallestAngleToIndex(convertEnumToAbsoluteAngle(targetIndexerEnum))));
+        return pidfController.getTargetPosition() + ((4096.0 / (2 * PI)) * (findSmallestAngleToIndex(convertEnumToAbsoluteAngle(targetIndexerEnum))));
     }
     public void setIndexerTarget(IndexerEnums targetIndexerEnum) {
         if (targetIndexerEnum != indexerPosition) {
@@ -189,10 +191,11 @@ public class IndexerState {
     }
 
     public int getEncoderTicks() {
-        return encoder.getCurrentPosition() + encoderOffset;
+        return encoderTickPos + encoderOffset;
     }
 
     public void update() {
+        encoderTickPos = encoder.getCurrentPosition();
         pidfController.update(getEncoderTicks());
         power = pidfController.run();
 
@@ -225,7 +228,7 @@ public class IndexerState {
     public BallColor[] getBallCells() {
         return ballCells;
     }
-    private static final long UPDATE_PERIOD_MS = 100;
+    private static final long UPDATE_PERIOD_MS = 0;
     private long lastUpdateTime = 0;
     private BallColor cachedColor = BallColor.None;
     // this limits it to checking the intake for a ball to every 100ms for faster performance

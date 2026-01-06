@@ -309,7 +309,7 @@ public class Robot {
         intakeToggle = set;
     }
     public void intakeUpdate() {
-        if (intakeToggle  && indexer.allowIntakeing() && !spitIntake) {
+        if (intakeToggle /*&& indexer.allowIntakeing() */ && !spitIntake) {
             intake.setIntakePower(Constants.Intake.intakePower);
         } else if (spitIntake) {
             intake.setIntakePower(Constants.Intake.spitPower);
@@ -338,11 +338,7 @@ public class Robot {
 
     // TELE-OP*************************************************************************************~
     public void intakeManual() {
-        if (indexer.allowIntakeing()) {
-            spinIntake();
-        } else {
-            stopIntake(); //todo: lock in with mechanical
-        }
+        spinIntake();
     }
 
     public void autoIntake3() {
@@ -376,14 +372,31 @@ public class Robot {
     public void update() {
         update(false);
     }
+    double deleteMe = System.currentTimeMillis();
     public void update(boolean debug) {
+        double orig = System.currentTimeMillis();
         shooterUpdate();
+        double shooterTime = System.currentTimeMillis();
         intakeUpdate();
+        double intakeTime = System.currentTimeMillis();
         spindexerUpdate();
+        double spindexerTime = System.currentTimeMillis();
 //        indexer.indexerState.averageTime();
         turretUpdate();
+        double turretTime = System.currentTimeMillis();
         teleopUpdate();
+        double teleopTime = System.currentTimeMillis();
         follower.update();
+        double followerTime = System.currentTimeMillis();
+        telemetry.addLine("=== Timings ===");
+        telemetry.addData("Rest of the Time", deleteMe - orig);
+        telemetry.addData("shooterTime", orig - shooterTime);
+        telemetry.addData("intakeTime", shooterTime - intakeTime);
+        telemetry.addData("spindexerTime", intakeTime - spindexerTime);
+        telemetry.addData("turretTime", spindexerTime - turretTime);
+        telemetry.addData("teleopTime", turretTime - teleopTime);
+        telemetry.addData("followerTime", teleopTime - followerTime);
+        telemetry.addLine("=======");
         if (debug) {
             Drawing.drawDebug(follower);
             telemetry.addLine("=== VISION ===");
@@ -481,6 +494,7 @@ public class Robot {
         telemetry.addData("dt", (now - lastTime) * 1e-3);
         lastTime = now;
         telemetry.update();
+        deleteMe = System.currentTimeMillis();
     }
 
     public void stopAllSubsystems() {

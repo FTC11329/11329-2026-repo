@@ -115,8 +115,8 @@ public class MainTeleop {
     }
 
     public void loop() {
-        intake.checkStatus(gamepad1.left_bumper); // Toggle on to intake
-        spitIntake.checkStatus(/*gamepad1.left_bumper || */gamepad2.b); // Hold to spit
+        intake.checkStatus(gamepad2.left_bumper); // Toggle on to intake
+        spitIntake.checkStatus(gamepad1.left_bumper || gamepad2.b); // Hold to spit
 
         // queueGreen.checkStatus(gamepad2.y); // Press to queue green
         // queuePurple.checkStatus(gamepad2.x); // Press to queue purple

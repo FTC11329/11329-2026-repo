@@ -15,7 +15,7 @@ public class Constants {
     @Configurable
     public static class Indexer {
 
-        public static double indexerTolerance = 100;
+        public static double indexerTolerance = 200;
 
         public static double spindexPower = 0.45;
 
@@ -83,9 +83,9 @@ public class Constants {
         public static double turretOffset = 0;
 
 
-        public static double P = 0.00003;
-        public static double I = 0.000;
-        public static double D = 0.000002;
+        public static double P = 0.0207;
+        public static double I = 0.000085;
+        public static double D = 0.00056;
         public static double leftF = -0.03;
         public static double rightF = 0.11;
 

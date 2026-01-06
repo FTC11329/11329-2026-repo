@@ -30,9 +30,8 @@ public enum IndexerEnums {
                     return shoot2;
             }
         }
-        System.exit(0);
+        throw new RuntimeException("getEnum failed, idk why, it shouldnt");
 
-        return getEnum(index, isAnIntakePosition);
     }
 
     public static int getIndex(IndexerEnums indexerEnums) {
@@ -51,9 +50,8 @@ public enum IndexerEnums {
             case shoot2:
                 return 2;
         }
-        System.exit(0);
+        throw new RuntimeException("getIndex failed, idk why, it shouldnt");
 
-        return getIndex(indexerEnums);
     }
 
     public static boolean isAShootEnum(IndexerEnums indexerEnums) {
