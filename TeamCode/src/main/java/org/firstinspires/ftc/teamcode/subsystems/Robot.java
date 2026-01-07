@@ -323,8 +323,49 @@ public class Robot {
         }
         intakeToggle = set;
     }
-    public void intakeUpdate() {
-        if (intakeToggle /*&& indexer.allowIntakeing() */ && !spitIntake) {
+    long startSpit = 0L;
+    boolean setTimeOnce = true;
+    boolean autoSpitting = false;
+    long intakeEnableTime = 0L;
+    static final long SPINUP_IGNORE_MS = 300;  // tune 200–400ms
+    private boolean setTimer;
+
+    public void intakeUpdate() { //todo: move most of this logic into the intake class
+
+        long now = System.currentTimeMillis();
+        long spitTime = now - startSpit;
+
+        boolean spinupIgnore = (now - intakeEnableTime) < SPINUP_IGNORE_MS;
+        boolean highCurrent = intake.intakeMotor.isOverCurrent();
+        telemetry.addData("spinup ignore", spinupIgnore);
+        telemetry.addData("high current", highCurrent);
+        telemetry.addData("auto spitting", autoSpitting);
+
+        if (!spinupIgnore && highCurrent && setTimeOnce) {
+            startSpit = now;
+            setTimeOnce = false;
+            autoSpitting = true;
+            setTimer = false;
+        }
+
+        // ---------- DURING AUTO-SPIT WINDOW ----------
+        if (autoSpitting) {
+            intake.setIntakePower(Constants.Intake.spitPower);
+
+            // stop after configured spit time (units now consistent → ms)
+            if (spitTime >= Constants.Intake.spitTime) {
+                autoSpitting = false;
+                setTimeOnce = true;
+            }
+            return; // prevents falling through to other logic
+        }
+
+        // ---------- NORMAL CONTROL ----------
+        if (intakeToggle && !spitIntake) {
+            if (!setTimer) {
+                intakeEnableTime = System.currentTimeMillis();
+                setTimer = true;
+            }
             intake.setIntakePower(Constants.Intake.intakePower);
         } else if (spitIntake) {
             intake.setIntakePower(Constants.Intake.spitPower);
@@ -332,6 +373,7 @@ public class Robot {
             intake.setIntakePower(0);
         }
     }
+
 
     // SPINDEXER***********************************************************************************~
 
@@ -400,16 +442,16 @@ public class Robot {
         double teleopTime = System.currentTimeMillis();
         follower.update();
         double followerTime = System.currentTimeMillis();
-        telemetry.addLine("=== Timings ===");
-        telemetry.addData("Rest of the Time", deleteMe - orig);
-        telemetry.addData("shooterTime", orig - shooterTime);
-        telemetry.addData("intakeTime", shooterTime - intakeTime);
-        telemetry.addData("spindexerTime", intakeTime - spindexerTime);
-        telemetry.addData("turretTime", spindexerTime - turretTime);
-        telemetry.addData("teleopTime", turretTime - teleopTime);
-        telemetry.addData("followerTime", teleopTime - followerTime);
-        telemetry.addLine("=======");
         if (debug) {
+            telemetry.addLine("=== Timings ===");
+            telemetry.addData("Rest of the Time", deleteMe - orig);
+            telemetry.addData("shooterTime", orig - shooterTime);
+            telemetry.addData("intakeTime", shooterTime - intakeTime);
+            telemetry.addData("spindexerTime", intakeTime - spindexerTime);
+            telemetry.addData("turretTime", spindexerTime - turretTime);
+            telemetry.addData("teleopTime", turretTime - teleopTime);
+            telemetry.addData("followerTime", teleopTime - followerTime);
+            telemetry.addLine("=======");
             Drawing.drawDebug(follower);
             telemetry.addLine("=== VISION ===");
             telemetry.addData("Motif", motif);
@@ -502,18 +544,19 @@ public class Robot {
             panelsTelemetry.addData("trans", indexer.feeder.getCurrent(CurrentUnit.AMPS));
             panelsTelemetry.update();
             telemetry.addData("average time to hit target ms", indexer.indexerState.avgTimeSec);
-            long now = System.currentTimeMillis();
-            telemetry.addData("dt", (now - lastTime) * 1e-3);
-            lastTime = now;
-            telemetry.update();
             deleteMe = System.currentTimeMillis();
+            panelsTelemetry.addData("Turret Degrees", turret.getAngle());
+            panelsTelemetry.addData("Turret Ticks  ", turret.getTicks());
+            panelsTelemetry.addData("Turret Tar Deg", turret.turretPID.getTargetPosition());
+            panelsTelemetry.addData("Turret power", clamp(turret.turretPID.run(), -1, 1));
+            telemetry.addData("current alert", intake.intakeMotor.isOverCurrent());
+            telemetry.addData("current", intake.intakeMotor.getCurrent(CurrentUnit.AMPS));
         }
-        panelsTelemetry.addData("Turret Degrees", turret.getAngle());
-        panelsTelemetry.addData("Turret Ticks  ", turret.getTicks());
-        panelsTelemetry.addData("Turret Tar Deg", turret.turretPID.getTargetPosition());
-        panelsTelemetry.addData("Turret power", clamp(turret.turretPID.run(), -1, 1));
+        long now = System.currentTimeMillis();
+        telemetry.addData("dt", (now - lastTime) * 1e-3);
+        lastTime = now;
+        telemetry.update();
 
-        panelsTelemetry.update();
     }
     private static double clamp(double v, double lo, double hi) {
         return Math.max(lo, Math.min(hi, v));

@@ -101,7 +101,7 @@ public class MainTeleop {
         resetPose.checkStatus(gamepad2.y);
 
         if (resetPose.startPress || true) {
-            startPose = new Pose(0,0,0);
+            startPose = new Pose(0,0, 0);
             robot.turret.encoderOffset = 0;
         }
 
@@ -119,12 +119,12 @@ public class MainTeleop {
     }
 
     public void loop() {
-        intake.checkStatus(gamepad2.left_bumper); // Toggle on to intake
-        spitIntake.checkStatus(gamepad1.left_bumper || gamepad2.b); // Hold to spit
+        intake.checkStatus(gamepad1.left_bumper); // Toggle on to intake
+        spitIntake.checkStatus(gamepad2.left_bumper || gamepad1.right_bumper); // Hold to spit
 
         // queueGreen.checkStatus(gamepad2.y); // Press to queue green
         // queuePurple.checkStatus(gamepad2.x); // Press to queue purple
-        autoShoot.checkStatus(gamepad2.a); // Toggle to turn on auto shoot
+        autoShoot.checkStatus(gamepad1.a); // Toggle to turn on auto shoot
         smartShoot.checkStatus(gamepad2.b); // Toggle to turn on smart shoot
         fastShootButton.checkStatus(gamepad2.right_bumper); // Toggle to turn on smart shoot
 
@@ -137,7 +137,7 @@ public class MainTeleop {
         movePoseLeft.checkStatus(gamepad2.dpad_left);
         movePoseRight.checkStatus(gamepad2.dpad_right);
 
-        takePhoto.checkStatus(gamepad2.y); // hold to take photo
+        takePhoto.checkStatus(gamepad1.y); // hold to take photo
         debug.checkStatus(gamepad1.start); // hold to print telemetry
 
         deleteme.checkStatus(false);
