@@ -187,7 +187,7 @@ public class TestingShooterValues {
 
 
 
-        robot.update(debug.isOn);
+        robot.update();
         Pose goal;
         if (robotSide == RobotSide.Blue)  {
             goal = Constants.Vision.blueGoal;

@@ -235,7 +235,7 @@ public class AutoReplayTeleop {
         // robot.qBall(BallColor.Green);
         // }
 
-        robot.update(debug.isOn);
+        robot.update();
 //        telemetry.addData("distance", robot.getCurrentPose().distanceFrom(Constants.Vision.blueGoal));
 
 //        double deltaTime = time.milliseconds() - lastTime;

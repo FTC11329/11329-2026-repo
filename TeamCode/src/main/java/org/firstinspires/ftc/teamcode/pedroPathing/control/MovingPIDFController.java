@@ -29,6 +29,7 @@ public class MovingPIDFController implements Controller {
 
     private long previousUpdateTimeNano;
     private long deltaTimeNano;
+    private double kV;
 
     /**
      * This creates a new PIDFController from a CustomPIDFCoefficients.
@@ -37,6 +38,12 @@ public class MovingPIDFController implements Controller {
      */
     public MovingPIDFController(PIDFCoefficients set) {
         setCoefficients(set);
+        kV = 0;
+        reset();
+    }
+    public MovingPIDFController(PIDFCoefficients set, double kV) {
+        setCoefficients(set);
+        this.kV = kV;
         reset();
     }
 
@@ -46,7 +53,7 @@ public class MovingPIDFController implements Controller {
      * @return this returns the value of the PIDF from the current error.
      */
     public double run() {
-        return error * P() + positionDerivative * D() + errorIntegral * I() + feedForwardInput * F();
+        return error * P() + positionDerivative * D() + errorIntegral * I() + feedForwardInput * F() + targetPosition / kV;
     }
 
     /**
@@ -119,7 +126,7 @@ public class MovingPIDFController implements Controller {
      */
     public void setTargetPosition(double set) {
         targetPosition = set;
-        errorIntegral = 0;
+//        errorIntegral = 0;
         error = targetPosition - position;
     }
     // this is for when you need to adjust the position your going for by a little bit

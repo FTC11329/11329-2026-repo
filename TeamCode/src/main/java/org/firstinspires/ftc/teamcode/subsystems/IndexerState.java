@@ -4,6 +4,7 @@ import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 
@@ -15,6 +16,7 @@ import org.firstinspires.ftc.teamcode.util.IndexerEnums;
 import org.firstinspires.ftc.teamcode.util.SuperDuperPID;
 
 import static java.lang.Math.PI;
+import static java.lang.Math.pow;
 
 public class IndexerState {
 
@@ -31,12 +33,14 @@ public class IndexerState {
     public boolean atPosition = true;
     private int encoderOffset;
     private double power;
+    public boolean stopIndexer = false;
+
     long now = System.currentTimeMillis();
     public IndexerState(HardwareMap hardwareMap, BallColor[] ballCells, int startIndexerTicks) {
         this.ballCells = ballCells;
         spindexer1 = hardwareMap.get(CRServo.class, "spindexer1");
         spindexer2 = hardwareMap.get(CRServo.class, "spindexer2");
-        spindexer1.setDirection(CRServo.Direction.FORWARD);
+        spindexer1.setDirection(CRServo.Direction.REVERSE);
         spindexer2.setDirection(CRServo.Direction.FORWARD);
 
         encoder = hardwareMap.get(DcMotorEx.class, "intake");
@@ -49,7 +53,7 @@ public class IndexerState {
         encoderOffset = startIndexerTicks;
     }
 
-    static final int STEP_TICKS = 1366 * 3;
+    static final int STEP_TICKS = 1366;
 
     long moveStartTime = 0;
     double totalTimeMs = 0;
@@ -199,8 +203,10 @@ public class IndexerState {
         pidfController.update(getEncoderTicks());
         power = pidfController.run();
 
-        spindexer1.setPower(power);
-        spindexer2.setPower(power);
+        if (!stopIndexer) {
+            spindexer1.setPower(power);
+            spindexer2.setPower(power);
+        }
 
         if (Math.abs(pidfController.getError()) < Constants.Indexer.indexerTolerance) {
             atPosition = true;
@@ -284,6 +290,22 @@ public class IndexerState {
 
     public void removeBallAtIndex(int index) {
         ballCells[index] = BallColor.None;
+    }
+
+    public void spinIndexerOnce() {
+        pidfController.update(getEncoderTicks());
+        atPosition = false;
+        encoderOffset += 4096;
+    }
+
+    public void stopIndexer(boolean set) {
+        if (set) {
+            stopIndexer = true;
+            spindexer1.setPower(0);
+            spindexer2.setPower(0);
+        } else {
+            stopIndexer = false;
+        }
     }
 
     public void setIndexerPosition(IndexerEnums indexerPosition) {

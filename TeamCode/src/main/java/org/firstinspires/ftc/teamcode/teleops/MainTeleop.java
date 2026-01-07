@@ -24,6 +24,8 @@ public class MainTeleop {
     FancyButton spitIntake;
 
     FancyButton autoShoot;
+    FancyButton smartShoot;
+    FancyButton fastShootButton;
     FancyButton queueGreen;
     FancyButton queuePurple;
 
@@ -75,6 +77,8 @@ public class MainTeleop {
         queueGreen = new FancyButton(FancyButton.PressType.LongPress);
         queuePurple = new FancyButton(FancyButton.PressType.LongPress);
         autoShoot = new FancyButton(FancyButton.PressType.Toggle);
+        smartShoot = new FancyButton(FancyButton.PressType.Toggle);
+        fastShootButton = new FancyButton(FancyButton.PressType.LongPress);
 
         overrideShootPosition = new FancyButton(FancyButton.PressType.LongPress);
         panicShoot = new FancyButton(FancyButton.PressType.Toggle);
@@ -121,6 +125,8 @@ public class MainTeleop {
         // queueGreen.checkStatus(gamepad2.y); // Press to queue green
         // queuePurple.checkStatus(gamepad2.x); // Press to queue purple
         autoShoot.checkStatus(gamepad2.a); // Toggle to turn on auto shoot
+        smartShoot.checkStatus(gamepad2.b); // Toggle to turn on smart shoot
+        fastShootButton.checkStatus(gamepad2.right_bumper); // Toggle to turn on smart shoot
 
         overrideShootPosition.checkStatus(gamepad2.back); // hold to turn on ignore position
         panicShoot.checkStatus(gamepad2.ps); // toggle to turn on panic shoot mode
@@ -178,7 +184,12 @@ public class MainTeleop {
         } else if (autoShoot.endPress) {
             robot.casualShooterModeOn();
         }
-        // Changing our aim
+        if (smartShoot.startPress) {
+            robot.indexer.setSmartShootBool(true);
+        } else if (smartShoot.endPress) {
+            robot.indexer.setSmartShootBool(false);
+        }
+         // Changing our aim
         if (robotSide == RobotSide.Blue) {
             if (movePoseUp.startPress) {
                 robot.offsetPose.addY(1);
@@ -217,7 +228,7 @@ public class MainTeleop {
                 robot.offsetPose = new Pose(0,0,0);
             }
         }
-        robot.update(debug.isOn);
+        robot.update(debug.isOn, fastShootButton.startPress);
 
 //        for (BallColor i : robot.indexer.indexerState.getBallCells()) {
 //            telemetry.addData("BALLER", i);

@@ -11,8 +11,6 @@ import org.firstinspires.ftc.teamcode.pedroPathing.control.PIDFCoefficients;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 
 public class Constants {
-
-    @Configurable
     public static class Indexer {
 
         public static double indexerTolerance = 200;
@@ -83,11 +81,14 @@ public class Constants {
         public static double turretOffset = 0;
 
 
-        public static double P = 0.0207;
-        public static double I = 0.000085;
-        public static double D = 0.00056;
-        public static double leftF = -0.03;
-        public static double rightF = 0.11;
+        public static double P = 0.025;
+        public static double I = 0.001;
+        public static double D = 0.001;
+//        public static double P = 0.0207;
+//        public static double I = 0.000085;
+//        public static double D = 0.00056;
+        public static double leftF = -0.05;
+        public static double rightF = 0.05;
 
         public static PIDFCoefficients turretPID = new PIDFCoefficients(P, I, D, 1);
 //        public static double P = 0;
@@ -95,16 +96,18 @@ public class Constants {
 //        public static double D = 0;
 //        public static double F = 0;
     }
+    @Configurable
     public static class Shooter {
         public static double maxHoodAngle = 53.5;
         public static double minHoodAngle = 0;
         public static double closeEnoughRPM = 50;
         public static double ticksPerRevolution = 28;
-        public static double P = 0.02;
-        public static double I = 0.000015;
-        public static double D = 0.000001;
-        public static double F = 0.085;
-        public static PIDFCoefficients shooterVelocityPID = new PIDFCoefficients(P, I, D, F);
+        public static double P = 0.004;
+        public static double I = 0;
+        public static double D = 0;
+        public static double F = 0;
+        public static double kF = 4456;
+        public static PIDFCoefficients shooterVelocityPID = new PIDFCoefficients(0.004, 0, 0, 0);
     }
     public static class Color {
         //hole green 2.05

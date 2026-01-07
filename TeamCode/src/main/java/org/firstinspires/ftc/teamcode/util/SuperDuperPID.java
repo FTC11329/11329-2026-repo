@@ -98,7 +98,7 @@ public class SuperDuperPID {
 
     public double run() {
 
-        if (Math.abs(error) <= Constants.Indexer.indexerTolerance) {
+        if (Math.abs(error) <= Constants.Indexer.indexerTolerance / 4) {
             return 0;
         }
 

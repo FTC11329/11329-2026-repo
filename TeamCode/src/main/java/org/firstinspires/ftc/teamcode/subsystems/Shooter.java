@@ -52,8 +52,7 @@ public class Shooter {
         hoodServo2.setDirection(Servo.Direction.REVERSE);
         hoodServo2.setPosition(0);
 
-        shooterPID = new MovingPIDFController(Constants.Shooter.shooterVelocityPID);
-        shooterPID.reset();
+        shooterPID = new MovingPIDFController(Constants.Shooter.shooterVelocityPID, Constants.Shooter.kF);
         shooterPID.updateFeedForwardInput(1);
     }
 
@@ -117,15 +116,13 @@ public class Shooter {
     // targetRPM is in ticks/sec
     public void setTargetRPM(double targetRPM) {
         usePID = true;
-        double targetVel = rpmToVelocity(targetRPM);
-        shooterPID.setTargetPosition(targetVel);
+        shooterPID.setTargetPosition(targetRPM);
         shooterSpin = true;
     }
     // this is for when you want to continuously change the RPM of the flywheel
     public void adjustTargetRPM(double targetRPM) {
         usePID = true;
-        double targetVel = rpmToVelocity(targetRPM);
-        shooterPID.moveTargetPosition(targetVel);
+        shooterPID.moveTargetPosition(targetRPM);
         shooterSpin = true;
     }
     public double getTargetRpm() {
@@ -136,9 +133,10 @@ public class Shooter {
         shooterPID.resetController();
     }
 
-    public void stopShooter(){
+    public void stopShooter() {
         shooterSpin = false;
         setPower(0);
+        flywheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
     public double getShooterPower() {
@@ -155,7 +153,7 @@ public class Shooter {
 
     public void update() {
         if (shooterSpin && usePID) {
-            shooterPID.updatePosition(flywheel.getVelocity());  // ticks/sec
+            shooterPID.updatePosition(getRPM());
             if (shooterPID.getTargetPosition() > 10) {
                 if (isGettingUpToSpeed) {
                     if (shooterPID.getError() < Constants.Shooter.closeEnoughRPM) {

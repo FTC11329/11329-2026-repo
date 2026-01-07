@@ -12,12 +12,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class IndexerLogic {
-    DcMotorEx feeder;
+    public DcMotorEx feeder;
     double lastTransferPower = 0;
 
     public IndexerState indexerState;
     List<BallColor> queue = new ArrayList<>();
     boolean lastHasShot = false;
+    boolean smartShooterBool = true;
+    boolean manualShootToggle = false;
+    boolean readyToManualShootToggle = false;
 
     public IndexerLogic(HardwareMap hardwareMap, int startIndexerTicks) {
         this(hardwareMap, new BallColor[]{BallColor.None, BallColor.None, BallColor.None}, startIndexerTicks);
@@ -59,8 +62,18 @@ public class IndexerLogic {
         return queue;
     }
 
+    public void setSmartShootBool(boolean set) {
+        smartShooterBool = false;
+    }
 
-    public void update(boolean hasShot, boolean isIntaking, boolean readyToShoot) {
+
+    public void update(boolean hasShot, boolean isIntaking, boolean readyToShootMotors, boolean readyToShootPos, boolean manualShootButton) {
+        boolean readyToShoot = readyToShootMotors && readyToShootPos;
+
+        if (manualShootToggle) {
+            manualShootButton = true;
+        }
+
         if (hasShot && !lastHasShot) {
             lastHasShot = true;
         } else if (!hasShot) {
@@ -69,11 +82,13 @@ public class IndexerLogic {
             hasShot = false;
         }
 
-        // Removing after shoot
-        if (hasShot && IndexerEnums.isAShootEnum(indexerState.getIndexerPosition()) && indexerState.atPosition) {
-            int indexToRemove = IndexerEnums.getIndex(indexerState.getIndexerPosition());
-            indexerState.removeBallAtIndex(indexToRemove);
-            removeFrontQueue();
+        if (smartShooterBool) {
+            // Removing after shot
+            if (hasShot && IndexerEnums.isAShootEnum(indexerState.getIndexerPosition()) && indexerState.atPosition) {
+                int indexToRemove = IndexerEnums.getIndex(indexerState.getIndexerPosition());
+                indexerState.removeBallAtIndex(indexToRemove);
+                removeFrontQueue();
+            }
         }
 
         // move to nearest ball of right color
@@ -90,24 +105,50 @@ public class IndexerLogic {
                     isIntaking = false;
                 }
             }
-
-            if (!isIntaking) {
-                if (indexerState.isBallCellsEmpty()) {
-                    update(hasShot, true, readyToShoot);
-                    return;
-                } else {
-                    if (queue.isEmpty()) {
-                        // auto fire case
-                        indexerState.moveToNearest(BallColor.Any, false);
+            if (smartShooterBool) {
+                if (!isIntaking) {
+                    if (indexerState.isBallCellsEmpty()) {
+                        update(hasShot, true, readyToShootMotors, readyToShootPos, manualShootButton);
+                        return;
                     } else {
-                        indexerState.moveToNearest(getFrontQueue(), false);
+                        if (queue.isEmpty()) {
+                            // auto fire case
+                            indexerState.moveToNearest(BallColor.Any, false);
+                        } else {
+                            indexerState.moveToNearest(getFrontQueue(), false);
+                        }
                     }
                 }
+                if (!isIntaking && indexerState.atPosition && readyToShoot) {
+                    setIndexerToShooterPower(Constants.Indexer.transferPower);
+                } else {
+                    setIndexerToShooterPower(0);
+                }
             }
-            if (!isIntaking && indexerState.atPosition && readyToShoot) {
-                setIndexerToShooterPower(Constants.Indexer.transferPower);
-            } else {
-                setIndexerToShooterPower(0);
+            if (smartShooterBool) {
+                if (manualShootButton) {
+                    readyToManualShootToggle = true;
+                }
+                if (readyToManualShootToggle && readyToShootMotors) {
+                    readyToManualShootToggle = false;
+                    manualShootToggle = true;
+                    indexerState.spinIndexerOnce();
+                }
+                if (manualShootToggle) {
+                    if (!readyToShootMotors) {
+                        indexerState.stopIndexer(true);
+                        setIndexerToShooterPower(0);
+                    } else {
+                        indexerState.stopIndexer(false);
+                        setIndexerToShooterPower(Constants.Indexer.transferPower);
+                    }
+                    if (indexerState.atPosition) {
+                        setIndexerToShooterPower(0);
+                        indexerState.stopIndexer(false);
+                        manualShootToggle = false;
+                        indexerState.setBallCells(new BallColor[]{BallColor.None, BallColor.None, BallColor.None});
+                    }
+                }
             }
         }
 
