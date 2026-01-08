@@ -23,6 +23,7 @@ public class TemporaryClassThatWeAreTotallyGoingToDelete extends OpMode {
 //    Constants.Indexer indexer;
     TelemetryManager panelsTelemetry;
     double power = 1;
+    boolean started = false;
 
     @Override
     public void init() {
@@ -34,15 +35,32 @@ public class TemporaryClassThatWeAreTotallyGoingToDelete extends OpMode {
 
         motor2 = hardwareMap.get(DcMotorSimple.class, "transfer");
         motor2.setDirection(DcMotorSimple.Direction.REVERSE);
-
+        servo1 = hardwareMap.get(CRServo.class, "spindexer1");
+        servo2 = hardwareMap.get(CRServo.class, "spindexer2");
+        servo1.setDirection(CRServo.Direction.REVERSE   );
+        servo2.setDirection(CRServo.Direction.FORWARD);
 //        motor1.setPower(1);
-//        motor2.setPower(1);
+        motor2.setPower(1);
+        servo1.setPower(0);
+        servo2.setPower(0);
     }
 
     @Override
     public void loop() {
-
-        robot.indexer.indexerState.stepMovement();
+        robot.shooter.setHoodDeg(40);
+        robot.shooter.setTargetRPM(30000);
+        robot.shooter.update();
+        panelsTelemetry.addData("rpm", robot.shooter.shooterPID.getPreviousPosition());
+        panelsTelemetry.addData("rpm target", robot.shooter.shooterPID.getTargetPosition());
+        panelsTelemetry.addData("error", robot.shooter.shooterPID.getError());
+        panelsTelemetry.addData("timer", time);
+        panelsTelemetry.addData("Power", robot.shooter.shooterPID.run());
+        panelsTelemetry.update();
+        if (( time > 10) || started){
+            servo1.setPower(1);
+            servo2.setPower(1);
+            started = true;
+        }
 
     }
 }

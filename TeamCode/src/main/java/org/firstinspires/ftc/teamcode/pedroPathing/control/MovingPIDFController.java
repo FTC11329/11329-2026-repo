@@ -248,6 +248,7 @@ public class MovingPIDFController implements Controller {
 
     public double getPreviousPosition() {return previousPosition;}
     public double getLastsError() {return lastError;}
+    public double getVelocity() {return - positionDerivative;}
     public double getErrorDerivative() {return errorDerivative;}
     /**
      * This returns the current derivative of the error.

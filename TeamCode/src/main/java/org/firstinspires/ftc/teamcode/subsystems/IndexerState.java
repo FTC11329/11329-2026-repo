@@ -53,7 +53,7 @@ public class IndexerState {
         encoderOffset = startIndexerTicks;
     }
 
-    static final int STEP_TICKS = 1366;
+    static final int STEP_TICKS = 1366 * 3;
 
     long moveStartTime = 0;
     double totalTimeMs = 0;

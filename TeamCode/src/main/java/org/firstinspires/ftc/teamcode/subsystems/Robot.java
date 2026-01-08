@@ -337,9 +337,9 @@ public class Robot {
 
         boolean spinupIgnore = (now - intakeEnableTime) < SPINUP_IGNORE_MS;
         boolean highCurrent = intake.intakeMotor.isOverCurrent();
-        telemetry.addData("spinup ignore", spinupIgnore);
-        telemetry.addData("high current", highCurrent);
-        telemetry.addData("auto spitting", autoSpitting);
+//        telemetry.addData("spinup ignore", spinupIgnore);
+//        telemetry.addData("high current", highCurrent);
+//        telemetry.addData("auto spitting", autoSpitting);
 
         if (!spinupIgnore && highCurrent && setTimeOnce) {
             startSpit = now;
@@ -534,15 +534,6 @@ public class Robot {
             panelsTelemetry.addData("velocity", indexer.indexerState.pidfController.getVelocity());
             panelsTelemetry.addData("desired velocity", indexer.indexerState.pidfController.getDesiredVelocity());
             panelsTelemetry.addData("PID power", indexer.indexerState.getPower());
-            panelsTelemetry.addLine("=== SHOOTER ===");
-            panelsTelemetry.addData("Shooter RPM", shooter.getRPM());
-            panelsTelemetry.addData("Shooter power", shooter.lastPower);
-            panelsTelemetry.addData("Tar Shooter VEL", shooter.shooterPID.getTargetPosition());
-            panelsTelemetry.addData("Shooter VEL", shooter.getVelocity());
-            panelsTelemetry.addData("Shooter ERR", shooter.shooterPID.getError());
-            panelsTelemetry.addData("Hood Angle", shooter.getHoodPosDeg());
-            panelsTelemetry.addData("trans", indexer.feeder.getCurrent(CurrentUnit.AMPS));
-            panelsTelemetry.update();
             telemetry.addData("average time to hit target ms", indexer.indexerState.avgTimeSec);
             deleteMe = System.currentTimeMillis();
             panelsTelemetry.addData("Turret Degrees", turret.getAngle());
@@ -551,11 +542,20 @@ public class Robot {
             panelsTelemetry.addData("Turret power", clamp(turret.turretPID.run(), -1, 1));
             telemetry.addData("current alert", intake.intakeMotor.isOverCurrent());
             telemetry.addData("current", intake.intakeMotor.getCurrent(CurrentUnit.AMPS));
+            long now = System.currentTimeMillis();
+            telemetry.addData("dt", (now - lastTime) * 1e-3);
+            lastTime = now;
+            telemetry.update();
         }
-        long now = System.currentTimeMillis();
-        telemetry.addData("dt", (now - lastTime) * 1e-3);
-        lastTime = now;
-        telemetry.update();
+        panelsTelemetry.addLine("=== SHOOTER ===");
+        panelsTelemetry.addData("Shooter RPM", shooter.getRPM());
+        panelsTelemetry.addData("Shooter power", shooter.lastPower);
+        panelsTelemetry.addData("Tar Shooter VEL", shooter.shooterPID.getTargetPosition());
+        panelsTelemetry.addData("Shooter VEL", shooter.getVelocity());
+        panelsTelemetry.addData("Shooter ERR", shooter.shooterPID.getError());
+        panelsTelemetry.addData("Hood Angle", shooter.getHoodPosDeg());
+        panelsTelemetry.addData("trans", indexer.feeder.getCurrent(CurrentUnit.AMPS));
+        panelsTelemetry.update();
 
     }
     private static double clamp(double v, double lo, double hi) {
