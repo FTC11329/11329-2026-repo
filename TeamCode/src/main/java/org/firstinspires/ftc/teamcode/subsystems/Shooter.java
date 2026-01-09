@@ -129,6 +129,11 @@ public class Shooter {
         return shooterPID.getTargetPosition() * 60 / Constants.Shooter.ticksPerRevolution;
     }
 
+    public double getBallVelocity(){
+        double rps = 2 * Math.PI * getRPM() / 60.0;
+        return rps * (Constants.ShooterParamaters.MotorToWheel+Constants.ShooterParamaters.R_WHEEL_M) / 2.0;
+    }
+
     public void resetController() {
         shooterPID.resetController();
     }
