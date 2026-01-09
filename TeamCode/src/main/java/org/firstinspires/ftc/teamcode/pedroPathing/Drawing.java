@@ -1,15 +1,27 @@
 package org.firstinspires.ftc.teamcode.pedroPathing;
 
+import android.provider.Settings;
+
+import com.bylazar.field.CanvasRotation;
 import com.bylazar.field.FieldManager;
+import com.bylazar.field.FieldPresetParams;
 import com.bylazar.field.PanelsField;
 import com.bylazar.field.Style;
+import com.bylazar.field.Line;
+import com.bylazar.telemetry.PanelsTelemetry;
+import com.bylazar.telemetry.TelemetryManager;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.math.Vector;
 import org.firstinspires.ftc.teamcode.pedroPathing.paths.Path;
 import org.firstinspires.ftc.teamcode.pedroPathing.paths.PathChain;
-import org.firstinspires.ftc.teamcode.pedroPathing.util.PoseHistory; /**
+import org.firstinspires.ftc.teamcode.pedroPathing.util.PoseHistory;
+import org.firstinspires.ftc.teamcode.util.FieldShapes;
+import org.firstinspires.ftc.teamcode.util.ShapeDetection;
+
+
+/**
  * This is the Drawing class. It handles the drawing of stuff on Panels Dashboard, like the robot.
  *
  * @author Lazar - 19234
@@ -18,19 +30,26 @@ import org.firstinspires.ftc.teamcode.pedroPathing.util.PoseHistory; /**
 public class Drawing {
     public static final double ROBOT_RADIUS = 9; // woah
     private static final FieldManager panelsField = PanelsField.INSTANCE.getField();
+    private static final TelemetryManager panelsTelem = PanelsTelemetry.INSTANCE.getTelemetry();
 
     private static final Style robotLook = new Style(
             "", "#3F51B5", 0.75
     );
     private static final Style historyLook = new Style(
-            "", "#4CAF50", 0.75
+            "", "#096E11", 0.75
+    );
+    private static final Style shootZoneLook = new Style(
+            "", "#50C878", 0.75
+    );
+    private static final Style seesObeliskLook = new Style(
+            "", "#FFBF00", 0.75
     );
 
     /**
-     * This prepares Panels Field for using Pedro Offsets
+     * This prepares Panels Field for using RoadRunner (I think its right)
      */
     public static void init() {
-        panelsField.setOffsets(PanelsField.INSTANCE.getPresets().getPEDRO_PATHING());
+        panelsField.setOffsets(new FieldPresetParams("MYNE", 0, 0, CanvasRotation.DEG_90, true, true, true));
     }
 
     /**
@@ -49,6 +68,62 @@ public class Drawing {
         drawRobot(follower.getPose(), historyLook);
 
         sendPacket();
+    }
+    public static void drawShapesDebug(Follower follower) {
+//        drawShapeUsingCorners(ShapeDetection.getCornersOfShape(FieldShapes.farTriangle));
+//        panelsField.moveCursor(0,0);
+//        panelsField.setStyle(shootZoneLook);
+//        panelsField.line(72,72);
+//        panelsField.line(0,72);
+//        panelsField.line(72,72);
+//        panelsField.line(72,0);
+
+        for (FieldShapes shapes : FieldShapes.values()) {
+            switch (shapes) {
+                case farTriangle:
+                case closeTriangle:
+                    panelsField.setStyle(shootZoneLook);
+                    break;
+                case seesObeliskFrontTag:
+                    panelsField.setStyle(seesObeliskLook);
+                    break;
+            }
+            Pose[] corners = ShapeDetection.getCornersOfShape(shapes);
+            drawShapeUsingCorners(corners);
+        }
+
+        panelsField.setStyle(robotLook);
+        drawShapeUsingCorners(ShapeDetection.createRobotCorners(follower.getPose()));
+        drawShapeUsingCornersNoMovingCursor(ShapeDetection.createRobotsArrowCorners(follower.getPose()));
+
+        sendPacket();
+    }
+
+    private static void drawShapeUsingCorners(Pose[] corners) {
+        boolean first = true;
+        for (Pose corner : corners) {
+            if (first) {
+                panelsField.moveCursor(corners[0].getX(), corners[0].getY());
+                first = false;
+            } else {
+                panelsField.line(corner.getX(), corner.getY());
+                panelsField.moveCursor(corner.getX(), corner.getY());
+            }
+        }
+        panelsField.line(corners[0].getX(), corners[0].getY());
+    }
+
+    private static void drawShapeUsingCornersNoMovingCursor(Pose[] corners) {
+        boolean first = true;
+        for (Pose corner : corners) {
+            if (first) {
+                panelsField.moveCursor(corners[0].getX(), corners[0].getY());
+                first = false;
+            } else {
+                panelsField.line(corner.getX(), corner.getY());
+            }
+        }
+        panelsField.line(corners[0].getX(), corners[0].getY());
     }
 
     /**

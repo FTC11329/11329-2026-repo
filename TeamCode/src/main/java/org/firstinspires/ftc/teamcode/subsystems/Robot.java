@@ -8,12 +8,15 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Constants;
+import org.firstinspires.ftc.teamcode.modularAutos.CommonPoses;
 import org.firstinspires.ftc.teamcode.pedroPathing.Drawing;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.util.BallColor;
+import org.firstinspires.ftc.teamcode.util.FieldShapes;
 import org.firstinspires.ftc.teamcode.util.IndexerLogic;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
+import org.firstinspires.ftc.teamcode.util.ShapeDetection;
 import org.firstinspires.ftc.teamcode.util.SuperDuperPID;
 import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterTestValuesV2;
 import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterState;
@@ -71,6 +74,8 @@ public class Robot {
         this(telemetry, hardwareMap, robotSide, startTurretTicks, startIndexerTicks, new BallColor[]{BallColor.None, BallColor.None, BallColor.None});
     }
     public Robot(Telemetry telemetry, HardwareMap hardwareMap, RobotSide robotSide, int startTurretTicks, int startIndexerTicks, BallColor[] ballsInIndexer) {
+        Drawing.init();
+        CommonPoses.init(robotSide);
         this.telemetry = telemetry;
         this.robotSide = robotSide;
         panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
@@ -113,7 +118,12 @@ public class Robot {
         return line1 && line2;
     }
 
+    public boolean inShootingZone() {
+        Pose curPose = follower.getPose();
+        return ShapeDetection.doesRobotIntersect(FieldShapes.closeTriangle, curPose) || ShapeDetection.doesRobotIntersect(FieldShapes.farTriangle, curPose);
+    }
 
+            /*
     // Checks if the robot center is within the
     public boolean inShootingZone() {
         // idk if this logic works
@@ -197,6 +207,8 @@ public class Robot {
 
         return false;  // No sample point was within radius r
     }
+
+             */
     // TURRET**************************************************************************************~
 
     public void turretUpdate() {
@@ -429,62 +441,54 @@ public class Robot {
     }
     double deleteMe = System.currentTimeMillis();
     public void update(boolean debug, boolean shootButton) {
-        double orig = System.currentTimeMillis();
+        Drawing.drawShapesDebug(follower);
+        panelsTelemetry.addData("in shooting zone", inShootingZone());
+        panelsTelemetry.update();
+
         shooterUpdate();
-        double shooterTime = System.currentTimeMillis();
         intakeUpdate();
-        double intakeTime = System.currentTimeMillis();
         spindexerUpdate(shootButton);
-        double spindexerTime = System.currentTimeMillis();
         turretUpdate();
-        double turretTime = System.currentTimeMillis();
         teleopUpdate();
-        double teleopTime = System.currentTimeMillis();
         follower.update();
-        double followerTime = System.currentTimeMillis();
         if (debug) {
-            telemetry.addLine("=== Timings ===");
-            telemetry.addData("Rest of the Time", deleteMe - orig);
-            telemetry.addData("shooterTime", orig - shooterTime);
-            telemetry.addData("intakeTime", shooterTime - intakeTime);
-            telemetry.addData("spindexerTime", intakeTime - spindexerTime);
-            telemetry.addData("turretTime", spindexerTime - turretTime);
-            telemetry.addData("teleopTime", turretTime - teleopTime);
-            telemetry.addData("followerTime", teleopTime - followerTime);
-            telemetry.addLine("=======");
-            Drawing.drawDebug(follower);
-            telemetry.addLine("=== VISION ===");
-            telemetry.addData("Motif", motif);
+            debug();
+        }
+    }
+
+    public void debug() {
+        telemetry.addLine("=== VISION ===");
+        telemetry.addData("Motif", motif);
 
 
-            telemetry.addLine("=== Turret ===");
-            telemetry.addData("Turret Degrees", turret.getAngle());
-            telemetry.addData("Turret Ticks  ", turret.getTicks());
-            telemetry.addData("Turret Tar Deg", turret.turretPID.getTargetPosition());
-            telemetry.addData("Turret power", turret.turretPID.run());
+        telemetry.addLine("=== Turret ===");
+        telemetry.addData("Turret Degrees", turret.getAngle());
+        telemetry.addData("Turret Ticks  ", turret.getTicks());
+        telemetry.addData("Turret Tar Deg", turret.turretPID.getTargetPosition());
+        telemetry.addData("Turret power", turret.turretPID.run());
 
-            telemetry.addLine("=== COLOR ===");
-            telemetry.addData("indexer r", indexer.indexerState.getColorRGBA().red);
-            telemetry.addData("indexer g", indexer.indexerState.getColorRGBA().green);
-            telemetry.addData("indexer b", indexer.indexerState.getColorRGBA().blue);
-            telemetry.addData("indexer a", indexer.indexerState.getColorRGBA().alpha);
-            telemetry.addData("indexer col", indexer.indexerState.getColor());
-            telemetry.addData("indexer dis", indexer.indexerState.getDistance());
+        telemetry.addLine("=== COLOR ===");
+        telemetry.addData("indexer r", indexer.indexerState.getColorRGBA().red);
+        telemetry.addData("indexer g", indexer.indexerState.getColorRGBA().green);
+        telemetry.addData("indexer b", indexer.indexerState.getColorRGBA().blue);
+        telemetry.addData("indexer a", indexer.indexerState.getColorRGBA().alpha);
+        telemetry.addData("indexer col", indexer.indexerState.getColor());
+        telemetry.addData("indexer dis", indexer.indexerState.getDistance());
 
-            telemetry.addLine("=== POSITION ===");
-            telemetry.addData("guess pose", getCurrentPose());
-            telemetry.addData("last cam pose", lastCamPose);
-            telemetry.addData("offset", offsetPose);
-            telemetry.addData("distance", getCurrentPose().distanceFrom(goal));
-            telemetry.addData("in shooting zone", inShootingZone());
+        telemetry.addLine("=== POSITION ===");
+        telemetry.addData("guess pose", getCurrentPose());
+        telemetry.addData("last cam pose", lastCamPose);
+        telemetry.addData("offset", offsetPose);
+        telemetry.addData("distance", getCurrentPose().distanceFrom(goal));
+        telemetry.addData("in shooting zone", inShootingZone());
 
-            telemetry.addLine("=== QUEUE ===");
-            if (indexer.getQueue().isEmpty()) {
-                telemetry.addLine("Nothing in queue");
-            }
-            for (BallColor ball : indexer.getQueue()) {
-                telemetry.addData("qball", ball);
-            }
+        telemetry.addLine("=== QUEUE ===");
+        if (indexer.getQueue().isEmpty()) {
+            telemetry.addLine("Nothing in queue");
+        }
+        for (BallColor ball : indexer.getQueue()) {
+            telemetry.addData("qball", ball);
+        }
 
 
 //            telemetry.addData("hood", shooter.getHoodPosDeg());
@@ -497,56 +501,49 @@ public class Robot {
 //            panelsTelemetry.update(telemetry);
 
 
-            panelsTelemetry.addData("P", indexer.indexerState.pidfController.getPOutput());
-            panelsTelemetry.addData("I", indexer.indexerState.pidfController.getIOutput());
-            panelsTelemetry.addData("D", indexer.indexerState.pidfController.getDOutput());
-            panelsTelemetry.addData("Indexer Error", indexer.indexerState.pidfController.getError());
-            panelsTelemetry.addData("dt", indexer.indexerState.pidfController.getDeltaTime());
-            panelsTelemetry.addData("raw ticks", indexer.indexerState.getEncoderTicks());
-            panelsTelemetry.update();
-            // PID Telemetry
-            int i = 0;
-            for (BallColor index : indexer.indexerState.getBallCells()) {
-                telemetry.addData("BallCell" + i, index);
-                i++;
-            }
-            telemetry.addData("in shooting zone", inShootingZone());
-            telemetry.addData("ready to shoot", readyToShoot());
-            telemetry.addData("is intaking", isIntaking);
-            telemetry.addData("has shot", thingies);
-            panelsTelemetry.addData("derivative", shooter.derivative);
-            panelsTelemetry.addData("once shot", shooter.onceShot);
-            panelsTelemetry.addData("previous error", shooter.previousError);
-            panelsTelemetry.addData("error", shooter.shooterPID.getError());
-            panelsTelemetry.addData("target rpm", shooter.getTargetRpm());
-            panelsTelemetry.addData("actual rpm", shooter.getRPM());
-            panelsTelemetry.update();
-            panelsTelemetry.addData("target ticks", indexer.indexerState.pidfController.getTargetPosition());
-            panelsTelemetry.addData("is at position", indexer.indexerState.atPosition);
-            panelsTelemetry.addData("indexer state", indexer.indexerState.getIndexerPosition());
-            panelsTelemetry.addData("isStuck", indexer.indexerState.pidfController.isStuck());
-            panelsTelemetry.addData("Integral Error", indexer.indexerState.pidfController.getIOutput());
-            panelsTelemetry.addData("Indexer Error", indexer.indexerState.pidfController.getError());
-            panelsTelemetry.addData("dt", indexer.indexerState.pidfController.getDeltaTime());
-            panelsTelemetry.addData("P", indexer.indexerState.pidfController.getPOutput());
-            panelsTelemetry.addData("I", indexer.indexerState.pidfController.getIOutput());
-            panelsTelemetry.addData("D", indexer.indexerState.pidfController.getDOutput());
-            panelsTelemetry.addData("velocity", indexer.indexerState.pidfController.getVelocity());
-            panelsTelemetry.addData("desired velocity", indexer.indexerState.pidfController.getDesiredVelocity());
-            panelsTelemetry.addData("PID power", indexer.indexerState.getPower());
-            telemetry.addData("average time to hit target ms", indexer.indexerState.avgTimeSec);
-            deleteMe = System.currentTimeMillis();
-            panelsTelemetry.addData("Turret Degrees", turret.getAngle());
-            panelsTelemetry.addData("Turret Ticks  ", turret.getTicks());
-            panelsTelemetry.addData("Turret Tar Deg", turret.turretPID.getTargetPosition());
-            panelsTelemetry.addData("Turret power", clamp(turret.turretPID.run(), -1, 1));
-            telemetry.addData("current alert", intake.intakeMotor.isOverCurrent());
-            telemetry.addData("current", intake.intakeMotor.getCurrent(CurrentUnit.AMPS));
-            long now = System.currentTimeMillis();
-            telemetry.addData("dt", (now - lastTime) * 1e-3);
-            lastTime = now;
-            telemetry.update();
+        panelsTelemetry.addData("P", indexer.indexerState.pidfController.getPOutput());
+        panelsTelemetry.addData("I", indexer.indexerState.pidfController.getIOutput());
+        panelsTelemetry.addData("D", indexer.indexerState.pidfController.getDOutput());
+        panelsTelemetry.addData("Indexer Error", indexer.indexerState.pidfController.getError());
+        panelsTelemetry.addData("dt", indexer.indexerState.pidfController.getDeltaTime());
+        panelsTelemetry.addData("raw ticks", indexer.indexerState.getEncoderTicks());
+        panelsTelemetry.update();
+        // PID Telemetry
+        int i = 0;
+        for (BallColor index : indexer.indexerState.getBallCells()) {
+            telemetry.addData("BallCell" + i, index);
+            i++;
         }
+        telemetry.addData("in shooting zone", inShootingZone());
+        telemetry.addData("ready to shoot", readyToShoot());
+        telemetry.addData("is intaking", isIntaking);
+        telemetry.addData("has shot", thingies);
+        panelsTelemetry.addData("derivative", shooter.derivative);
+        panelsTelemetry.addData("once shot", shooter.onceShot);
+        panelsTelemetry.addData("previous error", shooter.previousError);
+        panelsTelemetry.addData("error", shooter.shooterPID.getError());
+        panelsTelemetry.addData("target rpm", shooter.getTargetRpm());
+        panelsTelemetry.addData("actual rpm", shooter.getRPM());
+        panelsTelemetry.update();
+        panelsTelemetry.addData("target ticks", indexer.indexerState.pidfController.getTargetPosition());
+        panelsTelemetry.addData("is at position", indexer.indexerState.atPosition);
+        panelsTelemetry.addData("indexer state", indexer.indexerState.getIndexerPosition());
+        panelsTelemetry.addData("isStuck", indexer.indexerState.pidfController.isStuck());
+        panelsTelemetry.addData("Integral Error", indexer.indexerState.pidfController.getIOutput());
+        panelsTelemetry.addData("Indexer Error", indexer.indexerState.pidfController.getError());
+        panelsTelemetry.addData("dt", indexer.indexerState.pidfController.getDeltaTime());
+        panelsTelemetry.addData("P", indexer.indexerState.pidfController.getPOutput());
+        panelsTelemetry.addData("I", indexer.indexerState.pidfController.getIOutput());
+        panelsTelemetry.addData("D", indexer.indexerState.pidfController.getDOutput());
+        panelsTelemetry.addData("velocity", indexer.indexerState.pidfController.getVelocity());
+        panelsTelemetry.addData("desired velocity", indexer.indexerState.pidfController.getDesiredVelocity());
+        panelsTelemetry.addData("PID power", indexer.indexerState.getPower());
+        telemetry.addData("average time to hit target ms", indexer.indexerState.avgTimeSec);
+        deleteMe = System.currentTimeMillis();
+        panelsTelemetry.addData("Turret Degrees", turret.getAngle());
+        panelsTelemetry.addData("Turret Ticks  ", turret.getTicks());
+        panelsTelemetry.addData("Turret Tar Deg", turret.turretPID.getTargetPosition());
+        panelsTelemetry.addData("Turret power", clamp(turret.turretPID.run(), -1, 1));
         panelsTelemetry.addLine("=== SHOOTER ===");
         panelsTelemetry.addData("Shooter RPM", shooter.getRPM());
         panelsTelemetry.addData("Shooter power", shooter.lastPower);
@@ -556,7 +553,12 @@ public class Robot {
         panelsTelemetry.addData("Hood Angle", shooter.getHoodPosDeg());
         panelsTelemetry.addData("trans", indexer.feeder.getCurrent(CurrentUnit.AMPS));
         panelsTelemetry.update();
-
+        telemetry.addData("current alert", intake.intakeMotor.isOverCurrent());
+        telemetry.addData("current", intake.intakeMotor.getCurrent(CurrentUnit.AMPS));
+        long now = System.currentTimeMillis();
+        telemetry.addData("dt", (now - lastTime) * 1e-3);
+        lastTime = now;
+        telemetry.update();
     }
     private static double clamp(double v, double lo, double hi) {
         return Math.max(lo, Math.min(hi, v));

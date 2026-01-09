@@ -63,7 +63,7 @@ dependencies {
     implementation 'dev.frozenmilk.sinister:Sloth:0.2.4'
 
     implementation 'com.bylazar:fullpanels:1.0.12'
-    implementation "com.bylazar:graph:1.0.4"
-    implementation "com.bylazar:limelightproxy:1.0.4"
-
+    implementation 'com.bylazar:graph:1.0.4'
+    implementation 'com.bylazar:limelightproxy:1.0.4'
+    implementation 'org.locationtech.jts:jts-core:1.20.0'
 }
