@@ -58,8 +58,8 @@ public class MainTeleop {
 
     ElapsedTime time;
     double lastTime;
-    public double hoodAngle = 20;
-    public double rpm = 3000;
+    public double hoodAngleOffset = 0;
+    public double rpmOffset = 0;
     public Pose startPose;
 
     public void init() {
@@ -180,7 +180,7 @@ public class MainTeleop {
 
 
         if (autoShoot.isOn) {
-            robot.prepareShooter();
+            robot.prepareShooter(rpmOffset, hoodAngleOffset);
         } else if (autoShoot.endPress) {
             robot.casualShooterModeOn();
         }
@@ -190,44 +190,57 @@ public class MainTeleop {
             robot.indexer.setSmartShootBool(false);
         }
          // Changing our aim
-        if (robotSide == RobotSide.Blue) {
-            if (movePoseUp.startPress) {
-                robot.offsetPose.addY(1);
-                robot.offsetPose.addX(1);
-            }
-            if (movePoseDown.startPress) {
-                robot.offsetPose.addY(-1);
-                robot.offsetPose.addX(-1);
-            }
-            if (movePoseLeft.startPress) {
-                robot.offsetPose.addY(1);
-                robot.offsetPose.addX(-1);
-            }
-            if (movePoseRight.startPress) {
-                robot.offsetPose.addY(-1);
-                robot.offsetPose.addX(1);
-            }
-        } else {
-            if (movePoseUp.startPress) {
-                robot.offsetPose.addY(-1);
-                robot.offsetPose.addX(1);
-            }
-            if (movePoseDown.startPress) {
-                robot.offsetPose.addY(1);
-                robot.offsetPose.addX(-1);
-            }
-            if (movePoseLeft.startPress) {
-                robot.offsetPose.addY(1);
-                robot.offsetPose.addX(1);
-            }
-            if (movePoseRight.startPress) {
-                robot.offsetPose.addY(-1);
-                robot.offsetPose.addX(-1);
-            }
-            if (resetPose.startPress) {
-                robot.offsetPose = new Pose(0,0,0);
-            }
+//        if (robotSide == RobotSide.Blue) {
+//            if (movePoseUp.startPress) {
+//                robot.offsetPose.addY(1);
+//                robot.offsetPose.addX(1);
+//            }
+//            if (movePoseDown.startPress) {
+//                robot.offsetPose.addY(-1);
+//                robot.offsetPose.addX(-1);
+//            }
+//            if (movePoseLeft.startPress) {
+//                robot.offsetPose.addY(1);
+//                robot.offsetPose.addX(-1);
+//            }
+//            if (movePoseRight.startPress) {
+//                robot.offsetPose.addY(-1);
+//                robot.offsetPose.addX(1);
+//            }
+//        } else {
+//            if (movePoseUp.startPress) {
+//                robot.offsetPose.addY(-1);
+//                robot.offsetPose.addX(1);
+//            }
+//            if (movePoseDown.startPress) {
+//                robot.offsetPose.addY(1);
+//                robot.offsetPose.addX(-1);
+//            }
+//            if (movePoseLeft.startPress) {
+//                robot.offsetPose.addY(1);
+//                robot.offsetPose.addX(1);
+//            }
+//            if (movePoseRight.startPress) {
+//                robot.offsetPose.addY(-1);
+//                robot.offsetPose.addX(-1);
+//            }
+//            if (resetPose.startPress) {
+//                robot.offsetPose = new Pose(0,0,0);
+//            }
+//        }
+        if (movePoseUp.startPress) {
+            hoodAngleOffset += 2;
         }
+        if (movePoseDown.startPress) {
+            hoodAngleOffset -= 2;
+        }
+        if (movePoseLeft.startPress) {
+            rpmOffset -= 20;
+        }
+        if (movePoseRight.startPress) {
+            rpmOffset += 20;
+        }
+
         robot.update(debug.isOn, fastShootButton.startPress);
 
 //        for (BallColor i : robot.indexer.indexerState.getBallCells()) {

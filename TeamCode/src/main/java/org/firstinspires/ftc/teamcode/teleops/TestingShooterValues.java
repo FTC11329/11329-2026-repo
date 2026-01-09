@@ -91,15 +91,10 @@ public class TestingShooterValues {
     }
 
     public void init_loop() {
-        telemetry.addLine("Use gamepad 2 Dpad to change Start Position");
-        telemetry.addData("If this works, I get to go home", true);
-
         resetPose.checkStatus(gamepad2.y);
 
-        if (resetPose.startPress) {
-            startPose = new Pose(0,0,0);
-            robot.turret.encoderOffset = 0;
-        }
+        startPose = new Pose(0,0,0);
+        robot.turret.encoderOffset = 0;
 
         telemetry.addData("Start Pose", startPose);
         telemetry.addData("Encoder Offset", robot.turret.encoderOffset);
@@ -115,27 +110,17 @@ public class TestingShooterValues {
     }
 
     public void loop() {
-        intake.checkStatus(gamepad2.left_bumper); // Toggle on to intake
-        spitIntake.checkStatus(gamepad1.left_bumper || gamepad2.b); // Hold to spit
+        intake.checkStatus(gamepad1.left_bumper); // Toggle on to intake
 
-        // queueGreen.checkStatus(gamepad2.y); // Press to queue green
-        // queuePurple.checkStatus(gamepad2.x); // Press to queue purple
-        autoShoot.checkStatus(gamepad2.a); // Toggle to turn on auto shoot
+        autoShoot.checkStatus(gamepad1.a); // Toggle to turn on auto shoot
 
-        overrideShootPosition.checkStatus(gamepad2.back); // hold to turn on ignore position
-        panicShoot.checkStatus(gamepad2.ps); // toggle to turn on panic shoot mode
+        moveHoodUp.checkStatus(gamepad1.dpad_up);
+        moveHoodDown.checkStatus(gamepad1.dpad_down);  //Buttons to control where the robot aims
+        decreaseRPM.checkStatus(gamepad1.dpad_left);
+        increaseRPM.checkStatus(gamepad1.dpad_right);
 
-        resetPose.checkStatus(gamepad2.y);
-        moveHoodUp.checkStatus(gamepad2.dpad_up);
-        moveHoodDown.checkStatus(gamepad2.dpad_down);  //Buttons to control where the robot aims
-        decreaseRPM.checkStatus(gamepad2.dpad_left);
-        increaseRPM.checkStatus(gamepad2.dpad_right);
-
-        takePhoto.checkStatus(gamepad2.y);
+        takePhoto.checkStatus(gamepad1.y);
         debug.checkStatus(gamepad1.start); // hold to print telemetry
-
-        deleteme.checkStatus(false);
-
 
         robot.drivetrain.teleopMovement(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, gamepad1.right_bumper);
 
@@ -162,13 +147,6 @@ public class TestingShooterValues {
             robot.autoSetCurrentPose();
         }
 
-        if (queuePurple.startPress) {
-            robot.qBall(BallColor.Purple);
-        }
-        if (queueGreen.startPress) {
-            robot.qBall(BallColor.Green);
-        }
-
         robot.isIntaking(intake.isOn);
 
 
@@ -185,9 +163,13 @@ public class TestingShooterValues {
             rpmOffset += 20;
         }
 
+        if (autoShoot.isOn) {
+            robot.prepareShooter();
+        }
 
 
-        robot.update();
+
+        robot.update(debug.isOn, false);
         Pose goal;
         if (robotSide == RobotSide.Blue)  {
             goal = Constants.Vision.blueGoal;
