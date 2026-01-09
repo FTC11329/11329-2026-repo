@@ -31,6 +31,8 @@ public class AutoReplayTeleop {
     FancyButton spitIntake;
 
     FancyButton autoShoot;
+    FancyButton smartShoot;
+    FancyButton fastShootButton;
     FancyButton queueGreen;
     FancyButton queuePurple;
 
@@ -91,6 +93,8 @@ public class AutoReplayTeleop {
         movePoseDown = new FancyButton(FancyButton.PressType.LongPress);
         movePoseLeft = new FancyButton(FancyButton.PressType.LongPress);
         movePoseRight = new FancyButton(FancyButton.PressType.LongPress);
+        smartShoot = new FancyButton(FancyButton.PressType.Toggle);
+        fastShootButton = new FancyButton(FancyButton.PressType.LongPress);
 
         deleteme = new FancyButton(FancyButton.PressType.Toggle);
 
@@ -123,7 +127,6 @@ public class AutoReplayTeleop {
     public void loop() {
         autoReplay.update();
 
-        robot.drivetrain.teleopMovement(-gamepadInfo1.left_stick_y, gamepadInfo1.left_stick_x, gamepadInfo1.right_stick_x, gamepadInfo1.right_bumper);
         if (autoReplay.IsReplayOn()){
             gamepad1 = autoReplay.getGamepad1();
             gamepad2 = autoReplay.getGamepad2();
@@ -134,12 +137,14 @@ public class AutoReplayTeleop {
             gamepad2 = gamepadInfo2;
         }
 
-        intake.checkStatus(gamepad2.left_bumper); // Toggle on to intake
-        spitIntake.checkStatus(gamepad1.left_bumper || gamepad2.b); // Hold to spit
+        intake.checkStatus(gamepad1.left_bumper); // Toggle on to intake
+        spitIntake.checkStatus(gamepad2.left_bumper || gamepad1.right_bumper); // Hold to spit
 
         // queueGreen.checkStatus(gamepad2.y); // Press to queue green
         // queuePurple.checkStatus(gamepad2.x); // Press to queue purple
-        autoShoot.checkStatus(gamepad2.a); // Toggle to turn on auto shoot
+        autoShoot.checkStatus(gamepad1.a); // Toggle to turn on auto shoot
+        smartShoot.checkStatus(gamepad2.b); // Toggle to turn on smart shoot
+        fastShootButton.checkStatus(gamepad2.right_bumper); // Toggle to turn on smart shoot
 
         overrideShootPosition.checkStatus(gamepad2.back); // hold to turn on ignore position
         panicShoot.checkStatus(gamepad2.ps); // toggle to turn on panic shoot mode
@@ -150,22 +155,26 @@ public class AutoReplayTeleop {
         movePoseLeft.checkStatus(gamepad2.dpad_left);
         movePoseRight.checkStatus(gamepad2.dpad_right);
 
-        takePhoto.checkStatus(gamepad2.y);
+        takePhoto.checkStatus(gamepad1.y); // hold to take photo
         debug.checkStatus(gamepad1.start); // hold to print telemetry
 
         deleteme.checkStatus(false);
 
+
         if (intake.startPress) {
             robot.intakeManual();
+            robot.isIntaking(true);
         }
         if (intake.endPress) {
             robot.stopIntake();
+            robot.isIntaking(false);
         }
 
         if (spitIntake.startPress) {
             robot.spitIntake();
         }
         if (spitIntake.endPress) {
+            robot.spitIntake(false);
             if (intake.isOn){
                 robot.intakeManual();
             } else {
@@ -184,8 +193,17 @@ public class AutoReplayTeleop {
             robot.qBall(BallColor.Green);
         }
 
-        robot.isIntaking(intake.isOn);
 
+        if (autoShoot.isOn) {
+            robot.prepareShooter();
+        } else if (autoShoot.endPress) {
+            robot.casualShooterModeOn();
+        }
+        if (smartShoot.startPress) {
+            robot.indexer.setSmartShootBool(true);
+        } else if (smartShoot.endPress) {
+            robot.indexer.setSmartShootBool(false);
+        }
         // Changing our aim
         if (robotSide == RobotSide.Blue) {
             if (movePoseUp.startPress) {
@@ -225,25 +243,8 @@ public class AutoReplayTeleop {
                 robot.offsetPose = new Pose(0,0,0);
             }
         }
+        robot.update(debug.isOn, fastShootButton.startPress);
 
-
-
-        // if (queuePurple.startPress) {
-        // robot.qBall(BallColor.Purple);
-        // }
-        // if (queueGreen.startPress) {
-        // robot.qBall(BallColor.Green);
-        // }
-
-        robot.update();
-//        telemetry.addData("distance", robot.getCurrentPose().distanceFrom(Constants.Vision.blueGoal));
-
-//        double deltaTime = time.milliseconds() - lastTime;
-//        telemetry.addData("Loop Time", deltaTime);
-//        lastTime = time.milliseconds();
-
-//        telemetry.addData("Encoder RPM", robot.shooter.getRPM());
-//        telemetry.addData("Hood angle", robot.shooter.getHoodPosDeg());
     }
     public void stop() {
         robot.stopAllSubsystems();

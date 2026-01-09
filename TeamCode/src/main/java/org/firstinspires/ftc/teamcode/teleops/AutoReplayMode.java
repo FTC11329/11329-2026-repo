@@ -33,5 +33,5 @@ public class AutoReplayMode extends OpMode {
 
 
     @Override
-    public void stop() {autoReplay.stop();}
+    public void stop() { autoReplay.stop(); }
 }
