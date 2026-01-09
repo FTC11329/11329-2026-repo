@@ -329,8 +329,6 @@ public class Robot {
     }
     public void spindexerUpdate(boolean shootButton) {
         spindexerUpdate(shooter.hasShot(), shootButton);
-//        spindexerUpdate(indexer.hasShot(), shootButton);
-
     }
 
     // TELE-OP*************************************************************************************~
@@ -375,12 +373,7 @@ public class Robot {
         panelsTelemetry.addData("Tar Shooter RPM", shooter.getTargetRpm());
         panelsTelemetry.addData("Act Shooter RPM", shooter.getRPM());
         panelsTelemetry.addData("Hood Angle", shooter.getHoodPosDeg());
-        panelsTelemetry.addData("Turret Degrees", turret.getAngle());
-        panelsTelemetry.addData("Turret Ticks  ", turret.getTicks());
-        panelsTelemetry.addData("Turret Tar Deg", turret.turretPID.getTargetPosition());
-        panelsTelemetry.addData("Turret power", turret.turretPID.run());
-        panelsTelemetry.addData("angVel", angleToGoalVelocity);
-
+        panelsTelemetry.addData("has started", indexer.started);
 
         long now = System.currentTimeMillis();
         panelsTelemetry.addData("dt", (now - lastTime) * 1e-3);
@@ -395,7 +388,7 @@ public class Robot {
         if (debug) {
             debug();
         }
-        panelsTelemetry.update();
+        panelsTelemetry.update(telemetry);
     }
 
     public void debug() {

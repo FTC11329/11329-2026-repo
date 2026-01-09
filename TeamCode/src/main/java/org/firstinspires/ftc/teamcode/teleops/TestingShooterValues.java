@@ -8,7 +8,6 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
 import org.firstinspires.ftc.teamcode.util.BallColor;
-import org.firstinspires.ftc.teamcode.util.EndValuesStorer;
 import org.firstinspires.ftc.teamcode.util.FancyButton;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
 
@@ -30,10 +29,10 @@ public class TestingShooterValues {
 
     FancyButton debug;
     FancyButton takePhoto;
-    FancyButton movePoseUp;
-    FancyButton movePoseDown;
-    FancyButton movePoseLeft;
-    FancyButton movePoseRight;
+    FancyButton moveHoodUp;
+    FancyButton moveHoodDown;
+    FancyButton decreaseRPM;
+    FancyButton increaseRPM;
     FancyButton resetPose;
 
     FancyButton deleteme;
@@ -59,12 +58,8 @@ public class TestingShooterValues {
     public Pose startPose;
 
     public void init() {
-        EndValuesStorer endValuesStorer = new EndValuesStorer();
-        EndValuesStorer.EndValues endValues = endValuesStorer.loadEndValues();
-        int startTurretTicks = endValues.turretTicks;
-        startPose = new Pose(endValues.robotX, endValues.robotY, endValues.robotHeading);
+        startPose = new Pose(0, 0, 0);
 
-//        robot = new Robot(telemetry, hardwareMap, robotSide, startTurretTicks, 0); todo
         robot = new Robot(telemetry, hardwareMap, robotSide, 0, 0);
 
         intake = new FancyButton(FancyButton.PressType.Toggle);
@@ -83,10 +78,10 @@ public class TestingShooterValues {
 
         resetPose = new FancyButton(FancyButton.PressType.LongPress);
         takePhoto = new FancyButton(FancyButton.PressType.LongPress);
-        movePoseUp = new FancyButton(FancyButton.PressType.LongPress);
-        movePoseDown = new FancyButton(FancyButton.PressType.LongPress);
-        movePoseLeft = new FancyButton(FancyButton.PressType.LongPress);
-        movePoseRight = new FancyButton(FancyButton.PressType.LongPress);
+        moveHoodUp = new FancyButton(FancyButton.PressType.LongPress);
+        moveHoodDown = new FancyButton(FancyButton.PressType.LongPress);
+        decreaseRPM = new FancyButton(FancyButton.PressType.LongPress);
+        increaseRPM = new FancyButton(FancyButton.PressType.LongPress);
 
         deleteme = new FancyButton(FancyButton.PressType.Toggle);
 
@@ -95,11 +90,6 @@ public class TestingShooterValues {
 
     public void init_loop() {
         resetPose.checkStatus(gamepad2.y);
-
-        if (resetPose.startPress || true) {
-            startPose = new Pose(0,0, 0);
-            robot.turret.encoderOffset = 0;
-        }
 
         telemetry.addData("Start Pose", startPose);
         telemetry.addData("Encoder Offset", robot.turret.encoderOffset);
@@ -122,16 +112,15 @@ public class TestingShooterValues {
         // queuePurple.checkStatus(gamepad2.x); // Press to queue purple
         autoShoot.checkStatus(gamepad1.a); // Toggle to turn on auto shoot
         smartShoot.checkStatus(gamepad2.b); // Toggle to turn on smart shoot
-        fastShootButton.checkStatus(gamepad2.right_bumper); // Toggle to turn on smart shoot
+        fastShootButton.checkStatus(gamepad1.b); // Toggle to turn on smart shoot
 
         overrideShootPosition.checkStatus(gamepad2.back); // hold to turn on ignore position
         panicShoot.checkStatus(gamepad2.ps); // toggle to turn on panic shoot mode
 
-        resetPose.checkStatus(gamepad2.y);
-        movePoseUp.checkStatus(gamepad2.dpad_up);
-        movePoseDown.checkStatus(gamepad2.dpad_down);  //Buttons to control where the robot aims
-        movePoseLeft.checkStatus(gamepad2.dpad_left);
-        movePoseRight.checkStatus(gamepad2.dpad_right);
+        moveHoodUp.checkStatus(gamepad1.dpad_up);
+        moveHoodDown.checkStatus(gamepad1.dpad_down);  //Buttons to control where the robot aims
+        decreaseRPM.checkStatus(gamepad1.dpad_left);
+        increaseRPM.checkStatus(gamepad1.dpad_right);
 
         takePhoto.checkStatus(gamepad1.y); // hold to take photo
         debug.checkStatus(gamepad1.start); // hold to print telemetry
@@ -185,103 +174,25 @@ public class TestingShooterValues {
         } else if (smartShoot.endPress) {
             robot.indexer.setSmartShootBool(false);
         }
-         // Changing our aim
-//        if (robotSide == RobotSide.Blue) {
-//            if (movePoseUp.startPress) {
-//                robot.offsetPose.addY(1);
-//                robot.offsetPose.addX(1);
-//            }
-//            if (movePoseDown.startPress) {
-//                robot.offsetPose.addY(-1);
-//                robot.offsetPose.addX(-1);
-//            }
-//            if (movePoseLeft.startPress) {
-//                robot.offsetPose.addY(1);
-//                robot.offsetPose.addX(-1);
-//            }
-//            if (movePoseRight.startPress) {
-//                robot.offsetPose.addY(-1);
-//                robot.offsetPose.addX(1);
-//            }
-//        } else {
-//            if (movePoseUp.startPress) {
-//                robot.offsetPose.addY(-1);
-//                robot.offsetPose.addX(1);
-//            }
-//            if (movePoseDown.startPress) {
-//                robot.offsetPose.addY(1);
-//                robot.offsetPose.addX(-1);
-//            }
-//            if (movePoseLeft.startPress) {
-//                robot.offsetPose.addY(1);
-//                robot.offsetPose.addX(1);
-//            }
-//            if (movePoseRight.startPress) {
-//                robot.offsetPose.addY(-1);
-//                robot.offsetPose.addX(-1);
-//            }
-//            if (resetPose.startPress) {
-//                robot.offsetPose = new Pose(0,0,0);
-//            }
-//        }
-        if (movePoseUp.startPress) {
+
+        if (moveHoodUp.startPress) {
             hoodAngleOffset += 2;
         }
-        if (movePoseDown.startPress) {
+        if (moveHoodDown.startPress) {
             hoodAngleOffset -= 2;
         }
-        if (movePoseLeft.startPress) {
+        if (decreaseRPM.startPress) {
             rpmOffset -= 20;
         }
-        if (movePoseRight.startPress) {
+        if (increaseRPM.startPress) {
             rpmOffset += 20;
         }
 
-        telemetry.addData("hi", rpmOffset);
-        telemetry.addData("you", hoodAngleOffset);
+        telemetry.addData("RPM offset", rpmOffset);
+        telemetry.addData("Hood offset", hoodAngleOffset);
 
         robot.update(debug.isOn, fastShootButton.startPress);
 
-//        for (BallColor i : robot.indexer.indexerState.getBallCells()) {
-//            telemetry.addData("BALLER", i);
-//        }
-
-//        double deltaTime = time.milliseconds() - lastTime;
-//        telemetry.addData("loopTimes", deltaTime);
-//        lastTime = time.milliseconds();
-
-//        telemetry.addData("distance", robot.getCurrentPose().distanceFrom(Constants.Vision.blueGoal));
-//        telemetry.addData("Encoder RPM", robot.shooter.getRPM());
-//        telemetry.addData("Hood angle", robot.shooter.getHoodPosDeg());
-
-        /* //todo implement some type of panic shoot before comp
-        if (!panicShoot.isOn) {
-            if (autoShoot.isOn) {
-                robot.prepareShooter();
-            } else if (autoShoot.endPress){
-                robot.shooter.casualModeOn();
-                if (intake.isOn) {
-                    robot.stopIndexer();
-                }
-            }
-        }
-
-        // Panic shoot mode
-        if (panicShoot.startPress) {
-            // distance 71.6
-            robot.shooter.setTargetRPM(2336);
-            robot.shooter.setHoodDeg(35);
-            robot.turret.setTargetDeg(0);
-        }
-        if (panicShoot.isOn) {
-            if (overrideShootPosition.startPress) {
-                robot.indexer.spinIndexer(true);
-                robot.indexer.transfer(true);
-            } else if (overrideShootPosition.endPress) {
-                robot.stopIndexer();
-            }
-        }
-*/
     }
 
     public void stop() {
