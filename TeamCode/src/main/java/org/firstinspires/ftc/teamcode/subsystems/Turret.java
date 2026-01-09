@@ -75,7 +75,12 @@ public class Turret {
         }
 
         turretPID.updatePosition(curAngle);  // degrees
-        setPower(turretPID.run() + (angVel * Constants.Turret.kV));
+        double velocityFF = angVel * Constants.Turret.kV;
+        if (turretPID.getError() > 80) {
+            setPower(Math.signum(turretPID.getError()));
+        } else {
+            setPower(turretPID.run() + velocityFF);
+        }
     }
 
 

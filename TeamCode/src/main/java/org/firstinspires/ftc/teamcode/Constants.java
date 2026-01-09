@@ -84,12 +84,12 @@ public class Constants {
 //        public static double P = 0.025;
 //        public static double I = 0.001;
 //        public static double D = 0.001;
-        public static double P = 0.013;
+        public static double P = 0.005; //.011
         public static double I = 0.0;
-        public static double D = 0.0;
+        public static double D = 0.00;
         public static double CCW_F = -0.04;
         public static double CW_F = 0.11;
-        public static double kV = .15;
+        public static double kV = .095;
 
         public static final double cableHangL = 210;
         public static final double cableHangR = 104;

@@ -122,96 +122,26 @@ public class Robot {
         Pose curPose = follower.getPose();
         return ShapeDetection.doesRobotIntersect(FieldShapes.closeTriangle, curPose) || ShapeDetection.doesRobotIntersect(FieldShapes.farTriangle, curPose);
     }
-
-            /*
-    // Checks if the robot center is within the
-    public boolean inShootingZone() {
-        // idk if this logic works
-//        boolean triangle1 = inTriangle(Constants.ShootingZone.bigLeft, Constants.ShootingZone.bigCenter, Constants.ShootingZone.bigRight);
-//        boolean triangle2 = lineSide(Constants.ShootingZone.smallRight, Constants.ShootingZone.smallCenter, Constants.ShootingZone.smallLeft);
-//        return triangle1 || triangle2;
-
-        // Robot radius
-        double r = 6;
-
-        Pose cur = getCurrentPose();
-        double Rx = cur.getX();
-        double Ry = cur.getY();
-
-        // --- FAST REJECT: robot is far from both triangles ---
-        if (Rx < -r && Rx > r - 48) return false;
-
-        // --- FAST ACCEPT (big triangle) ---
-        if (Rx > Ry && Rx > -Ry) return true;
-
-        // --- FAST ACCEPT (small triangle) ---
-        if (Rx < Ry - 48 && Rx < -Ry - 48) return true;
-
-
-        // ======================================================
-        // SELECT TRIANGLE
-        // ======================================================
-
-        Pose start;
-        Pose end;
-        int steps;
-
-
-        if (Rx >= 0) {
-            // ===========================
-            // BIG TRIANGLE (top)
-            // ===========================
-
-            start = new Pose(0, 0);    // apex
-            steps = 100;
-
-            if (Ry >= 0) {
-                end = new Pose(72, 72);
-            } else {
-                end = new Pose(72, -72);
-            }
-
-        } else {
-            // ===========================
-            // SMALL TRIANGLE (bottom)
-            // ===========================
-
-            start = new Pose(-48, 0);   // apex
-            steps = 34;
-
-            if (Ry >= 0) {
-                end = new Pose(-72, 24);
-            } else {
-                end = new Pose(-72, -24);
-            }
-        }
-
-
-        // ======================================================
-        // SAMPLE ALONG THE TRIANGLE EDGE
-        // ======================================================
-
-        for (int i = 0; i <= steps; i++) {
-
-            double t = i / (double) steps;
-
-            double px = start.getX() * (1 - t) + end.getX() * t;
-            double py = start.getY() * (1 - t) + end.getY() * t;
-
-            double dx = Rx - px;
-            double dy = Ry - py;
-
-            if (dx * dx + dy * dy <= r * r)
-                return true;
-        }
-
-        return false;  // No sample point was within radius r
-    }
-
-             */
     // TURRET**************************************************************************************~
 
+    double angleToGoalVelocity; //todo delete
     public void turretUpdate() {
+        Pose curPose = follower.getPose();
+        // Gets goal Pose
+        if (robotSide == RobotSide.Blue)  {
+            goal = Constants.Vision.blueGoal;
+        } else {
+            goal = Constants.Vision.redGoal;
+        }
+        goal = goal.plus(offsetPose);
+        double xOffset = curPose.getX() - goal.getX();
+        double yOffset = curPose.getY() - goal.getY();
+        double velocityX = follower.getVelocity().getXComponent();
+        double velocityY = follower.getVelocity().getYComponent();
+
+        double r2 = ((xOffset * xOffset) + (yOffset * yOffset));
+        angleToGoalVelocity = ((xOffset * velocityY) - (yOffset * velocityX)) / r2;
+        angleToGoalVelocity += follower.getAngularVelocity();
         turret.update(angleToGoalVelocity);
     }
 
@@ -241,7 +171,6 @@ public class Robot {
     //corrects the hood, turret, and shooter rpm
     double lastTimeTurret = 0;
     double lastAngleToGoal = 0;
-    double angleToGoalVelocity = 0;
     public void prepareShooter(double rpmOffset, double hoodAngleOffset) {
 
         // Gets current Pose
@@ -260,16 +189,6 @@ public class Robot {
 
         Pose futrGoal = goal;
         goal = goal.plus(offsetPose);
-
-        double deltaX = goal.getX() - curPose.getX();
-        double deltaY = goal.getY() - curPose.getY();
-        double angleToGoal = Math.toDegrees(Math.atan2(deltaY, deltaX));
-
-        angleToGoalVelocity = -((Math.toRadians(angleToGoal - lastAngleToGoal)) / ((System.currentTimeMillis() - lastTimeTurret) * 0.001));
-        angleToGoalVelocity += follower.getAngularVelocity();
-
-        lastAngleToGoal = angleToGoal;
-        lastTimeTurret = System.currentTimeMillis();
 
 
         for (int i = 0; i <= 3; i++) {
@@ -322,12 +241,6 @@ public class Robot {
 
     double pictureTime = 0;
     public void shooterUpdate() {
-        // Takes Picture every ___ ms
-        // if (pictureTime + 500 < time.milliseconds()) {
-            // pictureTime = time.milliseconds();
-            // autoSetCurrentPose();
-        // }
-
         shooter.update();
     }
 
