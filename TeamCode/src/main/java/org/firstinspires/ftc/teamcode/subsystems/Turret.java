@@ -43,7 +43,7 @@ public class Turret {
         encoderOffset = startTurretTicks;
 
         turretPID = new PIDFController(Constants.Turret.turretPID);
-        turretPID.updateFeedForwardInput(Constants.Turret.rightF);
+        turretPID.updateFeedForwardInput(Constants.Turret.CW_F);
         if (robotSide == RobotSide.Blue) {
             goalPose = new Pose(72, 72);
         } else {
@@ -63,19 +63,19 @@ public class Turret {
         turretPID.setTargetPosition(robotDeg + Constants.Turret.turretOffset);
     }
 
-    public void update() {
+    public void update(double angVel) {
         double curAngle = getAngle();
 
         if (Math.round(curAngle * 10) == Math.round(turretPID.getTargetPosition() * 10)) {
             turretPID.updateFeedForwardInput(0);
         } else if (curAngle > turretPID.getTargetPosition()) {
-            turretPID.updateFeedForwardInput(Constants.Turret.leftF);
+            turretPID.updateFeedForwardInput(Constants.Turret.CCW_F);
         } else {
-            turretPID.updateFeedForwardInput(Constants.Turret.rightF);
+            turretPID.updateFeedForwardInput(Constants.Turret.CW_F);
         }
 
         turretPID.updatePosition(curAngle);  // degrees
-        setPower(turretPID.run());
+        setPower(turretPID.run() + (angVel * Constants.Turret.kV));
     }
 
 

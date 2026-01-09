@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.util.RobotSide;
 
-@TeleOp(name = "Get Shooter Vals Blue", group = "  group")
+@TeleOp(name = "Get Shooter Vals Blue", group = "                                 group")
 public class TestingShooterValuesBlue extends OpMode {
     TestingShooterValues testingShooterValues;
 

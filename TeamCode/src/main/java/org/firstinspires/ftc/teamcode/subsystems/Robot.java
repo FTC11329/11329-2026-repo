@@ -212,12 +212,12 @@ public class Robot {
     // TURRET**************************************************************************************~
 
     public void turretUpdate() {
-        turret.update();
+        turret.update(angleToGoalVelocity);
     }
 
     // SHOOTER*************************************************************************************~
     public boolean readyToShoot() {
-        return  inShootingZone();
+        return inShootingZone();
     }
 
     public boolean readyToShootMotors() {
@@ -239,6 +239,9 @@ public class Robot {
     }
 
     //corrects the hood, turret, and shooter rpm
+    double lastTimeTurret = 0;
+    double lastAngleToGoal = 0;
+    double angleToGoalVelocity = 0;
     public void prepareShooter(double rpmOffset, double hoodAngleOffset) {
 
         // Gets current Pose
@@ -251,10 +254,23 @@ public class Robot {
             goal = Constants.Vision.redGoal;
         }
 
+
+
         ShooterValuesParent stv = shooterTestValuesV1;
 
         Pose futrGoal = goal;
         goal = goal.plus(offsetPose);
+
+        double deltaX = goal.getX() - curPose.getX();
+        double deltaY = goal.getY() - curPose.getY();
+        double angleToGoal = Math.toDegrees(Math.atan2(deltaY, deltaX));
+
+        angleToGoalVelocity = -((Math.toRadians(angleToGoal - lastAngleToGoal)) / ((System.currentTimeMillis() - lastTimeTurret) * 0.001));
+        angleToGoalVelocity += follower.getAngularVelocity();
+
+        lastAngleToGoal = angleToGoal;
+        lastTimeTurret = System.currentTimeMillis();
+
 
         for (int i = 0; i <= 3; i++) {
             // Est Time In Flight for ball at current pose
@@ -266,12 +282,13 @@ public class Robot {
 
 
         // Logic for heading to goal
-        double deltaX = futrGoal.getX() - curPose.getX();
-        double deltaY = futrGoal.getY() - curPose.getY();
-        double angleToGoal = Math.toDegrees(Math.atan2(deltaY, deltaX));
+        double deltaXFutr = futrGoal.getX() - curPose.getX();
+        double deltaYFutr = futrGoal.getY() - curPose.getY();
+        double angleToGoalFutr = Math.toDegrees(Math.atan2(deltaYFutr, deltaXFutr));
+
 
         // Sets Turret angle
-        turret.setTargetDeg(angleToGoal - Math.toDegrees(curPose.getHeading()));
+        turret.setTargetDeg(angleToGoalFutr - Math.toDegrees(curPose.getHeading()));
 
         // Gets shooter params based on future pose
         ShooterState futureShooterParams = stv.get(curPose.distanceFrom(futrGoal));
@@ -441,9 +458,20 @@ public class Robot {
     }
     double deleteMe = System.currentTimeMillis();
     public void update(boolean debug, boolean shootButton) {
-        Drawing.drawShapesDebug(follower);
-        panelsTelemetry.addData("in shooting zone", inShootingZone());
-        panelsTelemetry.update();
+        panelsTelemetry.addData("Distance", getCurrentPose().distanceFrom(goal));
+        panelsTelemetry.addData("Tar Shooter RPM", shooter.getTargetRpm());
+        panelsTelemetry.addData("Act Shooter RPM", shooter.getRPM());
+        panelsTelemetry.addData("Hood Angle", shooter.getHoodPosDeg());
+        panelsTelemetry.addData("Turret Degrees", turret.getAngle());
+        panelsTelemetry.addData("Turret Ticks  ", turret.getTicks());
+        panelsTelemetry.addData("Turret Tar Deg", turret.turretPID.getTargetPosition());
+        panelsTelemetry.addData("Turret power", turret.turretPID.run());
+        panelsTelemetry.addData("angVel", angleToGoalVelocity);
+
+
+        long now = System.currentTimeMillis();
+        panelsTelemetry.addData("dt", (now - lastTime) * 1e-3);
+        lastTime = now;
 
         shooterUpdate();
         intakeUpdate();
@@ -454,6 +482,7 @@ public class Robot {
         if (debug) {
             debug();
         }
+        panelsTelemetry.update();
     }
 
     public void debug() {
@@ -544,6 +573,7 @@ public class Robot {
         panelsTelemetry.addData("Turret Ticks  ", turret.getTicks());
         panelsTelemetry.addData("Turret Tar Deg", turret.turretPID.getTargetPosition());
         panelsTelemetry.addData("Turret power", clamp(turret.turretPID.run(), -1, 1));
+
         panelsTelemetry.addLine("=== SHOOTER ===");
         panelsTelemetry.addData("Shooter RPM", shooter.getRPM());
         panelsTelemetry.addData("Shooter power", shooter.lastPower);
@@ -551,7 +581,6 @@ public class Robot {
         panelsTelemetry.addData("Shooter VEL", shooter.getVelocity());
         panelsTelemetry.addData("Shooter ERR", shooter.shooterPID.getError());
         panelsTelemetry.addData("Hood Angle", shooter.getHoodPosDeg());
-        panelsTelemetry.addData("trans", indexer.feeder.getCurrent(CurrentUnit.AMPS));
         panelsTelemetry.update();
         telemetry.addData("current alert", intake.intakeMotor.isOverCurrent());
         telemetry.addData("current", intake.intakeMotor.getCurrent(CurrentUnit.AMPS));
