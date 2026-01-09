@@ -47,10 +47,12 @@ public class TemporaryClassThatWeAreTotallyGoingToDelete extends OpMode {
 
     @Override
     public void loop() {
-        robot.shooter.setHoodDeg(40);
-        robot.shooter.setTargetRPM(30000);
+        robot.shooter.setHoodDeg(25);
+        robot.shooter.setTargetRPM(2800);
         robot.shooter.update();
-        panelsTelemetry.addData("rpm", robot.shooter.shooterPID.getPreviousPosition());
+        panelsTelemetry.addData("rpmPID", robot.shooter.shooterPID.getPreviousPosition());
+        panelsTelemetry.addData("rpm", robot.shooter.getRPM());
+
         panelsTelemetry.addData("rpm target", robot.shooter.shooterPID.getTargetPosition());
         panelsTelemetry.addData("error", robot.shooter.shooterPID.getError());
         panelsTelemetry.addData("timer", time);
