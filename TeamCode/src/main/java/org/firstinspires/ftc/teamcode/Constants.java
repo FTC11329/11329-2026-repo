@@ -111,7 +111,7 @@ public class Constants {
         public static double D = 0;
         public static double F = 0;
         public static double kF = 4456;
-        public static PIDFCoefficients shooterVelocityPID = new PIDFCoefficients(0.004, 0, 0, 0);
+        public static PIDFCoefficients shooterVelocityPID = new PIDFCoefficients(0.0035, 0, 0, 0);
     }
     public static class Color {
         //hole green 2.05

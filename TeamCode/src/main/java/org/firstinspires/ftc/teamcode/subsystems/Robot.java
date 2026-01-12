@@ -21,6 +21,7 @@ import org.firstinspires.ftc.teamcode.util.SuperDuperPID;
 import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterTestValuesV2;
 import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterState;
 import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterTestValuesV1;
+import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterTestValuesV3;
 import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterValuesParent;
 //todo import java.awt.Shape to make the inShootingZone() better 
 
@@ -42,6 +43,7 @@ public class Robot {
 
     ShooterTestValuesV1 shooterTestValuesV1;
     ShooterTestValuesV2 shooterTestValuesV2;
+    ShooterTestValuesV3 shooterTestValuesV3;
     public ElapsedTime shooterTimer;
     TelemetryManager panelsTelemetry;
 
@@ -94,6 +96,7 @@ public class Robot {
         shooterTimer = new ElapsedTime();
         shooterTestValuesV1 = new ShooterTestValuesV1();
         shooterTestValuesV2 = new ShooterTestValuesV2();
+        shooterTestValuesV3 = new ShooterTestValuesV3();
         follower.resetIMU();
         shooter.resetController();
     }
@@ -207,8 +210,8 @@ public class Robot {
 
 
         // Sets Turret angle
-        turret.setTargetDeg(angleToGoalFutr - Math.toDegrees(curPose.getHeading()));
-
+//        turret.setTargetDeg(angleToGoalFutr - Math.toDegrees(curPose.getHeading()));
+        turret.setTargetDeg(0);
         // Gets shooter params based on future pose
         ShooterState futureShooterParams = stv.get(curPose.distanceFrom(futrGoal));
 
@@ -373,11 +376,12 @@ public class Robot {
         panelsTelemetry.addData("Tar Shooter RPM", shooter.getTargetRpm());
         panelsTelemetry.addData("Act Shooter RPM", shooter.getRPM());
         panelsTelemetry.addData("Hood Angle", shooter.getHoodPosDeg());
-        panelsTelemetry.addData("has started", indexer.started);
-
-        long now = System.currentTimeMillis();
-        panelsTelemetry.addData("dt", (now - lastTime) * 1e-3);
-        lastTime = now;
+        panelsTelemetry.addData("turret error", turret.turretPID.getError());
+        panelsTelemetry.addData("spindexer error", indexer.indexerState.pidfController.getError());
+//
+//        long now = System.currentTimeMillis();
+//        panelsTelemetry.addData("dt", (now - lastTime) * 1e-3);
+//        lastTime = now;
 
         shooterUpdate();
         intakeUpdate();
@@ -389,6 +393,7 @@ public class Robot {
             debug();
         }
         panelsTelemetry.update(telemetry);
+//        telemetry.update();
     }
 
     public void debug() {

@@ -69,7 +69,7 @@ public class IndexerState {
         pidfController.update(pos);
 
         if (!moving) {
-            encoderTarget = pos + UNLOAD_TICKS;
+            encoderTarget = pidfController.getTargetPosition() + UNLOAD_TICKS;
             pidfController.setTargetPosition(encoderTarget);
             atPosition = false;
             moving = true;
@@ -105,7 +105,7 @@ public class IndexerState {
 
         if (!moving) {
             // Start new move
-            encoderTarget = pos + STEP_TICKS;
+            encoderTarget = pidfController.getTargetPosition() + STEP_TICKS;
             pidfController.setTargetPosition(encoderTarget);
             moveStartTime = now;
             moving = true;

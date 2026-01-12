@@ -126,7 +126,7 @@ public class Shooter {
         shooterSpin = true;
     }
     public double getTargetRpm() {
-        return shooterPID.getTargetPosition() * 60 / Constants.Shooter.ticksPerRevolution;
+        return shooterPID.getTargetPosition();
     }
 
     public double getBallVelocity(){
