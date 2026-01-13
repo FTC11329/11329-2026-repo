@@ -153,6 +153,12 @@ public class Follower {
         return poseTracker.getPose();
     }
 
+    public Pose getCenterOfShooterPose() {
+        Pose curPose = poseTracker.getPose();
+        Vector shooterOffset = new Vector(-2.1, curPose.getHeading());
+        return curPose.plusVector(shooterOffset);
+    }
+
     /**
      * This returns the current velocity of the robot as a Vector.
      *

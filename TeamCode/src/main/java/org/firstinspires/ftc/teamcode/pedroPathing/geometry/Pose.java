@@ -171,6 +171,10 @@ public final class Pose implements FuturePose {
                 heading);
     }
 
+    public Pose plusVector(Vector other) {
+        return plusVector(other, 1);
+    }
+
     /**
      * Adds a delta x to this pose.
      * 

@@ -69,14 +69,8 @@ public class Drawing {
 
         sendPacket();
     }
+
     public static void drawShapesDebug(Follower follower) {
-//        drawShapeUsingCorners(ShapeDetection.getCornersOfShape(FieldShapes.farTriangle));
-//        panelsField.moveCursor(0,0);
-//        panelsField.setStyle(shootZoneLook);
-//        panelsField.line(72,72);
-//        panelsField.line(0,72);
-//        panelsField.line(72,72);
-//        panelsField.line(72,0);
 
         for (FieldShapes shapes : FieldShapes.values()) {
             switch (shapes) {
@@ -96,6 +90,11 @@ public class Drawing {
         drawShapeUsingCorners(ShapeDetection.createRobotCorners(follower.getPose()));
         drawShapeUsingCornersNoMovingCursor(ShapeDetection.createRobotsArrowCorners(follower.getPose()));
 
+        Pose shooterPose = follower.getCenterOfShooterPose();
+
+        panelsField.moveCursor(shooterPose.getX(), shooterPose.getY());
+        panelsField.circle(2.6);
+        panelsField.line(60,60);
         sendPacket();
     }
 
