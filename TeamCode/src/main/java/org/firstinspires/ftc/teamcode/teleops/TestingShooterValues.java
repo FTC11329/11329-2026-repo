@@ -167,7 +167,7 @@ public class TestingShooterValues {
         if (autoShoot.isOn) {
             robot.prepareShooter(rpmOffset, hoodAngleOffset);
         } else if (autoShoot.endPress) {
-            robot.shooter.stopShooter();
+            robot.shooter.casualModeOn();
         }
         if (smartShoot.startPress) {
             robot.indexer.setSmartShootBool(true);

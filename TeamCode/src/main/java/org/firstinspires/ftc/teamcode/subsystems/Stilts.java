@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -34,5 +35,11 @@ public class Stilts {
         setStiltMotorPower(stiltPower);
         setStiltPos(stiltPos);
 
+    }
+    //todo
+    public void stop() {
+        stiltMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        stiltMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        stiltMotor.setPower(0);
     }
 }

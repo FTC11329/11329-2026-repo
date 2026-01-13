@@ -68,9 +68,10 @@ public class AutoReplayTeleop {
         EndValuesStorer endValuesStorer = new EndValuesStorer();
         EndValuesStorer.EndValues endValues = endValuesStorer.loadEndValues();
         int startTurretTicks = endValues.turretTicks;
-        startPose = new Pose(endValues.robotX, endValues.robotY, endValues.robotHeading);
+        int startIndexerTicks = endValues.indexerTicks;
+        startPose = new Pose(endValues.x, endValues.y, endValues.heading);
 
-        robot = new Robot(telemetry, hardwareMap, robotSide, startTurretTicks, 0);
+        robot = new Robot(telemetry, hardwareMap, robotSide, startTurretTicks, startIndexerTicks);
         autoReplay = new AutoReplayTime(robot.follower, telemetry, gamepadInfo1, gamepadInfo2);
         autoReplay.init();
         autoReplay.init();

@@ -8,7 +8,7 @@ public interface PathPlanner {
     // Builds all the paths with the previous offset
     void buildPaths();
 
-    // Run the step, return true when it's done
+    // Run the step, return true if it's done
     boolean run();
 
     // Used to connect paths

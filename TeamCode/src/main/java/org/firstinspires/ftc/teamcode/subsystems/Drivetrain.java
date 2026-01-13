@@ -48,15 +48,20 @@ public class Drivetrain {
         rightFront.setPower((forwardBackPower - strafePower - turning) * speed);
         rightBack.setPower((forwardBackPower + strafePower - turning) * speed);
     }
-    public void stopASAP() {
+    public void stop() {
+        leftBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
         leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        leftFront.setPower(0);
         leftBack.setPower(0);
-        rightFront.setPower(0);
+        leftFront.setPower(0);
         rightBack.setPower(0);
+        rightFront.setPower(0);
     }
 }

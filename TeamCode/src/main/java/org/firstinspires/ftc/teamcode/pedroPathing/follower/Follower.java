@@ -1125,4 +1125,8 @@ public class Follower {
         poseTracker.resetIMU();
     }
 
+    public void stop() {
+        breakFollowing();
+    }
+
 }

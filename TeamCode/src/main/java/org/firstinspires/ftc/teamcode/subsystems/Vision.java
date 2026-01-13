@@ -224,4 +224,7 @@ public class Vision {
     public enum InitialCondition{
         RPM, MaxHeight, Time, FinalAngle //todo add hood angle
     }
+    public void stop() {
+
+    }
 }

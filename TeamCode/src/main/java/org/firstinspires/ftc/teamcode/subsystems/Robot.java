@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.modularAutos.CommonPoses;
 import org.firstinspires.ftc.teamcode.pedroPathing.Drawing;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
+import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.FieldShapes;
 import org.firstinspires.ftc.teamcode.util.IndexerLogic;
@@ -48,6 +49,8 @@ public class Robot {
     TelemetryManager panelsTelemetry;
 
     double startTime;
+
+    Timer opmodeTimer = new Timer();
 
     boolean intakeToggle = false;
     boolean spitIntake = false;
@@ -364,7 +367,15 @@ public class Robot {
     public void stopIntake() {
         spinIntake(false);
     }
+    // AUTONOMOUS**********************************************************************************~
 
+    public void resetTimers() {
+        opmodeTimer.resetTimer();
+    }
+
+    public double getOpmodeTimeSeconds() {
+        return opmodeTimer.getElapsedTimeSeconds();
+    }
 
     // SYSTEM**************************************************************************************~
     public void update() {
@@ -508,10 +519,15 @@ public class Robot {
     }
 
     public void stopAllSubsystems() {
-        oneBallCase = 0;
-        shooter.stopShooter();
-        shooter.setHoodDeg(0);
-        stopIntake();
+        stilts.stop();
+        intake.stop();
+        turret.stop();
+        vision.stop();
+        indexer.stop();
+        shooter.stop();
+        follower.stop();
+        drivetrain.stop();
+
     }
 
     // TESTING*************************************************************************************~

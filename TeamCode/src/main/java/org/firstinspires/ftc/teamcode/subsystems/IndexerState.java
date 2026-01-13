@@ -65,36 +65,36 @@ public class IndexerState {
     boolean hasMoved = false;
     double UNLOAD_TICKS = 5461;
      public boolean unload(){
-        double pos = encoder.getCurrentPosition();
-        pidfController.update(pos);
+         double pos = encoder.getCurrentPosition();
+         pidfController.update(pos);
 
-        if (!moving) {
-            encoderTarget = pidfController.getTargetPosition() + UNLOAD_TICKS;
-            pidfController.setTargetPosition(encoderTarget);
-            atPosition = false;
-            moving = true;
-        }
+         if (!moving) {
+             encoderTarget = pidfController.getTargetPosition() + UNLOAD_TICKS;
+             pidfController.setTargetPosition(encoderTarget);
+             atPosition = false;
+             moving = true;
+         }
 
-        if (moving && Math.abs(pidfController.getError()) < Constants.Indexer.indexerTolerance && hasMoved) {
-            atPosition = true;
-            moving = false;
-            hasMoved = false;
+         if (Math.abs(pidfController.getError()) < Constants.Indexer.indexerTolerance && hasMoved) {
+             atPosition = true;
+             moving = false;
+             hasMoved = false;
 
-            removeBallAtIndex(0);
-            removeBallAtIndex(1);
-            removeBallAtIndex(2);
-            return true;
-        }
-        double power = pidfController.run();
+             removeBallAtIndex(0);
+             removeBallAtIndex(1);
+             removeBallAtIndex(2);
+             return true;
+         }
+         double power = pidfController.run();
 
          if (Math.abs(pidfController.getVelocity()) > 20) {
              hasMoved = true;
          }
 
          spindexer1.setPower(power);
-        spindexer2.setPower(power);
+         spindexer2.setPower(power);
 
-        return false;
+         return false;
     }
     public void averageTime() {
         long now = System.currentTimeMillis();
@@ -330,14 +330,9 @@ public class IndexerState {
         encoderOffset += 4096;
     }
 
-    public void stopIndexer(boolean set) {
-        if (set) {
-            stopIndexer = true;
-            spindexer1.setPower(0);
-            spindexer2.setPower(0);
-        } else {
-            stopIndexer = false;
-        }
+    public void stop() {
+        spindexer1.setPower(0);
+        spindexer2.setPower(0);
     }
 
     public void setIndexerPosition(IndexerEnums indexerPosition) {

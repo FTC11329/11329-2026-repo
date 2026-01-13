@@ -47,7 +47,7 @@ public class CommonPoses {
         }
     }
 
-    public static class FirePoses {
+    public static class ShootPoses {
         public static Pose parkShoot = new Pose(32, 12, Math.toRadians(90));
         public static Pose closeShoot = new Pose(36, 36, Math.toRadians(90));
         public static Pose midShoot = new Pose(12, 12, Math.toRadians(90));
@@ -73,7 +73,7 @@ public class CommonPoses {
     public static void init(boolean toRed) {
         StartPoses.convert(toRed);
         IntakeBallPoses.convert(toRed);
-        FirePoses.convert(toRed);
+        ShootPoses.convert(toRed);
     }
 
     public static Pose convertToRed(Pose convertPose, boolean toRed) {

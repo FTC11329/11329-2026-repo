@@ -99,4 +99,11 @@ public class IndexerLogic {
             feeder.setPower(set);
         }
     }
+
+    public void stop() {
+        feeder.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        feeder.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        feeder.setPower(0);
+        indexerState.stop();
+    }
 }

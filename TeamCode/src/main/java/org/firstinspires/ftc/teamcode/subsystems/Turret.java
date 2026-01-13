@@ -105,4 +105,9 @@ public class Turret {
     public boolean closeEnoughToTarget(Pose robotPose) {
         return robotPose.distanceFrom(goalPose) * Math.sin(Math.toRadians(Math.abs(turretPID.getError()/4))) <= Constants.Turret.closeEnough;
     }
+
+    public void stop() {
+        turretServo1.setPower(0);
+        turretServo2.setPower(0);
+    }
 }

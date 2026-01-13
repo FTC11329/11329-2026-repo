@@ -3,12 +3,14 @@ package org.firstinspires.ftc.teamcode.modularAutos.runnableWrappers;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.teamcode.modularAutos.CommonPoses;
-import org.firstinspires.ftc.teamcode.modularAutos.FromStartClosePosition;
+import org.firstinspires.ftc.teamcode.modularAutos.planners.FromStartClosePosition;
 import org.firstinspires.ftc.teamcode.modularAutos.PathPlanner;
+import org.firstinspires.ftc.teamcode.pedroPathing.Drawing;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
+import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
 import org.firstinspires.ftc.teamcode.util.BallColor;
+import org.firstinspires.ftc.teamcode.util.EndValuesStorer;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
 
 import java.util.List;
@@ -19,6 +21,7 @@ public class ExampleRunnableWrapper extends OpMode {
     RobotSide robotSide;
     Robot robot;
     private List<PathPlanner> steps;
+    Timer zeroVelocityTimer = new Timer();
     private int currentStep = 0;
 
     @Override
@@ -41,8 +44,55 @@ public class ExampleRunnableWrapper extends OpMode {
     }
 
     @Override
-    public void loop() {
+    public void start() {
+        robot.resetTimers();
+        steps.get(currentStep).buildPaths();
+    }
 
+    @Override
+    public void loop() {
+        // to stop the auto
+        if (robot.getOpmodeTimeSeconds() > 30) {
+            telemetry.addData("Done", true);
+            telemetry.update();
+
+            robot.stopAllSubsystems();
+            if (robot.follower.getVelocity().getMagnitude() > 0.5) {
+                zeroVelocityTimer.resetTimer();
+            }
+            if (zeroVelocityTimer.getElapsedTimeSeconds() > 2) {
+                requestOpModeStop();
+            }
+            return;
+        }
+
+        robot.follower.update();
+        Drawing.drawShapesDebug(robot.follower);
+
+        // Stops the robot if done
+        if (currentStep >= steps.size()) {
+            telemetry.addData("Done", true);
+            telemetry.update();
+            return;
+        }
+
+        robot.update();
+
+        PathPlanner step = steps.get(currentStep);
+        boolean done = step.run();
+
+        telemetry.addData("time", robot.getOpmodeTimeSeconds());
+        telemetry.addData("name", step);
+
+        telemetry.update();
+
+        if (done) {
+            currentStep++;
+            if (currentStep >= steps.size()) {
+                return;
+            }
+            steps.get(currentStep).buildPaths();
+        }
     }
 
     private Pose lastPose() {
@@ -51,5 +101,11 @@ public class ExampleRunnableWrapper extends OpMode {
         } else {
             return steps.get(steps.size() - 1).getEndPoseEst();
         }
+    }
+
+    @Override
+    public void stop() {
+        EndValuesStorer endValuesStorer = new EndValuesStorer();
+        endValuesStorer.saveEndValues(robot.getCurrentPose().getX(), robot.getCurrentPose().getY(), robot.getCurrentPose().getHeading(), robot.turret.getTicks(), robot.indexer.indexerState.getEncoderTicks());
     }
 }

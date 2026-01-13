@@ -138,10 +138,10 @@ public class Shooter {
         shooterPID.resetController();
     }
 
-    public void stopShooter() {
-        shooterSpin = false;
-        setPower(0);
+    public void stop() {
+        flywheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         flywheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        flywheel.setPower(0);
     }
 
     public double getShooterPower() {

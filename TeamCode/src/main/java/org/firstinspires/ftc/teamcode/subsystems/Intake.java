@@ -28,5 +28,11 @@ public class Intake {
         }
     }
 
+    public void stop() {
+        intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        intakeMotor.setPower(0);
+    }
+
 }
 
