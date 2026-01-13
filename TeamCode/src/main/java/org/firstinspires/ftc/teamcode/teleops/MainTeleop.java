@@ -128,7 +128,7 @@ public class MainTeleop {
         // queuePurple.checkStatus(gamepad2.x); // Press to queue purple
         autoShoot.checkStatus(gamepad1.a); // Toggle to turn on auto shoot
         smartShoot.checkStatus(gamepad2.b); // Toggle to turn on smart shoot
-        fastShootButton.checkStatus(gamepad2.right_bumper); // Toggle to turn on smart shoot
+        fastShootButton.checkStatus(gamepad1.b); // Toggle to turn on smart shoot
 
         overrideShootPosition.checkStatus(gamepad2.back); // hold to turn on ignore position
         panicShoot.checkStatus(gamepad2.ps); // toggle to turn on panic shoot mode
