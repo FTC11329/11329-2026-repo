@@ -18,7 +18,7 @@ public class Intake {
         intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         intakeMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        intakeMotor.setCurrentAlert(2.1, CurrentUnit.AMPS);
+        intakeMotor.setCurrentAlert(3, CurrentUnit.AMPS);
     }
 
     public void setIntakePower(double set) {

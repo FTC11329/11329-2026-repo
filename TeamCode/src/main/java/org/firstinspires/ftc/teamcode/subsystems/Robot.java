@@ -177,7 +177,7 @@ public class Robot {
     public void prepareShooter(double rpmOffset, double hoodAngleOffset) {
 
         // Gets current Pose
-        Pose curPose = getCurrentPose();
+        Pose curPose = follower.getCenterOfShooterPose();
 
         // Gets goal Pose
         if (robotSide == RobotSide.Blue)  {
@@ -372,12 +372,13 @@ public class Robot {
     }
     double deleteMe = System.currentTimeMillis();
     public void update(boolean debug, boolean shootButton) {
-        panelsTelemetry.addData("Distance", getCurrentPose().distanceFrom(goal));
-        panelsTelemetry.addData("Tar Shooter RPM", shooter.getTargetRpm());
-        panelsTelemetry.addData("Act Shooter RPM", shooter.getRPM());
-        panelsTelemetry.addData("Hood Angle", shooter.getHoodPosDeg());
-        panelsTelemetry.addData("turret error", turret.turretPID.getError());
-        panelsTelemetry.addData("spindexer error", indexer.indexerState.pidfController.getError());
+//        panelsTelemetry.addData("distance", follower.getCenterOfShooterPose().distanceFrom(goal));
+//        panelsTelemetry.addData("Tar Shooter RPM", shooter.getTargetRpm());
+//        panelsTelemetry.addData("Act Shooter RPM", shooter.getRPM());
+//        panelsTelemetry.addData("Hood Angle", shooter.getHoodPosDeg());
+//        panelsTelemetry.addData("turret error", turret.turretPID.getError());
+//        panelsTelemetry.addData("spindexer error", indexer.indexerState.pidfController.getError());
+//        Drawing.drawShapesDebug(follower);
 //
 //        long now = System.currentTimeMillis();
 //        panelsTelemetry.addData("dt", (now - lastTime) * 1e-3);
@@ -389,10 +390,15 @@ public class Robot {
         turretUpdate();
         teleopUpdate();
         follower.update();
+
+        telemetry.addData("hood", shooter.getHoodPosDeg());
+        telemetry.addData("rpm", shooter.getRPM());
+        telemetry.addData("rpm target", shooter.getTargetRpm());
         if (debug) {
             debug();
+            telemetry.update();
         }
-        panelsTelemetry.update(telemetry);
+//        panelsTelemetry.update(telemetry);
 //        telemetry.update();
     }
 
@@ -419,7 +425,7 @@ public class Robot {
         telemetry.addData("guess pose", getCurrentPose());
         telemetry.addData("last cam pose", lastCamPose);
         telemetry.addData("offset", offsetPose);
-        telemetry.addData("distance", getCurrentPose().distanceFrom(goal));
+        telemetry.addData("distance", follower.getCenterOfShooterPose().distanceFrom(goal));
         telemetry.addData("in shooting zone", inShootingZone());
 
         telemetry.addLine("=== QUEUE ===");
@@ -430,9 +436,6 @@ public class Robot {
             telemetry.addData("qball", ball);
         }
 
-
-//            telemetry.addData("hood", shooter.getHoodPosDeg());
-//            telemetry.addData("rpm", shooter.getRPM());
 
 //        panelsTelemetry.addData("turret target", turret.turretPID.getTargetPosition());
 //        panelsTelemetry.addData("turret actual", turret.getAngle());
