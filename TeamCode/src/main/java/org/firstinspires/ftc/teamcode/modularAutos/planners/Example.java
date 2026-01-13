@@ -14,6 +14,7 @@ import androidx.annotation.NonNull;
 
 public class Example {
     public static class NAME implements PathPlanner {
+        //todo
         /// DESCRIPTION
         // Variables
         Pose offset = new Pose();
@@ -24,6 +25,7 @@ public class Example {
         // Pass-through Variables
         private volatile Robot robot;
         private Pose startPose;
+        // todo
         public NAME(Robot robot, Pose startPose) {
             pathTimer = new Timer();
             this.robot = robot;
@@ -62,6 +64,7 @@ public class Example {
 
         @NonNull
         @Override
+        //todo
         public String toString() {
             return "NAME";
         }
