@@ -3,11 +3,9 @@ package org.firstinspires.ftc.teamcode.util;
 import com.bylazar.configurables.annotations.Configurable;
 
 import org.firstinspires.ftc.teamcode.Constants;
-import org.firstinspires.ftc.teamcode.pedroPathing.control.PIDFCoefficients;
-import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 
 @Configurable
-public class SuperDuperPID {
+public class ProfiledMotionPID {
 
     /* -------------------- Tunables -------------------- */
     // todo: figure out how to add @Configurable so we can tune without having to restart the bot
@@ -54,7 +52,7 @@ public class SuperDuperPID {
 
     /* -------------------- Constructor -------------------- */
 
-    public SuperDuperPID() {
+    public ProfiledMotionPID() {
         reset();
     }
 

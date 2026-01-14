@@ -24,7 +24,7 @@ public class ShooterTreeInterpolation {
 
         // If out of range, use the closest endpoint
         if (lower == null) return upper.getValue();
-        if (upper == null) return lower.getValue(); //todo: find a better way of dealing with edge cases
+        if (upper == null) return lower.getValue();
 
         double lowerDistance = lower.getKey();
         double upperDistance = upper.getKey();

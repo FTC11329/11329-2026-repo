@@ -4,7 +4,6 @@ import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 
@@ -13,10 +12,9 @@ import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.ColorFunctions;
 import org.firstinspires.ftc.teamcode.util.IndexerEnums;
-import org.firstinspires.ftc.teamcode.util.SuperDuperPID;
+import org.firstinspires.ftc.teamcode.util.ProfiledMotionPID;
 
 import static java.lang.Math.PI;
-import static java.lang.Math.pow;
 
 public class IndexerState {
 
@@ -24,7 +22,7 @@ public class IndexerState {
 
     public int encoderTickPos = 0;
     private BallColor[] ballCells;
-    public SuperDuperPID pidfController;
+    public ProfiledMotionPID pidfController;
 
     private DcMotorEx encoder;
     private CRServo spindexer1;
@@ -49,7 +47,7 @@ public class IndexerState {
 
         colorSensor = hardwareMap.get(RevColorSensorV3.class, "spindexerColorSensor");
 
-        pidfController = new SuperDuperPID();
+        pidfController = new ProfiledMotionPID();
         encoderOffset = startIndexerTicks;
     }
 
@@ -176,7 +174,7 @@ public class IndexerState {
     }
 
 
-    public double findSmallestAngleToIndex(double targetAngle) { //todo: always minimizes to intake
+    public double findSmallestAngleToIndex(double targetAngle) {
         return ((targetAngle - getAbsoluteEncoderAngle() + PI) % (2 * PI)) - PI;
     }
 

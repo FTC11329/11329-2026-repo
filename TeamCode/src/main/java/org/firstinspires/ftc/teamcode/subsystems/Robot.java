@@ -18,33 +18,25 @@ import org.firstinspires.ftc.teamcode.util.FieldShapes;
 import org.firstinspires.ftc.teamcode.util.IndexerLogic;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
 import org.firstinspires.ftc.teamcode.util.ShapeDetection;
-import org.firstinspires.ftc.teamcode.util.SuperDuperPID;
-import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterTestValuesV2;
 import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterState;
-import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterTestValuesV1;
-import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterTestValuesV3;
+import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterTestValues;
 import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterValuesParent;
 //todo import java.awt.Shape to make the inShootingZone() better 
 
 import java.util.ArrayList;
 
 public class Robot {
-    // Todo make private exept follower
-    public Stilts stilts;
-    public Intake intake;
-    public Turret turret;
-    public Vision vision;
-    public IndexerLogic indexer;
-    public Shooter shooter;
+    private Intake intake;
+    private Turret turret;
+    private Vision vision;
+    private IndexerLogic indexer;
+    private Shooter shooter;
     public Follower follower;
-    public Drivetrain drivetrain;
-    public ElapsedTime time;
+    private Drivetrain drivetrain;
     public RobotSide robotSide;
 
 
-    ShooterTestValuesV1 shooterTestValuesV1;
-    ShooterTestValuesV2 shooterTestValuesV2;
-    ShooterTestValuesV3 shooterTestValuesV3;
+    ShooterTestValues shooterTestValues;
     public ElapsedTime shooterTimer;
     TelemetryManager panelsTelemetry;
 
@@ -61,13 +53,6 @@ public class Robot {
     public Pose offsetPose = new Pose(0,0,0);
     //This is an array of the 3 special colors of the games MOTIF
     public BallColor[] motif = null;
-    //This is SPECIFICALLY for auto, it is the balls in the ramp
-    public ArrayList<BallColor> ramp = new ArrayList<>();
-    //This is a varibale used in the ShootArtifact function to keep track of the shooting Phase
-    int oneBallCase = 0;
-    //This is a PUBLIC variable: [turret anlge, hood angle, shooter RPM]
-    double[] shootingParams;
-    boolean doAutoIntake = false;
     int thingies = 0;
     Pose goal = new Pose(0,0,0);
     int i = 0;
@@ -84,7 +69,6 @@ public class Robot {
         this.telemetry = telemetry;
         this.robotSide = robotSide;
         panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
-        stilts = new Stilts(hardwareMap);
         intake = new Intake(hardwareMap);
         vision = new Vision(hardwareMap, robotSide);
         indexer = new IndexerLogic(hardwareMap, ballsInIndexer, startIndexerTicks);
@@ -92,14 +76,11 @@ public class Robot {
         turret = new Turret(hardwareMap, startTurretTicks, robotSide);
         follower = org.firstinspires.ftc.teamcode.pedroPathing.Constants.createFollower(hardwareMap);
         drivetrain = new Drivetrain(hardwareMap);
-        time = new ElapsedTime();
 
         follower.setStartingPose(new Pose(0,0,0));
 
         shooterTimer = new ElapsedTime();
-        shooterTestValuesV1 = new ShooterTestValuesV1();
-        shooterTestValuesV2 = new ShooterTestValuesV2();
-        shooterTestValuesV3 = new ShooterTestValuesV3();
+        shooterTestValues = new ShooterTestValues();
         follower.resetIMU();
         shooter.resetController();
     }
@@ -130,7 +111,7 @@ public class Robot {
     }
     // TURRET**************************************************************************************~
 
-    double angleToGoalVelocity; //todo delete
+    double angleToGoalVelocity;
     public void turretUpdate() {
         turret.update(angleToGoalVelocity);
     }
@@ -173,9 +154,7 @@ public class Robot {
             goal = Constants.Vision.redGoal;
         }
 
-
-
-        ShooterValuesParent stv = shooterTestValuesV3;
+        ShooterValuesParent stv = shooterTestValues;
 
         Pose futrGoal = goal;
         goal = goal.plus(offsetPose);
@@ -184,6 +163,7 @@ public class Robot {
         double deltaY = goal.getY() - curPose.getY();
         double angleToGoal = Math.toDegrees(Math.atan2(deltaY, deltaX));
 
+        // this is to pass to the feed forward on the turret to offset for the rate of change of the angle to goal
         angleToGoalVelocity = -((Math.toRadians(angleToGoal - lastAngleToGoal)) / ((System.currentTimeMillis() - lastTimeTurret) * 0.001));
         angleToGoalVelocity += follower.getAngularVelocity();
 
@@ -272,16 +252,14 @@ public class Robot {
     static final long SPINUP_IGNORE_MS = 300;  // tune 200–400ms
     private boolean setTimer;
 
-    public void intakeUpdate() { //todo: move most of this logic into the intake class
+    public void intakeUpdate() {
+        // intake jam detection
 
         long now = System.currentTimeMillis();
         long spitTime = now - startSpit;
 
         boolean spinupIgnore = (now - intakeEnableTime) < SPINUP_IGNORE_MS;
         boolean highCurrent = intake.intakeMotor.isOverCurrent();
-//        telemetry.addData("spinup ignore", spinupIgnore);
-//        telemetry.addData("high current", highCurrent);
-//        telemetry.addData("auto spitting", autoSpitting);
 
         if (!spinupIgnore && highCurrent && setTimeOnce) {
             startSpit = now;
@@ -290,18 +268,15 @@ public class Robot {
             setTimer = false;
         }
 
-        // ---------- DURING AUTO-SPIT WINDOW ----------
         if (autoSpitting) {
-
-            // stop after configured spit time (units now consistent → ms)
+            // stop after configured spit time
             if (spitTime >= Constants.Intake.spitTime) {
                 autoSpitting = false;
                 setTimeOnce = true;
             }
-            return; // prevents falling through to other logic
+            return;
         }
 
-        // ---------- NORMAL CONTROL ----------
         if (intakeToggle && !spitIntake) {
             if (!setTimer) {
                 intakeEnableTime = System.currentTimeMillis();
@@ -335,26 +310,11 @@ public class Robot {
         spinIntake();
     }
 
-    public void autoIntake3() {
-        doAutoIntake = true;
-    }
-
     public void spitIntake() {
         spitIntake(true);
     }
     public void spitIntake(boolean set) {
         spitIntake = set;
-    }
-
-    public void teleopUpdate() {
-        /* todo remove after 2nd comp
-        if (doAutoIntake) {
-            spinIntake();
-            spinIndexer();
-            hasBalls = new ArrayList<>(indexer.scanIndexer(hasBalls));
-            doAutoIntake = hasBalls.size() < 3;
-        }
-         */
     }
 
     public void stopIntake() {
@@ -376,45 +336,43 @@ public class Robot {
     }
     double deleteMe = System.currentTimeMillis();
     public void update(boolean debug, boolean shootButton) {
-//        panelsTelemetry.addData("Tar Shooter RPM", shooter.getTargetRpm());
-//        panelsTelemetry.addData("Act Shooter RPM", shooter.getRPM());
-//        panelsTelemetry.addData("Hood Angle", shooter.getHoodPosDeg());
-//        panelsTelemetry.addData("turret error", turret.turretPID.getError());
-//        panelsTelemetry.addData("spindexer error", indexer.indexerState.pidfController.getError());
-//        Drawing.drawShapesDebug(follower);
-//
-//        long now = System.currentTimeMillis();
-//        panelsTelemetry.addData("dt", (now - lastTime) * 1e-3);
-//        lastTime = now;
-
         shooterUpdate();
         intakeUpdate();
         spindexerUpdate(shootButton);
         turretUpdate();
-        teleopUpdate();
         follower.update();
-//        panelsTelemetry.addData("turret target", turret.turretPID.getTargetPosition());
-//        panelsTelemetry.addData("turret actual", turret.getAngle());
+
+        if (debug) {
+            debug();
+            telemetry.update();
+        }
+    }
+
+    public void debug() {
+
+        panelsTelemetry.addData("Tar Shooter RPM", shooter.getTargetRpm());
+        panelsTelemetry.addData("Act Shooter RPM", shooter.getRPM());
+        panelsTelemetry.addData("Hood Angle", shooter.getHoodPosDeg());
+        panelsTelemetry.addData("turret error", turret.turretPID.getError());
+        panelsTelemetry.addData("spindexer error", indexer.indexerState.pidfController.getError());
+        Drawing.drawShapesDebug(follower);
+
+        long now = System.currentTimeMillis();
+        panelsTelemetry.addData("dt", (now - lastTime) * 1e-3);
+        lastTime = now;
+        panelsTelemetry.addData("turret target", turret.turretPID.getTargetPosition());
+        panelsTelemetry.addData("turret actual", turret.getAngle());
+
+        telemetry.addData("hood", shooter.getHoodPosDeg());
+        telemetry.addData("rpm", shooter.getRPM());
+        telemetry.addData("rpm target", shooter.getTargetRpm());
+
         panelsTelemetry.addData("shooter target", shooter.getTargetRpm());
         panelsTelemetry.addData("shooter actual", shooter.getRPM());
         panelsTelemetry.addData("sotf", angleToGoalVelocity);
         panelsTelemetry.addData("distance", follower.getCenterOfShooterPose().distanceFrom(goal));
         telemetry.addData("Ready to shoot", readyToShootMotors());
         panelsTelemetry.update(telemetry);
-
-
-//        telemetry.addData("hood", shooter.getHoodPosDeg());
-//        telemetry.addData("rpm", shooter.getRPM());
-//        telemetry.addData("rpm target", shooter.getTargetRpm());
-        if (debug) {
-            debug();
-            telemetry.update();
-        }
-//        panelsTelemetry.update(telemetry);
-//        telemetry.update();
-    }
-
-    public void debug() {
 
         telemetry.addLine("=== VISION ===");
         telemetry.addData("Motif", motif);
@@ -448,9 +406,6 @@ public class Robot {
         for (BallColor ball : indexer.getQueue()) {
             telemetry.addData("qball", ball);
         }
-
-
-
 
         panelsTelemetry.addData("P", indexer.indexerState.pidfController.getPOutput());
         panelsTelemetry.addData("I", indexer.indexerState.pidfController.getIOutput());
@@ -506,9 +461,7 @@ public class Robot {
         panelsTelemetry.update();
         telemetry.addData("current alert", intake.intakeMotor.isOverCurrent());
         telemetry.addData("current", intake.intakeMotor.getCurrent(CurrentUnit.AMPS));
-        long now = System.currentTimeMillis();
-        telemetry.addData("dt", (now - lastTime) * 1e-3);
-        lastTime = now;
+        panelsTelemetry.update(telemetry);
         telemetry.update();
     }
     private static double clamp(double v, double lo, double hi) {
@@ -516,7 +469,6 @@ public class Robot {
     }
 
     public void stopAllSubsystems() {
-//        stilts.stop();
         intake.stop();
         turret.stop();
         vision.stop();

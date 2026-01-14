@@ -172,7 +172,7 @@ public class BlueCloseAuto extends OpMode {
 				}
 				break;
 			case goToShoot2:
-				if (robot.follower.getErrorDistance(startShoot2Pose) < 1.5) { //todo: timeout??
+				if (robot.follower.getErrorDistance(startShoot2Pose) < 1.5) {
 					robot.follower.followPath(shootPath2);
 					robot.follower.setMaxPower(shootPower);
 
@@ -190,7 +190,7 @@ public class BlueCloseAuto extends OpMode {
 				}
 				break;
 			case moveToIntake2:
-				if (robot.follower.getErrorY(intake2StartPose) < 1) { //todo: timeout??
+				if (robot.follower.getErrorY(intake2StartPose) < 1) {
 //					robot.intakeManual();
 					setPathState(CloseAutoPhases.intaking2);
 				}
@@ -209,7 +209,7 @@ public class BlueCloseAuto extends OpMode {
 				}
 				break;
 			case goToShoot3:
-				if (robot.follower.getErrorDistance(startShoot3Pose) < 5) { //todo: timeout
+				if (robot.follower.getErrorDistance(startShoot3Pose) < 5) {
 					robot.follower.followPath(shootPath3);
 					robot.follower.setMaxPower(shootPower);
 					setPathState(CloseAutoPhases.shoot3);
@@ -226,7 +226,7 @@ public class BlueCloseAuto extends OpMode {
 				}
 				break;
 			case moveToIntake3:
-				if (robot.follower.getErrorY(intake3StartPose) < 1) { //todo: timeout
+				if (robot.follower.getErrorY(intake3StartPose) < 1) {
 //					robot.intakeManual();
 					setPathState(CloseAutoPhases.intaking3);
 				}
@@ -245,7 +245,7 @@ public class BlueCloseAuto extends OpMode {
 				}
 				break;
 			case goToShoot4:
-				if (robot.follower.getErrorDistance(shoot4Pose) < 1.5) { //todo: timeout
+				if (robot.follower.getErrorDistance(shoot4Pose) < 1.5) {
 					setPathState(CloseAutoPhases.shoot4);
 				}
 				break;
@@ -258,7 +258,7 @@ public class BlueCloseAuto extends OpMode {
 				}
 				break;
 			case moveToSTunnel:
-				if (robot.follower.getErrorY(startSTunnelPose) < 1) { //todo: timeout
+				if (robot.follower.getErrorY(startSTunnelPose) < 1) {
 					robot.intakeManual();
 					setPathState(CloseAutoPhases.intakingSTunnel);
 				}

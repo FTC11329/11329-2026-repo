@@ -14,20 +14,12 @@ import org.firstinspires.ftc.teamcode.pedroPathing.control.MovingPIDFController;
 public class Shooter {
     // declaring motor variables
     public DcMotorEx flywheel;
-
-    double maxRPM = 6000;
     boolean usePID = false;
-
     Servo hoodServo1;
     Servo hoodServo2;
-
-    double targetVelocity;
-
     double hoodPos = 0;
     public MovingPIDFController shooterPID;
-    
     boolean shooterSpin;
-
     boolean isGettingUpToSpeed = true;
     boolean onceShot = false;
     double previousError;
