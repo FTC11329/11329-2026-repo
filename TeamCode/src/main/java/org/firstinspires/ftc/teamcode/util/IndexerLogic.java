@@ -66,8 +66,62 @@ public class IndexerLogic {
         smartShooterBool = false;
     }
 
+    public void updateAutoShoot(boolean hasShot, boolean isIntaking, boolean readyToShoot) {
+        if (hasShot && !lastHasShot) {
+            lastHasShot = true;
+        } else if (!hasShot) {
+            lastHasShot = false;
+        } else {
+            hasShot = false;
+        }
 
-    public void update(boolean hasShot, boolean isIntaking, boolean readyToShootMotors, boolean readyToShootPos, boolean manualShootButton) {
+        // Removing after shoot
+        if (hasShot && IndexerEnums.isAShootEnum(indexerState.getIndexerPosition()) && indexerState.atPosition) {
+            int indexToRemove = IndexerEnums.getIndex(indexerState.getIndexerPosition());
+            indexerState.removeBallAtIndex(indexToRemove);
+            removeFrontQueue();
+        }
+
+        // move to nearest ball of right color
+        if (indexerState.atPosition) {
+            if (isIntaking) {
+                if (!indexerState.isBallCellsFull()) {
+                    if (indexerState.getColor() != BallColor.None) {
+                        indexerState.setBallCellAtIntakeToRightColor();
+                    }
+                    if (!indexerState.isBallCellsFull()) {
+                        indexerState.moveToNearest(BallColor.None, true);
+                    }
+                } else {
+                    isIntaking = false;
+                }
+            }
+
+            if (!isIntaking) {
+                if (indexerState.isBallCellsEmpty()) {
+                    update(hasShot, true, readyToShoot);
+                    return;
+                } else {
+                    if (queue.isEmpty()) {
+                        // auto fire case
+                        indexerState.moveToNearest(BallColor.Any, false);
+                    } else {
+                        indexerState.moveToNearest(getFrontQueue(), false);
+                    }
+                }
+            }
+            if (!isIntaking && indexerState.atPosition && readyToShoot) {
+                setIndexerToShooterPower(Constants.Indexer.transferPower);
+            } else {
+                setIndexerToShooterPower(0);
+            }
+        }
+
+        // spin transfer wheel
+        indexerState.update();
+    }
+
+    public void update(boolean isIntaking, boolean readyToShootMotors, boolean manualShootButton) {
         if (manualShootButton && readyToShootMotors && !started) {
             started = true;
         }

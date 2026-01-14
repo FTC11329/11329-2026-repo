@@ -81,3 +81,9 @@ Key responsibilities:
 - Add integration testing for new state logic using simulated inputs
 - Improve separation between hardware abstraction and control logic
 - Unify configuration and tuning parameters across subsystems
+
+## Detailed Documentation (Where you should go next)
+
+- [Shooter Subsystem](docs/shooter.md)
+- [Shooter Interpolation](docs/shooter-interpolation.md)
+- [Robot Coordination Layer](docs/robot-coordination.md)

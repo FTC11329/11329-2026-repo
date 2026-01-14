@@ -32,7 +32,7 @@ public class Robot {
     public IndexerLogic indexer;
     public Shooter shooter;
     public Follower follower;
-    private Drivetrain drivetrain;
+    public Drivetrain drivetrain;
     public RobotSide robotSide;
 
 
@@ -118,7 +118,7 @@ public class Robot {
 
     // SHOOTER*************************************************************************************~
     public boolean readyToShoot() {
-        return inShootingZone();
+        return inShootingZone() && readyToShootMotors();
     }
 
     public boolean readyToShootMotors() {
@@ -298,11 +298,15 @@ public class Robot {
     }
 
     // for auto
-    public void spindexerUpdate(boolean hasShotButton, boolean shootButton) {
-        indexer.update(hasShotButton, isIntaking, readyToShootMotors(), inShootingZone(), shootButton);
+    public void spindexerUpdate(boolean hasShotButton, boolean shootButton, boolean autoShoot) {
+        if (autoShoot) {
+            indexer.updateAutoShoot(hasShotButton, isIntaking, readyToShoot());
+        } else {
+            indexer.update(isIntaking, readyToShootMotors(), shootButton);
+        }
     }
     public void spindexerUpdate(boolean shootButton) {
-        spindexerUpdate(shooter.hasShot(), shootButton);
+        spindexerUpdate(shooter.hasShot(), shootButton, false);
     }
 
     // TELE-OP*************************************************************************************~
@@ -334,7 +338,6 @@ public class Robot {
     public void update() {
         update(false, false);
     }
-    double deleteMe = System.currentTimeMillis();
     public void update(boolean debug, boolean shootButton) {
         shooterUpdate();
         intakeUpdate();
@@ -445,7 +448,6 @@ public class Robot {
         panelsTelemetry.addData("desired velocity", indexer.indexerState.pidfController.getDesiredVelocity());
         panelsTelemetry.addData("PID power", indexer.indexerState.getPower());
         telemetry.addData("average time to hit target ms", indexer.indexerState.avgTimeSec);
-        deleteMe = System.currentTimeMillis();
         panelsTelemetry.addData("Turret Degrees", turret.getAngle());
         panelsTelemetry.addData("Turret Ticks  ", turret.getTicks());
         panelsTelemetry.addData("Turret Tar Deg", turret.turretPID.getTargetPosition());
