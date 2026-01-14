@@ -27,10 +27,10 @@ import java.util.ArrayList;
 
 public class Robot {
     private Intake intake;
-    private Turret turret;
+    public Turret turret;
     private Vision vision;
-    private IndexerLogic indexer;
-    private Shooter shooter;
+    public IndexerLogic indexer;
+    public Shooter shooter;
     public Follower follower;
     private Drivetrain drivetrain;
     public RobotSide robotSide;

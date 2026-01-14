@@ -2,9 +2,7 @@
 
 ## Context
 
-This codebase was developed for FTC competition robots operating under strict real-time,
-hardware, and match-time constraints. The system prioritizes reliability, fast iteration during events, 
-and predictable behavior over theoretical optimality.
+This codebase was developed for FTC competition robots operating under strict real-time, hardware, and match-time constraints. The system prioritizes reliability, fast iteration during events, and predictable behavior over theoretical optimality.
 
 ## Codebase Structure
 
@@ -51,7 +49,8 @@ Implements closed-loop shooter velocity control using PID feedback combined with
 Key aspects:
 - Controls the 2 servos and motor that comprise the robots shooter
 - Velocity control with feedforward + PID blending
-- Detects if balls have been shot based on the 1st derivative test
+- Detects ball exit events using first-derivative velocity analysis
+
 
 ### Shooter Interpolation Utilities (`util/shooterInterpolation/`)
 
@@ -77,7 +76,6 @@ Key responsibilities:
 - Chose state-machine-based coordination to improve debuggability during competitions
 - Prioritized conservative control tuning over aggressive response to avoid instability under load
 - Reduced the frequency of certain sensor calls, improving loop times, but reducing reaction time
-
 ## Future Improvements
 
 - Add integration testing for new state logic using simulated inputs
