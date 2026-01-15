@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.modularAutos.CommonPoses;
 import org.firstinspires.ftc.teamcode.pedroPathing.Drawing;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
+import org.firstinspires.ftc.teamcode.pedroPathing.math.Vector;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.FieldShapes;
@@ -203,20 +204,64 @@ public class Robot {
         shooter.setTargetRPM(set);
     }
 
-    public void prepareTurret() {
-        Pose curPose = getCurrentPose();
+    public void calculateIdealShot(double rpmOffset, double hoodAngleOffset) {
+        double g = 386.09;
+
+        // Gets current Pose
+        Pose curPose = follower.getCenterOfShooterPose();
+
+        // Gets goal Pose
         if (robotSide == RobotSide.Blue)  {
             goal = Constants.Vision.blueGoal;
         } else {
             goal = Constants.Vision.redGoal;
         }
+        goal = goal.plus(offsetPose);
+
+
+        double height = Double.NEGATIVE_INFINITY; // change to target point height
 
         double deltaX = goal.getX() - curPose.getX();
         double deltaY = goal.getY() - curPose.getY();
         double angleToGoal = Math.toDegrees(Math.atan2(deltaY, deltaX));
 
-        // Sets Turret angle
-        turret.setTargetDeg(angleToGoal - Math.toDegrees(curPose.getHeading()));
+        // this is to pass to the feed forward on the turret to offset for the rate of change of the angle to goal
+        angleToGoalVelocity = -((Math.toRadians(angleToGoal - lastAngleToGoal)) / ((System.currentTimeMillis() - lastTimeTurret) * 0.001));
+        angleToGoalVelocity += follower.getAngularVelocity();
+
+        lastAngleToGoal = angleToGoal;
+        lastTimeTurret = System.currentTimeMillis();
+
+        double distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+        double entryAngle = Double.NaN;
+
+        double hoodAngle = clamp(Math.atan(2 * height / distance - Math.tan(entryAngle)), Constants.Shooter.minHoodAngle, Constants.Shooter.maxHoodAngle); //todo make sure atan returns a number
+        double flywheelSpeed = Math.sqrt(g * distance * distance / (2 * Math.pow(Math.cos(hoodAngle), 2) * (distance * Math.tan(hoodAngle) - height)));
+
+        Vector robotVelocity = follower.getVelocity();
+
+        double coordinateTheta = robotVelocity.getTheta() - angleToGoal;
+
+        double parallelComponent = - Math.cos(coordinateTheta) * robotVelocity.getMagnitude();
+        double perpendicularComponent = Math.sin(coordinateTheta) * robotVelocity.getMagnitude();
+
+        double vz = flywheelSpeed * Math.sin(hoodAngle);
+        double time = distance / (flywheelSpeed * Math.cos(hoodAngle));
+        double ivr = distance / time + parallelComponent;
+        double nvr = Math.sqrt(ivr * ivr + perpendicularComponent * perpendicularComponent);
+        double ndr = nvr * time;
+
+        hoodAngle = clamp(Math.atan(vz / nvr), Constants.Shooter.minHoodAngle, Constants.Shooter.maxHoodAngle);
+        flywheelSpeed = Math.sqrt(g * ndr * ndr / (2 * Math.pow(Math.cos(hoodAngle), 2) * (distance * Math.tan(hoodAngle) - height)));
+
+        double turretVelocityOffset = Math.atan(perpendicularComponent / ivr);
+
+        turret.setTargetDeg(angleToGoal + turretVelocityOffset);
+
+        shooter.setHoodDeg(hoodAngleOffset);
+
+        shooter.setTargetRPM(flywheelSpeed * (60 / Constants.Shooter.ticksPerRevolution));
     }
 
     double pictureTime = 0;
