@@ -72,8 +72,8 @@ public class SplineCurve implements Curve {
         for (int i = 0; i < n; i++) {
             xs[i] = controlPoints.get(i).getX();
             ys[i] = controlPoints.get(i).getY();
-            xs[i] = controlVelocities.get(i).getX();
-            ys[i] = controlVelocities.get(i).getY();
+            xv[i] = controlVelocities.get(i).getX();
+            yv[i] = controlVelocities.get(i).getY();
             headings[i] = controlPoints.get(i).getHeading();
             dheadings[i] = controlVelocities.get(i).getHeading();
         }
@@ -120,9 +120,10 @@ public class SplineCurve implements Curve {
     }
 
     public Vector getNormalVector(double t) {
-        double a = getDerivative(t).getTheta();
-        double b = getDerivative(t + 0.0001).getTheta();
-        return new Vector(1, b - a);
+        Vector normal = getDerivative(t);
+        normal.rotateVector(90);
+        normal = normal.normalize();
+        return normal;
     }
 
     // Perform numeric length approximation
@@ -186,7 +187,7 @@ public class SplineCurve implements Curve {
 
     public double getPathCompletion(double t) {
         if (length == 0) return 0;
-        return completionMap.interpolateKey(t) / length;
+        return completionMap.interpolateValue(t) / length;
     }
 
     public double getT(double pathCompletion) {

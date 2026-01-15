@@ -10,6 +10,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.SplineCurve;
 import org.firstinspires.ftc.teamcode.pedroPathing.math.Vector;
+import org.firstinspires.ftc.teamcode.pedroPathing.paths.HeadingInterpolator;
 import org.firstinspires.ftc.teamcode.pedroPathing.paths.Path;
 import org.firstinspires.ftc.teamcode.pedroPathing.paths.PathChain;
 
@@ -53,6 +54,8 @@ public class AutoReplayTime {
     GamepadStateEntry lastGamePad1;
     GamepadStateEntry lastGamePad2;
     SplineCurve splineCurve;
+
+    HeadingInterpolator.PiecewiseNode[] nodes;
     int logPointer = 0;
 
     public AutoReplayTime(Follower follower, Telemetry telemetry, Gamepad gamepad1, Gamepad gamepad2) {
@@ -211,7 +214,9 @@ public class AutoReplayTime {
                 loadPoses();
                 createPathSpline();
                 currentGamepadIndex = 0;
-                follower.followPath(new Path(splineCurve));
+                Path newPath = new Path(splineCurve);
+                newPath.setCustomHeadingInterpolation(nodes);
+                follower.followPath(newPath);
             }
             if (replay.isOn){
                 double currentTime = replay.time.seconds();
@@ -236,10 +241,12 @@ public class AutoReplayTime {
         double[] x = new double[n];
         double[] y = new double[n];
         double[] theta = new double[n];
-
+        nodes = new HeadingInterpolator.PiecewiseNode[n - 1];
         List<Pose> points = new ArrayList<>();
         List<Pose> velocities = new ArrayList<>();
         List<Double> times = new ArrayList<>();
+
+        double totalTime = currentReplayStates.timeListPose.get(n - 1);
 
         for (int i = 0; i < n; i += 1){
             points.add(new Pose(currentReplayStates.poseList.get(i).x, currentReplayStates.poseList.get(i).y, currentReplayStates.poseList.get(i).heading));
@@ -253,6 +260,8 @@ public class AutoReplayTime {
         for (int i = 1; i < n; i += 1){
             double dt = t[i - 1] - t[i];
             velocities.add(new Pose((x[i - 1] - x[i]) / dt, (y[i - 1] - y[i]) / dt, (theta[i - 1] - theta[i]) / dt));
+            HeadingInterpolator interpolator = HeadingInterpolator.linear(theta[i - 1], theta[i]);
+            nodes[i - 1] = new HeadingInterpolator.PiecewiseNode(t[i - 1], t[i], interpolator);
         }
         splineCurve = new SplineCurve(points, velocities, times);
     }

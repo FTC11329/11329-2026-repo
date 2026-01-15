@@ -61,9 +61,13 @@ public class AutoReplayTeleop {
     double lastTime;
     public double hoodAngle = 20;
     public double rpm = 3000;
+
+    public double hoodAngleOffset = 0;
+    public double rpmOffset = 0;
     public Pose startPose;
 
     public void init() {
+
 
         EndValuesStorer endValuesStorer = new EndValuesStorer();
         EndValuesStorer.EndValues endValues = endValuesStorer.loadEndValues();
@@ -71,9 +75,8 @@ public class AutoReplayTeleop {
         int startIndexerTicks = endValues.indexerTicks;
         startPose = new Pose(endValues.x, endValues.y, endValues.heading);
 
-        robot = new Robot(telemetry, hardwareMap, robotSide, startTurretTicks, startIndexerTicks);
+        robot = new Robot(telemetry, hardwareMap, robotSide, 0, 0);
         autoReplay = new AutoReplayTime(robot.follower, telemetry, gamepadInfo1, gamepadInfo2);
-        autoReplay.init();
         autoReplay.init();
 
         intake = new FancyButton(FancyButton.PressType.Toggle);
@@ -82,6 +85,8 @@ public class AutoReplayTeleop {
         queueGreen = new FancyButton(FancyButton.PressType.LongPress);
         queuePurple = new FancyButton(FancyButton.PressType.LongPress);
         autoShoot = new FancyButton(FancyButton.PressType.Toggle);
+        smartShoot = new FancyButton(FancyButton.PressType.Toggle);
+        fastShootButton = new FancyButton(FancyButton.PressType.LongPress);
 
         overrideShootPosition = new FancyButton(FancyButton.PressType.LongPress);
         panicShoot = new FancyButton(FancyButton.PressType.Toggle);
@@ -94,8 +99,6 @@ public class AutoReplayTeleop {
         movePoseDown = new FancyButton(FancyButton.PressType.LongPress);
         movePoseLeft = new FancyButton(FancyButton.PressType.LongPress);
         movePoseRight = new FancyButton(FancyButton.PressType.LongPress);
-        smartShoot = new FancyButton(FancyButton.PressType.Toggle);
-        fastShootButton = new FancyButton(FancyButton.PressType.LongPress);
 
         deleteme = new FancyButton(FancyButton.PressType.Toggle);
 
@@ -143,9 +146,9 @@ public class AutoReplayTeleop {
 
         // queueGreen.checkStatus(gamepad2.y); // Press to queue green
         // queuePurple.checkStatus(gamepad2.x); // Press to queue purple
-        autoShoot.checkStatus(gamepad1.a); // Toggle to turn on auto shoot
+        autoShoot.checkStatus(gamepad1.x); // Toggle to turn on auto shoot
         smartShoot.checkStatus(gamepad2.b); // Toggle to turn on smart shoot
-        fastShootButton.checkStatus(gamepad2.right_bumper); // Toggle to turn on smart shoot
+        fastShootButton.checkStatus(gamepad1.b); // Toggle to turn on smart shoot
 
         overrideShootPosition.checkStatus(gamepad2.back); // hold to turn on ignore position
         panicShoot.checkStatus(gamepad2.ps); // toggle to turn on panic shoot mode
@@ -196,7 +199,7 @@ public class AutoReplayTeleop {
 
 
         if (autoShoot.isOn) {
-            robot.prepareShooter();
+            robot.prepareShooter(rpmOffset, hoodAngleOffset);
         } else if (autoShoot.endPress) {
             robot.casualShooterModeOn();
         }
@@ -206,44 +209,57 @@ public class AutoReplayTeleop {
             robot.indexer.setSmartShootBool(false);
         }
         // Changing our aim
-        if (robotSide == RobotSide.Blue) {
-            if (movePoseUp.startPress) {
-                robot.offsetPose.addY(1);
-                robot.offsetPose.addX(1);
-            }
-            if (movePoseDown.startPress) {
-                robot.offsetPose.addY(-1);
-                robot.offsetPose.addX(-1);
-            }
-            if (movePoseLeft.startPress) {
-                robot.offsetPose.addY(1);
-                robot.offsetPose.addX(-1);
-            }
-            if (movePoseRight.startPress) {
-                robot.offsetPose.addY(-1);
-                robot.offsetPose.addX(1);
-            }
-        } else {
-            if (movePoseUp.startPress) {
-                robot.offsetPose.addY(-1);
-                robot.offsetPose.addX(1);
-            }
-            if (movePoseDown.startPress) {
-                robot.offsetPose.addY(1);
-                robot.offsetPose.addX(-1);
-            }
-            if (movePoseLeft.startPress) {
-                robot.offsetPose.addY(1);
-                robot.offsetPose.addX(1);
-            }
-            if (movePoseRight.startPress) {
-                robot.offsetPose.addY(-1);
-                robot.offsetPose.addX(-1);
-            }
-            if (resetPose.startPress) {
-                robot.offsetPose = new Pose(0,0,0);
-            }
+//        if (robotSide == RobotSide.Blue) {
+//            if (movePoseUp.startPress) {
+//                robot.offsetPose.addY(1);
+//                robot.offsetPose.addX(1);
+//            }
+//            if (movePoseDown.startPress) {
+//                robot.offsetPose.addY(-1);
+//                robot.offsetPose.addX(-1);
+//            }
+//            if (movePoseLeft.startPress) {
+//                robot.offsetPose.addY(1);
+//                robot.offsetPose.addX(-1);
+//            }
+//            if (movePoseRight.startPress) {
+//                robot.offsetPose.addY(-1);
+//                robot.offsetPose.addX(1);
+//            }
+//        } else {
+//            if (movePoseUp.startPress) {
+//                robot.offsetPose.addY(-1);
+//                robot.offsetPose.addX(1);
+//            }
+//            if (movePoseDown.startPress) {
+//                robot.offsetPose.addY(1);
+//                robot.offsetPose.addX(-1);
+//            }
+//            if (movePoseLeft.startPress) {
+//                robot.offsetPose.addY(1);
+//                robot.offsetPose.addX(1);
+//            }
+//            if (movePoseRight.startPress) {
+//                robot.offsetPose.addY(-1);
+//                robot.offsetPose.addX(-1);
+//            }
+//            if (resetPose.startPress) {
+//                robot.offsetPose = new Pose(0,0,0);
+//            }
+//        }
+        if (movePoseUp.startPress) {
+            hoodAngleOffset += 2;
         }
+        if (movePoseDown.startPress) {
+            hoodAngleOffset -= 2;
+        }
+        if (movePoseLeft.startPress) {
+            rpmOffset -= 20;
+        }
+        if (movePoseRight.startPress) {
+            rpmOffset += 20;
+        }
+
         robot.update(debug.isOn, fastShootButton.startPress);
 
     }

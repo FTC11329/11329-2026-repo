@@ -67,6 +67,10 @@ public class Path {
         this.headingInterpolator = HeadingInterpolator.linear(startHeading, endHeading);
     }
 
+    public void setCustomHeadingInterpolation(HeadingInterpolator.PiecewiseNode[] nodes) {
+        this.headingInterpolator = HeadingInterpolator.piecewise(nodes);
+    }
+
     /**
      * This sets the heading interpolation to linear with a specified start heading and end heading
      * for the Path. This will interpolate from the start of the Path to the specified end time.
