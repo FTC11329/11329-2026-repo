@@ -21,7 +21,7 @@ apply plugin: 'com.android.application'
 
 android {
 
-    compileSdk 34
+    compileSdkVersion 34
 
     signingConfigs {
         release {
@@ -114,3 +114,4 @@ android {
 
 repositories {
 }
+

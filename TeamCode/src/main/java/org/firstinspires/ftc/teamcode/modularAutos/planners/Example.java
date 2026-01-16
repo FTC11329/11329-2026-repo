@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.modularAutos.planners;
 
-import org.firstinspires.ftc.teamcode.modularAutos.CommonPoses;
 import org.firstinspires.ftc.teamcode.modularAutos.PathPlanner;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.paths.Path;

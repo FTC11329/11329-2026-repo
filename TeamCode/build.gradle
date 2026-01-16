@@ -12,21 +12,8 @@
 // Custom definitions may go here
 
 // Include common definitions from above.
-buildscript {
-    repositories {
-        mavenCentral()
-        maven {
-            url "https://repo.dairy.foundation/releases"
-        }
-    }
-    dependencies {
-        classpath "dev.frozenmilk:Load:0.2.4"
-    }
-}
-
 apply from: '../build.common.gradle'
 apply from: '../build.dependencies.gradle'
-apply plugin: 'dev.frozenmilk.sinister.sloth.load'
 
 android {
     namespace = 'org.firstinspires.ftc.teamcode'
@@ -42,26 +29,8 @@ android {
     }
 }
 
-repositories {
-    // Dairy releases repository
-    maven {
-        url = "https://repo.dairy.foundation/releases"
-    }
-    // Dairy snapshots repository
-    maven {
-        url = "https://repo.dairy.foundation/snapshots"
-    }
-}
-
 dependencies {
     implementation project(':FtcRobotController')
-
-    annotationProcessor files('lib/OpModeAnnotationProcessor.jar')
-
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.7'
-
-    implementation 'dev.frozenmilk.sinister:Sloth:0.2.4'
-
     implementation 'com.bylazar:fullpanels:1.0.12'
     implementation 'com.bylazar:graph:1.0.4'
     implementation 'com.bylazar:limelightproxy:1.0.4'
