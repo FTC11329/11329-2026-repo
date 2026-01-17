@@ -27,8 +27,8 @@ public class EndValuesStorer {
     // ---------------------------------------------------------
     // Save end-of-auto values to JSON
     // ---------------------------------------------------------
-    public void saveEndValues(double robotX, double robotY, double robotHeading, int turretTicks, int indexerTicks) {
-        EndValues values = new EndValues(robotX, robotY, robotHeading, turretTicks, indexerTicks);
+    public void saveEndValues(double robotX, double robotY, double robotHeading, int turretTicks, double indexerPos) {
+        EndValues values = new EndValues(robotX, robotY, robotHeading, turretTicks, indexerPos);
 
         try (FileWriter writer = new FileWriter(getFile())) {
             gson.toJson(values, writer);
@@ -62,14 +62,14 @@ public class EndValuesStorer {
         public double y;
         public double heading;
         public int turretTicks;
-        public int indexerTicks;
+        public double indexerPos;
 
-        public EndValues(double x, double y, double heading, int turretTicks, int indexerTicks) {
+        public EndValues(double x, double y, double heading, int turretTicks, double indexerPos) {
             this.x = x;
             this.y = y;
             this.heading = heading;
             this.turretTicks = turretTicks;
-            this.indexerTicks = indexerTicks;
+            this.indexerPos = indexerPos;
         }
     }
 }

@@ -51,11 +51,12 @@ public class FromStartClosePosition {
                     break;
                 case 1:
                     if (robot.follower.getPose().getX() < 48) {
+                        robot.indexer.shootAll();
                         setPathState(2);
                     }
                     break;
                 case 2:
-                    if (robot.indexer.indexerState.unload() && robot.follower.getCurrentTValue() > 0.75) {
+                    if (robot.indexer.isHasBallsEmpty() && robot.follower.getCurrentTValue() > 0.75) {
                         isFinished = true;
                     }
                     break;

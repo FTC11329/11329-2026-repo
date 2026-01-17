@@ -72,7 +72,7 @@ public class AutoReplayTeleop {
         EndValuesStorer endValuesStorer = new EndValuesStorer();
         EndValuesStorer.EndValues endValues = endValuesStorer.loadEndValues();
         int startTurretTicks = endValues.turretTicks;
-        int startIndexerTicks = endValues.indexerTicks;
+        double startIndexerTicks = endValues.indexerPos;
         startPose = new Pose(endValues.x, endValues.y, endValues.heading);
 
         robot = new Robot(telemetry, hardwareMap, robotSide, 0, 0);
@@ -203,11 +203,11 @@ public class AutoReplayTeleop {
         } else if (autoShoot.endPress) {
             robot.casualShooterModeOn();
         }
-        if (smartShoot.startPress) {
-            robot.indexer.setSmartShootBool(true);
-        } else if (smartShoot.endPress) {
-            robot.indexer.setSmartShootBool(false);
-        }
+//        if (smartShoot.startPress) {
+//            robot.indexer.setSmartShootBool(true);
+//        } else if (smartShoot.endPress) {
+//            robot.indexer.setSmartShootBool(false);
+//        }
         // Changing our aim
 //        if (robotSide == RobotSide.Blue) {
 //            if (movePoseUp.startPress) {
@@ -260,7 +260,7 @@ public class AutoReplayTeleop {
             rpmOffset += 20;
         }
 
-        robot.update(debug.isOn, fastShootButton.startPress);
+        robot.update(debug.isOn);
 
     }
     public void stop() {

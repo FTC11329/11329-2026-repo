@@ -5,7 +5,9 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcontroller.external.samples.ConceptAprilTag;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+import org.firstinspires.ftc.teamcode.Constants;
 
 public class Intake {
     // declaring motor variables
@@ -19,6 +21,10 @@ public class Intake {
         intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         intakeMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         intakeMotor.setCurrentAlert(3, CurrentUnit.AMPS);
+    }
+
+    public void intake(boolean set) {
+        setIntakePower(set ? Constants.Intake.intakePower : 0);
     }
 
     public void setIntakePower(double set) {

@@ -169,11 +169,6 @@ public class TestingShooterValues {
         } else if (autoShoot.endPress) {
             robot.shooter.casualModeOn();
         }
-        if (smartShoot.startPress) {
-            robot.indexer.setSmartShootBool(true);
-        } else if (smartShoot.endPress) {
-            robot.indexer.setSmartShootBool(false);
-        }
 
         if (moveHoodUp.startPress) {
             hoodAngleOffset += 1;
@@ -191,7 +186,7 @@ public class TestingShooterValues {
         telemetry.addData("RPM offset", rpmOffset);
         telemetry.addData("Hood offset", hoodAngleOffset);
 
-        robot.update(debug.isOn, fastShootButton.startPress);
+        robot.update(debug.isOn);
 
     }
 

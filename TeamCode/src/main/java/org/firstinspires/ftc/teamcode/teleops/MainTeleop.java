@@ -66,7 +66,7 @@ public class MainTeleop {
         EndValuesStorer endValuesStorer = new EndValuesStorer();
         EndValuesStorer.EndValues endValues = endValuesStorer.loadEndValues();
         int startTurretTicks = endValues.turretTicks;
-        int startIndexerTicks = endValues.indexerTicks;
+        double startIndexerTicks = endValues.indexerPos;
         startPose = new Pose(endValues.x, endValues.y, endValues.heading);
 
         robot = new Robot(telemetry, hardwareMap, robotSide, startTurretTicks, startIndexerTicks);
@@ -180,16 +180,14 @@ public class MainTeleop {
             robot.qBall(BallColor.Green);
         }
 
+        if (fastShootButton.startPress) {
+            robot.shootAll();
+        }
 
         if (autoShoot.isOn) {
             robot.prepareShooter(rpmOffset, hoodAngleOffset);
         } else if (autoShoot.endPress) {
             robot.casualShooterModeOn();
-        }
-        if (smartShoot.startPress) {
-            robot.indexer.setSmartShootBool(true);
-        } else if (smartShoot.endPress) {
-            robot.indexer.setSmartShootBool(false);
         }
          // Changing our aim
 //        if (robotSide == RobotSide.Blue) {
@@ -243,7 +241,7 @@ public class MainTeleop {
             rpmOffset += 20;
         }
 
-        robot.update(debug.isOn, fastShootButton.startPress);
+        robot.update(debug.isOn);
 
 //        for (BallColor i : robot.indexer.indexerState.getBallCells()) {
 //            telemetry.addData("BALLER", i);

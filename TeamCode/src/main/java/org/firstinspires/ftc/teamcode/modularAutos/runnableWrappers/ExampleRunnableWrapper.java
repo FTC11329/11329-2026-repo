@@ -106,6 +106,6 @@ public class ExampleRunnableWrapper extends OpMode {
     @Override
     public void stop() {
         EndValuesStorer endValuesStorer = new EndValuesStorer();
-        endValuesStorer.saveEndValues(robot.getCurrentPose().getX(), robot.getCurrentPose().getY(), robot.getCurrentPose().getHeading(), robot.turret.getTicks(), robot.indexer.indexerState.getEncoderTicks());
+        endValuesStorer.saveEndValues(robot.getCurrentPose().getX(), robot.getCurrentPose().getY(), robot.getCurrentPose().getHeading(), robot.turret.getTicks(), robot.indexer.getEncoderPercentage());
     }
 }
