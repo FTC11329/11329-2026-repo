@@ -105,6 +105,7 @@ public class Shooter {
         return shooterPID.getError() - Constants.Shooter.closeEnoughRPM < 0;
     }
 
+    public boolean getUsePID() {return usePID;}
     // targetRPM is in ticks/sec
     public void setTargetRPM(double targetRPM) {
         usePID = true;

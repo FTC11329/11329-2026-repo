@@ -123,7 +123,7 @@ public class Robot {
     }
 
     public boolean readyToShootMotors() {
-        return shooter.closeEnoughToTarget() && turret.closeEnoughToTarget(getCurrentPose()) && shooter.getRPM() > 100;
+        return shooter.closeEnoughToTarget() && turret.closeEnoughToTarget(getCurrentPose()) && shooter.getRPM() > 100 && shooter.getUsePID();
     }
 
 
@@ -346,7 +346,7 @@ public class Robot {
         indexer.shootAll();
     }
     public void spindexerUpdate() {
-        indexer.update(isIntaking);
+        indexer.update(isIntaking, readyToShootMotors());
     }
 
     // TELE-OP*************************************************************************************~
@@ -385,6 +385,12 @@ public class Robot {
         turretUpdate();
         follower.update();
 
+        telemetry.addData("color at intake", indexer.getColor());
+        telemetry.addData("target index", indexer.currentIndexerState);
+        telemetry.addData("at position", indexer.isAtPosition());
+        telemetry.addData("percent of rotation", indexer.getEncoderPercentage());
+        telemetry.addData("RPM", shooter.getRPM());
+        telemetry.addData("ready to shoot", readyToShootMotors());
         if (debug) {
             debug();
             telemetry.update();

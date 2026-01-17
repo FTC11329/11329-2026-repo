@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
+import org.firstinspires.ftc.teamcode.subsystems.Robot;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.subsystems.SmartIndexerButEvenNewer;
 import org.firstinspires.ftc.teamcode.util.BallColor;
@@ -42,7 +43,7 @@ public class SmartIndexerTester extends OpMode {
         intake.intake(intaking.isOn);
 
         shooter.update();
-        smartIndexer.update(intaking.isOn);
+        smartIndexer.update(intaking.isOn, true);
         telemetry.addData("target enum", smartIndexer.currentIndexerState);
         telemetry.addData("target percent", smartIndexer.convertEnumToPercentOfRot(smartIndexer.currentIndexerState));
         telemetry.addData("target percent act", smartIndexer.lastIndexerPos);

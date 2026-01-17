@@ -102,6 +102,7 @@ public class SmartIndexerButEvenNewer {
     public double getDistance(){
         return colorSensor.getDistance(DistanceUnit.INCH);
     }
+
     public BallColor getColor(){
         return ColorFunctions.toColor(getColorRGBA(), getDistance());
     }
@@ -138,25 +139,25 @@ public class SmartIndexerButEvenNewer {
             case shoot2:
                 return 0.6667;
             case intake0:
-                return 0.5;
-            case intake1:
-                return 0.8333;
-            case intake2:
                 return 0.1667;
+            case intake1:
+                return 0.5;
+            case intake2:
+                return 0.8333;
         }
         throw new RuntimeException("Shouldn't error ever, in the indexer");
     }
 
-    public void setBallCellAtIntakeToRightColor() {
+    public void setBallCellAtIntakeToColor(BallColor ballColor) {
         switch (currentIndexerState) {
             case intake0:
-                ballCells[0] = getColor();
+                ballCells[0] = ballColor;
                 break;
             case intake1:
-                ballCells[1] = getColor();
+                ballCells[1] = ballColor;
                 break;
             case intake2:
-                ballCells[2] = getColor();
+                ballCells[2] = ballColor;
                 break;
             default:
                 throw new RuntimeException("tried to add a ball while not at intake position");
@@ -169,7 +170,7 @@ public class SmartIndexerButEvenNewer {
     }
 
     public double getEncoderPercentage() {
-        return (updatingEncoderPos / 4096.0) + 0.5;
+        return (updatingEncoderPos / 4096.0) + 0.1667;
     }
 
     public boolean isAtPosition() {
@@ -183,18 +184,20 @@ public class SmartIndexerButEvenNewer {
     }
 
 
-    public void update(boolean intakeing) {
+    public void update(boolean intaking, boolean readyToShoot) {
         updatingEncoderPos = encoder.getCurrentPosition(); //updates this variable on tick so we are not calling multiple times in one tick
 
-        if (startShooting && isAtPosition()) {
+        if (startShooting && readyToShoot) { 
             shooting = true; // makes sure things don't run this loop
         }
 
-        BallColor curColor = intakeing && !shooting ? getColor() : BallColor.None;
+        BallColor curColor = intaking && !shooting ? getColor() : BallColor.None;
 
         if (isAtPosition() && !IndexerEnums.isAShootEnum(currentIndexerState) && !shooting && curColor != BallColor.None) {
-            setBallCellAtIntakeToRightColor();
+            setBallCellAtIntakeToColor(curColor);
+
             int nextIndex = IndexerEnums.getIndex(currentIndexerState) + 1;
+
             if (nextIndex <= 2) {
                 setIndexerPos(IndexerEnums.getEnum(nextIndex, true));
             } else {
@@ -203,7 +206,7 @@ public class SmartIndexerButEvenNewer {
         }
 
         // move to highest full index
-        if (startShooting && isAtPosition()) {
+        if (startShooting && readyToShoot) {
             switch (currentIndexerState) {
                 case intake0:
                     // intake 0 goes to shoot 1, 2; intake 0
@@ -255,6 +258,7 @@ public class SmartIndexerButEvenNewer {
             spinTransferWheel(false);
 
         }
+        if (startShooting) {startShooting = false;}
     }
 
     public void stop() {
