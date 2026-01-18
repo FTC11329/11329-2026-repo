@@ -172,14 +172,11 @@ public class Robot {
         lastTimeTurret = System.currentTimeMillis();
 
 
-        for (int i = 0; i <= 3; i++) {
-            // Est Time In Flight for ball at current pose
-            double timeInFlight = stv.get(curPose.distanceFrom(futrGoal)).timeInFlight;
+        // Est Time In Flight for ball at current pose
+        double timeInFlight = stv.get(curPose.distanceFrom(futrGoal)).timeInFlight;
 
-            // Logic for future pose
-            futrGoal = goal.plusVector(follower.getVelocity(), - timeInFlight);
-        }
-
+        // Logic for future pose
+        futrGoal = goal.plusVector(follower.getVelocity(), - timeInFlight);
 
         // Logic for heading to goal
         double deltaXFutr = futrGoal.getX() - curPose.getX();

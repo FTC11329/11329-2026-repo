@@ -139,11 +139,11 @@ public class SmartIndexerButEvenNewer {
             case shoot2:
                 return 0.6667;
             case intake0:
-                return 0.1667;
-            case intake1:
                 return 0.5;
-            case intake2:
+            case intake1:
                 return 0.8333;
+            case intake2:
+                return 0.1667;
         }
         throw new RuntimeException("Shouldn't error ever, in the indexer");
     }
@@ -170,7 +170,7 @@ public class SmartIndexerButEvenNewer {
     }
 
     public double getEncoderPercentage() {
-        return (updatingEncoderPos / 4096.0) + 0.1667;
+        return (updatingEncoderPos / 4096.0) + 0.5;
     }
 
     public boolean isAtPosition() {
