@@ -6,7 +6,7 @@ import com.bylazar.configurables.annotations.Configurable;
 public class ShooterTestValues implements ShooterValuesParent {
     private final ShooterTreeInterpolation shooterMap = new ShooterTreeInterpolation();
 
-    private final double ADDITION = 13; // + shooter farther
+    private final double ADDITION = 0; // + shooter farther
     private final double FAR_ADDITION = 0; // + shooter farther
     public ShooterTestValues() {
         // Distance units must have a consistent unit

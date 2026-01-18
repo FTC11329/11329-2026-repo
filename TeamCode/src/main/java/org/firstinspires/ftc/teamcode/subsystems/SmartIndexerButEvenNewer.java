@@ -14,7 +14,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.ColorFunctions;
-import org.firstinspires.ftc.teamcode.util.IndexerEnums;
+import org.firstinspires.ftc.teamcode.util.IndexerEnumsButEvenNewerThisTime;
 
 public class SmartIndexerButEvenNewer {
 
@@ -27,9 +27,10 @@ public class SmartIndexerButEvenNewer {
     BallColor[] ballCells = new BallColor[3];
     private BallColor transferColor = BallColor.None;
 
-    public IndexerEnums currentIndexerState = IndexerEnums.intake0;
-    public double lastIndexerPos = 0.67676767; // not actually the start pos
+    public IndexerEnumsButEvenNewerThisTime currentIndexerState = IndexerEnumsButEvenNewerThisTime.intake0;
+    public double lastIndexerTarget = 0.676767676767676767676767676767676767676767676767676767676767676767676767676767676767676767676767676767676767;
     double lastTransferPower;
+    double encoderOffsetFromAuto = 0;
     int updatingEncoderPos;
 
     boolean startShooting = false;
@@ -52,7 +53,9 @@ public class SmartIndexerButEvenNewer {
         spindexer2.setPwmRange(new PwmControl.PwmRange(542, 2450));
         spindexer1.setDirection(Servo.Direction.REVERSE);
         spindexer2.setDirection(Servo.Direction.REVERSE);
-        setIndexerPos(IndexerEnums.intake0);
+//        spindexer1.setPosition(0);
+//        spindexer2.setPosition(0);
+        setIndexerPos(IndexerEnumsButEvenNewerThisTime.intake0);
 
 
         feeder = hardwareMap.get(DcMotorEx.class, "transfer");
@@ -63,24 +66,30 @@ public class SmartIndexerButEvenNewer {
         encoder = hardwareMap.get(DcMotorEx.class, "intake");
         encoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         encoder.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        encoderOffsetFromAuto = startIndexerPos;
 
         colorSensor = hardwareMap.get(RevColorSensorV3.class, "spindexerColorSensor");
         this.ballCells = ballCells;
     }
 
+    public void start() {
+        encoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        encoder.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    }
+
     // DO NOT USE THESE FUNCTIONS TO MOVE THE INDEXER DURING NORMAL OPERATION. USE UPDATE() INSTEAD
-    private void setIndexerPos(IndexerEnums indexerEnum) {
+    private void setIndexerPos(IndexerEnumsButEvenNewerThisTime indexerEnum) {
         currentIndexerState = indexerEnum;
-        setIndexerPos(convertEnumToPercentOfRot(indexerEnum));
+        setIndexerPos(IndexerEnumsButEvenNewerThisTime.convertEnumToPercentOfRot(indexerEnum));
     }
     private void setIndexerPos(double set) {
-        if (lastIndexerPos != set) {
-            lastIndexerPos = set;
+        if (lastIndexerTarget != set) {
+            lastIndexerTarget = set;
             spindexer1.setPosition(set);
             spindexer2.setPosition(set);
         }
     }
-    private void setIndexerToShooterPower(double set) {
+    private void setFeederPower(double set) {
         if (lastTransferPower != set) {
             lastTransferPower = set;
             feeder.setPower(set);
@@ -88,7 +97,7 @@ public class SmartIndexerButEvenNewer {
     }
 
     private void spinTransferWheel(boolean set) {
-        setIndexerToShooterPower(set ? Constants.Indexer.transferPower : 0);
+        setFeederPower(set ? Constants.Indexer.transferPower : 0);
     }
 
     public boolean allowIntaking() {
@@ -130,23 +139,6 @@ public class SmartIndexerButEvenNewer {
         ballCells[2] = BallColor.None;
     }
 
-    public double convertEnumToPercentOfRot(IndexerEnums indexerPos) {
-        switch (indexerPos) {
-            case shoot0:
-                return 0;
-            case shoot1:
-                return 0.3333;
-            case shoot2:
-                return 0.6667;
-            case intake0:
-                return 0.5;
-            case intake1:
-                return 0.8333;
-            case intake2:
-                return 0.1667;
-        }
-        throw new RuntimeException("Shouldn't error ever, in the indexer");
-    }
 
     public void setBallCellAtIntakeToColor(BallColor ballColor) {
         switch (currentIndexerState) {
@@ -159,8 +151,10 @@ public class SmartIndexerButEvenNewer {
             case intake2:
                 ballCells[2] = ballColor;
                 break;
+            case intake3:
+                ballCells[0] = ballColor;
             default:
-                throw new RuntimeException("tried to add a ball while not at intake position");
+                throw new RuntimeException("shouldnt error, set ball cells");
 
         }
     }
@@ -170,11 +164,11 @@ public class SmartIndexerButEvenNewer {
     }
 
     public double getEncoderPercentage() {
-        return (updatingEncoderPos / 4096.0) + 0.5;
+        return (updatingEncoderPos / 4096.0) + encoderOffsetFromAuto;
     }
 
     public boolean isAtPosition() {
-        return (Math.abs(getEncoderPercentage() - lastIndexerPos) < 0.02);
+        return (Math.abs(getEncoderPercentage() - lastIndexerTarget) < Constants.Indexer.indexerTolerance);
     }
 
     public void shootAll() {
@@ -187,78 +181,44 @@ public class SmartIndexerButEvenNewer {
     public void update(boolean intaking, boolean readyToShoot) {
         updatingEncoderPos = encoder.getCurrentPosition(); //updates this variable on tick so we are not calling multiple times in one tick
 
-        if (startShooting && readyToShoot) { 
+        if (startShooting && readyToShoot) {
             shooting = true; // makes sure things don't run this loop
         }
 
-        BallColor curColor = intaking && !shooting ? getColor() : BallColor.None;
+        if (intaking && !isHasBallsFull() && isAtPosition() && !shooting) {
+            BallColor curColor = getColor();
 
-        if (isAtPosition() && !IndexerEnums.isAShootEnum(currentIndexerState) && !shooting && curColor != BallColor.None) {
-            setBallCellAtIntakeToColor(curColor);
+            if (curColor != BallColor.None) {
+                // moves and sets ball cells if it sees a color
+                setBallCellAtIntakeToColor(curColor);
 
-            int nextIndex = IndexerEnums.getIndex(currentIndexerState) + 1;
-
-            if (nextIndex <= 2) {
-                setIndexerPos(IndexerEnums.getEnum(nextIndex, true));
-            } else {
-                // out of bounds, meaning ball cells is full
+                int nextIndex = IndexerEnumsButEvenNewerThisTime.getIndex(currentIndexerState) + 1;
+                setIndexerPos(IndexerEnumsButEvenNewerThisTime.getEnum(nextIndex));
             }
         }
 
         // move to highest full index
         if (startShooting && readyToShoot) {
-            switch (currentIndexerState) {
-                case intake0:
-                    // intake 0 goes to shoot 1, 2; intake 0
-                    queuedFirst = 1;
-                    queuedSecond = 2;
-                    break;
-                case intake1:
-                    // intake 1 goes to shoot 0; intake 0
-                    queuedFirst = 3;
-                    queuedSecond = -1;
-                    break;
-                case intake2:
-                    // intake 2 goes to shoot 0 reverse; intake 0
-                    queuedFirst = 3;
-                    queuedSecond = -1;
-                    break;
-
-            }
+            setIndexerPos(IndexerEnumsButEvenNewerThisTime.intake3);
             spinTransferWheel(true);
 
-            if (queuedFirst == 3) {
-                setIndexerPos(1);
-            } else {
-                setIndexerPos(IndexerEnums.getEnum(queuedFirst, false));
-            }
             startShooting = false;
             shooting = true;
         }
 
         // once at highest full index, shoot while going back to intake
         if (shooting && !endShootingNext && isAtPosition()) {
-            if (queuedSecond != -1) {
-                setIndexerPos(IndexerEnums.getEnum(queuedSecond, false));
-            }
+            setIndexerPos(IndexerEnumsButEvenNewerThisTime.intake0);
             endShootingNext = true;
         }
 
-        // once back at intaking, stop shooting
+        // once back at intake, stop shooting
         if (endShootingNext && isAtPosition()) {
-            endShootingNext = false;
-            endShootingNextSecond = true;
-            setIndexerPos(IndexerEnums.intake0);
-        }
-
-        if (endShootingNextSecond && isAtPosition()) {
             clearBallCells();
             shooting = false;
-            endShootingNextSecond = false;
+            endShootingNext = false;
             spinTransferWheel(false);
-
         }
-        if (startShooting) {startShooting = false;}
     }
 
     public void stop() {

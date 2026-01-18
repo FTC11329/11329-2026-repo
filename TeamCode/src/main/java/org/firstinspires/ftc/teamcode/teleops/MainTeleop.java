@@ -118,11 +118,12 @@ public class MainTeleop {
     public void start() {
         robot.follower.setPose(startPose);
         robot.follower.update();
+        robot.start();
     }
 
     public void loop() {
         intake.checkStatus(gamepad1.left_bumper); // Toggle on to intake
-        spitIntake.checkStatus(gamepad2.left_bumper || gamepad1.right_bumper); // Hold to spit
+        spitIntake.checkStatus(gamepad2.left_bumper || gamepad1.right_trigger > .5); // Hold to spit
 
         // queueGreen.checkStatus(gamepad2.y); // Press to queue green
         // queuePurple.checkStatus(gamepad2.x); // Press to queue purple

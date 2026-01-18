@@ -6,12 +6,12 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
-import org.firstinspires.ftc.teamcode.subsystems.Robot;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.subsystems.SmartIndexerButEvenNewer;
 import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.FancyButton;
 import org.firstinspires.ftc.teamcode.util.IndexerEnums;
+import org.firstinspires.ftc.teamcode.util.IndexerEnumsButEvenNewerThisTime;
 
 @TeleOp(name = "SmartIndexerTester", group = "                                                    group")
 public class SmartIndexerTester extends OpMode {
@@ -45,15 +45,14 @@ public class SmartIndexerTester extends OpMode {
         shooter.update();
         smartIndexer.update(intaking.isOn, true);
         telemetry.addData("target enum", smartIndexer.currentIndexerState);
-        telemetry.addData("target percent", smartIndexer.convertEnumToPercentOfRot(smartIndexer.currentIndexerState));
-        telemetry.addData("target percent act", smartIndexer.lastIndexerPos);
+        telemetry.addData("target percent", IndexerEnumsButEvenNewerThisTime.convertEnumToPercentOfRot(smartIndexer.currentIndexerState));
+        telemetry.addData("target percent act", smartIndexer.lastIndexerTarget);
         telemetry.addData("actual percent", smartIndexer.getEncoderPercentage());
         telemetry.addData("color", smartIndexer.getColor());
         for (BallColor i : smartIndexer.getBallCells()) {
             telemetry.addData("ballcells", i);
         }
-        panelsTelemetry.addData("curr", IndexerEnums.getIndex(smartIndexer.currentIndexerState));
-        panelsTelemetry.addData("true", IndexerEnums.isAShootEnum(smartIndexer.currentIndexerState) ? 1 : 0);
+        panelsTelemetry.addData("curr", IndexerEnumsButEvenNewerThisTime.getIndex(smartIndexer.currentIndexerState));
         panelsTelemetry.update();
     }
 }

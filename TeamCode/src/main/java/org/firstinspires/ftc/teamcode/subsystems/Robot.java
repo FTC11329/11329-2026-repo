@@ -16,15 +16,14 @@ import org.firstinspires.ftc.teamcode.pedroPathing.math.Vector;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.FieldShapes;
-import org.firstinspires.ftc.teamcode.util.IndexerLogic;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
 import org.firstinspires.ftc.teamcode.util.ShapeDetection;
 import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterState;
 import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterTestValues;
+import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterValues;
 import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterValuesParent;
-//todo import java.awt.Shape to make the inShootingZone() better 
+//todo import java.awt.Shape to make the inShootingZone() better
 
-import java.util.ArrayList;
 
 public class Robot {
     private Intake intake;
@@ -372,25 +371,32 @@ public class Robot {
     }
 
     // SYSTEM**************************************************************************************~
+    public void start() {
+        indexer.start();
+    }
     public void update() {
         update(false);
     }
     public void update(boolean debug) {
+        long start = System.currentTimeMillis();
         shooterUpdate();
+        long shooter = System.currentTimeMillis();
         intakeUpdate();
+        long intake = System.currentTimeMillis();
         spindexerUpdate();
+        long spindexer = System.currentTimeMillis();
         turretUpdate();
         follower.update();
+        long follower = System.currentTimeMillis();
 
-        telemetry.addData("color at intake", indexer.getColor());
-        telemetry.addData("target index", indexer.currentIndexerState);
-        telemetry.addData("at position", indexer.isAtPosition());
-        telemetry.addData("percent of rotation", indexer.getEncoderPercentage());
-        telemetry.addData("RPM", shooter.getRPM());
-        telemetry.addData("ready to shoot", readyToShootMotors());
+        panelsTelemetry.addData("spindexer", (spindexer - intake) * 1e-3);
+        panelsTelemetry.addData("turret err", (turret.turretPID.getTargetPosition() - turret.getAngle()));
+        panelsTelemetry.addData("turret pos", turret.getAngle());
+        panelsTelemetry.addData("turret pow", turret.turretPID.run());
+        panelsTelemetry.update();
+
         if (debug) {
             debug();
-            telemetry.update();
         }
     }
 
@@ -400,7 +406,7 @@ public class Robot {
         panelsTelemetry.addData("Act Shooter RPM", shooter.getRPM());
         panelsTelemetry.addData("Hood Angle", shooter.getHoodPosDeg());
         panelsTelemetry.addData("turret error", turret.turretPID.getError());
-        panelsTelemetry.addData("spindexer error", Math.abs(indexer.getEncoderPercentage() - indexer.lastIndexerPos));
+        panelsTelemetry.addData("spindexer error", Math.abs(indexer.getEncoderPercentage() - indexer.lastIndexerTarget));
         Drawing.drawShapesDebug(follower);
 
         long now = System.currentTimeMillis();
@@ -469,7 +475,7 @@ public class Robot {
         panelsTelemetry.addData("target rpm", shooter.getTargetRpm());
         panelsTelemetry.addData("actual rpm", shooter.getRPM());
         panelsTelemetry.update();
-        panelsTelemetry.addData("target ticks", indexer.lastIndexerPos);
+        panelsTelemetry.addData("target ticks", indexer.lastIndexerTarget);
         panelsTelemetry.addData("is at position", indexer.isAtPosition());
         panelsTelemetry.addData("indexer state", indexer.currentIndexerState);
         panelsTelemetry.addData("Turret Degrees", turret.getAngle());

@@ -21,6 +21,10 @@ public class MainTeleopBlue extends OpMode {
     }
 
     @Override
+    public void start() {
+        mainTeleop.start();
+    }
+    @Override
     public void loop() {
         mainTeleop.loop();
     }
