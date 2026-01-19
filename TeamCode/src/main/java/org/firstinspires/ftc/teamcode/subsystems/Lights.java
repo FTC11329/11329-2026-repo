@@ -90,7 +90,7 @@ public class Lights {
         prism.insertAndUpdateAnimation(lastHighestNoneIndex, ballCellsAnimation[lastHighestNoneIndex]);
 
         loopNumber ++;
-        lastBallColors = ballColor;
+        lastBallColors = Arrays.copyOf(ballColor, ballColor.length);
     }
     public void setColororsmthidk() {
         if (!debounce) {
