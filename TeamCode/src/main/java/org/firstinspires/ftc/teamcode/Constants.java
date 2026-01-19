@@ -54,6 +54,7 @@ public class Constants {
     public static class Intake {
         public static double intakePower = 1;
         public static double spitPower = -0.67; //67 67 67 67 67 67 67 67 67 67
+        public static double intakeOffPower = 0.09;
         public static double spitTime = 0.3;
     }
 
@@ -117,21 +118,30 @@ public class Constants {
         public static PIDFCoefficients shooterVelocityPID = new PIDFCoefficients(0.0035, 0, 0, 0);
     }
     public static class Color {
-        //hole green 2.05
+//            old values
+//        public static double[] green = {0.0059, 0.0242, 0.0196, 0.947}; //0.311
+//        public static double[] greenFar = {0.0007, 0.0027, 0.0023, 0.1934}; //0.85
+//        public static double[] greenWeird = {0.0029, 0.0121, 0.0101, 0.82}; //0.43
+//        public static double[] greenFakeHole = {0.0015, 0.0067, 0.0054, 0.575}; //0.73
+//
+//        public static double[] purple = {0.0104, 0.013, 0.0276, 0.95}; //0.36
+//        public static double[] purpleFar = {0.0035, 0.0045, 0.0094, 0.689}; //0.64
+//        public static double[] purpleWeird = {0.0018, 0.0023, 0.0049, 0.376}; //0.77
+//
+//        public static double[] none = {0.0003, 0.0007, 0.0006, 0.0187}; //1.97
+        public static double[] green = {0.0269, 0.0792, 0.06, 0.9551}; //0.743
+        public static double[] greenFar = {0.0147, 0.0361, 0.0274, 0.978}; //1.95
+        public static double[] greenWeird = {0.0157, 0.0414, 0.0313, 0.9828}; //4.7
+        public static double[] greenFakeHole = {-1, -1, -1, -1}; //0.0
 
-        public static double[] green = {0.0059, 0.0242, 0.0196, 0.947}; //0.311
-        public static double[] greenFar = {0.0007, 0.0027, 0.0023, 0.1934}; //0.85
-        public static double[] greenWeird = {0.0029, 0.0121, 0.0101, 0.82}; //0.43
-        public static double[] greenFakeHole = {0.0015, 0.0067, 0.0054, 0.575}; //0.73
+        public static double[] purple = {0.062, 0.0719, 0.0898, 0.9973}; //0.48
+        public static double[] purpleFar = {0.0229, 0.0302, 0.0324, 0.9816}; //1.73
+        public static double[] purpleWeird = {0.0666, 0.0763, 0.0966, 0.9976}; //0.62
 
-        public static double[] purple = {0.0104, 0.013, 0.0276, 0.95}; //0.36
-        public static double[] purpleFar = {0.0035, 0.0045, 0.0094, 0.689}; //0.64
-        public static double[] purpleWeird = {0.0018, 0.0023, 0.0049, 0.376}; //0.77
+        public static double[] none = {0.012, 0.0271, 0.02, 0.9622}; //6
+        public static double[] none2 = {-1, -1, -1, -1}; // unused
 
-        public static double[] none = {0.0003, 0.0007, 0.0006, 0.0187}; //1.97
-        public static double[] none2 = {0, 0, 0, 0}; // unused
-
-        public static double backDst = 1;
+        public static double backDst = 2.3;
     }
 
     public static class ShootingZone {

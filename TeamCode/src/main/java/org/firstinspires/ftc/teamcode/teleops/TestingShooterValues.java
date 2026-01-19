@@ -132,7 +132,7 @@ public class TestingShooterValues {
 
 
         if (intake.startPress) {
-            robot.intakeManual();
+            robot.doIntake();
             robot.isIntaking(true);
         }
         if (intake.endPress) {
@@ -146,7 +146,7 @@ public class TestingShooterValues {
         if (spitIntake.endPress) {
             robot.spitIntake(false);
             if (intake.isOn){
-                robot.intakeManual();
+                robot.doIntake();
             } else {
                 robot.stopIntake();
             }

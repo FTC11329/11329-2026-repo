@@ -24,7 +24,10 @@ public class Intake {
     }
 
     public void intake(boolean set) {
-        setIntakePower(set ? Constants.Intake.intakePower : 0);
+        setIntakePower(set ? Constants.Intake.intakePower : Constants.Intake.intakeOffPower);
+    }
+    public void spit(boolean set) {
+        setIntakePower(set ? Constants.Intake.spitPower : Constants.Intake.intakeOffPower);
     }
 
     public void setIntakePower(double set) {

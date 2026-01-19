@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.hardware.ServoImplEx;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Constants;
+import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.ColorFunctions;
 import org.firstinspires.ftc.teamcode.util.IndexerEnumsButEvenNewerThisTime;
@@ -36,12 +37,12 @@ public class SmartIndexerButEvenNewer {
     boolean startShooting = false;
     boolean shooting = false;
     boolean endShootingNext = false;
-    boolean endShootingNextSecond = false;
-    boolean allowIntaking = true;
+    private boolean allowIntaking = true;
+    private boolean doSpit = false;
+    Timer spitTimer = new Timer();
 
-    int queuedFirst = -1;
-    int queuedSecond = -1;
-    int queuedThird = -1;
+    BallColor[] queuedBalls = new BallColor[]{BallColor.None, BallColor.None, BallColor.None};
+
     public SmartIndexerButEvenNewer(HardwareMap hardwareMap) {
         this(hardwareMap, new BallColor[]{BallColor.None, BallColor.None, BallColor.None}, 0);
     }
@@ -53,6 +54,7 @@ public class SmartIndexerButEvenNewer {
         spindexer2.setPwmRange(new PwmControl.PwmRange(542, 2450));
         spindexer1.setDirection(Servo.Direction.REVERSE);
         spindexer2.setDirection(Servo.Direction.REVERSE);
+        spitTimer.resetTimer(10000000);
 //        spindexer1.setPosition(0);
 //        spindexer2.setPosition(0);
         setIndexerPos(IndexerEnumsButEvenNewerThisTime.intake0);
@@ -100,8 +102,12 @@ public class SmartIndexerButEvenNewer {
         setFeederPower(set ? Constants.Indexer.transferPower : 0);
     }
 
+    BallColor[] lastColors = new BallColor[]{BallColor.None, BallColor.None, BallColor.None};
     public boolean allowIntaking() {
         return allowIntaking;
+    }
+    public boolean doSpit() {
+        return doSpit;
     }
 
     public NormalizedRGBA getColorRGBA(){
@@ -177,12 +183,76 @@ public class SmartIndexerButEvenNewer {
         }
     }
 
+    // functions to shoot specific colors *********************************************************~
+
+    public boolean isQueuedBallsFull() {
+        for (BallColor color : queuedBalls) {
+            if (color == BallColor.None) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean isQueuedBallsEmpty() {
+        for (BallColor color : queuedBalls) {
+            if (color != BallColor.None) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // return 3 if it is full
+    public int highestEmptyQueueIndex() {
+        int i = 0;
+        for (BallColor color : queuedBalls) {
+            if (color == BallColor.None) {
+                return i;
+            }
+            i++;
+        }
+        return 3;
+    }
+
+    public void setQueuedBalls(BallColor[] queuedBalls) {
+        this.queuedBalls = queuedBalls;
+    }
+
+    public void addToQueue(BallColor queueBall) {
+        if (!isQueuedBallsFull()) {
+            queuedBalls[highestEmptyQueueIndex()] = queueBall;
+        }
+    }
+
+    public BallColor removeBottomQueue() {
+        if (!isHasBallsEmpty()) {
+            BallColor removedColor = queuedBalls[0];
+
+            int highestFullIndex = highestEmptyQueueIndex() - 1;
+            BallColor[] newList = new BallColor[]{BallColor.None, BallColor.None, BallColor.None};
+
+            for (int i = 0; i < highestFullIndex; i++) {
+                newList[i] = queuedBalls[i+1];
+            }
+            queuedBalls = newList.clone();
+            return removedColor;
+        }
+        return BallColor.None;
+    }
+
+
 
     public void update(boolean intaking, boolean readyToShoot) {
         updatingEncoderPos = encoder.getCurrentPosition(); //updates this variable on tick so we are not calling multiple times in one tick
 
         if (startShooting && readyToShoot) {
             shooting = true; // makes sure things don't run this loop
+        }
+
+        if (spitTimer.getElapsedTimeSeconds() > 0.25) {
+            doSpit = false;
+            spitTimer.resetTimer(10000000);
         }
 
         if (intaking && !isHasBallsFull() && isAtPosition() && !shooting) {
@@ -194,6 +264,11 @@ public class SmartIndexerButEvenNewer {
 
                 int nextIndex = IndexerEnumsButEvenNewerThisTime.getIndex(currentIndexerState) + 1;
                 setIndexerPos(IndexerEnumsButEvenNewerThisTime.getEnum(nextIndex));
+                if (nextIndex == 3) {
+                    allowIntaking = false;
+                    doSpit = true;
+                    spitTimer.resetTimer();
+                }
             }
         }
 
@@ -214,12 +289,15 @@ public class SmartIndexerButEvenNewer {
 
         // once back at intake, stop shooting
         if (endShootingNext && isAtPosition()) {
+            allowIntaking = true;
             clearBallCells();
             shooting = false;
             endShootingNext = false;
             spinTransferWheel(false);
         }
     }
+
+    
 
     public void stop() {
         setIndexerPos(getEncoderPercentage());

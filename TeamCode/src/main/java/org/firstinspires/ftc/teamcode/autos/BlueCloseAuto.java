@@ -131,7 +131,7 @@ public class BlueCloseAuto extends OpMode {
 	public void autonomousPathUpdate() {
 		switch (pathState) {
 			case run:
-				robot.intakeManual();
+				robot.doIntake();
 				prepareToShoot = true;
 				robot.follower.followPath(shootPath1);
 				robot.follower.setMaxPower(shootPower);
@@ -183,7 +183,7 @@ public class BlueCloseAuto extends OpMode {
 				if (pathTimer.getElapsedTimeSeconds() > shootTime) {
 					prepareToShoot = false;
 					shoot = false;
-					robot.intakeManual();
+					robot.doIntake();
 					robot.follower.followPath(secondMovement);
 					robot.follower.setMaxPower(maxPower);
 					setPathState(CloseAutoPhases.moveToIntake2);
@@ -219,7 +219,7 @@ public class BlueCloseAuto extends OpMode {
 				if (pathTimer.getElapsedTimeSeconds() > shootTime) {
 					prepareToShoot = false;
 					shoot = false;
-					robot.intakeManual();
+					robot.doIntake();
 					robot.follower.followPath(thirdMovement);
 					robot.follower.setMaxPower(maxPower);
 					setPathState(CloseAutoPhases.moveToIntake3);
@@ -259,7 +259,7 @@ public class BlueCloseAuto extends OpMode {
 				break;
 			case moveToSTunnel:
 				if (robot.follower.getErrorY(startSTunnelPose) < 1) {
-					robot.intakeManual();
+					robot.doIntake();
 					setPathState(CloseAutoPhases.intakingSTunnel);
 				}
 				break;
@@ -278,7 +278,7 @@ public class BlueCloseAuto extends OpMode {
 			case outtake:
 				if (pathTimer.getElapsedTimeSeconds() > Constants.Intake.spitTime) {
 					shoot = true;
-					robot.intakeManual();
+					robot.doIntake();
 					setPathState(CloseAutoPhases.shoot5);
 				}
 			case shoot5:

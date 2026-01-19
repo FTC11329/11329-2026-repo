@@ -101,7 +101,7 @@ public class BlueFarAuto extends OpMode {
 				if (pathTimer.getElapsedTimeSeconds() > shootTime) {
 					prepareToShoot = false;
 					shoot = false;
-					robot.intakeManual();
+					robot.doIntake();
 					robot.follower.followPath(toWall1);
 					setPathState(FarAutoPhases.intaking1);
 				}
@@ -129,7 +129,7 @@ public class BlueFarAuto extends OpMode {
 				if (pathTimer.getElapsedTimeSeconds() > shootTime) {
 					prepareToShoot = false;
 					shoot = false;
-					robot.intakeManual();
+					robot.doIntake();
 					robot.follower.followPath(secondMovement);
 					robot.follower.setMaxPower(maxPower);
 					setPathState(FarAutoPhases.intaking2);
@@ -157,7 +157,7 @@ public class BlueFarAuto extends OpMode {
 				if (pathTimer.getElapsedTimeSeconds() > shootTime) {
 					prepareToShoot = false;
 					shoot = false;
-					robot.intakeManual();
+					robot.doIntake();
 					robot.follower.followPath(thirdMovement);
 					robot.follower.setMaxPower(maxPower);
 					setPathState(FarAutoPhases.moveToIntake3);

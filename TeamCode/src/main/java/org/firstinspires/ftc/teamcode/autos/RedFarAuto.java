@@ -5,7 +5,6 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
-import org.firstinspires.ftc.teamcode.pedroPathing.math.Vector;
 import org.firstinspires.ftc.teamcode.pedroPathing.paths.Path;
 import org.firstinspires.ftc.teamcode.pedroPathing.paths.PathChain;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
@@ -103,7 +102,7 @@ public class RedFarAuto extends OpMode {
 				if (pathTimer.getElapsedTimeSeconds() > shootTime) {
 					prepareToShoot = false;
 					shoot = false;
-					robot.intakeManual();
+					robot.doIntake();
 					robot.follower.followPath(toWall1);
 					setPathState(FarAutoPhases.intaking1);
 				}
@@ -131,7 +130,7 @@ public class RedFarAuto extends OpMode {
 				if (pathTimer.getElapsedTimeSeconds() > shootTime) {
 					prepareToShoot = false;
 					shoot = false;
-					robot.intakeManual();
+					robot.doIntake();
 					robot.follower.followPath(secondMovement);
 					robot.follower.setMaxPower(maxPower);
 					setPathState(FarAutoPhases.intaking2);
@@ -159,7 +158,7 @@ public class RedFarAuto extends OpMode {
 				if (pathTimer.getElapsedTimeSeconds() > shootTime) {
 					prepareToShoot = false;
 					shoot = false;
-					robot.intakeManual();
+					robot.doIntake();
 					robot.follower.followPath(thirdMovement);
 					robot.follower.setMaxPower(maxPower);
 					setPathState(FarAutoPhases.moveToIntake3);

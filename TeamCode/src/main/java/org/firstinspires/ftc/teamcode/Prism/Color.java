@@ -53,4 +53,8 @@ public class Color {
     public static final Color PINK        = new Color(255, 20,  128);
     public static final Color WHITE       = new Color(255, 255, 255);
     public static final Color TRANSPARENT = new Color(0,   0,   0);
+
+    public static Color dimColor(Color color) {
+        return new Color(color.red/5, color.green/5, color.blue/5);
+    }
 }

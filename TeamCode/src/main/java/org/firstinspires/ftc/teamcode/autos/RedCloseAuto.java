@@ -134,7 +134,7 @@ public class RedCloseAuto extends OpMode {
 	public void autonomousPathUpdate() {
 		switch (pathState) {
 			case run:
-				robot.intakeManual();
+				robot.doIntake();
 				prepareToShoot = true;
 				robot.follower.followPath(shootPath1);
 				usingShootPower = true;
@@ -189,7 +189,7 @@ public class RedCloseAuto extends OpMode {
 				if (pathTimer.getElapsedTimeSeconds() > shootTime) {
 					prepareToShoot = false;
 					shoot = false;
-					robot.intakeManual();
+					robot.doIntake();
 					robot.follower.followPath(secondMovement);
 					usingShootPower = false;
 					robot.follower.setMaxPower(maxPower);
@@ -227,7 +227,7 @@ public class RedCloseAuto extends OpMode {
 				if (pathTimer.getElapsedTimeSeconds() > shootTime) {
 					prepareToShoot = false;
 					shoot = false;
-					robot.intakeManual();
+					robot.doIntake();
 					robot.follower.followPath(thirdMovement);
 					usingShootPower = false;
 					robot.follower.setMaxPower(maxPower);
@@ -268,7 +268,7 @@ public class RedCloseAuto extends OpMode {
 				break;
 			case moveToSTunnel:
 				if (robot.follower.getErrorY(startSTunnelPose) < 1) {
-					robot.intakeManual();
+					robot.doIntake();
 					setPathState(CloseAutoPhases.intakingSTunnel);
 				}
 				break;
@@ -287,7 +287,7 @@ public class RedCloseAuto extends OpMode {
 			case outtake:
 				if (pathTimer.getElapsedTimeSeconds() > Constants.Intake.spitTime) {
 					shoot = true;
-					robot.intakeManual();
+					robot.doIntake();
 					setPathState(CloseAutoPhases.shoot5);
 				}
 			case shoot5:

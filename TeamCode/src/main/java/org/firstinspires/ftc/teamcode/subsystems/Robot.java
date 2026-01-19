@@ -21,8 +21,6 @@ import org.firstinspires.ftc.teamcode.util.ShapeDetection;
 import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterState;
 import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterTestValues;
 import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterValuesParent;
-
-import java.util.Arrays;
 //todo import java.awt.Shape to make the inShootingZone() better
 
 
@@ -46,9 +44,9 @@ public class Robot {
 
     Timer opmodeTimer = new Timer();
 
-    boolean intakeToggle = false;
     boolean spitIntake = false;
     boolean isIntaking = false;
+    boolean intakeOverride = false;
 
     Pose lastCamPose = new Pose(0,0,0);
     // Offset pose to aim for
@@ -284,58 +282,81 @@ public class Robot {
 
 
     // INTAKE SYSTEM*******************************************************************************~
+
+    public void setIntakeOverride(boolean set) {
+        intakeOverride = set;
+    }
+    public void doIntake() {
+        spinIntake();
+    }
+
+    public void spitIntake() {
+        spitIntake(true);
+    }
+    public void spitIntake(boolean set) {
+        spitIntake = set;
+    }
+
+    public void stopIntake() {
+        spinIntake(false);
+    }
     public void spinIntake() {
         spinIntake(true);
     }
     public void spinIntake(boolean set) {
-        if (set) {
-            spitIntake = false;
-        }
-        intakeToggle = set;
+        isIntaking = set;
     }
-    long startSpit = 0L;
-    boolean setTimeOnce = true;
-    boolean autoSpitting = false;
-    long intakeEnableTime = 0L;
-    static final long SPINUP_IGNORE_MS = 300;  // tune 200–400ms
-    private boolean setTimer;
+//    long startSpit = 0L;
+//    boolean setTimeOnce = true;
+//    boolean autoSpitting = false;
+//    long intakeEnableTime = 0L;
+//    static final long SPINUP_IGNORE_MS = 300;  // tune 200–400ms
+//    private boolean setTimer;
 
     public void intakeUpdate() {
-        // intake jam detection
-
-        long now = System.currentTimeMillis();
-        long spitTime = now - startSpit;
-
-        boolean spinupIgnore = (now - intakeEnableTime) < SPINUP_IGNORE_MS;
-        boolean highCurrent = intake.intakeMotor.isOverCurrent();
-
-        if (!spinupIgnore && highCurrent && setTimeOnce) {
-            startSpit = now;
-            setTimeOnce = false;
-            autoSpitting = true;
-            setTimer = false;
-        }
-
-        if (autoSpitting) {
-            // stop after configured spit time
-            if (spitTime >= Constants.Intake.spitTime) {
-                autoSpitting = false;
-                setTimeOnce = true;
-            }
-            return;
-        }
-
-        if (intakeToggle && !spitIntake) {
-            if (!setTimer) {
-                intakeEnableTime = System.currentTimeMillis();
-                setTimer = true;
-            }
-            intake.setIntakePower(Constants.Intake.intakePower);
-        } else if (spitIntake) {
-            intake.setIntakePower(Constants.Intake.spitPower);
+        if (spitIntake || indexer.doSpit()) {
+            intake.spit(true);
+        } else if ((isIntaking && indexer.allowIntaking()) || intakeOverride) {
+            intake.intake(true);
         } else {
-            intake.setIntakePower(0);
+            intake.intake(false);
         }
+        // intake jam detection (commented out because we dont want it)
+
+//        long now = System.currentTimeMillis();
+//        long spitTime = now - startSpit;
+//
+//        boolean spinupIgnore = (now - intakeEnableTime) < SPINUP_IGNORE_MS;
+//        boolean highCurrent = intake.intakeMotor.isOverCurrent();
+//
+//        if (!spinupIgnore && highCurrent && setTimeOnce) {
+//            startSpit = now;
+//            setTimeOnce = false;
+//            autoSpitting = true;
+//            setTimer = false;
+//        }
+//
+//        if (autoSpitting) {
+//             stop after configured spit time
+//            if (spitTime >= Constants.Intake.spitTime) {
+//                autoSpitting = false;
+//                setTimeOnce = true;
+//            }
+//            return;
+//        }
+//
+//        if (intakeToggle && !spitIntake) {
+//            if (!setTimer) {
+//                intakeEnableTime = System.currentTimeMillis();
+//                setTimer = true;
+//            }
+//            intake.setIntakePower(Constants.Intake.intakePower);
+//        } else if (spitIntake) {
+//            intake.setIntakePower(Constants.Intake.spitPower);
+//        } else {
+//            intake.setIntakePower(0);
+//        }
+
     }
 
 
@@ -359,20 +380,7 @@ public class Robot {
     }
 
     // TELE-OP*************************************************************************************~
-    public void intakeManual() {
-        spinIntake();
-    }
 
-    public void spitIntake() {
-        spitIntake(true);
-    }
-    public void spitIntake(boolean set) {
-        spitIntake = set;
-    }
-
-    public void stopIntake() {
-        spinIntake(false);
-    }
     // AUTONOMOUS**********************************************************************************~
 
     public void resetTimers() {
@@ -385,6 +393,7 @@ public class Robot {
 
     // SYSTEM**************************************************************************************~
     public void start() {
+//        lights.setColororsmthidk();
         indexer.start();
     }
     public void update() {
@@ -409,23 +418,20 @@ public class Robot {
             telemetry.addData("BallCell" + i, index);
             i++;
         }
-        BallColor[] test1 = new BallColor[] {BallColor.None, BallColor.None, BallColor.None};
-        BallColor[] test2 = new BallColor[] {BallColor.Green, BallColor.None, BallColor.None};
-        BallColor[] test3 = new BallColor[] {BallColor.Green, BallColor.Purple, BallColor.None};
-        telemetry.addData("test1", Arrays.equals(test1, test2));
-        telemetry.addData("test2", Arrays.equals(test2, test3));
-        for (BallColor d : lights.lastBallColors){
-            telemetry.addData("last", d);
-        }
-        telemetry.addData("loop Number", lights.loopNumber);
 
+        telemetry.addData("indexer r", indexer.getColorRGBA().red);
+        telemetry.addData("indexer g", indexer.getColorRGBA().green);
+        telemetry.addData("indexer b", indexer.getColorRGBA().blue);
+        telemetry.addData("indexer a", indexer.getColorRGBA().alpha);
+        telemetry.addData("indexer col", indexer.getColor());
+        telemetry.addData("indexer dis", indexer.getDistance());
 
-//        panelsTelemetry.addData("shooter", start - shooter);
-//        panelsTelemetry.addData("intake", shooter - intake);
-//        panelsTelemetry.addData("spindexer", intake - spindexer);
-//        panelsTelemetry.addData("turret", spindexer - turret);
-//        panelsTelemetry.addData("follower", turret - follower);
-//        panelsTelemetry.addData("all", follower - lastTime);
+        panelsTelemetry.addData("shooter", start - shooter);
+        panelsTelemetry.addData("intake", shooter - intake);
+        panelsTelemetry.addData("spindexer", intake - spindexer);
+        panelsTelemetry.addData("turret", spindexer - turret);
+        panelsTelemetry.addData("follower", turret - follower);
+        panelsTelemetry.addData("all", follower - lastTime);
         lastTime = System.currentTimeMillis();
 
 

@@ -1,16 +1,12 @@
 package org.firstinspires.ftc.teamcode.teleops;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
-import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.EndValuesStorer;
 import org.firstinspires.ftc.teamcode.util.FancyButton;
@@ -30,6 +26,7 @@ public class MainTeleop {
     FancyButton queuePurple;
 
     FancyButton overrideShootPosition;
+    FancyButton overrideIntake;
     FancyButton panicShoot;
 
     FancyButton debug;
@@ -83,6 +80,7 @@ public class MainTeleop {
         fastShootButton = new FancyButton(FancyButton.PressType.LongPress);
 
         overrideShootPosition = new FancyButton(FancyButton.PressType.LongPress);
+        overrideIntake = new FancyButton(FancyButton.PressType.LongPress);
         panicShoot = new FancyButton(FancyButton.PressType.Toggle);
 
         debug = new FancyButton(FancyButton.PressType.Toggle);
@@ -132,6 +130,7 @@ public class MainTeleop {
         fastShootButton.checkStatus(gamepad1.b); // Toggle to turn on smart shoot
 
         overrideShootPosition.checkStatus(gamepad2.back); // hold to turn on ignore position
+        overrideIntake.checkStatus(gamepad2.back); // hold to turn on ignore position
         panicShoot.checkStatus(gamepad2.ps); // toggle to turn on panic shoot mode
 
         resetPose.checkStatus(gamepad2.y);
@@ -150,25 +149,24 @@ public class MainTeleop {
 
 
         if (intake.startPress) {
-            robot.intakeManual();
-            robot.isIntaking(true);
+            robot.spinIntake(true);
         }
         if (intake.endPress) {
-            robot.stopIntake();
-            robot.isIntaking(false);
+            robot.spinIntake(false);
         }
 
         if (spitIntake.startPress) {
-            robot.spitIntake();
+            robot.spitIntake(true);
         }
         if (spitIntake.endPress) {
             robot.spitIntake(false);
-            if (intake.isOn){
-                robot.intakeManual();
-            } else {
-                robot.stopIntake();
-            }
         }
+        if (intake.isOn){
+            robot.doIntake();
+        } else {
+            robot.stopIntake();
+        }
+        robot.setIntakeOverride(overrideIntake.isOn);
         // Take Photo to set position
         if (takePhoto.isOn) {
             robot.autoSetCurrentPose();
@@ -244,46 +242,12 @@ public class MainTeleop {
 
         robot.update(debug.isOn);
 
-//        for (BallColor i : robot.indexer.indexerState.getBallCells()) {
-//            telemetry.addData("BALLER", i);
-//        }
-
 //        double deltaTime = time.milliseconds() - lastTime;
 //        telemetry.addData("loopTimes", deltaTime);
 //        lastTime = time.milliseconds();
 
-//        telemetry.addData("distance", robot.getCurrentPose().distanceFrom(Constants.Vision.blueGoal));
-//        telemetry.addData("Encoder RPM", robot.shooter.getRPM());
-//        telemetry.addData("Hood angle", robot.shooter.getHoodPosDeg());
 
-        /* //todo implement some type of panic shoot before comp
-        if (!panicShoot.isOn) {
-            if (autoShoot.isOn) {
-                robot.prepareShooter();
-            } else if (autoShoot.endPress){
-                robot.shooter.casualModeOn();
-                if (intake.isOn) {
-                    robot.stopIndexer();
-                }
-            }
-        }
-
-        // Panic shoot mode
-        if (panicShoot.startPress) {
-            // distance 71.6
-            robot.shooter.setTargetRPM(2336);
-            robot.shooter.setHoodDeg(35);
-            robot.turret.setTargetDeg(0);
-        }
-        if (panicShoot.isOn) {
-            if (overrideShootPosition.startPress) {
-                robot.indexer.spinIndexer(true);
-                robot.indexer.transfer(true);
-            } else if (overrideShootPosition.endPress) {
-                robot.stopIndexer();
-            }
-        }
-*/
+        //todo implement some type of panic shoot before comp
     }
 
     public void stop() {
