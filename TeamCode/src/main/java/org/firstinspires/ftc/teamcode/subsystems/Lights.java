@@ -26,7 +26,6 @@ public class Lights {
     boolean debounce = false;
     long hasTurnedRedTime = -1000;
     int loopNumber = 0;
-    boolean loopNumberbutNOtTho = false;
     BallColor[] lastBallColors = new BallColor[] {BallColor.None, BallColor.None, BallColor.None};
 
 
@@ -42,17 +41,7 @@ public class Lights {
         int i = 0;
         prism.clearAllAnimations();
         for (PrismAnimations.Solid cell : ballCellsAnimation) {
-            switch (i) {
-                case 0:
-                    cell0.setPrimaryColor(Color.GREEN);
-                    break;
-                case 1:
-                    cell1.setPrimaryColor(Color.GREEN);
-                    break;
-                case 2:
-                    cell2.setPrimaryColor(Color.GREEN);
-                    break;
-            }
+            cell.setPrimaryColor(Color.TRANSPARENT);
             prism.insertAndUpdateAnimation(i, cell);
             i++;
         }
@@ -64,37 +53,44 @@ public class Lights {
     }
 
     public void setBallColors(BallColor[] ballColor) {
-
         if (Arrays.equals(lastBallColors, ballColor)) {
             return;
         }
 
-        int i = 0;
-        prism.clearAllAnimations();
-        for (PrismAnimations.Solid cell : ballCellsAnimation) {
-            switch (ballColor[i]) {
-                case Purple:
-                    ballCellsAnimation[i].setPrimaryColor(new Color(148, 8, 251));
-                    break;
-                case Green:
-                    ballCellsAnimation[i].setPrimaryColor(new Color(0, 182, 0));
-                    break;
-                case None:
-                    ballCellsAnimation[i].setPrimaryColor(Color.YELLOW);
-                    break;
+        // if empty
+        if (lastBallColors[0] != BallColor.None && ballColor[0] == BallColor.None) {
+            int i = 0;
+            for (PrismAnimations.Solid cell : ballCellsAnimation) {
+                cell.setPrimaryColor(Color.TRANSPARENT);
+                prism.insertAndUpdateAnimation(i, cell);
+                i++;
             }
-            prism.insertAndUpdateAnimation(i, cell);
-            i++;
+            return;
         }
-        // if it just turned full, turn red
-//        if (System.currentTimeMillis() - hasTurnedRedTime > 500) {
-//            prism.insertAndUpdateAnimation(0, bigRed);
-//        for (int i = 0; i < 3; i++) {
-//        }
+
+        int lastHighestNoneIndex = 0;
+        for (int i = 0; i < 3; i++) {
+            if (lastBallColors[i] == BallColor.None) {
+                lastHighestNoneIndex = i;
+                break;
+            }
+        }
+
+        switch (ballColor[lastHighestNoneIndex]) {
+            case Purple:
+                ballCellsAnimation[lastHighestNoneIndex].setPrimaryColor(new Color(148, 8, 251));
+                break;
+            case Green:
+                ballCellsAnimation[lastHighestNoneIndex].setPrimaryColor(new Color(0, 182, 0));
+                break;
+            default:
+                throw new RuntimeException("WHy you empty bro??");
+        }
+
+        prism.insertAndUpdateAnimation(lastHighestNoneIndex, ballCellsAnimation[lastHighestNoneIndex]);
 
         loopNumber ++;
         lastBallColors = ballColor;
-        loopNumber ++;
     }
     public void setColororsmthidk() {
         if (!debounce) {

@@ -418,7 +418,6 @@ public class Robot {
             telemetry.addData("last", d);
         }
         telemetry.addData("loop Number", lights.loopNumber);
-        telemetry.addData("loop Number but not tho", lights.loopNumberbutNOtTho);
 
 
 //        panelsTelemetry.addData("shooter", start - shooter);
