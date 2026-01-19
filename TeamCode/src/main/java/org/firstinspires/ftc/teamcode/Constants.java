@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 public class Constants {
     public static class Indexer {
 
-        public static double indexerTolerance = 200;
+        public static double indexerTolerance = 0.02;
 
         public static double spindexPower = 0.45;
 
@@ -58,8 +58,8 @@ public class Constants {
     }
 
     public static class Vision {
-        public static Pose redGoal = new Pose(70, -70);
-        public static Pose blueGoal = new Pose(70, 70);
+        public static Pose redGoal = new Pose(60, -60);
+        public static Pose blueGoal = new Pose(60, 60);
 
         public static Pose blueReset = new Pose(7.5, 39.7);
         public static Pose redReset = new Pose(7.5, -39.7);
@@ -84,15 +84,18 @@ public class Constants {
 //        public static double P = 0.025;
 //        public static double I = 0.001;
 //        public static double D = 0.001;
-        public static double P = 0.005; //.011
-        public static double I = 0.0;
-        public static double D = 0.00;
-        public static double CCW_F = -0.04;
-        public static double CW_F = 0.11;
-        public static double kV = .095;
+//        public static double P = 0.005; //.011
+        public static double P = 0.01; //.011
+        public static double I = 0;
+        public static double D = 0;
 
-        public static final double cableHangL = 210;
-        public static final double cableHangR = 104;
+
+        public static double CCW_F = -0.045;
+        public static double CW_F = 0.1;
+        public static double kV = .095;
+        public static double kA = .012;
+
+        public static final double cableHangL = 248.8;
 
         public static PIDFCoefficients turretPID = new PIDFCoefficients(P, I, D, 1);
 //        public static double P = 0;

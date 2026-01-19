@@ -63,10 +63,10 @@ public class Turret {
         turretPID.setTargetPosition(robotDeg + Constants.Turret.turretOffset);
     }
 
-    public void update(double angVel) {
+    public void update(double angVel, double angAccel) {
         double curAngle = getAngle();
 
-        if (Math.round(curAngle * 10) == Math.round(turretPID.getTargetPosition() * 10)) {
+        if (Math.abs(curAngle - turretPID.getTargetPosition()) < 0.23) {
             turretPID.updateFeedForwardInput(0);
         } else if (curAngle > turretPID.getTargetPosition()) {
             turretPID.updateFeedForwardInput(Constants.Turret.CCW_F);
@@ -76,11 +76,12 @@ public class Turret {
 
         turretPID.updatePosition(curAngle);  // degrees
         double velocityFF = angVel * Constants.Turret.kV;
-        if (turretPID.getError() > 80) {
-            setPower(Math.signum(turretPID.getError()));
-        } else {
-            setPower(turretPID.run() + velocityFF);
-        }
+        double accelerationFF = angAccel * Constants.Turret.kA;
+//        if (turretPID.getError() > 80) {
+//            setPower(Math.signum(turretPID.getError()));
+//        } else {
+        setPower(turretPID.run() + velocityFF + accelerationFF);
+//        }
     }
 
 

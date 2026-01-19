@@ -25,7 +25,7 @@ public class PrismTest extends LinearOpMode {
         int end = 18;
 
 
-        // Wait for the game to start (driver presses START)
+        // Wait for the game to start (driver presses START)x
         waitForStart();
         resetRuntime();
 

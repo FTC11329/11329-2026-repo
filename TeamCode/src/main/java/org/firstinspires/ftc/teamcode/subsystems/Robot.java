@@ -20,20 +20,22 @@ import org.firstinspires.ftc.teamcode.util.RobotSide;
 import org.firstinspires.ftc.teamcode.util.ShapeDetection;
 import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterState;
 import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterTestValues;
-import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterValues;
 import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterValuesParent;
+
+import java.util.Arrays;
 //todo import java.awt.Shape to make the inShootingZone() better
 
 
 public class Robot {
-    private Intake intake;
     public Turret turret;
+    public Lights lights;
+    private Intake intake;
     private Vision vision;
-    public SmartIndexerButEvenNewer indexer;
     public Shooter shooter;
     public Follower follower;
-    public Drivetrain drivetrain;
     public RobotSide robotSide;
+    public Drivetrain drivetrain;
+    public SmartIndexerButEvenNewer indexer;
 
 
     ShooterTestValues shooterTestValues;
@@ -54,6 +56,8 @@ public class Robot {
     //This is an array of the 3 special colors of the games MOTIF
     public BallColor[] motif = null;
     int thingies = 0;
+    public double previousAngleToGoalVelocity;
+    public double angleToGoalAcceleration;
     Pose goal = new Pose(0,0,0);
     int i = 0;
     long lastTime;
@@ -69,6 +73,7 @@ public class Robot {
         this.telemetry = telemetry;
         this.robotSide = robotSide;
         panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
+        lights = new Lights(hardwareMap);
         intake = new Intake(hardwareMap);
         vision = new Vision(hardwareMap, robotSide);
         indexer = new SmartIndexerButEvenNewer(hardwareMap, ballsInIndexer, startIndexerTicks);
@@ -113,7 +118,7 @@ public class Robot {
 
     double angleToGoalVelocity;
     public void turretUpdate() {
-        turret.update(angleToGoalVelocity);
+        turret.update(angleToGoalVelocity, angleToGoalAcceleration);
     }
 
     // SHOOTER*************************************************************************************~
@@ -164,9 +169,11 @@ public class Robot {
         double angleToGoal = Math.toDegrees(Math.atan2(deltaY, deltaX));
 
         // this is to pass to the feed forward on the turret to offset for the rate of change of the angle to goal
+        previousAngleToGoalVelocity = angleToGoalVelocity;
         angleToGoalVelocity = -((Math.toRadians(angleToGoal - lastAngleToGoal)) / ((System.currentTimeMillis() - lastTimeTurret) * 0.001));
         angleToGoalVelocity += follower.getAngularVelocity();
 
+        angleToGoalAcceleration = (angleToGoalVelocity - previousAngleToGoalVelocity) / ((System.currentTimeMillis() - lastTimeTurret) * 1e-3);
         lastAngleToGoal = angleToGoal;
         lastTimeTurret = System.currentTimeMillis();
 
@@ -178,8 +185,8 @@ public class Robot {
         futrGoal = goal.plusVector(follower.getVelocity(), - timeInFlight);
 
         // Logic for heading to goal
-        double deltaXFutr = futrGoal.getX() - curPose.getX();
-        double deltaYFutr = futrGoal.getY() - curPose.getY();
+        double deltaXFutr = futrGoal.getX() + 10 - curPose.getX();
+        double deltaYFutr = futrGoal.getY() + 5 - curPose.getY();
         double angleToGoalFutr = Math.toDegrees(Math.atan2(deltaYFutr, deltaXFutr));
 
 
@@ -345,6 +352,12 @@ public class Robot {
         indexer.update(isIntaking, readyToShootMotors());
     }
 
+    // LIGHTS**************************************************************************************~
+    public void lightsUpdate() {
+        lights.setBallColors(indexer.getBallCells());
+        lights.update();
+    }
+
     // TELE-OP*************************************************************************************~
     public void intakeManual() {
         spinIntake();
@@ -386,18 +399,49 @@ public class Robot {
         spindexerUpdate();
         long spindexer = System.currentTimeMillis();
         turretUpdate();
+        long turret = System.currentTimeMillis();
         follower.update();
         long follower = System.currentTimeMillis();
+        lightsUpdate();
 
-        panelsTelemetry.addData("spindexer", (spindexer - intake) * 1e-3);
-        panelsTelemetry.addData("turret err", (turret.turretPID.getTargetPosition() - turret.getAngle()));
-        panelsTelemetry.addData("turret pos", turret.getAngle());
-        panelsTelemetry.addData("turret pow", turret.turretPID.run());
-        panelsTelemetry.update();
+        int i = 0;
+        for (BallColor index : indexer.getBallCells()) {
+            telemetry.addData("BallCell" + i, index);
+            i++;
+        }
+        BallColor[] test1 = new BallColor[] {BallColor.None, BallColor.None, BallColor.None};
+        BallColor[] test2 = new BallColor[] {BallColor.Green, BallColor.None, BallColor.None};
+        BallColor[] test3 = new BallColor[] {BallColor.Green, BallColor.Purple, BallColor.None};
+        telemetry.addData("test1", Arrays.equals(test1, test2));
+        telemetry.addData("test2", Arrays.equals(test2, test3));
+        for (BallColor d : lights.lastBallColors){
+            telemetry.addData("last", d);
+        }
+        telemetry.addData("loop Number", lights.loopNumber);
+        telemetry.addData("loop Number but not tho", lights.loopNumberbutNOtTho);
 
+
+//        panelsTelemetry.addData("shooter", start - shooter);
+//        panelsTelemetry.addData("intake", shooter - intake);
+//        panelsTelemetry.addData("spindexer", intake - spindexer);
+//        panelsTelemetry.addData("turret", spindexer - turret);
+//        panelsTelemetry.addData("follower", turret - follower);
+//        panelsTelemetry.addData("all", follower - lastTime);
+        lastTime = System.currentTimeMillis();
+
+
+//        panelsTelemetry.addData("spindexer", (spindexer - intake) * 1e-3);
+//        panelsTelemetry.addData("turret err", (turret.turretPID.getTargetPosition() - turret.getAngle()));
+//        panelsTelemetry.addData("turret pos", turret.getAngle());
+//        panelsTelemetry.addData("turret pow", turret.turretPID.run());
+//        panelsTelemetry.addData("turret Accel", angleToGoalAcceleration);
+//        panelsTelemetry.addData("turret velocity", angleToGoalVelocity);
+//        Drawing.drawShapesDebug(this.follower);
         if (debug) {
             debug();
         }
+        telemetry.update();
+        panelsTelemetry.update();
     }
 
     public void debug() {
@@ -424,8 +468,6 @@ public class Robot {
         panelsTelemetry.addData("sotf", angleToGoalVelocity);
         panelsTelemetry.addData("distance", follower.getCenterOfShooterPose().distanceFrom(goal));
         telemetry.addData("Ready to shoot", readyToShootMotors());
-        panelsTelemetry.update(telemetry);
-
         telemetry.addLine("=== VISION ===");
         telemetry.addData("Motif", motif);
 
@@ -457,7 +499,6 @@ public class Robot {
         }
 
         panelsTelemetry.addData("raw percentage", indexer.getEncoderPercentage());
-        panelsTelemetry.update();
         // PID Telemetry
         int i = 0;
         for (BallColor index : indexer.getBallCells()) {
@@ -474,7 +515,6 @@ public class Robot {
         panelsTelemetry.addData("error", shooter.shooterPID.getError());
         panelsTelemetry.addData("target rpm", shooter.getTargetRpm());
         panelsTelemetry.addData("actual rpm", shooter.getRPM());
-        panelsTelemetry.update();
         panelsTelemetry.addData("target ticks", indexer.lastIndexerTarget);
         panelsTelemetry.addData("is at position", indexer.isAtPosition());
         panelsTelemetry.addData("indexer state", indexer.currentIndexerState);
@@ -490,11 +530,8 @@ public class Robot {
         panelsTelemetry.addData("Shooter VEL", shooter.getVelocity());
         panelsTelemetry.addData("Shooter ERR", shooter.shooterPID.getError());
         panelsTelemetry.addData("Hood Angle", shooter.getHoodPosDeg());
-        panelsTelemetry.update();
         telemetry.addData("current alert", intake.intakeMotor.isOverCurrent());
         telemetry.addData("current", intake.intakeMotor.getCurrent(CurrentUnit.AMPS));
-        panelsTelemetry.update(telemetry);
-        telemetry.update();
     }
     private static double clamp(double v, double lo, double hi) {
         return Math.max(lo, Math.min(hi, v));
