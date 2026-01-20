@@ -21,11 +21,13 @@ public class Vision {
     RobotSide robotSide;
     Limelight3A limelight;
 
+    public int seen = 0;
+
     public Vision(HardwareMap hardwareMap, RobotSide robotSide){
         this.robotSide = robotSide;
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
+        limelight.pipelineSwitch(0);
         limelight.start();
-
     }
 
     public Pose getRobotPose() {
@@ -48,19 +50,18 @@ public class Vision {
         //Creating a 3d array to store the distances of each block for comparison
         BallColor[] motif = null;
         LLResult result = limelight.getLatestResult();
-        Pose pose = new Pose();
         if (result != null) {
             if (result.isValid()) {
                 List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
                 for (LLResultTypes.FiducialResult fr : fiducialResults) {
                     if (fr.getFiducialId() == 21){
-                        motif = new BallColor[]{BallColor.Green, BallColor.Green, BallColor.Purple};
+                        motif = new BallColor[]{BallColor.Green, BallColor.Purple, BallColor.Purple};
                     }
                     if (fr.getFiducialId() == 22){
-                        motif = new BallColor[]{BallColor.Green, BallColor.Purple, BallColor.Green};
+                        motif = new BallColor[]{BallColor.Purple, BallColor.Green, BallColor.Purple};
                     }
                     if (fr.getFiducialId() == 23){
-                        motif = new BallColor[]{BallColor.Purple, BallColor.Green, BallColor.Green};
+                        motif = new BallColor[]{BallColor.Purple, BallColor.Purple, BallColor.Green};
                     }
                 }
             }

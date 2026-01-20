@@ -10,11 +10,15 @@ import org.firstinspires.ftc.teamcode.util.BallColor;
 
 import java.util.Arrays;
 
+// todo add queue, photo, debug flashes
 public class Lights {
     PrismAnimations.Pulse teamColorAnimation = new PrismAnimations.Pulse();
     PrismAnimations.Pulse cell0 = new PrismAnimations.Pulse();
     PrismAnimations.Pulse cell1 = new PrismAnimations.Pulse();
     PrismAnimations.Pulse cell2 = new PrismAnimations.Pulse();
+    PrismAnimations.Pulse queueCell0 = new PrismAnimations.Pulse();
+    PrismAnimations.Pulse queueCell1 = new PrismAnimations.Pulse();
+    PrismAnimations.Pulse queueCell2 = new PrismAnimations.Pulse();
     PrismAnimations.Solid bigRed = new PrismAnimations.Solid();
 
     Color teamColor = new Color(52, 153, 255);
@@ -25,15 +29,21 @@ public class Lights {
     PrismAnimations.Pulse[] ballCellsAnimation = new PrismAnimations.Pulse[]{
             cell0, cell1, cell2
     };
+    PrismAnimations.Pulse[] queueCellsAnimation = new PrismAnimations.Pulse[]{
+            queueCell0, queueCell1, queueCell2
+    };
     GoBildaPrismDriver prism;
-
     boolean debounce = false;
-    int bigRedLoop = 0;
+    boolean lastSmartShoot = false;
+    boolean bigRedBoolean = false;
+    Timer bigRedTimer = new Timer();
     BallColor[] lastBallColors = new BallColor[] {BallColor.None, BallColor.None, BallColor.None};
+    BallColor[] lastQueuedBallColors = new BallColor[] {BallColor.None, BallColor.None, BallColor.None};
 
     public Lights(HardwareMap hardwareMap) {
         prism = hardwareMap.get(GoBildaPrismDriver.class, "prism");
-        int brightness = 75;
+        prism.clearAllAnimations();
+        int brightness = 60;
         int start = 0;
         int end = 18;
 
@@ -43,82 +53,107 @@ public class Lights {
         int i = 0;
         prism.clearAllAnimations();
         for (PrismAnimations.Pulse cell : ballCellsAnimation) {
-            cell.setBrightness(100);
+            cell.setBrightness(brightness);
             cell.setPrimaryColor(teamColor);
             cell.setSecondaryColor(Color.dimColor(teamColor));
             prism.insertAndUpdateAnimation(i, cell);
             i++;
         }
-        bigRed.setBrightness(100);
+        queueCell0.setIndexes(10, 11);
+        queueCell1.setIndexes(12, 13);
+        queueCell2.setIndexes(16, 17);
+        for (PrismAnimations.Pulse queueCell : queueCellsAnimation) {
+            queueCell.setBrightness(30);
+            queueCell.setPrimaryColor(teamColor);
+            queueCell.setSecondaryColor(Color.dimColor(teamColor));
+        }
+        printColors(false);
+        bigRed.setBrightness(brightness);
         bigRed.setIndexes(0, 17);
         bigRed.setPrimaryColor(Color.RED);
         teamColorAnimation.setPrimaryColor(teamColor);
         teamColorAnimation.setSecondaryColor(Color.dimColor(teamColor));
-        teamColorAnimation.setBrightness(75);
+        teamColorAnimation.setBrightness(brightness);
         teamColorAnimation.setIndexes(0, 17);
     }
 
-    public void setBallColors(BallColor[] ballColor) {
-        if (Arrays.equals(lastBallColors, ballColor)) {
+    public void setBallColors(BallColor[] ballColor, BallColor[] queuedBalls, boolean isInSmartShoot) {
+        if (bigRedBoolean && bigRedTimer.getElapsedTimeSeconds() > 0.2) {
+            bigRedBoolean = false;
+            ballCellsAnimation = updateBallCellsAnimation(ballColor, ballCellsAnimation);
+            queueCellsAnimation = updateBallCellsAnimation(queuedBalls, queueCellsAnimation);
+            printColors(isInSmartShoot);
+        }
+        if (Arrays.equals(lastBallColors, ballColor) && Arrays.equals(lastQueuedBallColors, queuedBalls) && isInSmartShoot == lastSmartShoot) {
             return;
         }
-
-        // if empty
-        if (lastBallColors[0] != BallColor.None && ballColor[0] == BallColor.None) {
-            int i = 0;
-            for (PrismAnimations.Pulse cell : ballCellsAnimation) {
-                cell.setPrimaryColor(teamColor);
-                cell.setSecondaryColor(Color.dimColor(teamColor));
-                prism.insertAndUpdateAnimation(i, cell);
-                i++;
-            }
-            lastBallColors =  ballColor;
-            return;
-        }
-
-        int lastHighestNoneIndex = 0;
-        for (int i = 0; i < 3; i++) {
-            if (lastBallColors[i] == BallColor.None) {
-                lastHighestNoneIndex = i;
-                break;
-            }
-        }
-
-        switch (ballColor[lastHighestNoneIndex]) {
-            case Purple:
-                ballCellsAnimation[lastHighestNoneIndex].setPrimaryColor(purple);
-                ballCellsAnimation[lastHighestNoneIndex].setSecondaryColor(Color.dimColor(purple));
-                break;
-            case Green:
-                ballCellsAnimation[lastHighestNoneIndex].setPrimaryColor(green);
-                ballCellsAnimation[lastHighestNoneIndex].setSecondaryColor(Color.dimColor(green));
-                break;
-            case None:
-                ballCellsAnimation[lastHighestNoneIndex].setPrimaryColor(teamColor);
-                ballCellsAnimation[lastHighestNoneIndex].setSecondaryColor(Color.dimColor(teamColor));
-        }
-
-        if (bigRedLoop == 0 && ballColor[2] != BallColor.None) {
+        if (!isListFull(lastBallColors) && isListFull(ballColor)) {
             prism.clearAllAnimations();
             prism.insertAndUpdateAnimation(0, bigRed);
-            bigRedLoop++;
-        }
-        if (bigRedLoop > 0) {
-            bigRedLoop++;
-        }
-        if (bigRedLoop == 0) {
-            prism.insertAndUpdateAnimation(lastHighestNoneIndex, ballCellsAnimation[lastHighestNoneIndex]);
-            lastBallColors =  ballColor.clone();
-        }
-        if (bigRedLoop == 4) {
-            bigRedLoop = 0;
-            prism.clearAllAnimations();
-            for (int i = 0; i < 3; i++) {
-                prism.insertAndUpdateAnimation(i, ballCellsAnimation[i]);
-            }
-            lastBallColors =  ballColor.clone();
+            bigRedBoolean = true;
+            bigRedTimer.resetTimer();
+            lastBallColors = ballColor.clone();
+            return;
         }
 
+        if (isInSmartShoot) {
+            cell0.setIndexes(0, 1);
+            cell1.setIndexes(4, 5);
+            cell2.setIndexes(6, 7); //6767676767676767676767676767676767676767676767676767676767
+            queueCellsAnimation = updateBallCellsAnimation(queuedBalls, queueCellsAnimation);
+
+        } else {
+            cell0.setIndexes(0, 5);
+            cell1.setIndexes(6, 11);
+            cell2.setIndexes(12, 17);
+        }
+
+        ballCellsAnimation = updateBallCellsAnimation(ballColor, ballCellsAnimation);
+
+        printColors(isInSmartShoot);
+        lastBallColors =  ballColor.clone();
+        lastQueuedBallColors = queuedBalls.clone();
+        lastSmartShoot = isInSmartShoot;
+    }
+
+    public boolean isListFull(BallColor[] ballColors) {
+        for (BallColor color : ballColors) {
+            if (color == BallColor.None) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public void printColors(boolean isInSmartShoot) {
+        prism.clearAllAnimations();
+        for (int i = 0; i < 3; i++) {
+            prism.insertAndUpdateAnimation(i, ballCellsAnimation[i]);
+        }
+        if (isInSmartShoot) {
+            for (int i = 0; i < 3; i++) {
+                prism.insertAndUpdateAnimation(i + 3, queueCellsAnimation[i]);
+            }
+        }
+    }
+
+    public PrismAnimations.Pulse[] updateBallCellsAnimation(BallColor[] ballColorsToUse, PrismAnimations.Pulse[] listToChange) {
+        for (int i = 0; i < 3; i++) {
+            switch (ballColorsToUse[i]) {
+                case Purple:
+                    listToChange[i].setPrimaryColor(purple);
+                    listToChange[i].setSecondaryColor(Color.dimColor(purple));
+                    break;
+                case Green:
+                    listToChange[i].setPrimaryColor(green);
+                    listToChange[i].setSecondaryColor(Color.dimColor(green));
+                    break;
+                case None:
+                    listToChange[i].setPrimaryColor(Color.TRANSPARENT);
+                    listToChange[i].setSecondaryColor(Color.TRANSPARENT);
+            }
+        }
+        return listToChange;
     }
     public void setColororsmthidk() {
         if (!debounce) {

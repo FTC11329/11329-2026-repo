@@ -46,6 +46,7 @@ public class Robot {
 
     boolean spitIntake = false;
     boolean isIntaking = false;
+    boolean smartShoot = false;
     boolean intakeOverride = false;
 
     Pose lastCamPose = new Pose(0,0,0);
@@ -59,13 +60,12 @@ public class Robot {
     Pose goal = new Pose(0,0,0);
     int i = 0;
     long lastTime;
-
-
     Telemetry telemetry;
     public Robot(Telemetry telemetry, HardwareMap hardwareMap, RobotSide robotSide, int startTurretTicks, double startIndexerTicks) {
         this(telemetry, hardwareMap, robotSide, startTurretTicks, startIndexerTicks, new BallColor[]{BallColor.None, BallColor.None, BallColor.None});
     }
     public Robot(Telemetry telemetry, HardwareMap hardwareMap, RobotSide robotSide, int startTurretTicks, double startIndexerTicks, BallColor[] ballsInIndexer) {
+        follower = org.firstinspires.ftc.teamcode.pedroPathing.Constants.createFollower(hardwareMap);
         Drawing.init();
         CommonPoses.init(robotSide);
         this.telemetry = telemetry;
@@ -77,21 +77,17 @@ public class Robot {
         indexer = new SmartIndexerButEvenNewer(hardwareMap, ballsInIndexer, startIndexerTicks);
         shooter = new Shooter(hardwareMap);
         turret = new Turret(hardwareMap, startTurretTicks, robotSide);
-        follower = org.firstinspires.ftc.teamcode.pedroPathing.Constants.createFollower(hardwareMap);
         drivetrain = new Drivetrain(hardwareMap);
 
         follower.setStartingPose(new Pose(0,0,0));
 
         shooterTimer = new ElapsedTime();
         shooterTestValues = new ShooterTestValues();
-        follower.resetIMU();
         shooter.resetController();
     }
     // VISION**************************************************************************************~
     public void getMotif() {
-        if (motif == null){
-            motif = vision.getMotif();
-        }
+        motif = vision.getMotif();
     }
 
     public boolean lineSide(Pose a, Pose b, Pose r) {
@@ -131,7 +127,7 @@ public class Robot {
 
     // Adds a ball of color ball color to queuedBalls list
     public void qBall(BallColor qdColor) {
-//        indexer.addToBackQueue(qdColor); todo
+        indexer.addToQueue(qdColor);
     }
 
     public void casualShooterModeOn() {
@@ -179,12 +175,19 @@ public class Robot {
         // Est Time In Flight for ball at current pose
         double timeInFlight = stv.get(curPose.distanceFrom(futrGoal)).timeInFlight;
 
+        Vector virtualVelocity = follower.getVelocity().plus(follower.getAcceleration().times(.03));
         // Logic for future pose
-        futrGoal = goal.plusVector(follower.getVelocity(), - timeInFlight);
+        futrGoal = goal.plusVector(virtualVelocity, - timeInFlight);
 
+        double yAdd;
         // Logic for heading to goal
-        double deltaXFutr = futrGoal.getX() + 10 - curPose.getX();
-        double deltaYFutr = futrGoal.getY() + 5 - curPose.getY();
+        if (robotSide == RobotSide.Blue) {
+            yAdd = 5;
+        } else {
+            yAdd = -2;
+        }
+        double deltaXFutr = futrGoal.getX() + 0 - curPose.getX();
+        double deltaYFutr = futrGoal.getY() + yAdd - curPose.getY();
         double angleToGoalFutr = Math.toDegrees(Math.atan2(deltaYFutr, deltaXFutr));
 
 
@@ -362,6 +365,9 @@ public class Robot {
 
     // SPINDEXER***********************************************************************************~
 
+    public void doSmartShoot(boolean set) {
+        smartShoot = set;
+    }
     public void isIntaking(boolean isIntaking) {
         this.isIntaking = isIntaking;
     }
@@ -370,12 +376,12 @@ public class Robot {
         indexer.shootAll();
     }
     public void spindexerUpdate() {
-        indexer.update(isIntaking, readyToShootMotors());
+        indexer.update(isIntaking, readyToShootMotors(), smartShoot);
     }
 
     // LIGHTS**************************************************************************************~
     public void lightsUpdate() {
-        lights.setBallColors(indexer.getBallCells());
+        lights.setBallColors(indexer.getBallCells(), indexer.getQueuedBalls(), smartShoot);
         lights.update();
     }
 
@@ -393,7 +399,6 @@ public class Robot {
 
     // SYSTEM**************************************************************************************~
     public void start() {
-//        lights.setColororsmthidk();
         indexer.start();
     }
     public void update() {
@@ -412,27 +417,18 @@ public class Robot {
         follower.update();
         long follower = System.currentTimeMillis();
         lightsUpdate();
+        long lights = System.currentTimeMillis();
 
-        int i = 0;
-        for (BallColor index : indexer.getBallCells()) {
-            telemetry.addData("BallCell" + i, index);
-            i++;
-        }
+        Drawing.drawShapesDebug(this.follower);
 
-        telemetry.addData("indexer r", indexer.getColorRGBA().red);
-        telemetry.addData("indexer g", indexer.getColorRGBA().green);
-        telemetry.addData("indexer b", indexer.getColorRGBA().blue);
-        telemetry.addData("indexer a", indexer.getColorRGBA().alpha);
-        telemetry.addData("indexer col", indexer.getColor());
-        telemetry.addData("indexer dis", indexer.getDistance());
-
-        panelsTelemetry.addData("shooter", start - shooter);
-        panelsTelemetry.addData("intake", shooter - intake);
-        panelsTelemetry.addData("spindexer", intake - spindexer);
-        panelsTelemetry.addData("turret", spindexer - turret);
-        panelsTelemetry.addData("follower", turret - follower);
-        panelsTelemetry.addData("all", follower - lastTime);
-        lastTime = System.currentTimeMillis();
+//        panelsTelemetry.addData("shooter", -(start - shooter));
+//        panelsTelemetry.addData("intake", -(shooter - intake));
+//        panelsTelemetry.addData("spindexer", -(intake - spindexer));
+//        panelsTelemetry.addData("turret", -(spindexer - turret));
+//        panelsTelemetry.addData("follower", -(turret - follower));
+//        panelsTelemetry.addData("lights", -(follower - lights));
+//        panelsTelemetry.addData("all", (lights - lastTime));
+//        lastTime = System.currentTimeMillis();
 
 
 //        panelsTelemetry.addData("spindexer", (spindexer - intake) * 1e-3);

@@ -13,48 +13,21 @@ import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 public class Constants {
     public static class Indexer {
 
-        public static double indexerTolerance = 0.02;
+        public static double indexerTolerance = 0.07;
 
         public static double spindexPower = 0.45;
 
-        public static double timeToMoveIndexer1Index = 0.4;
-        public static double timeToTransfer = 0.75;
-
-        public static double StoreTlBTr012Reverse = 1;
-        public static double StoreTlBTr120 = 0.2904;
-        public static double StoreTlBTr201 = 0.6436;
-        public static double StoreTlBTr012 = 1;
-
-        public static double TransferTBlBr012Reverse = 0.1184;
-        public static double TransferTBlBr120 = 0.47;
-        public static double TransferTBlBr201 = 0.8332;
-        public static double TransferTBlBr012 = 0; // todo remove if we dont want it
-
-        // Store States
-        //Reverse
-        // 0   2 | 1   0 | 2   1 | 0   2
-        //   1   |   2   |   0   |   1
-        // Transfer States
-        //    Reverse
-        //       0   |   1   |   2   |   0
-        //     1   2 | 2   0 | 0   1 | 1   2
-
-
-        public static double farSpindexPower = 0.9;
-        public static double farDistance = 90;
-
-        public static double scanningPower = 0.5;
         public static double transferPower = 1;
 
-        public static double secondsFor2 = 1.6; // todo remove after 2nd comp
-        public static double secondsFor1 = 0.8;
-        public static double secondsForHole = 0.1;
+        public static double smartFeedSec = 0.2;
+        public static double smartShootSpacingSec = 0.5;
+        public static double spitTime = 0.15;
     }
 
     public static class Intake {
         public static double intakePower = 1;
         public static double spitPower = -0.67; //67 67 67 67 67 67 67 67 67 67
-        public static double intakeOffPower = 0.09;
+        public static double intakeOffPower = 0.12;
         public static double spitTime = 0.3;
     }
 

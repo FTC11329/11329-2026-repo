@@ -306,6 +306,43 @@ public class GoBildaPrismDriver extends I2cDeviceSynchDevice<I2cDeviceSynchSimpl
      * @return true if the animation was successfully inserted, false if the index 
      *         is out of bounds or the animation is null
      */
+
+    public boolean insertAnimation(int height, PrismAnimations.AnimationBase animation) {
+        LayerHeight i = LayerHeight.LAYER_0;
+        switch (height) {
+            case 0:
+                i = LayerHeight.LAYER_0;
+                break;
+            case 1:
+                i = LayerHeight.LAYER_1;
+                break;
+            case 2:
+                i = LayerHeight.LAYER_2;
+                break;
+            case 3:
+                i = LayerHeight.LAYER_3;
+                break;
+            case 4:
+                i = LayerHeight.LAYER_4;
+                break;
+            case 5:
+                i = LayerHeight.LAYER_5;
+                break;
+            case 6:
+                i = LayerHeight.LAYER_6;
+                break;
+            case 7:
+                i = LayerHeight.LAYER_7;
+                break;
+            case 8:
+                i = LayerHeight.LAYER_8;
+                break;
+            case 9:
+                i = LayerHeight.LAYER_9;
+                break;
+        }
+        return insertAnimation(i, animation);
+    }
     public boolean insertAnimation(LayerHeight height, PrismAnimations.AnimationBase animation)
     {
         if(height == LayerHeight.DISABLED || animation == null)

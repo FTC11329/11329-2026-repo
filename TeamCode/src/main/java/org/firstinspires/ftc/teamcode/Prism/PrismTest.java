@@ -5,11 +5,11 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 
-@TeleOp(name="Prism Artboard Example", group="Linear OpMode")
+@TeleOp(name="Prism test", group="Linear OpMode")
 
 public class PrismTest extends LinearOpMode {
 
-    PrismAnimations.Solid solid = new PrismAnimations.Solid(Color.BLUE);
+    PrismAnimations.PoliceLights solid = new PrismAnimations.PoliceLights();
     GoBildaPrismDriver prism;
 
     @Override
@@ -32,6 +32,7 @@ public class PrismTest extends LinearOpMode {
         solid.setBrightness(brightness);
         solid.setStartIndex(start);
         solid.setStopIndex(end);
+        prism.clearAllAnimations();
         prism.insertAndUpdateAnimation(GoBildaPrismDriver.LayerHeight.LAYER_0, solid);
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {

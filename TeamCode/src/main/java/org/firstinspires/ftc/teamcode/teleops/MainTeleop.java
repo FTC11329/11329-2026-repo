@@ -8,6 +8,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
 import org.firstinspires.ftc.teamcode.util.BallColor;
+import org.firstinspires.ftc.teamcode.util.Bulk;
 import org.firstinspires.ftc.teamcode.util.EndValuesStorer;
 import org.firstinspires.ftc.teamcode.util.FancyButton;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
@@ -66,6 +67,7 @@ public class MainTeleop {
         double startIndexerTicks = endValues.indexerPos;
         startPose = new Pose(endValues.x, endValues.y, endValues.heading);
 
+//        Bulk.auto(hardwareMap);
         robot = new Robot(telemetry, hardwareMap, robotSide, startTurretTicks, startIndexerTicks);
 
         robot = new Robot(telemetry, hardwareMap, robotSide, 0, 0);
@@ -100,6 +102,7 @@ public class MainTeleop {
     public void init_loop() {
         resetPose.checkStatus(gamepad2.y);
 
+
         if (resetPose.startPress || true) {
             startPose = new Pose(0,0, 0);
             robot.turret.encoderOffset = 0;
@@ -120,30 +123,24 @@ public class MainTeleop {
     }
 
     public void loop() {
-        intake.checkStatus(gamepad1.left_bumper); // Toggle on to intake
-        spitIntake.checkStatus(gamepad2.left_bumper || gamepad1.right_trigger > .5); // Hold to spit
+        intake.checkStatus(gamepad2.left_bumper); // Toggle on to intake
+        spitIntake.checkStatus(gamepad2.right_bumper || gamepad1.left_bumper); // Hold to spit
 
-        // queueGreen.checkStatus(gamepad2.y); // Press to queue green
-        // queuePurple.checkStatus(gamepad2.x); // Press to queue purple
-        autoShoot.checkStatus(gamepad1.a); // Toggle to turn on auto shoot
-        smartShoot.checkStatus(gamepad2.b); // Toggle to turn on smart shoot
-        fastShootButton.checkStatus(gamepad1.b); // Toggle to turn on smart shoot
+        queueGreen.checkStatus(gamepad2.y); // Press to queue green
+        queuePurple.checkStatus(gamepad2.x); // Press to queue purple
+        autoShoot.checkStatus(gamepad2.a); // Toggle to turn on auto shoot
+        fastShootButton.checkStatus(gamepad2.b); // press to shoot 3
+        smartShoot.checkStatus(gamepad2.back); // Toggle to turn on smart shoot
 
-        overrideShootPosition.checkStatus(gamepad2.back); // hold to turn on ignore position
-        overrideIntake.checkStatus(gamepad2.back); // hold to turn on ignore position
-        panicShoot.checkStatus(gamepad2.ps); // toggle to turn on panic shoot mode
+        overrideIntake.checkStatus(gamepad2.ps || gamepad2.left_bumper); // hold to turn on ignore allowintaking
 
-        resetPose.checkStatus(gamepad2.y);
         movePoseUp.checkStatus(gamepad2.dpad_up);
         movePoseDown.checkStatus(gamepad2.dpad_down);  //Buttons to control where the robot aims
         movePoseLeft.checkStatus(gamepad2.dpad_left);
         movePoseRight.checkStatus(gamepad2.dpad_right);
 
-        takePhoto.checkStatus(gamepad1.y); // hold to take photo
-        debug.checkStatus(gamepad1.start); // hold to print telemetry
-
-        deleteme.checkStatus(false);
-
+        takePhoto.checkStatus(gamepad1.y); // press to take photo
+        debug.checkStatus(gamepad1.start); // toggle to print telemetry
 
         robot.drivetrain.teleopMovement(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, gamepad1.right_bumper);
 
@@ -167,10 +164,6 @@ public class MainTeleop {
             robot.stopIntake();
         }
         robot.setIntakeOverride(overrideIntake.isOn);
-        // Take Photo to set position
-        if (takePhoto.isOn) {
-            robot.autoSetCurrentPose();
-        }
 
         if (queuePurple.startPress) {
             robot.qBall(BallColor.Purple);
@@ -179,14 +172,21 @@ public class MainTeleop {
             robot.qBall(BallColor.Green);
         }
 
+        robot.doSmartShoot(smartShoot.isOn);
+
         if (fastShootButton.startPress) {
             robot.shootAll();
         }
 
         if (autoShoot.isOn) {
-            robot.prepareShooter(rpmOffset, hoodAngleOffset);
+            robot.prepareShooter();
         } else if (autoShoot.endPress) {
             robot.casualShooterModeOn();
+        }
+
+        // Take Photo to set position
+        if (takePhoto.isOn) {
+            robot.autoSetCurrentPose();
         }
          // Changing our aim
 //        if (robotSide == RobotSide.Blue) {
@@ -227,18 +227,6 @@ public class MainTeleop {
 //                robot.offsetPose = new Pose(0,0,0);
 //            }
 //        }
-        if (movePoseUp.startPress) {
-            hoodAngleOffset += 2;
-        }
-        if (movePoseDown.startPress) {
-            hoodAngleOffset -= 2;
-        }
-        if (movePoseLeft.startPress) {
-            rpmOffset -= 20;
-        }
-        if (movePoseRight.startPress) {
-            rpmOffset += 20;
-        }
 
         robot.update(debug.isOn);
 
