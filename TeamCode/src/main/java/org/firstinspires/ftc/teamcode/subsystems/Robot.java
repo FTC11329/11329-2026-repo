@@ -108,6 +108,10 @@ public class Robot {
         Pose curPose = follower.getPose();
         return ShapeDetection.doesRobotIntersect(FieldShapes.closeTriangle, curPose) || ShapeDetection.doesRobotIntersect(FieldShapes.farTriangle, curPose);
     }
+    public boolean inFarZone() {
+        Pose curPose = follower.getPose();
+        return ShapeDetection.doesRobotIntersect(FieldShapes.farTriangle, curPose);
+    }
     // TURRET**************************************************************************************~
 
     double angleToGoalVelocity;
@@ -376,7 +380,7 @@ public class Robot {
         indexer.shootAll();
     }
     public void spindexerUpdate() {
-        indexer.update(isIntaking, readyToShootMotors(), smartShoot);
+        indexer.update(isIntaking, readyToShootMotors(), smartShoot, inFarZone());
     }
 
     // LIGHTS**************************************************************************************~
@@ -404,22 +408,33 @@ public class Robot {
     public void update() {
         update(false);
     }
+    double previousHoodAngle;
+    double previousTime;
+    double maxHoodAngleChange;
     public void update(boolean debug) {
-        long start = System.currentTimeMillis();
-        shooterUpdate();
-        long shooter = System.currentTimeMillis();
-        intakeUpdate();
-        long intake = System.currentTimeMillis();
-        spindexerUpdate();
-        long spindexer = System.currentTimeMillis();
-        turretUpdate();
-        long turret = System.currentTimeMillis();
-        follower.update();
-        long follower = System.currentTimeMillis();
-        lightsUpdate();
-        long lights = System.currentTimeMillis();
+        long now = System.currentTimeMillis();
+        panelsTelemetry.addData("dt", (now - lastTime) * 1e-3);
+        lastTime = now;
 
-        Drawing.drawShapesDebug(this.follower);
+        shooterUpdate();
+        intakeUpdate();
+        spindexerUpdate();
+        turretUpdate();
+        follower.update();
+        lightsUpdate();
+        telemetry.addData("in far zone", inFarZone());
+        panelsTelemetry.addData("shooter RPM", shooter.getRPM());
+        panelsTelemetry.addData("target rpm", shooter.shooterPID.getTargetPosition());
+        panelsTelemetry.addData("shooter error", shooter.shooterPID.getError());
+        panelsTelemetry.addData("shooter error derivative", shooter.shooterPID.getErrorDerivative());
+        panelsTelemetry.addData("shooter velocity", shooter.getRPM());
+//        long shooter = System.currentTimeMillis();
+//        long intake = System.currentTimeMillis();
+//        long spindexer = System.currentTimeMillis();
+//        long turret = System.currentTimeMillis();
+//        long follower = System.currentTimeMillis();
+//        long lights = System.currentTimeMillis();
+//        Drawing.drawShapesDebug(this.follower);
 
 //        panelsTelemetry.addData("shooter", -(start - shooter));
 //        panelsTelemetry.addData("intake", -(shooter - intake));
@@ -449,14 +464,10 @@ public class Robot {
 
         panelsTelemetry.addData("Tar Shooter RPM", shooter.getTargetRpm());
         panelsTelemetry.addData("Act Shooter RPM", shooter.getRPM());
-        panelsTelemetry.addData("Hood Angle", shooter.getHoodPosDeg());
         panelsTelemetry.addData("turret error", turret.turretPID.getError());
         panelsTelemetry.addData("spindexer error", Math.abs(indexer.getEncoderPercentage() - indexer.lastIndexerTarget));
         Drawing.drawShapesDebug(follower);
 
-        long now = System.currentTimeMillis();
-        panelsTelemetry.addData("dt", (now - lastTime) * 1e-3);
-        lastTime = now;
         panelsTelemetry.addData("turret target", turret.turretPID.getTargetPosition());
         panelsTelemetry.addData("turret actual", turret.getAngle());
 
@@ -471,6 +482,15 @@ public class Robot {
         telemetry.addData("Ready to shoot", readyToShootMotors());
         telemetry.addLine("=== VISION ===");
         telemetry.addData("Motif", motif);
+
+                double rateOfChangeOfHoodAngle = (shooter.getHoodPosDeg() - previousHoodAngle) / (System.currentTimeMillis() - previousTime);
+        previousTime = System.currentTimeMillis();
+        previousHoodAngle = shooter.getHoodPosDeg();
+        maxHoodAngleChange = Math.max(rateOfChangeOfHoodAngle, maxHoodAngleChange);
+        panelsTelemetry.addData("rate of change of hood angle", rateOfChangeOfHoodAngle);
+        panelsTelemetry.addData("Hood Angle", shooter.getHoodPosDeg());
+        panelsTelemetry.addData("max rate of change of hood", maxHoodAngleChange);
+
 
 
         telemetry.addLine("=== Turret ===");

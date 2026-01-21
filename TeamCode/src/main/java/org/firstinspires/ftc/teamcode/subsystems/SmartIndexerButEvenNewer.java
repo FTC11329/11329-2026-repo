@@ -293,9 +293,10 @@ public class SmartIndexerButEvenNewer {
 
 
     public void update(boolean intaking, boolean readyToShoot) {
-        update(intaking, readyToShoot, false);
+        update(intaking, readyToShoot, false, false);
     }
-    public void update(boolean intaking, boolean readyToShoot, boolean doSmartShoot) {
+
+    public void update(boolean intaking, boolean readyToShoot, boolean doSmartShoot, boolean isFarShot) {
         updatingEncoderPos = encoder.getCurrentPosition(); //updates this variable on tick so we are not calling multiple times in one tick
 
         // starts shooting if there is anything in queue
@@ -315,11 +316,57 @@ public class SmartIndexerButEvenNewer {
         intakeLogicUpdate(intaking);
         if (doSmartShoot) {
             smartShootLogicUpdate(readyToShoot);
-        } else {
+        } else if (!isFarShot){
             dumbShootLogicUpdate(readyToShoot);
+        } else {
+            farShootingLogicUpdate(readyToShoot);
         }
     }
+    boolean shotTimerStarted = false;
+    Timer shotTimer = new Timer();
+    private final double SHOT_TIME = .1;
 
+    public void farShootingLogicUpdate(boolean readyToShoot) {
+        if (startShooting && readyToShoot) {
+            setIndexerPos(IndexerEnumsButEvenNewerThisTime.shoot1);
+
+            startShooting = false;
+        }
+
+        // once at highest full index, shoot while going back to intake
+        if (shooting && isAtPosition() && !shotTimerStarted) {
+            spinTransferWheel(true);
+            shotTimer.resetTimer();
+            shotTimerStarted = true;
+            allowIntaking = false;
+        }
+
+        if (shooting && shotTimerStarted && shotTimer.getElapsedTimeSeconds() > SHOT_TIME && readyToShoot && isAtPosition()) {
+            switch (currentIndexerState) {
+                case shoot1:
+                    setIndexerPos(IndexerEnumsButEvenNewerThisTime.shoot0);
+                    shotTimer.resetTimer();
+                    break;
+                case shoot0:
+                    setIndexerPos(IndexerEnumsButEvenNewerThisTime.shoot2);
+                    shotTimer.resetTimer();
+                    break;
+                case shoot2:
+                    if (shotTimer.getElapsedTimeSeconds() > .4) {
+                        shotTimer.resetTimer();
+                        shooting = false;
+                        setIndexerPos(IndexerEnumsButEvenNewerThisTime.intake0);
+                        allowIntaking = true;
+                        shotTimerStarted = false;
+                        clearBallCells();
+                        spinTransferWheel(false);
+                    }
+                    break;
+                default:
+                    throw new RuntimeException("far shooting switch");
+            }
+        }
+    }
     public void intakeLogicUpdate(boolean intaking) {
         if (intaking && !isHasBallsFull() && isAtPosition() && !shooting) {
             BallColor curColor = getColor();
@@ -363,9 +410,9 @@ public class SmartIndexerButEvenNewer {
         if (dumbShootState1 && isAtPosition()) {
             allowIntaking = true;
             clearBallCells();
+            spinTransferWheel(false);
             shooting = false;
             dumbShootState1 = false;
-            spinTransferWheel(false);
         }
     }
     public void smartShootLogicUpdate(boolean readyToShoot) {
