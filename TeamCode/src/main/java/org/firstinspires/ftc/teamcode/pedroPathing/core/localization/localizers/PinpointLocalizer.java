@@ -217,6 +217,13 @@ public class PinpointLocalizer implements Localizer {
      */
     private void resetPinpoint() {
         odo.resetPosAndIMU();
+        // DO NOT REMOVE it breaks the odometry, IDK why
+        try {
+            Thread.sleep(300);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        odo.recalibrateIMU();
 
         try {
             Thread.sleep(300);
