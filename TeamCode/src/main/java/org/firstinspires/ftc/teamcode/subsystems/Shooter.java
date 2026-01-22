@@ -102,7 +102,7 @@ public class Shooter {
     }
 
     public boolean closeEnoughToTarget() {
-        return shooterPID.getError() - Constants.Shooter.closeEnoughRPM < 0;
+        return Math.abs(shooterPID.getError() - Constants.Shooter.closeEnoughRPM) < 0;
     }
 
     public boolean getUsePID() {return usePID;}
