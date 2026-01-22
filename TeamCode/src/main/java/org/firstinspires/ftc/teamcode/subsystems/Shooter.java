@@ -126,21 +126,12 @@ public class Shooter {
     }
 
     public double velocityToRPM(double exitVelocity) {
-        // exitVelocity in in/s
-        double wheelRadius = 2.0;
-
-        // rad/s at wheel
-        double omegaWheel = exitVelocity / wheelRadius;
-
-        // convert to RPM
-        double wheelRPM = omegaWheel * 60.0 / (2.0 * Math.PI);
-
-        // gear ratio: motor rotations per wheel rotation
-        double motorRPM = wheelRPM * .8;
-
-        // tuning variable becuase RPM drops after each shot
-        return motorRPM + 100;
+        double a = 0.0013149578634563265;
+        double b = 5.559109887421296;
+        double c = 741.0912371298367;
+        return a * exitVelocity * exitVelocity + b * exitVelocity + c;
     }
+
 
     public double getBallVelocity(){
         double rps = 2 * Math.PI * getRPM() / 60.0;
