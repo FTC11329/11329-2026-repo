@@ -88,7 +88,7 @@ public class Constants {
         public static double D = 0;
         public static double F = 0;
         public static double kF = 4456;
-        public static PIDFCoefficients shooterVelocityPID = new PIDFCoefficients(0.1, 0, 0, 0);
+        public static PIDFCoefficients shooterVelocityPID = new PIDFCoefficients(0.005, 0, 0, 0);
     }
     public static class Color {
 //            old values

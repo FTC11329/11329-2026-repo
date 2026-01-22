@@ -45,6 +45,7 @@ public class MainTeleop {
     Telemetry telemetry;
     RobotSide robotSide;
     HardwareMap hardwareMap;
+    double RPMoffset;
 
     public MainTeleop(Gamepad gamepad1, Gamepad gamepad2, Telemetry telemetry, HardwareMap hardwareMap, RobotSide robotSide) {
         this.gamepad1 = gamepad1;
@@ -145,7 +146,6 @@ public class MainTeleop {
         robot.drivetrain.teleopMovement(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, gamepad1.right_bumper);
 //        robot.drivetrain.profiledMovement(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, gamepad1.right_bumper, robot.follower.getPose(), robotSide, robot.follower.getVelocity());
 
-
         if (intake.startPress) {
             robot.spinIntake(true);
         }
@@ -180,15 +180,19 @@ public class MainTeleop {
         }
 
         if (autoShoot.isOn) {
-            robot.prepareShooter();
+            robot.calculateIdealShot(RPMoffset, 0);
         } else if (autoShoot.endPress) {
             robot.casualShooterModeOn();
         }
 
+        if (movePoseUp.startPress) {
+            RPMoffset += 20;
+        }
         // Take Photo to set position
         if (takePhoto.isOn) {
             robot.autoSetCurrentPose();
         }
+
          // Changing our aim
 //        if (robotSide == RobotSide.Blue) {
 //            if (movePoseUp.startPress) {

@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import static java.lang.Math.PI;
+
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -105,7 +107,7 @@ public class Shooter {
     }
 
     public boolean closeEnoughToTarget() {
-        return Math.abs(shooterPID.getError() - Constants.Shooter.closeEnoughRPM) < 0;
+        return Math.abs(shooterPID.getError()) - Constants.Shooter.closeEnoughRPM < 0;
     }
 
     public boolean getUsePID() {return usePID;}
@@ -125,16 +127,26 @@ public class Shooter {
         return shooterPID.getTargetPosition();
     }
 
-    public double velocityToRPM(double exitVelocity) {
+    public double velocityToRPM_Regression(double exitVelocity) {
         double a = 0.0013149578634563265;
         double b = 5.559109887421296;
         double c = 741.0912371298367;
         return a * exitVelocity * exitVelocity + b * exitVelocity + c;
     }
 
+    public double velocityToRPM(double exitVelocity) {
+        // exitVelocity in in/s
+        double wheelDiameter = 2.0;
+
+        double surfaceVelocity = PI * wheelDiameter;
+
+        double rotationsPerSec = exitVelocity / surfaceVelocity;
+
+        return rotationsPerSec * 60 + 140;
+    }
 
     public double getBallVelocity(){
-        double rps = 2 * Math.PI * getRPM() / 60.0;
+        double rps = 2 * PI * getRPM() / 60.0;
         return rps * (Constants.ShooterParamaters.MotorToWheel+Constants.ShooterParamaters.R_WHEEL_M) / 2.0;
     }
 

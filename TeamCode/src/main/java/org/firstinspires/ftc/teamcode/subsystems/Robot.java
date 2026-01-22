@@ -220,6 +220,9 @@ public class Robot {
         shooter.setTargetRPM(set);
     }
 
+    public void calculateIdealShot() {
+        calculateIdealShot(0, 0);
+    }
     public void calculateIdealShot(double rpmOffset, double hoodAngleOffset) {
         double g = 386.09;
 
@@ -235,7 +238,7 @@ public class Robot {
         goal = goal.plus(offsetPose);
 
 
-        double height = 34; //todo: verify this height (inches)
+        double height = 32; //todo: verify this height (inches)
 
         double deltaX = goal.getX() - curPose.getX();
         double deltaY = goal.getY() - curPose.getY();
@@ -255,28 +258,32 @@ public class Robot {
         double hoodAngle = Math.atan(2 * height / distance - Math.tan(entryAngle)); //todo make sure atan returns a number
         double flywheelSpeed = Math.sqrt(g * distance * distance / (2 * Math.pow(Math.cos(hoodAngle), 2) * (distance * Math.tan(hoodAngle) - height)));
 
-        Vector robotVelocity = follower.getVelocity();
+//        Vector robotVelocity = follower.getVelocity();
 
-        double coordinateTheta = robotVelocity.getTheta() - angleToGoal;
+//        double coordinateTheta = robotVelocity.getTheta() - angleToGoal;
 
-        double parallelComponent = - Math.cos(coordinateTheta) * robotVelocity.getMagnitude();
-        double perpendicularComponent = Math.sin(coordinateTheta) * robotVelocity.getMagnitude();
+//        double parallelComponent = - Math.cos(coordinateTheta) * robotVelocity.getMagnitude();
+//        double perpendicularComponent = Math.sin(coordinateTheta) * robotVelocity.getMagnitude();
 
-        double vz = flywheelSpeed * Math.sin(hoodAngle);
-        double time = distance / (flywheelSpeed * Math.cos(hoodAngle));
-        double ivr = distance / time + parallelComponent;
-        double nvr = Math.sqrt(ivr * ivr + perpendicularComponent * perpendicularComponent);
-        double ndr = nvr * time;
+//        double vz = flywheelSpeed * Math.sin(hoodAngle);
+//        double time = distance / (flywheelSpeed * Math.cos(hoodAngle));
+//        double ivr = distance / time + parallelComponent;
+//        double nvr = Math.sqrt(ivr * ivr + perpendicularComponent * perpendicularComponent);
+//        double ndr = nvr * time;
+//
+//        hoodAngle = Math.atan(vz / nvr);
+//        flywheelSpeed = Math.sqrt(g * ndr * ndr / (2 * Math.pow(Math.cos(hoodAngle), 2) * (distance * Math.tan(hoodAngle) - height)));
 
-        hoodAngle = Math.atan(vz / nvr);
-        flywheelSpeed = Math.sqrt(g * ndr * ndr / (2 * Math.pow(Math.cos(hoodAngle), 2) * (distance * Math.tan(hoodAngle) - height)));
+//        double turretVelocityOffset = Math.atan2(perpendicularComponent, ivr);
+        panelsTelemetry.addData("target hood angle", hoodAngle);
+        panelsTelemetry.addData("target velocity", flywheelSpeed);
 
-        double turretVelocityOffset = Math.atan2(perpendicularComponent, ivr);
+        turret.setTargetRad(angleToGoal - curPose.getHeading()/*+ turretVelocityOffset*/);
 
-        turret.setTargetRad(angleToGoal + turretVelocityOffset);
+        shooter.setHoodRad((Math.toRadians(hoodAngleOffset)) + Math.PI/2 - hoodAngle);
 
-        shooter.setHoodRad(((Math.PI / 2) - Math.toRadians(hoodAngleOffset)) + hoodAngle);
-
+        double dragCoefficient = .00437 * .6;
+        double dragCompensation = Math.pow(Math.E, dragCoefficient * distanceToGoal());
         shooter.setTargetRPM(rpmOffset + shooter.velocityToRPM(flywheelSpeed)); // todo: fix the velocity to rpm function
     }
 
@@ -435,10 +442,13 @@ public class Robot {
         telemetry.addData("distance to goal", distanceToGoal());
         panelsTelemetry.addData("RPM", shooter.getRPM());
         panelsTelemetry.addData("hood angle", shooter.getHoodPosDeg());
-//        panelsTelemetry.addData("target rpm", shooter.shooterPID.getTargetPosition());
+        panelsTelemetry.addData("target rpm", shooter.shooterPID.getTargetPosition());
+        panelsTelemetry.addData("shooter velocity", shooter.getRPM());
+        panelsTelemetry.addData("hood pos", shooter.getHoodPosDeg());
+        panelsTelemetry.addData("distance to goal", distanceToGoal());
+        panelsTelemetry.addData("ready to shoot", readyToShootMotors());
 //        panelsTelemetry.addData("shooter error", shooter.shooterPID.getError());
 //        panelsTelemetry.addData("shooter error derivative", shooter.shooterPID.getErrorDerivative());
-//        panelsTelemetry.addData("shooter velocity", shooter.getRPM());
 //        long shooter = System.currentTimeMillis();
 //        long intake = System.currentTimeMillis();
 //        long spindexer = System.currentTimeMillis();

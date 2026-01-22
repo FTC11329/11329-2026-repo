@@ -63,7 +63,7 @@ public class Turret {
         turretPID.setTargetPosition(robotDeg + Constants.Turret.turretOffset);
     }
     public void setTargetRad(double rad) {
-        setTargetDeg(Math.toRadians(rad));
+        setTargetDeg(Math.toDegrees(rad));
     }
 
     public void update(double angVel, double angAccel) {
