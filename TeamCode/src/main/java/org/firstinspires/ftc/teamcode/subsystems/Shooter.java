@@ -91,6 +91,9 @@ public class Shooter {
     public void setHoodDeg(double hoodDeg) {
         setHood((hoodDeg - 5) / 80);
     }
+    public void setHoodRad(double hoodRad) {
+        setHoodDeg(Math.toDegrees(hoodRad));
+    }
 
     // get the degrees of the hood
     public double getHoodPosDeg() {
@@ -120,6 +123,23 @@ public class Shooter {
     }
     public double getTargetRpm() {
         return shooterPID.getTargetPosition();
+    }
+
+    public double velocityToRPM(double exitVelocity) {
+        // exitVelocity in in/s
+        double wheelRadius = 2.0;
+
+        // rad/s at wheel
+        double omegaWheel = exitVelocity / wheelRadius;
+
+        // convert to RPM
+        double wheelRPM = omegaWheel * 60.0 / (2.0 * Math.PI);
+
+        // gear ratio: motor rotations per wheel rotation
+        double motorRPM = wheelRPM * .8;
+
+        // tuning variable becuase RPM drops after each shot
+        return motorRPM + 100;
     }
 
     public double getBallVelocity(){
