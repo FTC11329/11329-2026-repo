@@ -323,20 +323,20 @@ public class SmartIndexerButEvenNewer {
         }
     }
     boolean shotTimerStarted = false;
+    boolean next = false;
     Timer shotTimer = new Timer();
-    private final double SHOT_TIME = .1;
+    private final double SHOT_TIME = 1;
 
     public void farShootingLogicUpdate(boolean readyToShoot) {
         if (startShooting && readyToShoot) {
             setIndexerPos(IndexerEnumsButEvenNewerThisTime.shoot1);
-
             startShooting = false;
+            shotTimer.resetTimer();
+            spinTransferWheel(true);
         }
 
         // once at highest full index, shoot while going back to intake
         if (shooting && isAtPosition() && !shotTimerStarted) {
-            spinTransferWheel(true);
-            shotTimer.resetTimer();
             shotTimerStarted = true;
             allowIntaking = false;
         }
@@ -345,26 +345,24 @@ public class SmartIndexerButEvenNewer {
             switch (currentIndexerState) {
                 case shoot1:
                     setIndexerPos(IndexerEnumsButEvenNewerThisTime.shoot0);
-                    shotTimer.resetTimer();
                     break;
                 case shoot0:
                     setIndexerPos(IndexerEnumsButEvenNewerThisTime.shoot2);
-                    shotTimer.resetTimer();
                     break;
                 case shoot2:
-                    if (shotTimer.getElapsedTimeSeconds() > .4) {
-                        shotTimer.resetTimer();
-                        shooting = false;
-                        setIndexerPos(IndexerEnumsButEvenNewerThisTime.intake0);
-                        allowIntaking = true;
-                        shotTimerStarted = false;
-                        clearBallCells();
-                        spinTransferWheel(false);
-                    }
+                    setIndexerPos(IndexerEnumsButEvenNewerThisTime.intake0);
+                    break;
+                case intake0:
+                    shooting = false;
+                    spinTransferWheel(false);
+                    allowIntaking = true;
+                    shotTimerStarted = false;
+                    clearBallCells();
                     break;
                 default:
                     throw new RuntimeException("far shooting switch");
             }
+            shotTimer.resetTimer();
         }
     }
     public void intakeLogicUpdate(boolean intaking) {

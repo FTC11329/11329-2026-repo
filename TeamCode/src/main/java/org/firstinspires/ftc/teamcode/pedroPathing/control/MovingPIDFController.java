@@ -236,6 +236,7 @@ public class MovingPIDFController implements Controller {
     public double F() {
         return coefficients.F;
     }
+    public double kVterm() {return targetPosition / kV;}
 
     /**
      * This returns the current error of the PIDF.

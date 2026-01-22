@@ -75,21 +75,34 @@ public class Robot {
         intake = new Intake(hardwareMap);
         vision = new Vision(hardwareMap, robotSide);
         indexer = new SmartIndexerButEvenNewer(hardwareMap, ballsInIndexer, startIndexerTicks);
-        shooter = new Shooter(hardwareMap);
         turret = new Turret(hardwareMap, startTurretTicks, robotSide);
         drivetrain = new Drivetrain(hardwareMap);
+        shooter = new Shooter(hardwareMap);
 
         follower.setStartingPose(new Pose(0,0,0));
 
         shooterTimer = new ElapsedTime();
         shooterTestValues = new ShooterTestValues();
         shooter.resetController();
+
+        if (robotSide == RobotSide.Blue)  {
+            goal = Constants.Vision.blueGoal;
+        } else {
+            goal = Constants.Vision.redGoal;
+        }
     }
     // VISION**************************************************************************************~
     public void getMotif() {
         motif = vision.getMotif();
     }
 
+    public double distanceToGoal() {
+        Pose curPose = follower.getPose();
+        double deltaX = goal.getX() - curPose.getX();
+        double deltaY = goal.getY() - curPose.getY();
+
+        return Math.hypot(deltaX, deltaY);
+    }
     public boolean lineSide(Pose a, Pose b, Pose r) {
         double s = (b.getX() - a.getX()) * (r.getY() - a.getY()) - (b.getY() - a.getY()) * (r.getY() - a.getY());
         s = s / a.distanceFrom(b);
@@ -109,8 +122,10 @@ public class Robot {
         return ShapeDetection.doesRobotIntersect(FieldShapes.closeTriangle, curPose) || ShapeDetection.doesRobotIntersect(FieldShapes.farTriangle, curPose);
     }
     public boolean inFarZone() {
-        Pose curPose = follower.getPose();
-        return ShapeDetection.doesRobotIntersect(FieldShapes.farTriangle, curPose);
+//        Pose curPose = follower.getPose();
+//        return ShapeDetection.doesRobotIntersect(FieldShapes.farTriangle, curPose);
+
+        return distanceToGoal() > 107;
     }
     // TURRET**************************************************************************************~
 
@@ -150,13 +165,6 @@ public class Robot {
         // Gets current Pose
         Pose curPose = follower.getCenterOfShooterPose();
 
-        // Gets goal Pose
-        if (robotSide == RobotSide.Blue)  {
-            goal = Constants.Vision.blueGoal;
-        } else {
-            goal = Constants.Vision.redGoal;
-        }
-
         ShooterValuesParent stv = shooterTestValues;
 
         Pose futrGoal = goal;
@@ -168,7 +176,7 @@ public class Robot {
 
         // this is to pass to the feed forward on the turret to offset for the rate of change of the angle to goal
         previousAngleToGoalVelocity = angleToGoalVelocity;
-        angleToGoalVelocity = -((Math.toRadians(angleToGoal - lastAngleToGoal)) / ((System.currentTimeMillis() - lastTimeTurret) * 0.001));
+        angleToGoalVelocity = -((Math.toRadians(angleToGoal - lastAngleToGoal)) / ((System.currentTimeMillis() - lastTimeTurret) * 0.001)); // todo work in velocity vector
         angleToGoalVelocity += follower.getAngularVelocity();
 
         angleToGoalAcceleration = (angleToGoalVelocity - previousAngleToGoalVelocity) / ((System.currentTimeMillis() - lastTimeTurret) * 1e-3);
@@ -179,18 +187,18 @@ public class Robot {
         // Est Time In Flight for ball at current pose
         double timeInFlight = stv.get(curPose.distanceFrom(futrGoal)).timeInFlight;
 
-        Vector virtualVelocity = follower.getVelocity().plus(follower.getAcceleration().times(.03));
+        Vector virtualVelocity = follower.getVelocity().plus(follower.getAcceleration().times(.015));
         // Logic for future pose
         futrGoal = goal.plusVector(virtualVelocity, - timeInFlight);
 
         double yAdd;
         // Logic for heading to goal
         if (robotSide == RobotSide.Blue) {
-            yAdd = 5;
+            yAdd = 7;
         } else {
-            yAdd = -2;
+            yAdd = -7;
         }
-        double deltaXFutr = futrGoal.getX() + 0 - curPose.getX();
+        double deltaXFutr = futrGoal.getX() + 4 - curPose.getX();
         double deltaYFutr = futrGoal.getY() + yAdd - curPose.getY();
         double angleToGoalFutr = Math.toDegrees(Math.atan2(deltaYFutr, deltaXFutr));
 
@@ -422,12 +430,15 @@ public class Robot {
         turretUpdate();
         follower.update();
         lightsUpdate();
-        telemetry.addData("in far zone", inFarZone());
-        panelsTelemetry.addData("shooter RPM", shooter.getRPM());
-        panelsTelemetry.addData("target rpm", shooter.shooterPID.getTargetPosition());
-        panelsTelemetry.addData("shooter error", shooter.shooterPID.getError());
-        panelsTelemetry.addData("shooter error derivative", shooter.shooterPID.getErrorDerivative());
-        panelsTelemetry.addData("shooter velocity", shooter.getRPM());
+
+        telemetry.addData("in Far Zone", inFarZone());
+        telemetry.addData("distance to goal", distanceToGoal());
+        panelsTelemetry.addData("RPM", shooter.getRPM());
+        panelsTelemetry.addData("hood angle", shooter.getHoodPosDeg());
+//        panelsTelemetry.addData("target rpm", shooter.shooterPID.getTargetPosition());
+//        panelsTelemetry.addData("shooter error", shooter.shooterPID.getError());
+//        panelsTelemetry.addData("shooter error derivative", shooter.shooterPID.getErrorDerivative());
+//        panelsTelemetry.addData("shooter velocity", shooter.getRPM());
 //        long shooter = System.currentTimeMillis();
 //        long intake = System.currentTimeMillis();
 //        long spindexer = System.currentTimeMillis();
@@ -452,7 +463,7 @@ public class Robot {
 //        panelsTelemetry.addData("turret pow", turret.turretPID.run());
 //        panelsTelemetry.addData("turret Accel", angleToGoalAcceleration);
 //        panelsTelemetry.addData("turret velocity", angleToGoalVelocity);
-//        Drawing.drawShapesDebug(this.follower);
+        Drawing.drawShapesDebug(this.follower);
         if (debug) {
             debug();
         }

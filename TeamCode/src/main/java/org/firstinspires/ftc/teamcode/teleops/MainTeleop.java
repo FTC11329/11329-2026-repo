@@ -143,6 +143,7 @@ public class MainTeleop {
         debug.checkStatus(gamepad1.start); // toggle to print telemetry
 
         robot.drivetrain.teleopMovement(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, gamepad1.right_bumper);
+//        robot.drivetrain.profiledMovement(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, gamepad1.right_bumper, robot.follower.getPose(), robotSide, robot.follower.getVelocity());
 
 
         if (intake.startPress) {

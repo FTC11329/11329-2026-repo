@@ -6,6 +6,11 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.teamcode.Constants;
+import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
+import org.firstinspires.ftc.teamcode.pedroPathing.math.Vector;
+import org.firstinspires.ftc.teamcode.util.RobotSide;
+
 public class Drivetrain {
     // declaring variables
     DcMotorEx leftFront;
@@ -48,6 +53,79 @@ public class Drivetrain {
         rightFront.setPower((forwardBackPower - strafePower - turning) * speed);
         rightBack.setPower((forwardBackPower + strafePower - turning) * speed);
     }
+
+    double aTowardMax = 15.0;     // max accel toward goal
+    double aAwayMax   = 10.0;     // max accel away (braking harder)
+    double lastTime;
+    double velocityToGoal;
+    double vRadialCmd;
+    public void profiledMovement(double forwardBackPower, double strafePower, double turning, boolean TURBO, Pose curPose, RobotSide robotSide, Vector velocity) {
+        double speed = 0.6;
+        // TURBO MODE
+        if (TURBO) {
+            speed = 1;
+        }
+        long now = System.currentTimeMillis();
+        if (lastTime == 0) {lastTime = now; return;}
+        double dt = (now - lastTime) * 1e-3;
+        lastTime = now;
+        Pose goal;
+        if (robotSide == RobotSide.Blue)  {
+            goal = Constants.Vision.blueGoal;
+        } else {
+            goal = Constants.Vision.redGoal;
+        }
+
+        double deltaX = goal.getX() - curPose.getX();
+        double deltaY = goal.getY() - curPose.getY();
+
+        double distanceToGoal = Math.hypot(deltaX, deltaY);
+
+
+        double ux = deltaX / distanceToGoal;
+        double uy = deltaY / distanceToGoal;
+
+
+        double vX = velocity.getXComponent();
+        double vY = velocity.getYComponent();
+
+        velocityToGoal = vX * ux + vY * uy;
+
+        double cos = Math.cos(curPose.getHeading());
+        double sin = Math.sin(curPose.getHeading());
+
+        double vFieldX = forwardBackPower * cos - strafePower * sin;
+        double vFieldY = forwardBackPower * sin + strafePower * cos;
+
+        vRadialCmd = (vFieldX * ux + vFieldY * uy) * 1e-2;
+
+        double dv = vRadialCmd - velocityToGoal;
+
+        double accelLimit = (dv > 0) ? aTowardMax : aAwayMax;
+        double dvMax = accelLimit * dt;
+
+        dv = clamp(dv, -dvMax, dvMax);
+
+        double vRadialProfiled = velocityToGoal + dv;
+
+        double vTanX = vFieldX - vRadialCmd * ux;
+        double vTanY = vFieldY - vRadialCmd * uy;
+
+        double vFieldXProfiled = vRadialProfiled * ux + vTanX;
+        double vFieldYProfiled = vRadialProfiled * uy + vTanY;
+
+        double cosH = Math.cos(-curPose.getHeading());
+        double sinH = Math.sin(-curPose.getHeading());
+
+        double forwardProfiled = vFieldXProfiled * cosH - vFieldYProfiled * sinH;
+        double strafeProfiled  = vFieldXProfiled * sinH + vFieldYProfiled * cosH;
+
+        leftFront.setPower((forwardProfiled + strafeProfiled + turning) * speed);
+        leftBack.setPower((forwardProfiled - strafeProfiled + turning) * speed);
+        rightFront.setPower((forwardProfiled - strafeProfiled - turning) * speed);
+        rightBack.setPower((forwardProfiled + strafeProfiled - turning) * speed);
+
+    }
     public void stop() {
         leftBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -63,5 +141,8 @@ public class Drivetrain {
         leftFront.setPower(0);
         rightBack.setPower(0);
         rightFront.setPower(0);
+    }
+    private static double clamp(double v, double lo, double hi) {
+        return Math.max(lo, Math.min(hi, v));
     }
 }
