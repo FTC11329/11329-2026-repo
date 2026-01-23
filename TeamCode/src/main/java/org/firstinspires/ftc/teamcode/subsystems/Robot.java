@@ -130,6 +130,14 @@ public class Robot {
     public void reZeroAtCorner() {
         follower.setPose(robotSide == RobotSide.Blue ? new Pose(-64.938, -59.7542, -1.573) : new Pose(-61.9, 60.9674, 1.5688));
     }
+    Pose holdPose;
+    public void holdPoint(boolean hold) {
+        if (holdPose == null){holdPose = getCurrentPose();}
+        else {
+            follower.holdPoint(holdPose);
+        }
+        if (!hold){holdPose = null;}
+    }
     // TURRET**************************************************************************************~
 
     double angleToGoalVelocity;
