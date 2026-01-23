@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.modularAutos.runnableWrappers;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
+import org.firstinspires.ftc.teamcode.modularAutos.planners.FromShootMidPos;
 import org.firstinspires.ftc.teamcode.modularAutos.planners.FromStartClosePosition;
 import org.firstinspires.ftc.teamcode.modularAutos.PathPlanner;
 import org.firstinspires.ftc.teamcode.pedroPathing.Drawing;
@@ -39,6 +40,7 @@ public class ExampleRunnableWrapper extends OpMode {
 
         steps.add(new FromStartClosePosition.ShootAndGoToMidShootPos(robot, lastPose()));
         steps.add(new FromStartClosePosition.ShootAndGoToMidShootPos(robot, lastPose()));
+        steps.add(new FromShootMidPos.ToIntakeSpike1(robot, lastPose(), true));
 
         robot.follower.setPose(startPose);
     }
@@ -66,7 +68,7 @@ public class ExampleRunnableWrapper extends OpMode {
             return;
         }
 
-        robot.follower.update();
+        robot.update();
         Drawing.drawShapesDebug(robot.follower);
 
         // Stops the robot if done
@@ -75,8 +77,6 @@ public class ExampleRunnableWrapper extends OpMode {
             telemetry.update();
             return;
         }
-
-        robot.update();
 
         PathPlanner step = steps.get(currentStep);
         boolean done = step.run();
