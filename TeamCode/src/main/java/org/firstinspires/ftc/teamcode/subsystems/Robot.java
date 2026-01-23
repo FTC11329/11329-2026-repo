@@ -127,6 +127,9 @@ public class Robot {
 
         return distanceToGoal() > 107;
     }
+    public void reZeroAtCorner() {
+        follower.setPose(robotSide == RobotSide.Blue ? new Pose(-64.938, -59.7542, -1.573) : new Pose(-61.9, 60.9674, 1.5688));
+    }
     // TURRET**************************************************************************************~
 
     double angleToGoalVelocity;
@@ -191,15 +194,15 @@ public class Robot {
         // Logic for future pose
         futrGoal = goal.plusVector(virtualVelocity, - timeInFlight);
 
-        double yAdd;
-        // Logic for heading to goal
+        Pose goalOffset;
         if (robotSide == RobotSide.Blue) {
-            yAdd = 7;
+            goalOffset = Constants.Vision.blueGoalAimOffset;
         } else {
-            yAdd = -7;
+            goalOffset = Constants.Vision.redGoalAimOffset;
         }
-        double deltaXFutr = futrGoal.getX() + 4 - curPose.getX();
-        double deltaYFutr = futrGoal.getY() + yAdd - curPose.getY();
+
+        double deltaXFutr = futrGoal.getX() + goalOffset.getX() - curPose.getX();
+        double deltaYFutr = futrGoal.getY() + goalOffset.getY() - curPose.getY();
         double angleToGoalFutr = Math.toDegrees(Math.atan2(deltaYFutr, deltaXFutr));
 
 
@@ -258,29 +261,29 @@ public class Robot {
         double hoodAngle = Math.atan(2 * height / distance - Math.tan(entryAngle)); //todo make sure atan returns a number
         double flywheelSpeed = Math.sqrt(g * distance * distance / (2 * Math.pow(Math.cos(hoodAngle), 2) * (distance * Math.tan(hoodAngle) - height)));
 
-//        Vector robotVelocity = follower.getVelocity();
+        Vector robotVelocity = follower.getVelocity();
 
-//        double coordinateTheta = robotVelocity.getTheta() - angleToGoal;
+        double coordinateTheta = robotVelocity.getTheta() - angleToGoal;
 
-//        double parallelComponent = - Math.cos(coordinateTheta) * robotVelocity.getMagnitude();
-//        double perpendicularComponent = Math.sin(coordinateTheta) * robotVelocity.getMagnitude();
+        double parallelComponent = - Math.cos(coordinateTheta) * robotVelocity.getMagnitude();
+        double perpendicularComponent = Math.sin(coordinateTheta) * robotVelocity.getMagnitude();
 
-//        double vz = flywheelSpeed * Math.sin(hoodAngle);
-//        double time = distance / (flywheelSpeed * Math.cos(hoodAngle));
-//        double ivr = distance / time + parallelComponent;
-//        double nvr = Math.sqrt(ivr * ivr + perpendicularComponent * perpendicularComponent);
-//        double ndr = nvr * time;
-//
-//        hoodAngle = Math.atan(vz / nvr);
-//        flywheelSpeed = Math.sqrt(g * ndr * ndr / (2 * Math.pow(Math.cos(hoodAngle), 2) * (distance * Math.tan(hoodAngle) - height)));
+        double vz = flywheelSpeed * Math.sin(hoodAngle);
+        double time = distance / (flywheelSpeed * Math.cos(hoodAngle));
+        double ivr = distance / time + parallelComponent;
+        double nvr = Math.sqrt(ivr * ivr + perpendicularComponent * perpendicularComponent);
+        double ndr = nvr * time;
 
-//        double turretVelocityOffset = Math.atan2(perpendicularComponent, ivr);
+        hoodAngle = Math.atan(vz / nvr);
+        flywheelSpeed = Math.sqrt(g * ndr * ndr / (2 * Math.pow(Math.cos(hoodAngle), 2) * (distance * Math.tan(hoodAngle) - height)));
+
+        double turretVelocityOffset = Math.atan2(perpendicularComponent, ivr);
         panelsTelemetry.addData("target hood angle", hoodAngle);
         panelsTelemetry.addData("target velocity", flywheelSpeed);
 
-        turret.setTargetRad(angleToGoal - curPose.getHeading()/*+ turretVelocityOffset*/);
+        turret.setTargetRad(angleToGoal - turretVelocityOffset - curPose.getHeading());
 
-        shooter.setHoodRad((Math.toRadians(hoodAngleOffset)) + Math.PI/2 - hoodAngle);
+        shooter.setHoodRad((Math.toRadians(hoodAngleOffset)) + Math.PI/2 - hoodAngle - hoodAngleOffset);
 
         double dragCoefficient = .00437 * .6;
         double dragCompensation = Math.pow(Math.E, dragCoefficient * distanceToGoal());
@@ -340,6 +343,8 @@ public class Robot {
             intake.spit(true);
         } else if ((isIntaking && indexer.allowIntaking()) || intakeOverride) {
             intake.intake(true);
+        } else if (indexer.shooting){
+            intake.setIntakePower(.5);
         } else {
             intake.intake(false);
         }
@@ -438,11 +443,17 @@ public class Robot {
         follower.update();
         lightsUpdate();
 
+        Pose curPose = follower.getPose();
+        telemetry.addData("x", curPose.getX());
+        telemetry.addData("y", curPose.getY());
+        telemetry.addData("head", curPose.getHeading());
+
         telemetry.addData("in Far Zone", inFarZone());
         telemetry.addData("distance to goal", distanceToGoal());
         panelsTelemetry.addData("RPM", shooter.getRPM());
         panelsTelemetry.addData("hood angle", shooter.getHoodPosDeg());
         panelsTelemetry.addData("target rpm", shooter.shooterPID.getTargetPosition());
+        panelsTelemetry.addData("rpm error", shooter.shooterPID.getError());
         panelsTelemetry.addData("shooter velocity", shooter.getRPM());
         panelsTelemetry.addData("hood pos", shooter.getHoodPosDeg());
         panelsTelemetry.addData("distance to goal", distanceToGoal());

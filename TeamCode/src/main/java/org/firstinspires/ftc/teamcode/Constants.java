@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.bylazar.configurables.annotations.Configurable;
+import com.bylazar.configurables.annotations.Sorter;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -10,6 +11,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.pedroPathing.control.PIDFCoefficients;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 
+import kotlin.jvm.JvmField;
+
+@Configurable
 public class Constants {
     public static class Indexer {
 
@@ -34,6 +38,8 @@ public class Constants {
     public static class Vision {
         public static Pose redGoal = new Pose(60, -60);
         public static Pose blueGoal = new Pose(60, 60);
+        public static Pose redGoalAimOffset = new Pose(4, -7);
+        public static Pose blueGoalAimOffset = new Pose(6, 4);
 
         public static Pose blueReset = new Pose(7.5, 39.7);
         public static Pose redReset = new Pose(7.5, -39.7);
@@ -79,16 +85,23 @@ public class Constants {
     }
     @Configurable
     public static class Shooter {
-        public static double maxHoodAngle = 53.5;
-        public static double minHoodAngle = 0;
+        @Sorter(sort = 0)
+        @JvmField
+        public static PIDFCoefficients shooterVelocityPID = new PIDFCoefficients(.005, 0, 0, 0);
+        @Sorter(sort = 1)
+        @JvmField
+        public static double kV = 4456;
+        @Sorter(sort =2)
+        @JvmField
+        public static double RPMoffset = 0;
+        @Sorter(sort = 3)
         public static double closeEnoughRPM = 50;
+        @Sorter(sort = 4)
         public static double ticksPerRevolution = 28;
-        public static double P = 0.004;
-        public static double I = 0;
-        public static double D = 0;
-        public static double F = 0;
-        public static double kF = 4456;
-        public static PIDFCoefficients shooterVelocityPID = new PIDFCoefficients(0.005, 0, 0, 0);
+        @Sorter(sort = 5)
+        public static double minHoodAngle = 0;
+        @Sorter(sort = 6)
+        public static double maxHoodAngle = 53.5;
     }
     public static class Color {
 //            old values

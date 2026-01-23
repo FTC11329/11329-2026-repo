@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
 import org.firstinspires.ftc.teamcode.util.BallColor;
@@ -104,10 +105,8 @@ public class MainTeleop {
         resetPose.checkStatus(gamepad2.y);
 
 
-        if (resetPose.startPress || true) {
-            startPose = new Pose(0,0, 0);
-            robot.turret.encoderOffset = 0;
-        }
+        startPose = new Pose(0,0, 0);
+        robot.turret.encoderOffset = 0;
 
         telemetry.addData("Start Pose", startPose);
         telemetry.addData("Encoder Offset", robot.turret.encoderOffset);
@@ -142,6 +141,7 @@ public class MainTeleop {
 
         takePhoto.checkStatus(gamepad1.y); // press to take photo
         debug.checkStatus(gamepad1.start); // toggle to print telemetry
+        resetPose.checkStatus(gamepad1.x);
 
         robot.drivetrain.teleopMovement(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, gamepad1.right_bumper);
 //        robot.drivetrain.profiledMovement(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, gamepad1.right_bumper, robot.follower.getPose(), robotSide, robot.follower.getVelocity());
@@ -180,13 +180,16 @@ public class MainTeleop {
         }
 
         if (autoShoot.isOn) {
-            robot.calculateIdealShot(RPMoffset, 0);
+            robot.prepareShooter(RPMoffset, 0);
         } else if (autoShoot.endPress) {
-            robot.casualShooterModeOn();
+//            robot.casualShooterModeOn();
+            robot.shooter.stop();
         }
 
         if (movePoseUp.startPress) {
             RPMoffset += 20;
+        } else if (movePoseDown.startPress) {
+            RPMoffset -= 20;
         }
         // Take Photo to set position
         if (takePhoto.isOn) {
@@ -228,10 +231,10 @@ public class MainTeleop {
 //                robot.offsetPose.addY(-1);
 //                robot.offsetPose.addX(-1);
 //            }
-//            if (resetPose.startPress) {
-//                robot.offsetPose = new Pose(0,0,0);
-//            }
 //        }
+        if (resetPose.startPress) {
+            robot.reZeroAtCorner();
+        }
 
         robot.update(debug.isOn);
 

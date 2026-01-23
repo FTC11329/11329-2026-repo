@@ -155,6 +155,9 @@ public class MovingPIDFController implements Controller {
     public void setCoefficients(PIDFCoefficients set) {
         coefficients = set;
     }
+    public void setkV(double set){
+        kV = set;
+    }
 
     /**
      * This returns the PIDF's current coefficients.

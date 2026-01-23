@@ -325,11 +325,10 @@ public class SmartIndexerButEvenNewer {
     boolean shotTimerStarted = false;
     boolean next = false;
     Timer shotTimer = new Timer();
-    private final double SHOT_TIME = 1;
+    private final double SHOT_TIME = .1;
 
     public void farShootingLogicUpdate(boolean readyToShoot) {
         if (startShooting && readyToShoot) {
-            setIndexerPos(IndexerEnumsButEvenNewerThisTime.shoot1);
             startShooting = false;
             shotTimer.resetTimer();
             spinTransferWheel(true);
@@ -343,6 +342,11 @@ public class SmartIndexerButEvenNewer {
 
         if (shooting && shotTimerStarted && shotTimer.getElapsedTimeSeconds() > SHOT_TIME && readyToShoot && isAtPosition()) {
             switch (currentIndexerState) {
+                case intake1:
+                case intake2:
+                case intake3:
+                    setIndexerPos(IndexerEnumsButEvenNewerThisTime.shoot1);
+                    break;
                 case shoot1:
                     setIndexerPos(IndexerEnumsButEvenNewerThisTime.shoot0);
                     break;
@@ -352,7 +356,7 @@ public class SmartIndexerButEvenNewer {
                 case shoot2:
                     setIndexerPos(IndexerEnumsButEvenNewerThisTime.intake0);
                     break;
-                case intake0:
+                case intake0: //todo: deal with this if this is true immediately
                     shooting = false;
                     spinTransferWheel(false);
                     allowIntaking = true;

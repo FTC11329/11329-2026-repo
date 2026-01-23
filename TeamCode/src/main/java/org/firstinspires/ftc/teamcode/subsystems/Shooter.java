@@ -46,7 +46,7 @@ public class Shooter {
         hoodServo2.setDirection(Servo.Direction.REVERSE);
         hoodServo2.setPosition(0);
 
-        shooterPID = new MovingPIDFController(Constants.Shooter.shooterVelocityPID, Constants.Shooter.kF);
+        shooterPID = new MovingPIDFController(Constants.Shooter.shooterVelocityPID, Constants.Shooter.kV);
         shooterPID.updateFeedForwardInput(1);
     }
 
@@ -173,6 +173,8 @@ public class Shooter {
     }
 
     public void update() {
+        shooterPID.setCoefficients(Constants.Shooter.shooterVelocityPID);
+        shooterPID.setkV(Constants.Shooter.kV);
         if (shooterSpin && usePID) {
             shooterPID.updatePosition(getRPM());
             if (shooterPID.getTargetPosition() > 10) {
