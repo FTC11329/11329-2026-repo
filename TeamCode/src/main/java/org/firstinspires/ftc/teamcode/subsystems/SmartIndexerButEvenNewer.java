@@ -324,6 +324,7 @@ public class SmartIndexerButEvenNewer {
     }
     boolean shotTimerStarted = false;
     boolean next = false;
+    boolean hasShot = true;
     Timer shotTimer = new Timer();
     private final double SHOT_TIME = .1;
 
@@ -339,19 +340,24 @@ public class SmartIndexerButEvenNewer {
             shotTimerStarted = true;
             allowIntaking = false;
         }
-
-        if (shooting && shotTimerStarted && shotTimer.getElapsedTimeSeconds() > SHOT_TIME && readyToShoot && isAtPosition()) {
+        if (!readyToShoot) {
+            hasShot = true;
+        }
+        if (shooting && shotTimerStarted && shotTimer.getElapsedTimeSeconds() > SHOT_TIME && readyToShoot && isAtPosition() && hasShot) {
             switch (currentIndexerState) {
                 case intake1:
                 case intake2:
                 case intake3:
                     setIndexerPos(IndexerEnumsButEvenNewerThisTime.shoot1);
+                    hasShot = false;
                     break;
                 case shoot1:
                     setIndexerPos(IndexerEnumsButEvenNewerThisTime.shoot0);
+                    hasShot = false;
                     break;
                 case shoot0:
                     setIndexerPos(IndexerEnumsButEvenNewerThisTime.shoot2);
+                    hasShot = false;
                     break;
                 case shoot2:
                     setIndexerPos(IndexerEnumsButEvenNewerThisTime.intake0);
