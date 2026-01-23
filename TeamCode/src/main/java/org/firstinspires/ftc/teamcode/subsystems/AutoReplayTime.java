@@ -9,6 +9,7 @@ import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.SplineCurve;
+import org.firstinspires.ftc.teamcode.pedroPathing.math.MathFunctions;
 import org.firstinspires.ftc.teamcode.pedroPathing.math.Vector;
 import org.firstinspires.ftc.teamcode.pedroPathing.paths.HeadingInterpolator;
 import org.firstinspires.ftc.teamcode.pedroPathing.paths.Path;
@@ -45,6 +46,7 @@ public class AutoReplayTime {
 
     int currentGamepadIndex = 0;
     int currentPoseIndex = 0;
+    double maxVelocityMagnitude = 50; //inch per second.
 
     StateEntryJson currentReplayStates;
     PathChain replayPath;
@@ -220,7 +222,8 @@ public class AutoReplayTime {
             }
             if (replay.isOn){
                 double currentTime = replay.time.seconds();
-
+                double vel = follower.getCurrentPath().getTangentVector(follower.getCurrentPath().getClosestPointTValue()).getMagnitude();
+                follower.setMaxPower(MathFunctions.clamp((vel/maxVelocityMagnitude) + 0.1, 0, 1));
                 // Advance gamepad index if it's time
                 if (currentGamepadIndex + 1 < currentReplayStates.timeListGamepad.size() &&
                         currentReplayStates.timeListGamepad.get(currentGamepadIndex + 1) <= currentTime) {
