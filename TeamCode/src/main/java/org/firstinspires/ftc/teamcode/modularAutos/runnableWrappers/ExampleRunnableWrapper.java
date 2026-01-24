@@ -14,6 +14,7 @@ import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.EndValuesStorer;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Autonomous
@@ -21,7 +22,7 @@ public class ExampleRunnableWrapper extends OpMode {
     Pose startPose;
     RobotSide robotSide;
     Robot robot;
-    private List<PathPlanner> steps;
+    private List<PathPlanner> steps = new ArrayList<>();
     Timer zeroVelocityTimer = new Timer();
     private int currentStep = 0;
 
@@ -46,7 +47,7 @@ public class ExampleRunnableWrapper extends OpMode {
 
     @Override
     public void start() {
-        robot.resetTimers();
+        robot.start();
         steps.get(currentStep).buildPaths();
         robot.spinIntake();
     }

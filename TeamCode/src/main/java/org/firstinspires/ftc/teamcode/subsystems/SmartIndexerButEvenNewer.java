@@ -52,6 +52,11 @@ public class SmartIndexerButEvenNewer {
     }
 
     public SmartIndexerButEvenNewer(HardwareMap hardwareMap, BallColor[] ballCells, double startIndexerPos) {
+        encoder = hardwareMap.get(DcMotorEx.class, "intake");
+        encoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        encoder.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        encoderOffsetFromAuto = startIndexerPos;
+
         spindexer1 = hardwareMap.get(ServoImplEx.class, "spindexer1");
         spindexer2 = hardwareMap.get(ServoImplEx.class, "spindexer2");
         spindexer1.setPwmRange(new PwmControl.PwmRange(500, 2500)); // probably the wrong way to do this but it works
@@ -69,13 +74,9 @@ public class SmartIndexerButEvenNewer {
         feeder.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         feeder.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        encoder = hardwareMap.get(DcMotorEx.class, "intake");
-        encoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        encoder.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        encoderOffsetFromAuto = startIndexerPos;
 
         colorSensor = hardwareMap.get(RevColorSensorV3.class, "spindexerColorSensor");
-        this.ballCells = ballCells;
+        setHasBalls(ballCells);
     }
 
     public void start() {
@@ -141,6 +142,16 @@ public class SmartIndexerButEvenNewer {
             }
         }
         return true;
+    }
+
+    public int numberOfBallsInBallCells() {
+        int num = 0;
+        for (BallColor color : ballCells) {
+            if (color != BallColor.None) {
+                num++;
+            }
+        }
+        return num;
     }
 
     private void clearBallCells() {
@@ -313,13 +324,16 @@ public class SmartIndexerButEvenNewer {
             spitTimer.resetTimer(2000000000);
         }
 
-        intakeLogicUpdate(intaking);
+        intakeLogicUpdate(intaking, readyToShoot);
         if (doSmartShoot) {
             smartShootLogicUpdate(readyToShoot);
         } else if (!isFarShot){
             dumbShootLogicUpdate(readyToShoot);
         } else {
             farShootingLogicUpdate(readyToShoot);
+        }
+        if (isHasBallsFull() && readyToShoot && isAtPosition() && !doSmartShoot) {
+            spinTransferWheel(true);
         }
     }
     boolean shotTimerStarted = false;
@@ -375,7 +389,10 @@ public class SmartIndexerButEvenNewer {
             shotTimer.resetTimer();
         }
     }
-    public void intakeLogicUpdate(boolean intaking) {
+    public void setHasBalls(BallColor[] set) {
+        ballCells = set;
+    }
+    public void intakeLogicUpdate(boolean intaking, boolean readyToShoot) {
         if (intaking && !isHasBallsFull() && isAtPosition() && !shooting) {
             BallColor curColor = getColor();
 
@@ -398,29 +415,36 @@ public class SmartIndexerButEvenNewer {
                 }
             }
         }
+
     }
+    boolean dumbShootState2 = false;
     public void dumbShootLogicUpdate(boolean readyToShoot) {
         // move to highest full index
         if (startShooting && readyToShoot) {
-            setIndexerPos(IndexerEnumsButEvenNewerThisTime.intake3);
+            setIndexerPos(IndexerEnumsButEvenNewerThisTime.shoot1);
             spinTransferWheel(true);
-
+            shotTimer.resetTimer();
             startShooting = false;
         }
 
         // once at highest full index, shoot while going back to intake
-        if (shooting && !dumbShootState1 && isAtPosition()) {
+        if (shooting && !dumbShootState1 && !dumbShootState2 && isAtPosition() && shotTimer.getElapsedTimeSeconds() > .2) {
             setIndexerPos(IndexerEnumsButEvenNewerThisTime.intake0);
             dumbShootState1 = true;
         }
 
         // once back at intake, stop shooting
-        if (dumbShootState1 && isAtPosition()) {
-            allowIntaking = true;
-            clearBallCells();
+        if (dumbShootState1 && !dumbShootState2 && isAtPosition()) {
+            dumbShootState1 = false;
+            dumbShootState2 = true;
+            shotTimer.resetTimer();
+        }
+        if (dumbShootState2 && !dumbShootState1 && shotTimer.getElapsedTimeSeconds() > .33) {
             spinTransferWheel(false);
             shooting = false;
-            dumbShootState1 = false;
+            clearBallCells();
+            allowIntaking = true;
+            dumbShootState2 = false;
         }
     }
     public void smartShootLogicUpdate(boolean readyToShoot) {

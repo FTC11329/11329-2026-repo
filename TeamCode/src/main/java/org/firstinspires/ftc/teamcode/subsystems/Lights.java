@@ -167,4 +167,8 @@ public class Lights {
         debounce = false;
     }
 
+    public void stop() {
+        prism.clearAllAnimations();
+        prism.insertAndUpdateAnimation(0, teamColorAnimation);
+    }
 }

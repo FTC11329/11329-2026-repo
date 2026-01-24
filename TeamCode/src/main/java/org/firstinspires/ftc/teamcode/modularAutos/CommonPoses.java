@@ -29,9 +29,9 @@ public class CommonPoses {
         public static Pose intakeSpike3Start = new Pose(-36, 32, Math.toRadians(90));
         public static Pose intakeSpike3End = new Pose(-36, 54, Math.toRadians(90));
 
-        public static Pose pushLever = new Pose(4.5,-56.25, Math.toRadians(90));
-        public static Pose movingToIntakeSTunnelControlPoint = new Pose(16.5,-51);
-        public static Pose intakeFromSTunnel = new Pose(22,-59.25, Math.toRadians(135)); // pointing at ramp
+        public static Pose pushLever = new Pose(-4.5,55.5, Math.toRadians(90));
+        public static Pose movingToIntakeSTunnelControlPoint = new Pose(-16.5,51);
+        public static Pose intakeFromSTunnel = new Pose(-22,59.25, Math.toRadians(45)); // pointing at ramp
 
         public static Pose startSTunnelPose = new Pose(-27, 59.42, Math.toRadians(155)); //pointing at human
         public static Pose endSTunnelPose = new Pose(-53, 63, Math.toRadians(180));

@@ -66,7 +66,7 @@ public class Example {
         @Override
         //todo
         public String toString() {
-            return "NAME";
+            return "NAME, state: " + state;
         }
     }
 }

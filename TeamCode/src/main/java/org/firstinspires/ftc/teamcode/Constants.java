@@ -17,7 +17,7 @@ import kotlin.jvm.JvmField;
 public class Constants {
     public static class Indexer {
 
-        public static double indexerTolerance = 0.07;
+        public static double indexerTolerance = 0.1;
 
         public static double spindexPower = 0.45;
 
@@ -31,7 +31,7 @@ public class Constants {
     public static class Intake {
         public static double intakePower = 1;
         public static double spitPower = -0.67; //67 67 67 67 67 67 67 67 67 67
-        public static double intakeOffPower = 0.12;
+        public static double intakeOffPower = 0.2;
         public static double spitTime = 0.3;
     }
 

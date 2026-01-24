@@ -59,7 +59,7 @@ public class Robot {
     public double angleToGoalAcceleration;
     Pose goal = new Pose(0,0,0);
     int i = 0;
-    long lastTime;
+    long lastTime = System.nanoTime();
     Telemetry telemetry;
     public Robot(Telemetry telemetry, HardwareMap hardwareMap, RobotSide robotSide, int startTurretTicks, double startIndexerTicks) {
         this(telemetry, hardwareMap, robotSide, startTurretTicks, startIndexerTicks, new BallColor[]{BallColor.None, BallColor.None, BallColor.None});
@@ -98,7 +98,8 @@ public class Robot {
         if (motif == null) {
             motif = vision.getMotif();
         }
-        return motif;
+//        return motif;
+        return new BallColor[]{BallColor.Purple, BallColor.Green, BallColor.Purple};
     }
 
     public double distanceToGoal() {
@@ -127,10 +128,10 @@ public class Robot {
         return ShapeDetection.doesRobotIntersect(FieldShapes.closeTriangle, curPose) || ShapeDetection.doesRobotIntersect(FieldShapes.farTriangle, curPose);
     }
     public boolean inFarZone() {
-//        Pose curPose = follower.getPose();
-//        return ShapeDetection.doesRobotIntersect(FieldShapes.farTriangle, curPose);
+        Pose curPose = follower.getPose();
+        return ShapeDetection.doesRobotIntersect(FieldShapes.farTriangle, curPose);
 
-        return distanceToGoal() > 107;
+//        return distanceToGoal() > 107;
     }
     public void reZeroAtCorner() {
         follower.setPose(robotSide == RobotSide.Blue ? new Pose(-64.938, -59.7542, -1.573) : new Pose(-61.9, 60.9674, 1.5688));
@@ -436,6 +437,7 @@ public class Robot {
 
     // SYSTEM**************************************************************************************~
     public void start() {
+        resetTimers();
         indexer.start();
     }
     public void update() {
@@ -445,8 +447,8 @@ public class Robot {
     double previousTime;
     double maxHoodAngleChange;
     public void update(boolean debug) {
-        long now = System.currentTimeMillis();
-        panelsTelemetry.addData("dt", (now - lastTime) * 1e-3);
+        long now = System.nanoTime();
+        panelsTelemetry.addData("dt", (now - lastTime) * 1e-6);
         lastTime = now;
 
         shooterUpdate();
@@ -456,21 +458,22 @@ public class Robot {
         follower.update();
         lightsUpdate();
 
-        Pose curPose = follower.getPose();
-        telemetry.addData("x", curPose.getX());
-        telemetry.addData("y", curPose.getY());
-        telemetry.addData("head", curPose.getHeading());
-
-        telemetry.addData("in Far Zone", inFarZone());
+//        panelsTelemetry.addData("Shoot overPower", shooter.shooterPID.run() >= 1 ? 1000 : 0);
+//        panelsTelemetry.addData("Shoot power", shooter.shooterPID.run());
+//        panelsTelemetry.addData("RPM", shooter.getRPM());
+//        panelsTelemetry.addData("hood angle", shooter.getHoodPosDeg());
+//        panelsTelemetry.addData("target rpm", shooter.shooterPID.getTargetPosition());
+//        panelsTelemetry.addData("rpm error", shooter.shooterPID.getError());
+//        panelsTelemetry.addData("shooter velocity", shooter.getRPM());
+//        panelsTelemetry.addData("hood pos", shooter.getHoodPosDeg());
         telemetry.addData("distance to goal", distanceToGoal());
-        panelsTelemetry.addData("RPM", shooter.getRPM());
-        panelsTelemetry.addData("hood angle", shooter.getHoodPosDeg());
-        panelsTelemetry.addData("target rpm", shooter.shooterPID.getTargetPosition());
-        panelsTelemetry.addData("rpm error", shooter.shooterPID.getError());
-        panelsTelemetry.addData("shooter velocity", shooter.getRPM());
-        panelsTelemetry.addData("hood pos", shooter.getHoodPosDeg());
-        panelsTelemetry.addData("distance to goal", distanceToGoal());
-        panelsTelemetry.addData("ready to shoot", readyToShootMotors());
+        telemetry.addData("far zone", inFarZone());
+        telemetry.addData("is at position", indexer.isAtPosition());
+        telemetry.addData("encoder position", indexer.getEncoderPercentage());
+        telemetry.addData("dumbshoot1", indexer.dumbShootState2);
+        telemetry.addData("dumbshoot2", indexer.dumbShootState2);
+
+//        panelsTelemetry.addData("ready to shoot", readyToShootMotors());
 //        panelsTelemetry.addData("shooter error", shooter.shooterPID.getError());
 //        panelsTelemetry.addData("shooter error derivative", shooter.shooterPID.getErrorDerivative());
 //        long shooter = System.currentTimeMillis();
@@ -480,6 +483,7 @@ public class Robot {
 //        long follower = System.currentTimeMillis();
 //        long lights = System.currentTimeMillis();
 //        Drawing.drawShapesDebug(this.follower);
+//        Drawing.drawDebug(this.follower);
 
 //        panelsTelemetry.addData("shooter", -(start - shooter));
 //        panelsTelemetry.addData("intake", -(shooter - intake));
@@ -497,11 +501,11 @@ public class Robot {
 //        panelsTelemetry.addData("turret pow", turret.turretPID.run());
 //        panelsTelemetry.addData("turret Accel", angleToGoalAcceleration);
 //        panelsTelemetry.addData("turret velocity", angleToGoalVelocity);
-        Drawing.drawShapesDebug(this.follower);
+//        Drawing.drawShapesDebug(this.follower);
         if (debug) {
             debug();
         }
-        telemetry.update();
+//        telemetry.update();
         panelsTelemetry.update();
     }
 
@@ -604,6 +608,7 @@ public class Robot {
     }
 
     public void stopAllSubsystems() {
+        lights.stop();
         intake.stop();
         turret.stop();
         vision.stop();

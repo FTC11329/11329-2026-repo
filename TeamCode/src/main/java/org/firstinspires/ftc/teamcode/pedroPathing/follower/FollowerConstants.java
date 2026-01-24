@@ -311,6 +311,12 @@ public class FollowerConstants {
         this.forwardZeroPowerAcceleration = forwardZeroPowerAcceleration;
         return this;
     }
+    /** big number slows less, must call this after forwardZeroPowerAcceleration and lateralZeroPowerAcceleration*/
+    public FollowerConstants zeroPowerAccelerationMultiplier(double zeroPowerAccelerationMultiplier) {
+        this.forwardZeroPowerAcceleration *= zeroPowerAccelerationMultiplier;
+        this.lateralZeroPowerAcceleration *= zeroPowerAccelerationMultiplier;
+        return this;
+    }
 
     public FollowerConstants lateralZeroPowerAcceleration(double lateralZeroPowerAcceleration) {
         this.lateralZeroPowerAcceleration = lateralZeroPowerAcceleration;

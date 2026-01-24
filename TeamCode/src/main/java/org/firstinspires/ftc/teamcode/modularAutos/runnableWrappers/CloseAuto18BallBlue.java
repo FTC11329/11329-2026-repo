@@ -15,6 +15,7 @@ import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.EndValuesStorer;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Autonomous(name = "Close 18 Blue", group = "       Testing", preselectTeleOp = "Main Teleop Blue")
@@ -22,8 +23,8 @@ public class CloseAuto18BallBlue extends OpMode {
     Pose startPose;
     RobotSide robotSide;
     Robot robot;
-    private List<PathPlanner> steps;
-    Timer zeroVelocityTimer = new Timer();
+    private List<PathPlanner> steps = new ArrayList<>();
+    Timer zeroVelocityTimer = new Timer(2000000);
     private int currentStep = 0;
 
     @Override
@@ -38,18 +39,18 @@ public class CloseAuto18BallBlue extends OpMode {
         startPose = StartPoses.closeInner;
 
         steps.add(new FromStartClosePosition.ShootAndGoToMidShootPos(robot, lastPose()));
-        steps.add(new FromShootMidPos.ToIntakeSpike2(robot, lastPose(), true, false, false));
+        steps.add(new FromShootMidPos.ToIntakeSpike2  (robot, lastPose(), false, false, false));
         steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPose(), false, false));
-        steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPose(), true, false));
-        steps.add(new FromShootMidPos.ToIntakeSpike1(robot, lastPose(), false, true, false));
-        steps.add(new FromShootMidPos.ToIntakeSpike3(robot, lastPose(), true, true));
+        steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPose(), true,  false));
+        steps.add(new FromShootMidPos.ToIntakeSpike1  (robot, lastPose(), true,  false, false));
+        steps.add(new FromShootMidPos.ToIntakeSpike3  (robot, lastPose(), true,  true));
 
         robot.follower.setPose(startPose);
     }
 
     @Override
     public void start() {
-        robot.resetTimers();
+        robot.start();
         steps.get(currentStep).buildPaths();
         robot.spinIntake();
     }
@@ -72,7 +73,8 @@ public class CloseAuto18BallBlue extends OpMode {
         }
 
         robot.update();
-        Drawing.drawShapesDebug(robot.follower);
+        robot.prepareShooter();
+        Drawing.drawDebug(robot.follower);
 
         // Stops the robot if done
         if (currentStep >= steps.size()) {
@@ -86,8 +88,10 @@ public class CloseAuto18BallBlue extends OpMode {
 
         telemetry.addData("time", robot.getOpmodeTimeSeconds());
         telemetry.addData("name", step);
+        for (BallColor i : robot.indexer.getBallCells()) {
+            telemetry.addData("hasBalls", i);
+        }
 
-        telemetry.update();
 
         if (done) {
             currentStep++;

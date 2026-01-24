@@ -15,6 +15,9 @@ public class Timer {
     /**
      * This creates a new Timer with the start time set to its creation time.
      */
+    public Timer(double startSec) {
+        resetTimer(startSec);
+    }
     public Timer() {
         resetTimer();
     }

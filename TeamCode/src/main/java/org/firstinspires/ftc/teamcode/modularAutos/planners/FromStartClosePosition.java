@@ -47,6 +47,7 @@ public class FromStartClosePosition {
         public boolean run() {
             switch (state) {
                 case 0:
+                    robot.follower.followPath(toShootPosition);
                     setPathState(1);
                     break;
                 case 1:
@@ -73,7 +74,7 @@ public class FromStartClosePosition {
         @NonNull
         @Override
         public String toString() {
-            return "FromStartClosePosition ShootAndGoToMidShootPos";
+            return "FromStartClosePosition ShootAndGoToMidShootPos, step: " + state;
         }
     }
 }
