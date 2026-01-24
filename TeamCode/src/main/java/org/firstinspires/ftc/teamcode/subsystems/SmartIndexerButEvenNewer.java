@@ -54,8 +54,8 @@ public class SmartIndexerButEvenNewer {
     public SmartIndexerButEvenNewer(HardwareMap hardwareMap, BallColor[] ballCells, double startIndexerPos) {
         spindexer1 = hardwareMap.get(ServoImplEx.class, "spindexer1");
         spindexer2 = hardwareMap.get(ServoImplEx.class, "spindexer2");
-        spindexer1.setPwmRange(new PwmControl.PwmRange(542, 2450)); // probably the wrong way to do this but it works
-        spindexer2.setPwmRange(new PwmControl.PwmRange(542, 2450));
+        spindexer1.setPwmRange(new PwmControl.PwmRange(500, 2500)); // probably the wrong way to do this but it works
+        spindexer2.setPwmRange(new PwmControl.PwmRange(500, 2500));
         spindexer1.setDirection(Servo.Direction.REVERSE);
         spindexer2.setDirection(Servo.Direction.REVERSE);
         spitTimer.resetTimer(10000000);
@@ -178,7 +178,7 @@ public class SmartIndexerButEvenNewer {
     }
 
     public double getEncoderPercentage() {
-        return (updatingEncoderPos / 4096.0) + encoderOffsetFromAuto;
+        return Math.abs(updatingEncoderPos / 4096.0) + encoderOffsetFromAuto;
     }
 
     public boolean isAtPosition() {
