@@ -1,20 +1,19 @@
 package org.firstinspires.ftc.teamcode.modularAutos.planners;
 
+import static org.firstinspires.ftc.teamcode.modularAutos.CommonPoses.ShootPoses;
+
+import androidx.annotation.NonNull;
+
 import org.firstinspires.ftc.teamcode.modularAutos.PathPlanner;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.paths.Path;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
 
-import static org.firstinspires.ftc.teamcode.modularAutos.CommonPoses.*;
 
-import androidx.annotation.NonNull;
-
-
-public class Example {
-    public static class NAME implements PathPlanner {
-        //todo
-        /// DESCRIPTION
+public class Commands {
+    public static class WaitSeconds implements PathPlanner {
+        /// Waits the seconds passed in
         // Variables
         Pose offset = new Pose();
         private Timer pathTimer;
@@ -24,25 +23,21 @@ public class Example {
         // Pass-through Variables
         private volatile Robot robot;
         private Pose startPose;
-        // todo
-        public NAME(Robot robot, Pose startPose) {
+        private double waitSec;
+        public WaitSeconds(Robot robot, Pose startPose, double waitSec) {
             pathTimer = new Timer();
             this.robot = robot;
             this.startPose = startPose;
+            this.waitSec = waitSec;
         }
-        //Path initialization
-        Path toShootPosition;
 
         @Override
         public void buildPaths() {
-            // Path creation
-            toShootPosition = robot.follower.linearPathBuilder(startPose, ShootPoses.midShoot);
         }
 
         @Override
         public Pose getEndPoseEst() {
-            //todo
-            return ShootPoses.midShoot;
+            return startPose;
         }
 
         @Override
@@ -52,6 +47,9 @@ public class Example {
                     setPathState(1);
                     break;
                 case 1:
+                    if (pathTimer.getElapsedTimeSeconds() > waitSec) {
+                        isFinished = true;
+                    }
             }
 
             return isFinished;
@@ -64,9 +62,8 @@ public class Example {
 
         @NonNull
         @Override
-        //todo
         public String toString() {
-            return "NAME";
+            return "Wait Time";
         }
     }
 }

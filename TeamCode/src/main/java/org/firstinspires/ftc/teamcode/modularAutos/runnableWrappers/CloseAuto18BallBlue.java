@@ -3,9 +3,10 @@ package org.firstinspires.ftc.teamcode.modularAutos.runnableWrappers;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
+import org.firstinspires.ftc.teamcode.modularAutos.CommonPoses.*;
+import org.firstinspires.ftc.teamcode.modularAutos.PathPlanner;
 import org.firstinspires.ftc.teamcode.modularAutos.planners.FromShootMidPos;
 import org.firstinspires.ftc.teamcode.modularAutos.planners.FromStartClosePosition;
-import org.firstinspires.ftc.teamcode.modularAutos.PathPlanner;
 import org.firstinspires.ftc.teamcode.pedroPathing.Drawing;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
@@ -16,8 +17,8 @@ import org.firstinspires.ftc.teamcode.util.RobotSide;
 
 import java.util.List;
 
-@Autonomous
-public class ExampleRunnableWrapper extends OpMode {
+@Autonomous(name = "Close 18 Blue", group = "       Testing", preselectTeleOp = "Main Teleop Blue")
+public class CloseAuto18BallBlue extends OpMode {
     Pose startPose;
     RobotSide robotSide;
     Robot robot;
@@ -27,19 +28,21 @@ public class ExampleRunnableWrapper extends OpMode {
 
     @Override
     public void init() {
-        // todo Set These Before Creating
-        robotSide = null;
+        robotSide = RobotSide.Blue;
         robot = new Robot(telemetry, hardwareMap, robotSide, 0,0,
                 new BallColor[]{
                         BallColor.Green,
                         BallColor.Purple,
                         BallColor.Purple
                 });
-        // todo Set These Before Creating
-        startPose = null;
+        startPose = StartPoses.closeInner;
 
         steps.add(new FromStartClosePosition.ShootAndGoToMidShootPos(robot, lastPose()));
-        steps.add(new FromShootMidPos.ToIntakeSpike1(robot, lastPose(), true, false, false));
+        steps.add(new FromShootMidPos.ToIntakeSpike2(robot, lastPose(), true, false, false));
+        steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPose(), false, false));
+        steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPose(), true, false));
+        steps.add(new FromShootMidPos.ToIntakeSpike1(robot, lastPose(), false, true, false));
+        steps.add(new FromShootMidPos.ToIntakeSpike3(robot, lastPose(), true, true));
 
         robot.follower.setPose(startPose);
     }

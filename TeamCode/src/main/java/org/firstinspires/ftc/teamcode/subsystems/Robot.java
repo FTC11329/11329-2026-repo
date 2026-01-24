@@ -92,8 +92,13 @@ public class Robot {
         }
     }
     // VISION**************************************************************************************~
-    public void getMotif() {
-        motif = vision.getMotif();
+    // sets the motif if we havent seen it yet
+    // always return the motif
+    public BallColor[] getMotif() {
+        if (motif == null) {
+            motif = vision.getMotif();
+        }
+        return motif;
     }
 
     public double distanceToGoal() {
