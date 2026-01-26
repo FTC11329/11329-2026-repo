@@ -363,12 +363,6 @@ public class Robot {
     public void spinIntake(boolean set) {
         isIntaking = set;
     }
-//    long startSpit = 0L;
-//    boolean setTimeOnce = true;
-//    boolean autoSpitting = false;
-//    long intakeEnableTime = 0L;
-//    static final long SPINUP_IGNORE_MS = 300;  // tune 200–400ms
-//    private boolean setTimer;
 
     public void intakeUpdate() {
         if (spitIntake || indexer.doSpit()) {
@@ -380,42 +374,6 @@ public class Robot {
         } else {
             intake.intake(false);
         }
-        // intake jam detection (commented out because we dont want it)
-
-//        long now = System.currentTimeMillis();
-//        long spitTime = now - startSpit;
-//
-//        boolean spinupIgnore = (now - intakeEnableTime) < SPINUP_IGNORE_MS;
-//        boolean highCurrent = intake.intakeMotor.isOverCurrent();
-//
-//        if (!spinupIgnore && highCurrent && setTimeOnce) {
-//            startSpit = now;
-//            setTimeOnce = false;
-//            autoSpitting = true;
-//            setTimer = false;
-//        }
-//
-//        if (autoSpitting) {
-//             stop after configured spit time
-//            if (spitTime >= Constants.Intake.spitTime) {
-//                autoSpitting = false;
-//                setTimeOnce = true;
-//            }
-//            return;
-//        }
-//
-//        if (intakeToggle && !spitIntake) {
-//            if (!setTimer) {
-//                intakeEnableTime = System.currentTimeMillis();
-//                setTimer = true;
-//            }
-//            intake.setIntakePower(Constants.Intake.intakePower);
-//        } else if (spitIntake) {
-//            intake.setIntakePower(Constants.Intake.spitPower);
-//        } else {
-//            intake.setIntakePower(0);
-//        }
-
     }
 
 
@@ -476,12 +434,34 @@ public class Robot {
         follower.update();
         lightsUpdate();
 
-        panelsTelemetry.addData("Hood Angle correction", deltaDeg);
-        panelsTelemetry.addData("Shoot overPower", shooter.shooterPID.run() >= 1 ? 1000 : 0);
+        Pose curPose = follower.getPose();
+        double xOffset = curPose.getX() - goal.getX();
+        double yOffset = curPose.getY() - goal.getY();
+        double velocityX = follower.getVelocity().getXComponent();
+        double velocityY = follower.getVelocity().getYComponent();
+
+        double r2 = ((xOffset * xOffset) + (yOffset * yOffset));
+        double angleToGoalVelocityVector = ((xOffset * velocityY) - (yOffset * velocityX)) / r2;
+
+        panelsTelemetry.addData("angle to goal velocity (vector)", angleToGoalVelocityVector);
+        panelsTelemetry.addData("angle to goal velocity (derived)", angleToGoalVelocity - follower.getAngularVelocity());
+
+        if (debug) {
+            debug();
+        }
+//        telemetry.update();
+        panelsTelemetry.update();
+    }
+
+    public void debug() {
+
+
+//        panelsTelemetry.addData("Hood Angle correction", deltaDeg);
+//        panelsTelemetry.addData("Shoot overPower", shooter.shooterPID.run() >= 1 ? 1000 : 0);
 //        panelsTelemetry.addData("Shoot power", shooter.shooterPID.run());
-        panelsTelemetry.addData("RPM", shooter.getRPM());
+//        panelsTelemetry.addData("RPM", shooter.getRPM());
 //        panelsTelemetry.addData("hood angle", shooter.getHoodPosDeg());
-        panelsTelemetry.addData("target rpm", shooter.shooterPID.getTargetPosition());
+//        panelsTelemetry.addData("target rpm", shooter.shooterPID.getTargetPosition());
 //        panelsTelemetry.addData("rpm error", shooter.shooterPID.getError());
 //        panelsTelemetry.addData("shooter velocity", shooter.getRPM());
 //        panelsTelemetry.addData("hood pos", shooter.getHoodPosDeg());
@@ -521,14 +501,6 @@ public class Robot {
 //        panelsTelemetry.addData("turret Accel", angleToGoalAcceleration);
 //        panelsTelemetry.addData("turret velocity", angleToGoalVelocity);
 //        Drawing.drawShapesDebug(this.follower);
-        if (debug) {
-            debug();
-        }
-//        telemetry.update();
-        panelsTelemetry.update();
-    }
-
-    public void debug() {
 
         panelsTelemetry.addData("Tar Shooter RPM", shooter.getTargetRpm());
         panelsTelemetry.addData("Act Shooter RPM", shooter.getRPM());
