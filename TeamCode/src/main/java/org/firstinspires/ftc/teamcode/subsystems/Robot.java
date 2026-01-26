@@ -177,6 +177,7 @@ public class Robot {
     //corrects the hood, turret, and shooter rpm
     double lastTimeTurret = 0;
     double lastAngleToGoal = 0;
+    double deltaDeg;
     public void prepareShooter(double rpmOffset, double hoodAngleOffset) {
 
         // Gets current Pose
@@ -229,8 +230,25 @@ public class Robot {
         // Sets shooter rpm
         shooter.adjustTargetRPM(futureShooterParams.rpm + rpmOffset);
 
+        double hoodDeg = futureShooterParams.hoodAngle;
+        double hoodRad = Math.toRadians(hoodDeg);
+
+        double rpmRatio = shooter.getTargetRpm() / shooter.getRPM();
+
+        double correctedRad =
+                Math.atan(rpmRatio * Math.tan(hoodRad));
+
+        deltaDeg =
+                Math.toDegrees(correctedRad - hoodRad);
+
+        if (Math.abs(deltaDeg) < 0.8) {
+            deltaDeg = 0;
+        }
+
+        deltaDeg = clamp(deltaDeg, 0.0, 8.0);
+
         // gets hood angle
-        shooter.setHoodDeg(futureShooterParams.hoodAngle + hoodAngleOffset);
+        shooter.setHoodDeg(futureShooterParams.hoodAngle + deltaDeg + hoodAngleOffset);
     }
 
     public void setShooterTargetRPM(double set) {
@@ -458,20 +476,21 @@ public class Robot {
         follower.update();
         lightsUpdate();
 
-//        panelsTelemetry.addData("Shoot overPower", shooter.shooterPID.run() >= 1 ? 1000 : 0);
+        panelsTelemetry.addData("Hood Angle correction", deltaDeg);
+        panelsTelemetry.addData("Shoot overPower", shooter.shooterPID.run() >= 1 ? 1000 : 0);
 //        panelsTelemetry.addData("Shoot power", shooter.shooterPID.run());
-//        panelsTelemetry.addData("RPM", shooter.getRPM());
+        panelsTelemetry.addData("RPM", shooter.getRPM());
 //        panelsTelemetry.addData("hood angle", shooter.getHoodPosDeg());
-//        panelsTelemetry.addData("target rpm", shooter.shooterPID.getTargetPosition());
+        panelsTelemetry.addData("target rpm", shooter.shooterPID.getTargetPosition());
 //        panelsTelemetry.addData("rpm error", shooter.shooterPID.getError());
 //        panelsTelemetry.addData("shooter velocity", shooter.getRPM());
 //        panelsTelemetry.addData("hood pos", shooter.getHoodPosDeg());
-        telemetry.addData("distance to goal", distanceToGoal());
-        telemetry.addData("far zone", inFarZone());
-        telemetry.addData("is at position", indexer.isAtPosition());
-        telemetry.addData("encoder position", indexer.getEncoderPercentage());
-        telemetry.addData("dumbshoot1", indexer.dumbShootState2);
-        telemetry.addData("dumbshoot2", indexer.dumbShootState2);
+//        telemetry.addData("distance to goal", distanceToGoal());
+//        telemetry.addData("far zone", inFarZone());
+//        telemetry.addData("is at position", indexer.isAtPosition());
+//        telemetry.addData("encoder position", indexer.getEncoderPercentage());
+//        telemetry.addData("dumbshoot1", indexer.dumbShootState2);
+//        telemetry.addData("dumbshoot2", indexer.dumbShootState2);
 
 //        panelsTelemetry.addData("ready to shoot", readyToShootMotors());
 //        panelsTelemetry.addData("shooter error", shooter.shooterPID.getError());

@@ -107,7 +107,7 @@ public class MainTeleop {
         resetPose.checkStatus(gamepad2.y);
 
 
-        startPose = new Pose(0,0, 0);
+        startPose = new Pose(0,0, 0); // PI/4 points at blue goal
         robot.turret.encoderOffset = 0;
 
         telemetry.addData("Start Pose", startPose);

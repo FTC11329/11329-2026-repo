@@ -37,6 +37,7 @@ public class SmartIndexerButEvenNewer {
 
     boolean startShooting = false;
     boolean shooting = false;
+    boolean boostPID;
     boolean dumbShootState1 = false;
     boolean smartShootStage1 = false;
     boolean smartShootStage2 = false;
@@ -425,12 +426,14 @@ public class SmartIndexerButEvenNewer {
             spinTransferWheel(true);
             shotTimer.resetTimer();
             startShooting = false;
+            boostPID = true;
         }
 
         // once at highest full index, shoot while going back to intake
         if (shooting && !dumbShootState1 && !dumbShootState2 && isAtPosition() && shotTimer.getElapsedTimeSeconds() > .2) {
             setIndexerPos(IndexerEnumsButEvenNewerThisTime.intake0);
             dumbShootState1 = true;
+            boostPID = false;
         }
 
         // once back at intake, stop shooting

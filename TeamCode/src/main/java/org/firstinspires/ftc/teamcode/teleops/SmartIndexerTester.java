@@ -42,7 +42,7 @@ public class SmartIndexerTester extends OpMode {
         shooter.setTargetRPM(shooting.isOn ? 1000 : 0);
         intake.intake(intaking.isOn);
 
-        shooter.update();
+        shooter.update(false);
         smartIndexer.update(intaking.isOn, true);
         telemetry.addData("target enum", smartIndexer.currentIndexerState);
         telemetry.addData("target percent", IndexerEnumsButEvenNewerThisTime.convertEnumToPercentOfRot(smartIndexer.currentIndexerState));
