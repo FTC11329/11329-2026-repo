@@ -11,10 +11,16 @@ public class Common {
 
     public static class Timings {
         public static int moveAwayRampAmount = 3; // balls
-        public static double rampIntakeTimeOut = 2;
-        public static double spikeIntakeTimeOut = 1;
-        public static double longLeverPressTime = 0.5;
+
+        public static double spikeIntakeTimeOut = 2;
+        public static double rampIntakeTimeOut = 2; // sec
+        public static double longLeverPressTime = 1;
         public static double shortLeverPressTime = 0.3;
+        public static double longLeverRampIntakeTimeOut = rampIntakeTimeOut + shortLeverPressTime - longLeverPressTime;
+
+        public static double shootTimeOut = 0.7;
+        public static double sortShootTimeOut = 3.5;
+
         public static double shootVelocity = 10; // in / s
     }
     public static class DrivePower {

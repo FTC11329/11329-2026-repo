@@ -47,9 +47,9 @@ public class CloseAuto18BallBlue extends OpMode {
         startPose = StartPoses.closeInner;
 
         steps.add(new FromStartClosePosition.ShootAndGoToMidShootPos(robot, lastPose()));
-        steps.add(new FromShootMidPos.ToIntakeSpike2  (robot, lastPose(), false, false, false));
-        steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPose(), false, false));
-        steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPose(), false,  false));
+        steps.add(new FromShootMidPos.ToIntakeSpike2  (robot, lastPose(), false,  false, false));
+        steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPose(), false,  false, false));
+        steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPose(), false,  false, true));
         steps.add(new FromShootMidPos.ToIntakeSpike1  (robot, lastPose(), false,  false, false));
         steps.add(new FromShootMidPos.ToIntakeSpike3  (robot, lastPose(), false,  true));
 

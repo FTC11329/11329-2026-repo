@@ -81,6 +81,9 @@ public class FromShootMidPos {
                     break;
                 case 1:
                     if (!robot.follower.isBusy()) {
+                        if (!lever) {
+                            robot.follower.followPath(toShootPose);
+                        }
                         setPathState(2);
                     }
                     break;
@@ -93,7 +96,9 @@ public class FromShootMidPos {
                 case 3:
                     // time pushing the lever
                     if (!lever || pathTimer.getElapsedTimeSeconds() > Timings.longLeverPressTime) {
-                        robot.follower.followPath(toShootPose);
+                        if (lever) {
+                            robot.follower.followPath(toShootPose);
+                        }
                         setPathState(4);
                     }
                 case 4:
@@ -111,7 +116,7 @@ public class FromShootMidPos {
                     }
                     break;
                 case 5:
-                    if (robot.indexer.isHasBallsEmpty() || (sort && robot.indexer.isQueuedBallsEmpty())) {
+                    if ((robot.indexer.isHasBallsEmpty() || (sort && robot.indexer.isQueuedBallsEmpty())) || (sort && pathTimer.getElapsedTimeSeconds() > Timings.sortShootTimeOut || !sort && pathTimer.getElapsedTimeSeconds() > Timings.shootTimeOut)) {
                         robot.follower.setMaxPower(1);
                         robot.doSmartShoot(false);
                         isFinished = true;
@@ -196,6 +201,9 @@ public class FromShootMidPos {
                     break;
                 case 1:
                     if (!robot.follower.isBusy()) {
+                        if (!lever) {
+                            robot.follower.followPath(toShootPose);
+                        }
                         setPathState(2);
                     }
                     break;
@@ -208,7 +216,9 @@ public class FromShootMidPos {
                 case 3:
                     // time pushing the lever
                     if (!lever || pathTimer.getElapsedTimeSeconds() > Timings.longLeverPressTime) {
-                        robot.follower.followPath(toShootPose);
+                        if (!lever) {
+                            robot.follower.followPath(toShootPose);
+                        }
                         setPathState(4);
                     }
                 case 4:
@@ -226,7 +236,7 @@ public class FromShootMidPos {
                     }
                     break;
                 case 5:
-                    if (robot.indexer.isHasBallsEmpty() || (sort && robot.indexer.isQueuedBallsEmpty())) {
+                    if ((robot.indexer.isHasBallsEmpty() || (sort && robot.indexer.isQueuedBallsEmpty())) || (sort && pathTimer.getElapsedTimeSeconds() > Timings.sortShootTimeOut || !sort && pathTimer.getElapsedTimeSeconds() > Timings.shootTimeOut)) {
                         robot.follower.setMaxPower(1);
                         robot.doSmartShoot(false);
                         isFinished = true;
@@ -300,13 +310,13 @@ public class FromShootMidPos {
                     break;
                 case 1:
                     if (!robot.follower.isBusy()) {
+                        robot.follower.followPath(toShootPose);
                         setPathState(2);
                     }
                     break;
                 case 2:
                     if (robot.indexer.isHasBallsFull() || pathTimer.getElapsedTimeSeconds() > Timings.spikeIntakeTimeOut) {
                         robot.indexer.setHasBalls(new BallColor[]{BallColor.Green, BallColor.Purple, BallColor.Purple});
-                        robot.follower.followPath(toShootPose);
                         setPathState(3);
                     }
                     break;
@@ -325,7 +335,7 @@ public class FromShootMidPos {
                     }
                     break;
                 case 4:
-                    if (robot.indexer.isHasBallsEmpty() || (sort && robot.indexer.isQueuedBallsEmpty())) {
+                    if ((robot.indexer.isHasBallsEmpty() || (sort && robot.indexer.isQueuedBallsEmpty())) || (sort && pathTimer.getElapsedTimeSeconds() > Timings.sortShootTimeOut || !sort && pathTimer.getElapsedTimeSeconds() > Timings.shootTimeOut)) {
                         robot.follower.setMaxPower(1);
                         robot.doSmartShoot(false);
                         isFinished = true;
@@ -361,15 +371,22 @@ public class FromShootMidPos {
         private Pose startPose;
         private boolean sort;
         private boolean parkAfter;
+        private boolean longLever;
+        double leverTimeOut;
+        double rampTimeOut;
         Pose lastPose;
 
-        public ToIntakeFromRamp(Robot robot, Pose startPose, boolean sort, boolean parkAfter) {
+        public ToIntakeFromRamp(Robot robot, Pose startPose, boolean sort, boolean parkAfter, boolean longLever) {
             pathTimer = new Timer();
             this.robot = robot;
             this.startPose = startPose;
             this.sort = sort;
             this.parkAfter = parkAfter;
-            lastPose = parkAfter ? ShootPoses.parkShoot : ShootPoses.midShoot;
+            this.longLever = longLever;
+
+            leverTimeOut = longLever ? Timings.longLeverPressTime         : Timings.shortLeverPressTime;
+            rampTimeOut =  longLever ? Timings.longLeverRampIntakeTimeOut : Timings.rampIntakeTimeOut;
+            lastPose =     parkAfter ? ShootPoses.parkShoot               : ShootPoses.midShoot;
         }
 
         //Path initialization
@@ -380,10 +397,10 @@ public class FromShootMidPos {
         @Override
         public void buildPaths() {
             // Path creation
-            toLever = robot.follower.linearPathChainBuilder(startPose, IntakeBallPoses.pushLever);
-//                    .addPath(new BezierCurve(startPose, IntakeBallPoses.movingToPushLeverControlPoint, IntakeBallPoses.pushLever))
-//                    .setLinearHeadingInterpolation(startPose, IntakeBallPoses.pushLever)
-//                    .build();
+            toLever = robot.follower.pathBuilder()
+                    .addPath(new BezierCurve(startPose, IntakeBallPoses.movingToPushLeverControlPoint, IntakeBallPoses.pushLever))
+                    .setLinearHeadingInterpolation(startPose, IntakeBallPoses.pushLever)
+                    .build();
 
             toIntake = robot.follower.linearPathChainBuilder(IntakeBallPoses.pushLever, IntakeBallPoses.intakeFromSTunnel);
 
@@ -418,13 +435,13 @@ public class FromShootMidPos {
                     }
                     break;
                 case 2:
-                    if (robot.indexer.numberOfBallsInBallCells() >= Timings.moveAwayRampAmount || pathTimer.getElapsedTimeSeconds() > Timings.shortLeverPressTime) {
+                    if (robot.indexer.numberOfBallsInBallCells() >= Timings.moveAwayRampAmount || pathTimer.getElapsedTimeSeconds() > leverTimeOut) {
                         robot.follower.followPath(toIntake);
                         setPathState(3);
                     }
                     break;
                 case 3:
-                    if (robot.indexer.numberOfBallsInBallCells() >= Timings.moveAwayRampAmount ||  pathTimer.getElapsedTimeSeconds() > Timings.rampIntakeTimeOut) {
+                    if (robot.indexer.numberOfBallsInBallCells() >= Timings.moveAwayRampAmount ||  pathTimer.getElapsedTimeSeconds() > rampTimeOut) {
                         robot.follower.followPath(toShootPose);
                         setPathState(4);
                     }
@@ -443,8 +460,8 @@ public class FromShootMidPos {
                         setPathState(5);
                     }
                     break;
-                case 5:
-                    if (robot.indexer.isHasBallsEmpty() || (sort && robot.indexer.isQueuedBallsEmpty())) {
+                case 5://       if robot shoot all balls v                                                                                                              if timeout v
+                    if ((robot.indexer.isHasBallsEmpty() || (sort && robot.indexer.isQueuedBallsEmpty())) || (sort && pathTimer.getElapsedTimeSeconds() > Timings.sortShootTimeOut || !sort && pathTimer.getElapsedTimeSeconds() > Timings.shootTimeOut)) {
                         robot.follower.setMaxPower(1);
                         robot.doSmartShoot(false);
                         isFinished = true;

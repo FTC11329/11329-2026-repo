@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Constants;
-import org.firstinspires.ftc.teamcode.modularAutos.CommonPoses;
+import org.firstinspires.ftc.teamcode.modularAutos.Common;
 import org.firstinspires.ftc.teamcode.pedroPathing.Drawing;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
@@ -67,7 +67,7 @@ public class Robot {
     public Robot(Telemetry telemetry, HardwareMap hardwareMap, RobotSide robotSide, int startTurretTicks, double startIndexerTicks, BallColor[] ballsInIndexer) {
         follower = org.firstinspires.ftc.teamcode.pedroPathing.Constants.createFollower(hardwareMap);
         Drawing.init();
-        CommonPoses.init(robotSide);
+        Common.init(robotSide);
         this.telemetry = telemetry;
         this.robotSide = robotSide;
         panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
