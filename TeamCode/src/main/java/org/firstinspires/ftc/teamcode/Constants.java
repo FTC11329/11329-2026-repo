@@ -17,8 +17,8 @@ import kotlin.jvm.JvmField;
 public class Constants {
     public static class Indexer {
 
-        public static double indexerTolerance = 0.1;
-        public static double wideIndexerTolerance = 0.1;
+        public static double indexerTolerance = 0.07;  // has to be big for smart shooting, has to be small for spit timing
+        public static double wideIndexerTolerance = 0.14;  // has to be big for smart shooting, has to be small for spit timing
 
         public static double spindexPower = 0.45;
 

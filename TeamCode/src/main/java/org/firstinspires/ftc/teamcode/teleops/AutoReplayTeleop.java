@@ -199,7 +199,7 @@ public class AutoReplayTeleop {
 
 
         if (autoShoot.isOn) {
-            robot.prepareShooter(rpmOffset, hoodAngleOffset);
+            robot.prepareShooter();
         } else if (autoShoot.endPress) {
             robot.casualShooterModeOn();
         }

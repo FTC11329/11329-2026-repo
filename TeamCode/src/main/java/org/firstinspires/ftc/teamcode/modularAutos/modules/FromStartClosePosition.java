@@ -51,7 +51,7 @@ public class FromStartClosePosition {
                     setPathState(1);
                     break;
                 case 1:
-                    if (robot.follower.getPose().getX() < 60) {
+                    if (robot.follower.getVelocity().getMagnitude() < Timings.shootVelocity) {
                         robot.indexer.shootAll();
                         setPathState(2);
                     }

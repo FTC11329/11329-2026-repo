@@ -15,6 +15,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
 import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.EndValuesStorer;
+import org.firstinspires.ftc.teamcode.util.IndexerEnumsButEvenNewerThisTime;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
 
 import java.util.ArrayList;
@@ -48,7 +49,7 @@ public class CloseAuto18BallBlue extends OpMode {
 
         steps.add(new FromStartClosePosition.ShootAndGoToMidShootPos(robot, lastPose()));
         steps.add(new FromShootMidPos.ToIntakeSpike2  (robot, lastPose(), false,  false, false));
-        steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPose(), false,  false, false));
+        steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPose(), false,  false, true));
         steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPose(), false,  false, true));
         steps.add(new FromShootMidPos.ToIntakeSpike1  (robot, lastPose(), false,  false, false));
         steps.add(new FromShootMidPos.ToIntakeSpike3  (robot, lastPose(), false,  true));
@@ -82,7 +83,6 @@ public class CloseAuto18BallBlue extends OpMode {
 
         robot.update();
         robot.prepareShooter();
-//        Drawing.drawDebug(robot.follower);
 
         // Stops the robot if done
         if (currentStep >= steps.size()) {
@@ -95,11 +95,6 @@ public class CloseAuto18BallBlue extends OpMode {
         PathPlanner step = steps.get(currentStep);
         boolean done = step.run();
 
-//        telemetry.addData("time", robot.getOpmodeTimeSeconds());
-//        telemetry.addData("name", step);
-        for (BallColor i : robot.indexer.getBallCells()) {
-            telemetry.addData("hasBalls", i);
-        }
 
         if (done) {
             currentStep++;
@@ -108,6 +103,12 @@ public class CloseAuto18BallBlue extends OpMode {
             }
             steps.get(currentStep).buildPaths();
         }
+//        Drawing.drawDebug(robot.follower);
+//        telemetry.addData("time", robot.getOpmodeTimeSeconds());
+//        telemetry.addData("name", step);
+//        for (BallColor i : robot.indexer.getBallCells()) {
+//            telemetry.addData("hasBalls", i);
+//        }
         panelsTelemetry.addData("all", (System.nanoTime() - lastTime) * 1e-6);
         panelsTelemetry.update();
         lastTime = System.nanoTime();

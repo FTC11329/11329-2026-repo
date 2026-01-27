@@ -14,6 +14,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
 import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.EndValuesStorer;
+import org.firstinspires.ftc.teamcode.util.IndexerEnumsButEvenNewerThisTime;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
 
 import java.util.ArrayList;
@@ -93,11 +94,11 @@ public class CloseAuto15SortBallBlue extends OpMode {
         PathPlanner step = steps.get(currentStep);
         boolean done = step.run();
 
-        telemetry.addData("time", robot.getOpmodeTimeSeconds());
-        telemetry.addData("name", step);
-        for (BallColor i : robot.indexer.getBallCells()) {
-            telemetry.addData("hasBalls", i);
-        }
+//        telemetry.addData("time", robot.getOpmodeTimeSeconds());
+//        telemetry.addData("name", step);
+//        for (BallColor i : robot.indexer.getBallCells()) {
+//            telemetry.addData("hasBalls", i);
+//        }
 
         if (done) {
             currentStep++;

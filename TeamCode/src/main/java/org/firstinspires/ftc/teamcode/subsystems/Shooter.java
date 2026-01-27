@@ -27,6 +27,7 @@ public class Shooter {
     double previousError;
     double derivative;
     double lastPower;
+    double flywheelVelocity = 0;
 
 
 
@@ -73,18 +74,18 @@ public class Shooter {
         usePID = false;
     }
     public double getRPM(){
-        return flywheel.getVelocity() * 60 / Constants.Shooter.ticksPerRevolution;
+        return (getVelocity()) * 60 / Constants.Shooter.ticksPerRevolution;
     }
     public double rpmToVelocity(double RPM){
         return RPM * Constants.Shooter.ticksPerRevolution / 60;
     }
     public double getVelocity(){
-        return flywheel.getVelocity();
+        return flywheelVelocity;
     }
 
     // Set hood from 0-1
     public void setHood(double set){
-        if (hoodPos != set) {
+        if (Math.abs(hoodPos - set) >= .004) {
             hoodPos = Math.max(Math.min(set, (Constants.Shooter.maxHoodAngle - 5) / 80), Constants.Shooter.minHoodAngle / 80);
             hoodServo1.setPosition(hoodPos);
             hoodServo2.setPosition(hoodPos);
@@ -174,6 +175,7 @@ public class Shooter {
     }
 
     public void update() {
+        flywheelVelocity = flywheel.getVelocity();
         shooterPID.setCoefficients(Constants.Shooter.shooterVelocityPID);
         shooterPID.setkV(Constants.Shooter.kV);
         if (shooterSpin && usePID) {

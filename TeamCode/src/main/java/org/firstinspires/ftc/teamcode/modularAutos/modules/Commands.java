@@ -60,7 +60,7 @@ public class Commands {
         @NonNull
         @Override
         public String toString() {
-            return "Wait Time";
+            return "Wait Time: " + waitSec;
         }
     }
 }

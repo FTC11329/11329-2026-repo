@@ -21,7 +21,6 @@ public class Constants {
             .mass(13)
             .forwardZeroPowerAcceleration(-46.54367)
             .lateralZeroPowerAcceleration(-87.7)
-            .zeroPowerAccelerationMultiplier(0.4)
             .lateralZeroPowerAcceleration(-20)
             .useSecondaryDrivePIDF(false)
             .useSecondaryHeadingPIDF(false)
@@ -43,7 +42,11 @@ public class Constants {
             .forwardEncoderDirection(GoBildaPinpointDriver.EncoderDirection.REVERSED)
             .strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.REVERSED);
 
-    public static PathConstraints pathConstraints = new PathConstraints(0.99, 100, 1, 1);
+    public static PathConstraints pathConstraints = new PathConstraints(
+            0.99,
+            100,
+            0.6,
+            1);
 
     public static MecanumConstants driveConstants = new MecanumConstants()
             .maxPower(1)

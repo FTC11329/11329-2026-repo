@@ -86,7 +86,7 @@ public class SmartIndexerButEvenNewer {
     }
 
     // DO NOT USE THESE FUNCTIONS TO MOVE THE INDEXER DURING NORMAL OPERATION. USE UPDATE() INSTEAD
-    private void setIndexerPos(IndexerEnumsButEvenNewerThisTime indexerEnum) {
+    public void setIndexerPos(IndexerEnumsButEvenNewerThisTime indexerEnum) {
         currentIndexerState = indexerEnum;
         setIndexerPos(IndexerEnumsButEvenNewerThisTime.convertEnumToPercentOfRot(indexerEnum));
     }
@@ -415,7 +415,9 @@ public class SmartIndexerButEvenNewer {
                 }
             }
         }
-
+//        else if (isHasBallsFull() && !shooting && intaking) {
+//            setIndexerPos(IndexerEnumsButEvenNewerThisTime.intake3);
+//        }
     }
     boolean dumbShootState2 = false;
     public void dumbShootLogicUpdate(boolean readyToShoot) {
@@ -440,11 +442,11 @@ public class SmartIndexerButEvenNewer {
             dumbShootState1 = false;
             dumbShootState2 = true;
             shotTimer.resetTimer();
+            clearBallCells();
         }
         if (dumbShootState2 && !dumbShootState1 && shotTimer.getElapsedTimeSeconds() > .33) {
             spinTransferWheel(false);
             shooting = false;
-            clearBallCells();
             allowIntaking = true;
             dumbShootState2 = false;
         }

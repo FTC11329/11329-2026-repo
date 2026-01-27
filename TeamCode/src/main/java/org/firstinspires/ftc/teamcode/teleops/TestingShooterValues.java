@@ -165,7 +165,7 @@ public class TestingShooterValues {
 
 
         if (autoShoot.isOn) {
-            robot.prepareShooter(rpmOffset, hoodAngleOffset);
+            robot.prepareShooter();
         } else if (autoShoot.endPress) {
             robot.shooter.casualModeOn();
         }

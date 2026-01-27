@@ -12,16 +12,16 @@ public class Common {
     public static class Timings {
         public static int moveAwayRampAmount = 3; // balls
 
-        public static double spikeIntakeTimeOut = 2;
-        public static double rampIntakeTimeOut = 2; // sec
-        public static double longLeverPressTime = 1;
-        public static double shortLeverPressTime = 0.3;
+        public static double spikeIntakeTimeOut = 1.25;
+        public static double rampIntakeTimeOut = 1; // sec
+        public static double longLeverPressTime = 2;
+        public static double shortLeverPressTime = 1;
         public static double longLeverRampIntakeTimeOut = rampIntakeTimeOut + shortLeverPressTime - longLeverPressTime;
 
         public static double shootTimeOut = 0.7;
         public static double sortShootTimeOut = 3.5;
 
-        public static double shootVelocity = 10; // in / s
+        public static double shootVelocity = 7; // in / s
     }
     public static class DrivePower {
         public static double intake = 1;
@@ -52,7 +52,7 @@ public class Common {
 
         public static Pose movingToPushLeverControlPoint = new Pose(-3.8, 25.3);
         public static Pose pushLeverAfterSpike = new Pose(-0.4,56.1, Math.toRadians(60));
-        public static Pose pushLever = new Pose(-8.8,59.3, Math.toRadians(60));
+        public static Pose pushLever = new Pose(-10.25,58.67/*tehe*/, Math.toRadians(70));
         public static Pose intakeFromSTunnel = new Pose(-17, 58.25, Math.toRadians(45)); // pointing at ramp
 
         public static Pose startSTunnelPose = new Pose(-27, 59.42, Math.toRadians(155)); //pointing at human
