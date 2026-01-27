@@ -69,6 +69,7 @@ public class Shooter {
         return false;
     }
     public void casualModeOn(){
+        setHoodDeg(Constants.Shooter.minHoodAngle);
         usePID = false;
     }
     public double getRPM(){

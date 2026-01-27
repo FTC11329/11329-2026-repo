@@ -67,6 +67,10 @@ public class Path {
         this.headingInterpolator = HeadingInterpolator.linear(startHeading, endHeading);
     }
 
+    public void setLinearHeadingInterpolation(Pose startHeading, Pose endHeading) {
+        setLinearHeadingInterpolation(startHeading.getHeading(), endHeading.getHeading());
+    }
+
     public void setCustomHeadingInterpolation(HeadingInterpolator.PiecewiseNode[] nodes) {
         this.headingInterpolator = HeadingInterpolator.piecewise(nodes);
     }

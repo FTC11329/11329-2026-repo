@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.pedroPathing.follower;
 
+import com.bylazar.configurables.annotations.Configurable;
+
 import org.firstinspires.ftc.teamcode.pedroPathing.control.FilteredPIDFCoefficients;
 import org.firstinspires.ftc.teamcode.pedroPathing.control.PIDFCoefficients;
 

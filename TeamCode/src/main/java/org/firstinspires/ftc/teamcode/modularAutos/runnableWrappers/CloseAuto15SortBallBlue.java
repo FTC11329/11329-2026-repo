@@ -5,11 +5,10 @@ import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.teamcode.modularAutos.Common.*;
+import org.firstinspires.ftc.teamcode.modularAutos.Common.StartPoses;
 import org.firstinspires.ftc.teamcode.modularAutos.PathPlanner;
 import org.firstinspires.ftc.teamcode.modularAutos.modules.FromShootMidPos;
 import org.firstinspires.ftc.teamcode.modularAutos.modules.FromStartClosePosition;
-import org.firstinspires.ftc.teamcode.pedroPathing.Drawing;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
@@ -20,8 +19,8 @@ import org.firstinspires.ftc.teamcode.util.RobotSide;
 import java.util.ArrayList;
 import java.util.List;
 
-@Autonomous(name = "Close 18 Blue", group = "       Testing", preselectTeleOp = "Main Teleop Blue")
-public class CloseAuto18BallBlue extends OpMode {
+@Autonomous(name = "Close 15 Sort Blue", group = "       Testing", preselectTeleOp = "Main Teleop Blue")
+public class CloseAuto15SortBallBlue extends OpMode {
     Pose startPose;
     RobotSide robotSide;
     Robot robot;
@@ -48,10 +47,9 @@ public class CloseAuto18BallBlue extends OpMode {
 
         steps.add(new FromStartClosePosition.ShootAndGoToMidShootPos(robot, lastPose()));
         steps.add(new FromShootMidPos.ToIntakeSpike2  (robot, lastPose(), false, false, false));
-        steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPose(), false, false));
-        steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPose(), false,  false));
-        steps.add(new FromShootMidPos.ToIntakeSpike1  (robot, lastPose(), false,  false, false));
-        steps.add(new FromShootMidPos.ToIntakeSpike3  (robot, lastPose(), false,  true));
+        steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPose(), true, false));
+        steps.add(new FromShootMidPos.ToIntakeSpike1  (robot, lastPose(), true,  false, false));
+        steps.add(new FromShootMidPos.ToIntakeSpike3  (robot, lastPose(), true,  true));
 
         robot.follower.setPose(startPose);
     }
@@ -95,8 +93,8 @@ public class CloseAuto18BallBlue extends OpMode {
         PathPlanner step = steps.get(currentStep);
         boolean done = step.run();
 
-//        telemetry.addData("time", robot.getOpmodeTimeSeconds());
-//        telemetry.addData("name", step);
+        telemetry.addData("time", robot.getOpmodeTimeSeconds());
+        telemetry.addData("name", step);
         for (BallColor i : robot.indexer.getBallCells()) {
             telemetry.addData("hasBalls", i);
         }
@@ -108,9 +106,9 @@ public class CloseAuto18BallBlue extends OpMode {
             }
             steps.get(currentStep).buildPaths();
         }
-        panelsTelemetry.addData("all", (System.nanoTime() - lastTime) * 1e-6);
-        panelsTelemetry.update();
-        lastTime = System.nanoTime();
+//        panelsTelemetry.addData("all", (System.nanoTime() - lastTime) * 1e-6);
+//        panelsTelemetry.update();
+//        lastTime = System.nanoTime();
     }
 
     private Pose lastPose() {

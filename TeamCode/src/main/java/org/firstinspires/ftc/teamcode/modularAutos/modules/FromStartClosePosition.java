@@ -1,8 +1,8 @@
-package org.firstinspires.ftc.teamcode.modularAutos.planners;
+package org.firstinspires.ftc.teamcode.modularAutos.modules;
 
 import androidx.annotation.NonNull;
 
-import org.firstinspires.ftc.teamcode.modularAutos.CommonPoses.*;
+import org.firstinspires.ftc.teamcode.modularAutos.Common.*;
 import org.firstinspires.ftc.teamcode.modularAutos.PathPlanner;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.paths.Path;
@@ -51,7 +51,7 @@ public class FromStartClosePosition {
                     setPathState(1);
                     break;
                 case 1:
-                    if (robot.follower.getPose().getX() < 48) {
+                    if (robot.follower.getPose().getX() < 60) {
                         robot.indexer.shootAll();
                         setPathState(2);
                     }

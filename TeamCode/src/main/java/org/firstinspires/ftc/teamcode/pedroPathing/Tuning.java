@@ -34,7 +34,7 @@ import java.util.List;
  * @author Baron Henderson - 20077 The Indubitables
  * @version 1.0, 6/26/2025
  */
-@TeleOp(name = "Tuning", group = "Pedro Pathing")
+@TeleOp(name = "Tuning", group = "       Pedro Pathing")
 public class Tuning extends SelectableOpMode {
     public static Follower follower;
 
@@ -778,17 +778,15 @@ class TranslationalTuner extends OpMode {
                 follower.followPath(forwards);
             }
         }
+        try {
+            Thread.sleep(60);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
 
         telemetryM.debug("Push the robot laterally to test the Translational PIDF(s).");
-        telemetryM.addData("drive error", follower.errorCalculator.getDriveError());
         telemetryM.addData("translational error", follower.errorCalculator.getTranslationalError().getMagnitude());
-        telemetryM.addData("heading error", follower.errorCalculator.getHeadingError());
-        telemetryM.addData("heading error", follower.drivetrain.vectors[2]);
         telemetryM.update(telemetry);
-
-        panelsTelemetry.addData("errorx", follower.getTranslationalError().getXComponent());
-        panelsTelemetry.addData("errory", follower.getTranslationalError().getYComponent());
-        panelsTelemetry.addData("0", 0);
         panelsTelemetry.update(telemetry);
 
     }
@@ -862,10 +860,15 @@ class HeadingTuner extends OpMode {
                 follower.followPath(forwards);
             }
         }
+        try {
+            Thread.sleep(70);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
 
         telemetryM.debug("Turn the robot manually to test the Heading PIDF(s).");
+        telemetryM.addData("error", Math.toDegrees(follower.getHeadingError()));
         telemetryM.update(telemetry);
-        panelsTelemetry.addData("error", follower.getHeadingError());
         panelsTelemetry.addData("0", 0);
         panelsTelemetry.update(telemetry);
     }
@@ -1162,19 +1165,19 @@ class Triangle extends OpMode {
  * @version 1.0, 3/12/2024
  */
 class Circle extends OpMode {
-    public static double RADIUS = 10;
+    public static double RADIUS = 30;
     private PathChain circle;
 
     public void start() {
         circle = follower.pathBuilder()
                 .addPath(new BezierCurve(new Pose(0, 0), new Pose(RADIUS, 0), new Pose(RADIUS, RADIUS)))
-                .setHeadingInterpolation(HeadingInterpolator.facingPoint(0, RADIUS))
+                .setTangentHeadingInterpolation()
                 .addPath(new BezierCurve(new Pose(RADIUS, RADIUS), new Pose(RADIUS, 2 * RADIUS), new Pose(0, 2 * RADIUS)))
-                .setHeadingInterpolation(HeadingInterpolator.facingPoint(0, RADIUS))
+                .setTangentHeadingInterpolation()
                 .addPath(new BezierCurve(new Pose(0, 2 * RADIUS), new Pose(-RADIUS, 2 * RADIUS), new Pose(-RADIUS, RADIUS)))
-                .setHeadingInterpolation(HeadingInterpolator.facingPoint(0, RADIUS))
+                .setTangentHeadingInterpolation()
                 .addPath(new BezierCurve(new Pose(-RADIUS, RADIUS), new Pose(-RADIUS, 0), new Pose(0, 0)))
-                .setHeadingInterpolation(HeadingInterpolator.facingPoint(0, RADIUS))
+                .setTangentHeadingInterpolation()
                 .build();
         follower.followPath(circle);
     }
@@ -1200,6 +1203,11 @@ class Circle extends OpMode {
     public void loop() {
         follower.update();
         draw();
+        try {
+            Thread.sleep(50);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
 
         if (follower.atParametricEnd()) {
             follower.followPath(circle);

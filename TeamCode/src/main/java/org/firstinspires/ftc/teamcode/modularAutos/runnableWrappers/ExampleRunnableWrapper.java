@@ -3,8 +3,8 @@ package org.firstinspires.ftc.teamcode.modularAutos.runnableWrappers;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.teamcode.modularAutos.planners.FromShootMidPos;
-import org.firstinspires.ftc.teamcode.modularAutos.planners.FromStartClosePosition;
+import org.firstinspires.ftc.teamcode.modularAutos.modules.FromShootMidPos;
+import org.firstinspires.ftc.teamcode.modularAutos.modules.FromStartClosePosition;
 import org.firstinspires.ftc.teamcode.modularAutos.PathPlanner;
 import org.firstinspires.ftc.teamcode.pedroPathing.Drawing;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;

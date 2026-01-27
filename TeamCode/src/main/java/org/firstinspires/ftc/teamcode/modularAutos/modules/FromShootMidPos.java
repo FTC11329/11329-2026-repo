@@ -1,7 +1,9 @@
-package org.firstinspires.ftc.teamcode.modularAutos.planners;
+package org.firstinspires.ftc.teamcode.modularAutos.modules;
 
+import org.firstinspires.ftc.teamcode.modularAutos.Common;
 import org.firstinspires.ftc.teamcode.modularAutos.PathPlanner;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.BezierCurve;
+import org.firstinspires.ftc.teamcode.pedroPathing.geometry.BezierLine;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.paths.Path;
 import org.firstinspires.ftc.teamcode.pedroPathing.paths.PathBuilder;
@@ -9,8 +11,9 @@ import org.firstinspires.ftc.teamcode.pedroPathing.paths.PathChain;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
 import org.firstinspires.ftc.teamcode.util.BallColor;
+import org.opencv.core.Mat;
 
-import static org.firstinspires.ftc.teamcode.modularAutos.CommonPoses.*;
+import static org.firstinspires.ftc.teamcode.modularAutos.Common.*;
 
 import androidx.annotation.NonNull;
 
@@ -50,13 +53,16 @@ public class FromShootMidPos {
         public void buildPaths() {
             // Path creation
             pathChainBuilder = robot.follower.pathBuilder()
-                    .addPath(robot.follower.linearPathBuilder(startPose, IntakeBallPoses.intakeSpike1Start))
+                    .addPath(new BezierCurve(startPose, IntakeBallPoses.intakeSpike1ControlPoint, IntakeBallPoses.intakeSpike1Start))
+                    .setConstantHeadingInterpolation(Math.toRadians(90))
                     .addPath(robot.follower.linearPathBuilder(IntakeBallPoses.intakeSpike1Start, IntakeBallPoses.intakeSpike1End));
             if (lever) {
                 pathChainBuilder.addPath(robot.follower.linearPathBuilder(IntakeBallPoses.intakeSpike1End, IntakeBallPoses.pushLever));
-                toShootPose = robot.follower.linearPathBuilder(IntakeBallPoses.pushLever, lastPose);
+                toShootPose = new Path(new BezierCurve(IntakeBallPoses.intakeSpike1End, IntakeBallPoses.intakeSpike1ControlPoint, lastPose));
+                toShootPose.setLinearHeadingInterpolation(IntakeBallPoses.intakeSpike1End, lastPose);
             } else {
-                toShootPose = robot.follower.linearPathBuilder(IntakeBallPoses.intakeSpike1End, lastPose);
+                toShootPose = new Path(new BezierCurve(IntakeBallPoses.intakeSpike1End, IntakeBallPoses.intakeSpike1ControlPoint, lastPose));
+                toShootPose.setLinearHeadingInterpolation(IntakeBallPoses.intakeSpike1End, lastPose);
             }
             pathChain = pathChainBuilder.build();
         }
@@ -75,29 +81,38 @@ public class FromShootMidPos {
                     break;
                 case 1:
                     if (!robot.follower.isBusy()) {
-                        robot.indexer.setHasBalls(new BallColor[]{BallColor.Purple, BallColor.Purple, BallColor.Green});
                         setPathState(2);
                     }
                     break;
                 case 2:
-                    // time pushing the lever
-                    if (!lever || pathTimer.getElapsedTimeSeconds() > 0.5) {
-                        robot.follower.followPath(toShootPose);
+                    if (robot.indexer.isHasBallsFull() || pathTimer.getElapsedTimeSeconds() > Timings.spikeIntakeTimeOut) {
+                        robot.indexer.setHasBalls(new BallColor[]{BallColor.Purple, BallColor.Purple, BallColor.Green});
                         setPathState(3);
                     }
+                    break;
                 case 3:
-                    if (robot.inShootingZone()) {
+                    // time pushing the lever
+                    if (!lever || pathTimer.getElapsedTimeSeconds() > Timings.longLeverPressTime) {
+                        robot.follower.followPath(toShootPose);
+                        setPathState(4);
+                    }
+                case 4:
+                    if (robot.inShootingZone() && (parkAfter || robot.follower.getVelocity().getMagnitude() < Timings.shootVelocity)) {
+                        if (parkAfter) {
+                            robot.follower.setMaxPower(DrivePower.shootOnThFly);
+                        }
                         if (sort) {
                             robot.doSmartShoot(true);
                             robot.indexer.setQueuedBalls(robot.getMotif());
                         } else {
                             robot.indexer.shootAll();
                         }
-                        setPathState(4);
+                        setPathState(5);
                     }
                     break;
-                case 4:
+                case 5:
                     if (robot.indexer.isHasBallsEmpty() || (sort && robot.indexer.isQueuedBallsEmpty())) {
+                        robot.follower.setMaxPower(1);
                         robot.doSmartShoot(false);
                         isFinished = true;
                     }
@@ -153,13 +168,16 @@ public class FromShootMidPos {
         public void buildPaths() {
             // Path creation
             pathChainBuilder = robot.follower.pathBuilder()
-                    .addPath(robot.follower.linearPathBuilder(startPose, IntakeBallPoses.intakeSpike2Start))
+                    .addPath(new BezierCurve(startPose, IntakeBallPoses.intakeSpike2ControlPoint, IntakeBallPoses.intakeSpike2Start))
+                    .setConstantHeadingInterpolation(Math.toRadians(90))
                     .addPath(robot.follower.linearPathBuilder(IntakeBallPoses.intakeSpike2Start, IntakeBallPoses.intakeSpike2End));
             if (lever) {
                 pathChainBuilder.addPath(robot.follower.linearPathBuilder(IntakeBallPoses.intakeSpike2End, IntakeBallPoses.pushLever));
-                toShootPose = robot.follower.linearPathBuilder(IntakeBallPoses.pushLever, lastPose);
+                toShootPose = new Path(new BezierCurve(IntakeBallPoses.pushLever, IntakeBallPoses.intakeSpike2ControlPoint, lastPose));
+                toShootPose.setLinearHeadingInterpolation(IntakeBallPoses.pushLever, lastPose);
             } else {
-                toShootPose = robot.follower.linearPathBuilder(IntakeBallPoses.intakeSpike2End, lastPose);
+                toShootPose = new Path(new BezierCurve(IntakeBallPoses.intakeSpike2End, IntakeBallPoses.intakeSpike2ControlPoint, lastPose));
+                toShootPose.setLinearHeadingInterpolation(IntakeBallPoses.intakeSpike2End, lastPose);
             }
             pathChain = pathChainBuilder.build();
         }
@@ -178,29 +196,38 @@ public class FromShootMidPos {
                     break;
                 case 1:
                     if (!robot.follower.isBusy()) {
-                        robot.indexer.setHasBalls(new BallColor[]{BallColor.Purple, BallColor.Green, BallColor.Purple});
                         setPathState(2);
                     }
                     break;
                 case 2:
-                    // time pushing the lever
-                    if (!lever || pathTimer.getElapsedTimeSeconds() > 0.5) {
-                        robot.follower.followPath(toShootPose);
+                    if (robot.indexer.isHasBallsFull() || pathTimer.getElapsedTimeSeconds() > Timings.spikeIntakeTimeOut) {
+                        robot.indexer.setHasBalls(new BallColor[]{BallColor.Purple, BallColor.Green, BallColor.Purple});
                         setPathState(3);
                     }
+                    break;
                 case 3:
-                    if (robot.inShootingZone()) {
+                    // time pushing the lever
+                    if (!lever || pathTimer.getElapsedTimeSeconds() > Timings.longLeverPressTime) {
+                        robot.follower.followPath(toShootPose);
+                        setPathState(4);
+                    }
+                case 4:
+                    if (robot.inShootingZone() && (parkAfter || robot.follower.getVelocity().getMagnitude() < Timings.shootVelocity)) {
+                        if (parkAfter) {
+                            robot.follower.setMaxPower(DrivePower.shootOnThFly);
+                        }
                         if (sort) {
                             robot.doSmartShoot(true);
                             robot.indexer.setQueuedBalls(robot.getMotif());
                         } else {
                             robot.indexer.shootAll();
                         }
-                        setPathState(4);
+                        setPathState(5);
                     }
                     break;
-                case 4:
+                case 5:
                     if (robot.indexer.isHasBallsEmpty() || (sort && robot.indexer.isQueuedBallsEmpty())) {
+                        robot.follower.setMaxPower(1);
                         robot.doSmartShoot(false);
                         isFinished = true;
                     }
@@ -246,14 +273,14 @@ public class FromShootMidPos {
         }
 
         //Path initialization
-        PathBuilder pathChainBuilder;
         PathChain pathChain;
         Path toShootPose;
         @Override
         public void buildPaths() {
             // Path creation
             pathChain = robot.follower.pathBuilder()
-                    .addPath(robot.follower.linearPathBuilder(startPose, IntakeBallPoses.intakeSpike3Start))
+                    .addPath(new BezierCurve(startPose, IntakeBallPoses.intakeSpike3ControlPoint, IntakeBallPoses.intakeSpike3Start))
+                    .setConstantHeadingInterpolation(Math.toRadians(90))
                     .addPath(robot.follower.linearPathBuilder(IntakeBallPoses.intakeSpike3Start, IntakeBallPoses.intakeSpike3End))
                     .build();
             toShootPose = robot.follower.linearPathBuilder(IntakeBallPoses.intakeSpike3End, lastPose);
@@ -273,24 +300,33 @@ public class FromShootMidPos {
                     break;
                 case 1:
                     if (!robot.follower.isBusy()) {
-                        robot.indexer.setHasBalls(new BallColor[]{BallColor.Green, BallColor.Purple, BallColor.Purple});
-                        robot.follower.followPath(toShootPose);
                         setPathState(2);
                     }
                     break;
                 case 2:
-                    if (robot.inShootingZone()) {
+                    if (robot.indexer.isHasBallsFull() || pathTimer.getElapsedTimeSeconds() > Timings.spikeIntakeTimeOut) {
+                        robot.indexer.setHasBalls(new BallColor[]{BallColor.Green, BallColor.Purple, BallColor.Purple});
+                        robot.follower.followPath(toShootPose);
+                        setPathState(3);
+                    }
+                    break;
+                case 3:
+                    if (robot.inShootingZone() && (parkAfter || robot.follower.getVelocity().getMagnitude() < Timings.shootVelocity)) {
+                        if (parkAfter) {
+                            robot.follower.setMaxPower(DrivePower.shootOnThFly);
+                        }
                         if (sort) {
                             robot.doSmartShoot(true);
                             robot.indexer.setQueuedBalls(robot.getMotif());
                         } else {
                             robot.indexer.shootAll();
                         }
-                        setPathState(3);
+                        setPathState(4);
                     }
                     break;
-                case 3:
+                case 4:
                     if (robot.indexer.isHasBallsEmpty() || (sort && robot.indexer.isQueuedBallsEmpty())) {
+                        robot.follower.setMaxPower(1);
                         robot.doSmartShoot(false);
                         isFinished = true;
                     }
@@ -337,18 +373,31 @@ public class FromShootMidPos {
         }
 
         //Path initialization
-        Path toLever;
-        Path toIntake;
-        Path toShootPose;
+        PathChain toLever;
+        PathChain toIntake;
+        PathBuilder toShootBuilder;
+        PathChain toShootPose;
         @Override
         public void buildPaths() {
             // Path creation
-            toLever = robot.follower.linearPathBuilder(startPose, IntakeBallPoses.pushLever);
+            toLever = robot.follower.linearPathChainBuilder(startPose, IntakeBallPoses.pushLever);
+//                    .addPath(new BezierCurve(startPose, IntakeBallPoses.movingToPushLeverControlPoint, IntakeBallPoses.pushLever))
+//                    .setLinearHeadingInterpolation(startPose, IntakeBallPoses.pushLever)
+//                    .build();
 
-            toIntake = new Path(new BezierCurve(IntakeBallPoses.pushLever, IntakeBallPoses.movingToIntakeSTunnelControlPoint, IntakeBallPoses.intakeFromSTunnel));
-            toIntake.setLinearHeadingInterpolation(IntakeBallPoses.pushLever.getHeading(), IntakeBallPoses.intakeFromSTunnel.getHeading());
+            toIntake = robot.follower.linearPathChainBuilder(IntakeBallPoses.pushLever, IntakeBallPoses.intakeFromSTunnel);
 
-            toShootPose = robot.follower.linearPathBuilder(IntakeBallPoses.intakeFromSTunnel, lastPose);
+            toShootBuilder = robot.follower.pathBuilder();
+            if (sort) {
+                toShootBuilder.addPath(robot.follower.linearPathBuilder(IntakeBallPoses.intakeFromSTunnel, IntakeBallPoses.pushLever))
+                        .addPath(new BezierCurve(IntakeBallPoses.pushLever, IntakeBallPoses.movingToPushLeverControlPoint, lastPose))
+                        .setLinearHeadingInterpolation(IntakeBallPoses.pushLever, lastPose);
+            } else {
+                toShootBuilder.addPath(new BezierCurve(IntakeBallPoses.intakeFromSTunnel, IntakeBallPoses.movingToPushLeverControlPoint, lastPose))
+                        .setLinearHeadingInterpolation(IntakeBallPoses.pushLever, lastPose);
+
+            }
+            toShootPose = toShootBuilder.build();
         }
 
         @Override
@@ -369,19 +418,22 @@ public class FromShootMidPos {
                     }
                     break;
                 case 2:
-                    if (pathTimer.getElapsedTimeSeconds() > 0.5) {
+                    if (robot.indexer.numberOfBallsInBallCells() >= Timings.moveAwayRampAmount || pathTimer.getElapsedTimeSeconds() > Timings.shortLeverPressTime) {
                         robot.follower.followPath(toIntake);
                         setPathState(3);
                     }
                     break;
                 case 3:
-                    if (robot.indexer.numberOfBallsInBallCells() >= 2 ||  pathTimer.getElapsedTimeSeconds() > 3) {
+                    if (robot.indexer.numberOfBallsInBallCells() >= Timings.moveAwayRampAmount ||  pathTimer.getElapsedTimeSeconds() > Timings.rampIntakeTimeOut) {
                         robot.follower.followPath(toShootPose);
                         setPathState(4);
                     }
                     break;
                 case 4:
-                    if (robot.inShootingZone()) {
+                    if (robot.inShootingZone() && robot.follower.getVelocity().getMagnitude() < Timings.shootVelocity) {
+                        if (parkAfter) {
+                            robot.follower.setMaxPower(DrivePower.shootOnThFly);
+                        }
                         if (sort) {
                             robot.doSmartShoot(true);
                             robot.indexer.setQueuedBalls(robot.getMotif());
@@ -393,6 +445,7 @@ public class FromShootMidPos {
                     break;
                 case 5:
                     if (robot.indexer.isHasBallsEmpty() || (sort && robot.indexer.isQueuedBallsEmpty())) {
+                        robot.follower.setMaxPower(1);
                         robot.doSmartShoot(false);
                         isFinished = true;
                     }

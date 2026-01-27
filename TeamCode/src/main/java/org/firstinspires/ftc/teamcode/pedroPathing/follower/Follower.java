@@ -5,6 +5,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.VectorCalculator;
 import org.firstinspires.ftc.teamcode.pedroPathing.control.FilteredPIDFCoefficients;
 import org.firstinspires.ftc.teamcode.pedroPathing.control.PIDFCoefficients;
 import org.firstinspires.ftc.teamcode.pedroPathing.Drivetrain;
+import org.firstinspires.ftc.teamcode.pedroPathing.geometry.BezierCurve;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.BezierLine;
 import org.firstinspires.ftc.teamcode.pedroPathing.paths.PathConstraints;
 import org.firstinspires.ftc.teamcode.pedroPathing.paths.PathPoint;
@@ -1074,7 +1075,7 @@ public class Follower {
         return getPose().getHeading();
     }
 
-    // Start of I.C.E. Code (you can tell because it is worse documentation)
+    // Start of I.C.E. Code (you can tell because it has worse documentation)
     //Builds very simple paths
     public Path linearPathBuilder(Pose startPose, Pose endPose, double endTime) {
         Path tempPath = new Path(new BezierLine(startPose,endPose));
@@ -1094,6 +1095,17 @@ public class Follower {
     }
     public PathChain linearPathChainBuilder(Pose startPose, Pose endPose) {
         return linearPathChainBuilder(startPose, endPose, 1);
+    }
+    public PathChain linearPathChainBuilder(Pose... poses) {
+        PathBuilder tempPath = pathBuilder();
+        if (poses.length < 2) {
+            throw new RuntimeException("To few Poses");
+        }
+        for (int i = 1; i < poses.length; i++) {
+            tempPath.addPath(linearPathBuilder(poses[i-1], poses[i]));
+            tempPath.setLinearHeadingInterpolation(poses[i-1], poses[i]);
+        }
+        return tempPath.build();
     }
 
     //returns the distance from targetPose

@@ -193,8 +193,13 @@ public class SmartIndexerButEvenNewer {
         return Math.abs(updatingEncoderPos / 4096.0) + encoderOffsetFromAuto;
     }
 
+    public boolean isAtPosition(boolean wideTolerance) {
+        double tol;
+        tol = wideTolerance ? Constants.Indexer.wideIndexerTolerance : Constants.Indexer.indexerTolerance;
+        return (Math.abs(getEncoderPercentage() - lastIndexerTarget) < tol);
+    }
     public boolean isAtPosition() {
-        return (Math.abs(getEncoderPercentage() - lastIndexerTarget) < Constants.Indexer.indexerTolerance);
+        return isAtPosition(false);
     }
 
     public void shootAll() {
@@ -262,13 +267,9 @@ public class SmartIndexerButEvenNewer {
     }
 
 
+    // returns the location of any color if the correct is not found
+    // else returns 2
     public int findIndexWithColor(BallColor color) {
-        return findIndexWithColor(color, true);
-    }
-
-    // returns -1 if force is false and there is not a color
-    // returns  3 if force is true  and there is not a color
-    public int findIndexWithColor(BallColor color, boolean force) {
         // searches in a special order
         int[] searchOrder;
         if (IndexerEnumsButEvenNewerThisTime.isAShootEnum(currentIndexerState)) {
@@ -296,10 +297,10 @@ public class SmartIndexerButEvenNewer {
                 return i;
             }
         }
-        if (force) {
-            return 2;
+        if (color != BallColor.Any) {
+            return findIndexWithColor(BallColor.Any);
         } else {
-            return -1;
+            return 2;
         }
     }
 
@@ -320,9 +321,8 @@ public class SmartIndexerButEvenNewer {
             shooting = true; // makes sure things don't run this loop in intake
         }
 
-        if (spitTimer.getElapsedTimeSeconds() > Constants.Indexer.spitTime) {
+        if (isAtPosition(true)) {
             doSpit = false;
-            spitTimer.resetTimer(2000000000);
         }
 
         intakeLogicUpdate(intaking, readyToShoot);
@@ -359,6 +359,7 @@ public class SmartIndexerButEvenNewer {
             hasShot = true;
         }
         if (shooting && shotTimerStarted && shotTimer.getElapsedTimeSeconds() > SHOT_TIME && readyToShoot && isAtPosition() && hasShot) {
+            shotTimer.resetTimer();
             switch (currentIndexerState) {
                 case intake1:
                 case intake2:
@@ -387,7 +388,6 @@ public class SmartIndexerButEvenNewer {
                 default:
                     throw new RuntimeException("far shooting switch");
             }
-            shotTimer.resetTimer();
         }
     }
     public void setHasBalls(BallColor[] set) {
@@ -412,7 +412,6 @@ public class SmartIndexerButEvenNewer {
                 if (nextIndex == 3) {
                     allowIntaking = false;
                     doSpit = true;
-                    spitTimer.resetTimer();
                 }
             }
         }

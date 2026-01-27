@@ -18,13 +18,14 @@ public class Constants {
     public static class Indexer {
 
         public static double indexerTolerance = 0.1;
+        public static double wideIndexerTolerance = 0.1;
 
         public static double spindexPower = 0.45;
 
         public static double transferPower = 1;
 
         public static double smartFeedSec = 0.2;
-        public static double smartShootSpacingSec = 0.5;
+        public static double smartShootSpacingSec = 1;
         public static double spitTime = 0.15;
     }
 
