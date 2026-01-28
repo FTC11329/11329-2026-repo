@@ -148,6 +148,10 @@ public class Lights {
                     listToChange[i].setPrimaryColor(green);
                     listToChange[i].setSecondaryColor(Color.dimColor(green));
                     break;
+                case Any:
+                    listToChange[i].setPrimaryColor(teamColor);
+                    listToChange[i].setSecondaryColor(Color.dimColor(teamColor));
+                    break;
                 case None:
                     listToChange[i].setPrimaryColor(Color.TRANSPARENT);
                     listToChange[i].setSecondaryColor(Color.TRANSPARENT);

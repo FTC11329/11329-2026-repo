@@ -1,11 +1,16 @@
 package org.firstinspires.ftc.teamcode.modularAutos.runnableWrappers;
 
+import com.bylazar.telemetry.PanelsTelemetry;
+import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
+import org.firstinspires.ftc.teamcode.modularAutos.Common.StartPoses;
+import org.firstinspires.ftc.teamcode.modularAutos.PathPlanner;
+import org.firstinspires.ftc.teamcode.modularAutos.modules.FromShootFarPos;
 import org.firstinspires.ftc.teamcode.modularAutos.modules.FromShootMidPos;
 import org.firstinspires.ftc.teamcode.modularAutos.modules.FromStartClosePos;
-import org.firstinspires.ftc.teamcode.modularAutos.PathPlanner;
+import org.firstinspires.ftc.teamcode.modularAutos.modules.FromStartFarPos;
 import org.firstinspires.ftc.teamcode.pedroPathing.Drawing;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
@@ -17,30 +22,41 @@ import org.firstinspires.ftc.teamcode.util.RobotSide;
 import java.util.ArrayList;
 import java.util.List;
 
-@Autonomous
-public class ExampleRunnableWrapper extends OpMode {
+@Autonomous(name = "Far 9 Blue", group = "       Testing", preselectTeleOp = "Main Teleop Blue")
+public class FarAuto9BallBlue extends OpMode {
     Pose startPose;
     RobotSide robotSide;
     Robot robot;
+    TelemetryManager panelsTelemetry;
+
     private List<PathPlanner> steps = new ArrayList<>();
-    Timer zeroVelocityTimer = new Timer();
+    Timer zeroVelocityTimer = new Timer(2000000);
     private int currentStep = 0;
+    long lastTime;
 
     @Override
     public void init() {
-        // todo Set These Before Creating
-        robotSide = null;
+        lastTime = System.nanoTime();
+        robotSide = RobotSide.Blue;
         robot = new Robot(telemetry, hardwareMap, robotSide, 0,0,
                 new BallColor[]{
                         BallColor.Green,
                         BallColor.Purple,
                         BallColor.Purple
                 });
-        // todo Set These Before Creating
-        startPose = null;
+        panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
 
-        steps.add(new FromStartClosePos.ShootAndGoToMidShootPos(robot, lastPose()));
-        steps.add(new FromShootMidPos.ToIntakeSpike1(robot, lastPose(), true, false, false));
+        startPose = StartPoses.far;
+
+        steps.add(new FromStartFarPos.shootPreloads (robot, lastPose(), false));
+        steps.add(new FromShootFarPos.ToIntakeSpike3(robot, lastPose(), false));
+        steps.add(new FromShootFarPos.ToIntakeHuman (robot, lastPose(), false));
+        steps.add(new FromShootFarPos.ToIntakeHumanThenWait(robot, lastPose(), false));
+        steps.add(new FromShootFarPos.ToIntakeHumanThenWait(robot, lastPose(), false));
+        steps.add(new FromShootFarPos.ToIntakeHumanThenWait(robot, lastPose(), false));
+//        for (int i = 1; i < 67; i++) { /*tehe*/
+//            steps.add(new FromShootFarPos.ToIntakeHumanThenWait(robot, lastPose(), false));
+//        }
 
         robot.follower.setPose(startPose);
     }
@@ -57,9 +73,11 @@ public class ExampleRunnableWrapper extends OpMode {
         // to stop the auto
         if (robot.getOpmodeTimeSeconds() > 30) {
             telemetry.addData("Done", true);
+            telemetry.addData("zeroVelTimer", zeroVelocityTimer.getElapsedTimeSeconds());
             telemetry.update();
 
             robot.stopAllSubsystems();
+            robot.follower.update();
             if (robot.follower.getVelocity().getMagnitude() > 0.5) {
                 zeroVelocityTimer.resetTimer();
             }
@@ -70,7 +88,7 @@ public class ExampleRunnableWrapper extends OpMode {
         }
 
         robot.update();
-        Drawing.drawShapesDebug(robot.follower);
+        robot.prepareShooter();
 
         // Stops the robot if done
         if (currentStep >= steps.size()) {
@@ -79,13 +97,10 @@ public class ExampleRunnableWrapper extends OpMode {
             return;
         }
 
+
         PathPlanner step = steps.get(currentStep);
         boolean done = step.run();
 
-        telemetry.addData("time", robot.getOpmodeTimeSeconds());
-        telemetry.addData("name", step);
-
-        telemetry.update();
 
         if (done) {
             currentStep++;
@@ -94,6 +109,15 @@ public class ExampleRunnableWrapper extends OpMode {
             }
             steps.get(currentStep).buildPaths();
         }
+        Drawing.drawDebug(robot.follower);
+//        telemetry.addData("time", robot.getOpmodeTimeSeconds());
+        telemetry.addData("name", step);
+//        for (BallColor i : robot.indexer.getBallCells()) {
+//            telemetry.addData("hasBalls", i);
+//        }
+//        panelsTelemetry.addData("all", (System.nanoTime() - lastTime) * 1e-6);
+//        panelsTelemetry.update();
+//        lastTime = System.nanoTime();
     }
 
     private Pose lastPose() {

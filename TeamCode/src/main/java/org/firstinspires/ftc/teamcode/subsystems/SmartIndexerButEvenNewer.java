@@ -288,12 +288,11 @@ public class SmartIndexerButEvenNewer {
         } else {
             searchOrder = new int[]{2, 0, 1};
         }
-
         for (int loop = 0; loop < 3; loop++) {
             int i = searchOrder[loop];
             BallColor colorToCheck;
             colorToCheck = ballCells[i];
-            if (colorToCheck == color) {
+            if (colorToCheck == color || (colorToCheck != BallColor.None && color == BallColor.Any)) {
                 return i;
             }
         }
@@ -452,6 +451,9 @@ public class SmartIndexerButEvenNewer {
         }
     }
     public void smartShootLogicUpdate(boolean readyToShoot) {
+        if (!isAtPosition()) {
+            spinTransferWheel(false);
+        }
         if (startShooting && readyToShoot) {
             deleteme = IndexerEnumsButEvenNewerThisTime.getEnum(findIndexWithColor(queuedBalls[0]), true);
             setIndexerPos(IndexerEnumsButEvenNewerThisTime.getEnum(findIndexWithColor(queuedBalls[0]), true));

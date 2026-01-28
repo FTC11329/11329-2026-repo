@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.paths.Path;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
 
-public class FromStartClosePosition {
+public class FromStartClosePos {
     // allows for either close inner or outer startPositions
     public static class ShootAndGoToMidShootPos implements PathPlanner {
         /// Starts Close and goes to shoot mid pos while shooting

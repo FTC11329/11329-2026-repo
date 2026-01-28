@@ -8,13 +8,12 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.modularAutos.Common.StartPoses;
 import org.firstinspires.ftc.teamcode.modularAutos.PathPlanner;
 import org.firstinspires.ftc.teamcode.modularAutos.modules.FromShootMidPos;
-import org.firstinspires.ftc.teamcode.modularAutos.modules.FromStartClosePosition;
+import org.firstinspires.ftc.teamcode.modularAutos.modules.FromStartClosePos;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
 import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.EndValuesStorer;
-import org.firstinspires.ftc.teamcode.util.IndexerEnumsButEvenNewerThisTime;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
 
 import java.util.ArrayList;
@@ -46,7 +45,7 @@ public class CloseAuto15SortBallBlue extends OpMode {
 
         startPose = StartPoses.closeInner;
 
-        steps.add(new FromStartClosePosition.ShootAndGoToMidShootPos(robot, lastPose()));
+        steps.add(new FromStartClosePos.ShootAndGoToMidShootPos(robot, lastPose()));
         steps.add(new FromShootMidPos.ToIntakeSpike2  (robot, lastPose(), false, false, false));
         steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPose(), true,  false, true));
         steps.add(new FromShootMidPos.ToIntakeSpike1  (robot, lastPose(), true,  false, false));

@@ -1,12 +1,14 @@
 package org.firstinspires.ftc.teamcode.modularAutos.runnableWrappers;
 
+import com.bylazar.telemetry.PanelsTelemetry;
+import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
+import org.firstinspires.ftc.teamcode.modularAutos.Common.StartPoses;
+import org.firstinspires.ftc.teamcode.modularAutos.PathPlanner;
 import org.firstinspires.ftc.teamcode.modularAutos.modules.FromShootMidPos;
 import org.firstinspires.ftc.teamcode.modularAutos.modules.FromStartClosePos;
-import org.firstinspires.ftc.teamcode.modularAutos.PathPlanner;
-import org.firstinspires.ftc.teamcode.pedroPathing.Drawing;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
@@ -17,30 +19,38 @@ import org.firstinspires.ftc.teamcode.util.RobotSide;
 import java.util.ArrayList;
 import java.util.List;
 
-@Autonomous
-public class ExampleRunnableWrapper extends OpMode {
+@Autonomous(name = "Close 18 Red", group = "       Testing", preselectTeleOp = "Main Teleop Red")
+public class CloseAuto18BallRed extends OpMode {
     Pose startPose;
     RobotSide robotSide;
     Robot robot;
+    TelemetryManager panelsTelemetry;
+
     private List<PathPlanner> steps = new ArrayList<>();
-    Timer zeroVelocityTimer = new Timer();
+    Timer zeroVelocityTimer = new Timer(2000000);
     private int currentStep = 0;
+    long lastTime;
 
     @Override
     public void init() {
-        // todo Set These Before Creating
-        robotSide = null;
+        lastTime = System.nanoTime();
+        robotSide = RobotSide.Red;
         robot = new Robot(telemetry, hardwareMap, robotSide, 0,0,
                 new BallColor[]{
                         BallColor.Green,
                         BallColor.Purple,
                         BallColor.Purple
                 });
-        // todo Set These Before Creating
-        startPose = null;
+        panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
+
+        startPose = StartPoses.closeInner;
 
         steps.add(new FromStartClosePos.ShootAndGoToMidShootPos(robot, lastPose()));
-        steps.add(new FromShootMidPos.ToIntakeSpike1(robot, lastPose(), true, false, false));
+        steps.add(new FromShootMidPos.ToIntakeSpike2  (robot, lastPose(), false,  false, false));
+        steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPose(), false,  false, true));
+        steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPose(), false,  false, true));
+        steps.add(new FromShootMidPos.ToIntakeSpike1  (robot, lastPose(), false,  false, false));
+        steps.add(new FromShootMidPos.ToIntakeSpike3  (robot, lastPose(), false,  true));
 
         robot.follower.setPose(startPose);
     }
@@ -57,9 +67,11 @@ public class ExampleRunnableWrapper extends OpMode {
         // to stop the auto
         if (robot.getOpmodeTimeSeconds() > 30) {
             telemetry.addData("Done", true);
+            telemetry.addData("zeroVelTimer", zeroVelocityTimer.getElapsedTimeSeconds());
             telemetry.update();
 
             robot.stopAllSubsystems();
+            robot.follower.update();
             if (robot.follower.getVelocity().getMagnitude() > 0.5) {
                 zeroVelocityTimer.resetTimer();
             }
@@ -70,7 +82,7 @@ public class ExampleRunnableWrapper extends OpMode {
         }
 
         robot.update();
-        Drawing.drawShapesDebug(robot.follower);
+        robot.prepareShooter();
 
         // Stops the robot if done
         if (currentStep >= steps.size()) {
@@ -79,13 +91,10 @@ public class ExampleRunnableWrapper extends OpMode {
             return;
         }
 
+
         PathPlanner step = steps.get(currentStep);
         boolean done = step.run();
 
-        telemetry.addData("time", robot.getOpmodeTimeSeconds());
-        telemetry.addData("name", step);
-
-        telemetry.update();
 
         if (done) {
             currentStep++;
@@ -94,6 +103,15 @@ public class ExampleRunnableWrapper extends OpMode {
             }
             steps.get(currentStep).buildPaths();
         }
+//        Drawing.drawDebug(robot.follower);
+//        telemetry.addData("time", robot.getOpmodeTimeSeconds());
+//        telemetry.addData("name", step);
+//        for (BallColor i : robot.indexer.getBallCells()) {
+//            telemetry.addData("hasBalls", i);
+//        }
+        panelsTelemetry.addData("all", (System.nanoTime() - lastTime) * 1e-6);
+        panelsTelemetry.update();
+        lastTime = System.nanoTime();
     }
 
     private Pose lastPose() {

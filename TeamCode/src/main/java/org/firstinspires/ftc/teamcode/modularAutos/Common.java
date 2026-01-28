@@ -9,6 +9,7 @@ public class Common {
     // Close is close to goal (so usually higher x)
     // Outer is closer to driver wall (so usually higher y)
 
+    public static Pose redOffset = new Pose(-1,-0.5,0); // remember y is reversed
     public static class Timings {
         public static int moveAwayRampAmount = 3; // balls
 
@@ -17,6 +18,8 @@ public class Common {
         public static double longLeverPressTime = 2;
         public static double shortLeverPressTime = 1;
         public static double longLeverRampIntakeTimeOut = rampIntakeTimeOut + shortLeverPressTime - longLeverPressTime;
+        public static double humanIntakeTime = 1;
+        public static double farShootWaitUntil = 23;
 
         public static double shootTimeOut = 0.7;
         public static double sortShootTimeOut = 3.5;
@@ -29,11 +32,11 @@ public class Common {
     }
     public static class StartPoses {
         public static Pose closeInner = new Pose(62.5, 36, Math.toRadians(90));
-        public static Pose farOuter = new Pose(62.5, 36, Math.toRadians(90));
+        public static Pose far = new Pose(-63.5, 15.75, Math.toRadians(0));
 
         static void convert(boolean toRed) {
-            closeInner = convertToRed(closeInner, toRed);
-            farOuter = convertToRed(farOuter, toRed);
+            closeInner = convertToRed(closeInner, toRed, true);
+            far = convertToRed(far, toRed, true);
         }
     }
 
@@ -52,11 +55,12 @@ public class Common {
 
         public static Pose movingToPushLeverControlPoint = new Pose(-3.8, 25.3);
         public static Pose pushLeverAfterSpike = new Pose(-0.4,56.1, Math.toRadians(60));
-        public static Pose pushLever = new Pose(-10.25,58.67/*tehe*/, Math.toRadians(70));
+        public static Pose pushLever = new Pose(-10.25, 58.2, Math.toRadians(70));
         public static Pose intakeFromSTunnel = new Pose(-17, 58.25, Math.toRadians(45)); // pointing at ramp
 
-        public static Pose startSTunnelPose = new Pose(-27, 59.42, Math.toRadians(155)); //pointing at human
-        public static Pose endSTunnelPose = new Pose(-53, 63, Math.toRadians(180));
+        public static Pose intakeHuman = new Pose(-62,62, Math.toRadians(90));
+        public static Pose intakeSTunnelAfterHumanControl = new Pose(-56.4,55.8);
+        public static Pose intakeSTunnelAfterHuman = new Pose(-49.6,62.9, Math.toRadians(0));
 
         static void convert(boolean toRed) {
             intakeSpike1ControlPoint = convertToRed(intakeSpike1ControlPoint, toRed);
@@ -72,16 +76,17 @@ public class Common {
             pushLever = convertToRed(pushLever, toRed);
             movingToPushLeverControlPoint = convertToRed(movingToPushLeverControlPoint, toRed);
             intakeFromSTunnel = convertToRed(intakeFromSTunnel, toRed);
-            startSTunnelPose = convertToRed(startSTunnelPose, toRed);
-            endSTunnelPose = convertToRed(endSTunnelPose, toRed);
+            intakeHuman = convertToRed(intakeHuman, toRed);
+            intakeSTunnelAfterHumanControl = convertToRed(intakeSTunnelAfterHumanControl, toRed);
+            intakeSTunnelAfterHuman = convertToRed(intakeSTunnelAfterHuman, toRed);
         }
     }
 
     public static class ShootPoses {
         public static Pose parkShoot = new Pose(50, 12, Math.toRadians(90));
         public static Pose closeShoot = new Pose(36, 36, Math.toRadians(90));
-        public static Pose midShoot = new Pose(8.9,19.5, Math.toRadians(90));
-        public static Pose farShoot = new Pose(-60, 12, Math.toRadians(90));
+        public static Pose midShoot = new Pose(8.9,18.5, Math.toRadians(90));
+        public static Pose farShoot = new Pose(-54.7,9.9, Math.toRadians(90));
 
         static void convert(boolean toRed) {
             parkShoot = convertToRed(parkShoot, toRed);
@@ -109,11 +114,26 @@ public class Common {
     }
 
     public static Pose convertToRed(Pose convertPose, boolean toRed) {
-        if (!toRed) return convertPose;
-        return new Pose(
-                convertPose.getX(),
-                -convertPose.getY(),
-                -convertPose.getHeading()
-        );
+        return convertToRed(convertPose, toRed, false);
+    }
+
+    public static Pose convertToRed(Pose convertPose, boolean toRed, boolean startPose) {
+        if (!toRed) {
+            return convertPose;
+        }
+
+        if (startPose) {
+            return new Pose(
+                    convertPose.getX(),
+                    (-convertPose.getY()),
+                    (-convertPose.getHeading())
+            );
+        } else {
+            return new Pose(
+                    convertPose.getX(),
+                    (-convertPose.getY()),
+                    (-convertPose.getHeading())
+            ).plus(redOffset);
+        }
     }
 }
