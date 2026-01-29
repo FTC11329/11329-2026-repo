@@ -39,7 +39,7 @@ public class Constants {
     public static class Vision {
         public static Pose redGoal = new Pose(60, -60);
         public static Pose blueGoal = new Pose(60, 60);
-        public static Pose redGoalAimOffset = new Pose(4, -7);
+        public static Pose redGoalAimOffset = new Pose(4, -9);
         public static Pose blueGoalAimOffset = new Pose(6, 4);
 
         public static Pose blueReset = new Pose(7.5, 39.7);
@@ -66,7 +66,7 @@ public class Constants {
 //        public static double I = 0.001;
 //        public static double D = 0.001;
 //        public static double P = 0.005; //.011
-        public static double P = 0.01; //.011
+        public static double P = 0.015; //.011
         public static double I = 0;
         public static double D = 0;
 

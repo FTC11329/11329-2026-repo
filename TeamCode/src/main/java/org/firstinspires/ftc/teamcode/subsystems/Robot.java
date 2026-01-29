@@ -37,7 +37,7 @@ public class Robot {
     public Follower follower;
     public RobotSide robotSide;
     public Drivetrain drivetrain;
-    public SmartIndexerButEvenNewer indexer;
+    public Indexer indexer;
 
 
     ShooterTestValues shooterTestValues;
@@ -79,7 +79,7 @@ public class Robot {
         lights = new Lights(hardwareMap);
         intake = new Intake(hardwareMap);
         vision = new Vision(hardwareMap, robotSide);
-        indexer = new SmartIndexerButEvenNewer(hardwareMap, ballsInIndexer, startIndexerTicks);
+        indexer = new Indexer(hardwareMap, ballsInIndexer, startIndexerTicks);
         turret = new Turret(hardwareMap, startTurretTicks, robotSide);
         drivetrain = new Drivetrain(hardwareMap);
         shooter = new Shooter(hardwareMap);
@@ -140,8 +140,9 @@ public class Robot {
     public boolean inFarZone() {
         Pose curPose = follower.getPose();
         return ShapeDetection.doesRobotIntersect(FieldShapes.farTriangle, curPose);
-
-//        return distanceToGoal() > 10;
+    }
+    public boolean farBack() {
+        return distanceToGoal() > 110;
     }
     public void reZeroAtCorner() {
         follower.setPose(robotSide == RobotSide.Blue ? new Pose(-64.938, -59.7542, -1.573) : new Pose(-61.9, 60.9674, 1.5688));
@@ -209,11 +210,11 @@ public class Robot {
         double angleToGoal = Math.toDegrees(Math.atan2(deltaY, deltaX));
 
         // this is to pass to the feed forward on the turret to offset for the rate of change of the angle to goal
+        previousAngleToGoalVelocity = angleToGoalVelocity;
         angleToGoalVelocity = -((Math.toRadians(angleToGoal - lastAngleToGoal)) / ((System.nanoTime() - lastTimeTurret) * 1e-9)); // todo work in velocity vector
         angleToGoalVelocity += follower.getAngularVelocity();
 
-        angleToGoalAcceleration = (follower.getAngularVelocity() - previousAngleToGoalVelocity) / ((System.nanoTime() - lastTimeTurret) * 1e-9);
-        previousAngleToGoalVelocity = follower.getAngularVelocity();
+        angleToGoalAcceleration = (angleToGoalVelocity - previousAngleToGoalVelocity) / ((System.nanoTime() - lastTimeTurret) * 1e-9);
         lastAngleToGoal = angleToGoal;
         lastTimeTurret = System.nanoTime();
 
@@ -244,13 +245,13 @@ public class Robot {
         ShooterState futureShooterParams = stv.get(currentPose.distanceFrom(futrGoal));
 
         // Sets shooter rpm
-        shooter.adjustTargetRPM(futureShooterParams.rpm);
-        long time1 = System.nanoTime();
+        double shooterRPM = farBack() ? futureShooterParams.rpm + 300 : futureShooterParams.rpm;
+        shooter.adjustTargetRPM(shooterRPM);
 
         double hoodDeg = futureShooterParams.hoodAngle;
         double hoodRad = Math.toRadians(hoodDeg);
 
-        double rpmRatio = shooter.getTargetRpm() / shooter.getRPM();
+        double rpmRatio = futureShooterParams.rpm / shooter.getRPM();
 
         double correctedRad =
                 Math.atan(rpmRatio * Math.tan(hoodRad));
@@ -258,11 +259,12 @@ public class Robot {
         deltaDeg =
                 Math.toDegrees(correctedRad - hoodRad);
 
-        if (Math.abs(deltaDeg) < 0.8) {
+        if (Math.abs(deltaDeg) < .7) {
             deltaDeg = 0;
         }
 
-        deltaDeg = clamp(deltaDeg, 0.0, 6.0);
+        deltaDeg = clamp(deltaDeg, -8.0, 8.0);
+        panelsTelemetry.addData("delta degrees", deltaDeg);
         // gets hood angle
         shooter.setHoodDeg(futureShooterParams.hoodAngle + 1 * deltaDeg);
     }
@@ -406,7 +408,10 @@ public class Robot {
         indexer.shootAll();
     }
     public void spindexerUpdate() {
-        indexer.update(isIntaking, readyToShootMotors(), smartShoot, inFarZone());
+        indexer.update(isIntaking, readyToShootMotors(), smartShoot, farBack());
+    }
+    public void indexerUnjam() {
+
     }
 
     // LIGHTS**************************************************************************************~
@@ -441,7 +446,7 @@ public class Robot {
     public void update(boolean debug) {
         long now = System.nanoTime();
         panelsTelemetry.addData("dt", (now - lastTime) * 1e-6);
-        panelsTelemetry.update();
+//        panelsTelemetry.update();
         lastTime = now;
         for (LynxModule hub : hubs) {
             hub.clearBulkCache();
@@ -454,6 +459,10 @@ public class Robot {
         follower.update();
         lightsUpdate();
 
+        panelsTelemetry.addData("shooter target", shooter.getTargetRpm() - 200);
+        panelsTelemetry.addData("shooter actual", shooter.getRPM());
+//        panelsTelemetry.addData("turret error", turret.turretPID.getError());
+//        panelsTelemetry.addData("turret actual", turret.getAngle());
 //        telemetry.addData("indexer state", indexer.currentIndexerState);
 
 //        Pose curPose = follower.getPose();

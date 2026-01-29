@@ -15,8 +15,6 @@ public class Turret {
     // declaring motor variables
     CRServo turretServo1;
     CRServo turretServo2;
-
-    double hoodPos = 0;
     public int encoderOffset;
 
 
@@ -80,11 +78,7 @@ public class Turret {
         turretPID.updatePosition(curAngle);  // degrees
         double velocityFF = angVel * Constants.Turret.kV;
         double accelerationFF = angAccel * Constants.Turret.kA;
-//        if (turretPID.getError() > 80) {
-//            setPower(Math.signum(turretPID.getError()));
-//        } else {
         setPower(turretPID.run() + velocityFF + accelerationFF);
-//        }
     }
 
 

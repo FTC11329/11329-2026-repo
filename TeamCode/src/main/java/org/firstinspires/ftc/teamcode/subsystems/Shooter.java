@@ -176,8 +176,6 @@ public class Shooter {
 
     public void update() {
         flywheelVelocity = flywheel.getVelocity();
-        shooterPID.setCoefficients(Constants.Shooter.shooterVelocityPID);
-        shooterPID.setkV(Constants.Shooter.kV);
         if (shooterSpin && usePID) {
             shooterPID.updatePosition(getRPM());
             if (shooterPID.getTargetPosition() > 10) {

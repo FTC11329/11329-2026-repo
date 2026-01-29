@@ -5,11 +5,9 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
 import org.firstinspires.ftc.teamcode.util.BallColor;
-import org.firstinspires.ftc.teamcode.util.Bulk;
 import org.firstinspires.ftc.teamcode.util.EndValuesStorer;
 import org.firstinspires.ftc.teamcode.util.FancyButton;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
@@ -38,7 +36,7 @@ public class MainTeleop {
     FancyButton movePoseLeft;
     FancyButton movePoseRight;
     FancyButton resetPose;
-    FancyButton holdPose;
+    FancyButton unjamSpindexer;
 
     FancyButton deleteme;
 
@@ -90,7 +88,7 @@ public class MainTeleop {
 
         debug = new FancyButton(FancyButton.PressType.Toggle);
 
-        holdPose = new FancyButton(FancyButton.PressType.LongPress);
+        unjamSpindexer = new FancyButton(FancyButton.PressType.LongPress);
         resetPose = new FancyButton(FancyButton.PressType.LongPress);
         takePhoto = new FancyButton(FancyButton.PressType.LongPress);
         movePoseUp = new FancyButton(FancyButton.PressType.LongPress);
@@ -125,14 +123,14 @@ public class MainTeleop {
     }
 
     public void loop() {
-        holdPose.checkStatus(gamepad1.left_trigger > .5);
+        unjamSpindexer.checkStatus(gamepad1.left_trigger > .5);
         intake.checkStatus(gamepad2.left_bumper); // Toggle on to intake
         spitIntake.checkStatus(gamepad2.right_bumper || gamepad1.left_bumper); // Hold to spit
 
         queueGreen.checkStatus(gamepad2.y); // Press to queue green
         queuePurple.checkStatus(gamepad2.x); // Press to queue purple
         autoShoot.checkStatus(gamepad2.a); // Toggle to turn on auto shoot
-        fastShootButton.checkStatus(gamepad2.b); // press to shoot 3
+        fastShootButton.checkStatus(gamepad1.b); // press to shoot 3
         smartShoot.checkStatus(gamepad2.back); // Toggle to turn on smart shoot
 
         overrideIntake.checkStatus(gamepad2.ps || gamepad2.left_bumper); // hold to turn on ignore allowintaking
@@ -146,6 +144,7 @@ public class MainTeleop {
         debug.checkStatus(gamepad1.start); // toggle to print telemetry
         resetPose.checkStatus(gamepad1.x);
 
+        robot.drivetrain.teleopMovement(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, gamepad1.right_bumper);
 
         if (intake.startPress) {
             robot.spinIntake(true);
@@ -191,6 +190,9 @@ public class MainTeleop {
             RPMoffset += 20;
         } else if (movePoseDown.startPress) {
             RPMoffset -= 20;
+        }
+        if (unjamSpindexer.startPress) {
+            robot.indexerUnjam();
         }
         // Take Photo to set position
         if (takePhoto.isOn) {
@@ -238,9 +240,6 @@ public class MainTeleop {
         }
 
         robot.update(debug.isOn);
-
-        robot.holdPoint(holdPose.isPressed);
-        if (!holdPose.isPressed) {robot.drivetrain.teleopMovement(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, gamepad1.right_bumper);};
 
 //        double deltaTime = time.milliseconds() - lastTime;
 //        telemetry.addData("loopTimes", deltaTime);
