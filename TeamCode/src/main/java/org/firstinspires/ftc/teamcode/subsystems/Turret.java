@@ -42,6 +42,7 @@ public class Turret {
 
         turretPID = new PIDFController(Constants.Turret.turretPID);
         turretPID.updateFeedForwardInput(Constants.Turret.CW_F);
+        turretPID.setTargetPosition(ticksToDegrees(encoderOffset));
         if (robotSide == RobotSide.Blue) {
             goalPose = new Pose(72, 72);
         } else {

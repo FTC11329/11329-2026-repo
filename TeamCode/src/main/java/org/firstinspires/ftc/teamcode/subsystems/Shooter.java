@@ -160,6 +160,7 @@ public class Shooter {
         flywheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         flywheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         flywheel.setPower(0);
+        setHood(0);
     }
 
     public double getShooterPower() {

@@ -203,6 +203,11 @@ public class Robot {
         ShooterValuesParent stv = shooterTestValues;
 
         Pose futrGoal = goal;
+        if (robotSide == RobotSide.Blue)  {
+            goal = Constants.Vision.blueGoal;
+        } else {
+            goal = Constants.Vision.redGoal;
+        }
         goal = goal.plus(offsetPose);
 
         double deltaX = goal.getX() - currentPose.getX();
@@ -245,7 +250,7 @@ public class Robot {
         ShooterState futureShooterParams = stv.get(currentPose.distanceFrom(futrGoal));
 
         // Sets shooter rpm
-        double shooterRPM = farBack() ? futureShooterParams.rpm + 300 : futureShooterParams.rpm;
+        double shooterRPM = farBack() ? futureShooterParams.rpm + 150 : futureShooterParams.rpm;
         shooter.adjustTargetRPM(shooterRPM);
 
         double hoodDeg = futureShooterParams.hoodAngle;
@@ -264,7 +269,7 @@ public class Robot {
         }
 
         deltaDeg = clamp(deltaDeg, -8.0, 8.0);
-        panelsTelemetry.addData("delta degrees", deltaDeg);
+//        panelsTelemetry.addData("delta degrees", deltaDeg);
         // gets hood angle
         shooter.setHoodDeg(futureShooterParams.hoodAngle + 1 * deltaDeg);
     }
@@ -411,7 +416,7 @@ public class Robot {
         indexer.update(isIntaking, readyToShootMotors(), smartShoot, farBack());
     }
     public void indexerUnjam() {
-
+        indexer.unjam();
     }
 
     // LIGHTS**************************************************************************************~

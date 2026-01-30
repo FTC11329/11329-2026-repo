@@ -53,6 +53,8 @@ public class CloseAuto18BallRed extends OpMode {
         steps.add(new FromShootMidPos.ToIntakeSpike3  (robot, lastPose(), false,  true));
 
         robot.follower.setPose(startPose);
+        telemetry.addData("start pose", startPose);
+        telemetry.update();
     }
 
     @Override

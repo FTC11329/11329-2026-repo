@@ -32,7 +32,7 @@ public class Constants {
     public static class Intake {
         public static double intakePower = 1;
         public static double spitPower = -0.67; //67 67 67 67 67 67 67 67 67 67
-        public static double intakeOffPower = 0.2;
+        public static double intakeOffPower = 0.4;
         public static double spitTime = 0.3;
     }
 

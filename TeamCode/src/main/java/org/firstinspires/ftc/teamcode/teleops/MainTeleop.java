@@ -68,10 +68,7 @@ public class MainTeleop {
         double startIndexerTicks = endValues.indexerPos;
         startPose = new Pose(endValues.x, endValues.y, endValues.heading);
 
-//        Bulk.auto(hardwareMap);
         robot = new Robot(telemetry, hardwareMap, robotSide, startTurretTicks, startIndexerTicks);
-
-        robot = new Robot(telemetry, hardwareMap, robotSide, 0, 0);
 
         intake = new FancyButton(FancyButton.PressType.Toggle);
         spitIntake = new FancyButton(FancyButton.PressType.LongPress);
@@ -98,22 +95,27 @@ public class MainTeleop {
 
         deleteme = new FancyButton(FancyButton.PressType.Toggle);
 
+        robot.follower.setPose(startPose);
         time = new ElapsedTime();
     }
 
     public void init_loop() {
         resetPose.checkStatus(gamepad2.y);
 
-
-        startPose = new Pose(0,0, 0); // PI/4 points at blue goal
-        robot.turret.encoderOffset = 0;
+        if (gamepad2.bWasPressed()) {
+            startPose = new Pose(0,0,0);
+            robot.follower.setPose(startPose);
+            robot.turret.encoderOffset = 0;
+            robot.indexer.encoderOffsetFromAuto = 0;
+            robot.indexer.setIndexerPos(0);
+            robot.turret.setTargetDeg(180);
+        }
 
         telemetry.addData("Start Pose", startPose);
-        telemetry.addData("Encoder Offset", robot.turret.encoderOffset);
-        robot.follower.setPose(startPose);
-        robot.follower.update();
-        telemetry.addData("Encoder Offset", robot.getCurrentPose());
+        telemetry.addData("Turret Encoder Offset", robot.turret.encoderOffset);
+        telemetry.addData("Indexer Encoder Offset", robot.indexer.encoderOffsetFromAuto);
         telemetry.update();
+        robot.follower.update();
     }
 
     public void start() {
@@ -130,7 +132,7 @@ public class MainTeleop {
         queueGreen.checkStatus(gamepad2.y); // Press to queue green
         queuePurple.checkStatus(gamepad2.x); // Press to queue purple
         autoShoot.checkStatus(gamepad2.a); // Toggle to turn on auto shoot
-        fastShootButton.checkStatus(gamepad1.b); // press to shoot 3
+        fastShootButton.checkStatus(gamepad2.b); // press to shoot 3
         smartShoot.checkStatus(gamepad2.back); // Toggle to turn on smart shoot
 
         overrideIntake.checkStatus(gamepad2.ps || gamepad2.left_bumper); // hold to turn on ignore allowintaking
@@ -186,11 +188,6 @@ public class MainTeleop {
             robot.shooter.stop();
         }
 
-        if (movePoseUp.startPress) {
-            RPMoffset += 20;
-        } else if (movePoseDown.startPress) {
-            RPMoffset -= 20;
-        }
         if (unjamSpindexer.startPress) {
             robot.indexerUnjam();
         }
@@ -200,41 +197,45 @@ public class MainTeleop {
         }
 
          // Changing our aim
-//        if (robotSide == RobotSide.Blue) {
-//            if (movePoseUp.startPress) {
-//                robot.offsetPose.addY(1);
-//                robot.offsetPose.addX(1);
-//            }
-//            if (movePoseDown.startPress) {
-//                robot.offsetPose.addY(-1);
-//                robot.offsetPose.addX(-1);
-//            }
-//            if (movePoseLeft.startPress) {
-//                robot.offsetPose.addY(1);
-//                robot.offsetPose.addX(-1);
-//            }
-//            if (movePoseRight.startPress) {
-//                robot.offsetPose.addY(-1);
-//                robot.offsetPose.addX(1);
-//            }
-//        } else {
-//            if (movePoseUp.startPress) {
-//                robot.offsetPose.addY(-1);
-//                robot.offsetPose.addX(1);
-//            }
-//            if (movePoseDown.startPress) {
-//                robot.offsetPose.addY(1);
-//                robot.offsetPose.addX(-1);
-//            }
-//            if (movePoseLeft.startPress) {
-//                robot.offsetPose.addY(1);
-//                robot.offsetPose.addX(1);
-//            }
-//            if (movePoseRight.startPress) {
-//                robot.offsetPose.addY(-1);
-//                robot.offsetPose.addX(-1);
-//            }
-//        }
+        if (robotSide == RobotSide.Blue) {
+            if (movePoseUp.startPress) {
+                robot.offsetPose.addY(1);
+                robot.offsetPose.addX(1);
+            }
+            if (movePoseDown.startPress) {
+                robot.offsetPose.addY(-1);
+                robot.offsetPose.addX(-1);
+            }
+            if (movePoseLeft.startPress) {
+                robot.offsetPose.addY(1);
+                robot.offsetPose.addX(-1);
+            }
+            if (movePoseRight.startPress) {
+                robot.offsetPose.addY(-1);
+                robot.offsetPose.addX(1);
+            }
+        } else {
+            if (movePoseUp.startPress) {
+                robot.offsetPose.addY(-1);
+                robot.offsetPose.addX(1);
+            }
+            if (movePoseDown.startPress) {
+                robot.offsetPose.addY(1);
+                robot.offsetPose.addX(-1);
+            }
+            if (movePoseLeft.startPress) {
+                robot.offsetPose.addY(1);
+                robot.offsetPose.addX(1);
+            }
+            if (movePoseRight.startPress) {
+                robot.offsetPose.addY(-1);
+                robot.offsetPose.addX(-1);
+            }
+        }
+        telemetry.addData("encoder", robot.indexer.getEncoderPercentage());
+        telemetry.addData("Indexer Encoder Offset", robot.indexer.encoderOffsetFromAuto);
+        telemetry.addData("servo", robot.indexer.spindexer2.getPosition());
+        telemetry.addData("servo", robot.indexer.lastIndexerTarget);
         if (resetPose.startPress) {
             robot.reZeroAtCorner();
         }
