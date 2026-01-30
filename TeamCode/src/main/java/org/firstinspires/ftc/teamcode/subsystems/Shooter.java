@@ -19,7 +19,7 @@ public class Shooter {
     boolean usePID = false;
     Servo hoodServo1;
     Servo hoodServo2;
-    double hoodPos = 0;
+    double hoodPos = 0.6767676767676767676767676767676767;
     public MovingPIDFController shooterPID;
     boolean shooterSpin;
     boolean isGettingUpToSpeed = true;
@@ -41,11 +41,11 @@ public class Shooter {
 
         hoodServo1 = hardwareMap.get(Servo.class, "hood1");
         hoodServo1.setDirection(Servo.Direction.FORWARD);
-        hoodServo1.setPosition(0);
 
         hoodServo2 = hardwareMap.get(Servo.class, "hood2");
         hoodServo2.setDirection(Servo.Direction.REVERSE);
-        hoodServo2.setPosition(0);
+
+        setHoodDeg(Constants.Shooter.minHoodAngle);
 
         shooterPID = new MovingPIDFController(Constants.Shooter.shooterVelocityPID, Constants.Shooter.kV);
         shooterPID.updateFeedForwardInput(1);

@@ -25,7 +25,7 @@ public class Constants {
         public static double transferPower = 1;
 
         public static double smartFeedSec = 0.2;
-        public static double smartShootSpacingSec = 1;
+        public static double smartShootSpacingSec = .7;
         public static double spitTime = 0.15;
     }
 
@@ -100,7 +100,7 @@ public class Constants {
         @Sorter(sort = 4)
         public static double ticksPerRevolution = 28;
         @Sorter(sort = 5)
-        public static double minHoodAngle = 0;
+        public static double minHoodAngle = 5;
         @Sorter(sort = 6)
         public static double maxHoodAngle = 53.5;
     }

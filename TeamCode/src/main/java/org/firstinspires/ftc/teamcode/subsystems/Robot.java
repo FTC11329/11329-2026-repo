@@ -386,8 +386,15 @@ public class Robot {
     public void spinIntake(boolean set) {
         isIntaking = set;
     }
+    boolean intakeInit = false;
 
     public void intakeUpdate() {
+        if (!intakeInit && isIntaking) {
+            intakeInit = true;
+        } else if (!intakeInit) {
+            intake.setIntakePower(0);
+            return;
+        }
         if (spitIntake || indexer.doSpit()) {
             intake.spit(true);
         } else if ((isIntaking && indexer.allowIntaking()) || intakeOverride) {

@@ -125,7 +125,7 @@ public class MainTeleop {
     }
 
     public void loop() {
-        unjamSpindexer.checkStatus(gamepad1.left_trigger > .5);
+        unjamSpindexer.checkStatus(gamepad1.right_trigger > .5);
         intake.checkStatus(gamepad2.left_bumper); // Toggle on to intake
         spitIntake.checkStatus(gamepad2.right_bumper || gamepad1.left_bumper); // Hold to spit
 

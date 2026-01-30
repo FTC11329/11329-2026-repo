@@ -357,6 +357,7 @@ public class Indexer {
             spinTransferWheel(false);
             setIndexerPos(IndexerEnumsButEvenNewerThisTime.intake0);
             clearBallCells();
+            allowIntaking = true;
         }
     }
     boolean shotTimerStarted = false;

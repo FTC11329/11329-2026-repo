@@ -111,6 +111,9 @@ public class Common {
         StartPoses.convert(toRed);
         IntakeBallPoses.convert(toRed);
         ShootPoses.convert(toRed);
+        if (toRed && StartPoses.closeInner.getY() > 0) {
+            init(true);
+        }
     }
 
     public static Pose convertToRed(Pose convertPose, boolean toRed) {
