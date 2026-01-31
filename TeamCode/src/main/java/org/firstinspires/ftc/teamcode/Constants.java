@@ -25,7 +25,7 @@ public class Constants {
         public static double transferPower = 1;
 
         public static double smartFeedSec = 0.2;
-        public static double smartShootSpacingSec = .7;
+        public static double smartShootSpacingSec = 0.3;
         public static double spitTime = 0.15;
     }
 

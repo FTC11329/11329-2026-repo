@@ -105,11 +105,13 @@ public class Robot {
     // sets the motif if we havent seen it yet
     // always return the motif
     public BallColor[] getMotif() {
-        if (motif == null) {
+        return getMotif(false);
+    }
+    public BallColor[] getMotif(boolean force) {
+        if (force || motif == null) {
             motif = vision.getMotif();
         }
-//        return motif;
-        return new BallColor[]{BallColor.Purple, BallColor.Green, BallColor.Purple};
+        return motif;
     }
 
     public double distanceToGoal() {
@@ -269,6 +271,9 @@ public class Robot {
         }
 
         deltaDeg = clamp(deltaDeg, -8.0, 8.0);
+        if (smartShoot) {
+            deltaDeg = 0;
+        }
 //        panelsTelemetry.addData("delta degrees", deltaDeg);
         // gets hood angle
         shooter.setHoodDeg(futureShooterParams.hoodAngle + 1 * deltaDeg);
@@ -448,6 +453,7 @@ public class Robot {
     public void start() {
         resetTimers();
         indexer.start();
+        vision.start();
     }
     public void update() {
         update(false);
@@ -456,10 +462,10 @@ public class Robot {
     double previousTime;
     double maxHoodAngleChange;
     public void update(boolean debug) {
-        long now = System.nanoTime();
-        panelsTelemetry.addData("dt", (now - lastTime) * 1e-6);
+//        long now = System.nanoTime();
+//        panelsTelemetry.addData("dt", (now - lastTime) * 1e-6);
 //        panelsTelemetry.update();
-        lastTime = now;
+//        lastTime = now;
         for (LynxModule hub : hubs) {
             hub.clearBulkCache();
         }
@@ -471,8 +477,8 @@ public class Robot {
         follower.update();
         lightsUpdate();
 
-        panelsTelemetry.addData("shooter target", shooter.getTargetRpm() - 200);
-        panelsTelemetry.addData("shooter actual", shooter.getRPM());
+//        panelsTelemetry.addData("shooter target", shooter.getTargetRpm() - 200);
+//        panelsTelemetry.addData("shooter actual", shooter.getRPM());
 //        panelsTelemetry.addData("turret error", turret.turretPID.getError());
 //        panelsTelemetry.addData("turret actual", turret.getAngle());
 //        telemetry.addData("indexer state", indexer.currentIndexerState);
@@ -510,7 +516,6 @@ public class Robot {
 //        panelsTelemetry.addData("hood pos", shooter.getHoodPosDeg());
 //        telemetry.addData("distance to goal", distanceToGoal());
 //        telemetry.addData("far zone", inFarZone());
-//        telemetry.addData("is at position", indexer.isAtPosition());
 //        telemetry.addData("encoder position", indexer.getEncoderPercentage());
 //        telemetry.addData("dumbshoot1", indexer.dumbShootState2);
 //        telemetry.addData("dumbshoot2", indexer.dumbShootState2);
@@ -545,6 +550,12 @@ public class Robot {
 //        panelsTelemetry.addData("turret velocity", angleToGoalVelocity);
 //        Drawing.drawShapesDebug(this.follower);
 
+        telemetry.addData("encoder", indexer.getEncoderPercentage());
+        telemetry.addData("Indexer Encoder Offset", indexer.encoderOffsetFromAuto);
+        telemetry.addData("servo", indexer.spindexer2.getPosition());
+        telemetry.addData("servo", indexer.lastIndexerTarget);
+
+
         panelsTelemetry.addData("Tar Shooter RPM", shooter.getTargetRpm());
         panelsTelemetry.addData("Act Shooter RPM", shooter.getRPM());
         panelsTelemetry.addData("turret error", turret.turretPID.getError());
@@ -566,7 +577,7 @@ public class Robot {
         telemetry.addLine("=== VISION ===");
         telemetry.addData("Motif", motif);
 
-                double rateOfChangeOfHoodAngle = (shooter.getHoodPosDeg() - previousHoodAngle) / (System.currentTimeMillis() - previousTime);
+        double rateOfChangeOfHoodAngle = (shooter.getHoodPosDeg() - previousHoodAngle) / (System.currentTimeMillis() - previousTime);
         previousTime = System.currentTimeMillis();
         previousHoodAngle = shooter.getHoodPosDeg();
         maxHoodAngleChange = Math.max(rateOfChangeOfHoodAngle, maxHoodAngleChange);
@@ -591,6 +602,7 @@ public class Robot {
         telemetry.addData("indexer dis", indexer.getDistance());
 
         telemetry.addLine("=== POSITION ===");
+        telemetry.addData("is at position", indexer.isAtPosition());
         telemetry.addData("guess pose", getCurrentPose());
         telemetry.addData("last cam pose", lastCamPose);
         telemetry.addData("offset", offsetPose);

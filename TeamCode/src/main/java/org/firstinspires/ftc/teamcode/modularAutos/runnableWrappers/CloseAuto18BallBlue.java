@@ -5,6 +5,7 @@ import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
+import org.firstinspires.ftc.teamcode.modularAutos.Common;
 import org.firstinspires.ftc.teamcode.modularAutos.Common.*;
 import org.firstinspires.ftc.teamcode.modularAutos.PathPlanner;
 import org.firstinspires.ftc.teamcode.modularAutos.modules.FromShootMidPos;
@@ -54,7 +55,23 @@ public class CloseAuto18BallBlue extends OpMode {
 
 
         robot.follower.setPose(startPose);
+    }
+
+    @Override
+    public void init_loop() {
         telemetry.addData("start pose", startPose);
+        telemetry.addData("shoot pose", ShootPoses.midShoot);
+        telemetry.addData("red", Common.wasLastRed);
+        telemetry.addLine("=== Motif ===");
+        BallColor[] motif = robot.getMotif(true);
+        if (motif == null) {
+            motif = new BallColor[]{BallColor.None, BallColor.None, BallColor.None};
+        }
+        for (BallColor color : motif) {
+            telemetry.addLine(color.name());
+        }
+
+
         telemetry.update();
     }
 

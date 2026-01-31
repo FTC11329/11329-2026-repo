@@ -9,7 +9,8 @@ public class Common {
     // Close is close to goal (so usually higher x)
     // Outer is closer to driver wall (so usually higher y)
 
-    public static Pose redOffset = new Pose(-1,-0.5,0); // remember y is reversed
+    public static Pose toRedOffset = new Pose(-1,-0.5,0); // red offset remember y is reversed
+    public static boolean wasLastRed = false;
     public static class Timings {
         public static int moveAwayRampAmount = 3; // balls
 
@@ -31,7 +32,7 @@ public class Common {
         public static double shootOnThFly = 0.5;
     }
     public static class StartPoses {
-        public static Pose closeInner = new Pose(62.5, 36, Math.toRadians(90));
+        public static Pose closeInner = new Pose(62.5, 39, Math.toRadians(-90));
         public static Pose far = new Pose(-63.5, 15.75, Math.toRadians(0));
 
         static void convert(boolean toRed) {
@@ -55,7 +56,7 @@ public class Common {
 
         public static Pose movingToPushLeverControlPoint = new Pose(-3.8, 25.3);
         public static Pose pushLeverAfterSpike = new Pose(-0.4,56.1, Math.toRadians(60));
-        public static Pose pushLever = new Pose(-10.25, 58.2, Math.toRadians(70));
+        public static Pose pushLever = new Pose(-10.25, 58.8, Math.toRadians(70));
         public static Pose intakeFromSTunnel = new Pose(-17, 58.25, Math.toRadians(45)); // pointing at ramp
 
         public static Pose intakeHuman = new Pose(-62,62, Math.toRadians(90));
@@ -108,12 +109,17 @@ public class Common {
     }
 
     public static void init(boolean toRed) {
-        StartPoses.convert(toRed);
-        IntakeBallPoses.convert(toRed);
-        ShootPoses.convert(toRed);
+        // if wrong
         if (toRed && StartPoses.closeInner.getY() > 0) {
-            init(true);
+            StartPoses.convert(true);
+            ShootPoses.convert(true);
+            IntakeBallPoses.convert(true);
+        } else if (!toRed && StartPoses.closeInner.getY() < 0) {
+            StartPoses.convert(false);
+            ShootPoses.convert(false);
+            IntakeBallPoses.convert(false);
         }
+        wasLastRed = toRed;
     }
 
     public static Pose convertToRed(Pose convertPose, boolean toRed) {
@@ -121,22 +127,32 @@ public class Common {
     }
 
     public static Pose convertToRed(Pose convertPose, boolean toRed, boolean startPose) {
-        if (!toRed) {
-            return convertPose;
+        if (startPose) {
+            if (toRed != wasLastRed) {
+                return new Pose(
+                        convertPose.getX(),
+                        (-convertPose.getY()),
+                        (-convertPose.getHeading())
+                );
+            } else {
+                return convertPose;
+            }
         }
 
-        if (startPose) {
+        if (toRed && !wasLastRed) {
+            convertPose = convertPose.plus(toRedOffset);
+        } else if (!toRed && wasLastRed) {
+            convertPose = convertPose.minus(toRedOffset);
+        }
+
+        if (toRed != wasLastRed) {
             return new Pose(
                     convertPose.getX(),
                     (-convertPose.getY()),
                     (-convertPose.getHeading())
             );
         } else {
-            return new Pose(
-                    convertPose.getX(),
-                    (-convertPose.getY()),
-                    (-convertPose.getHeading())
-            ).plus(redOffset);
+            return convertPose;
         }
     }
 }

@@ -54,7 +54,23 @@ public class CloseAuto18BallRed extends OpMode {
         steps.add(new FromShootMidPos.ToIntakeSpike3  (robot, lastPose(), false,  true));
 
         robot.follower.setPose(startPose);
+    }
+
+    @Override
+    public void init_loop() {
         telemetry.addData("start pose", startPose);
+        telemetry.addData("shoot pose", Common.ShootPoses.midShoot);
+        telemetry.addData("red", Common.wasLastRed);
+        telemetry.addLine("=== Motif ===");
+        BallColor[] motif = robot.getMotif(true);
+        if (motif == null) {
+            motif = new BallColor[]{BallColor.None, BallColor.None, BallColor.None};
+        }
+        for (BallColor color : motif) {
+            telemetry.addLine(color.name());
+        }
+
+
         telemetry.update();
     }
 

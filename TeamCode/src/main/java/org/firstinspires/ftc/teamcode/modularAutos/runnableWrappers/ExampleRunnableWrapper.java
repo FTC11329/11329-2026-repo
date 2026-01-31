@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.modularAutos.runnableWrappers;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
+import org.firstinspires.ftc.teamcode.modularAutos.Common;
 import org.firstinspires.ftc.teamcode.modularAutos.modules.FromShootMidPos;
 import org.firstinspires.ftc.teamcode.modularAutos.modules.FromStartClosePos;
 import org.firstinspires.ftc.teamcode.modularAutos.PathPlanner;
@@ -46,6 +47,23 @@ public class ExampleRunnableWrapper extends OpMode {
     }
 
     @Override
+    public void init_loop() {
+        telemetry.addData("start pose", startPose);
+        telemetry.addData("shoot pose", Common.ShootPoses.midShoot);
+        telemetry.addLine("=== Motif ===");
+        BallColor[] motif = robot.getMotif(true);
+        if (motif == null) {
+            motif = new BallColor[]{BallColor.None, BallColor.None, BallColor.None};
+        }
+        for (BallColor color : motif) {
+            telemetry.addLine(color.name());
+        }
+
+
+        telemetry.update();
+    }
+
+    @Override
     public void start() {
         robot.start();
         steps.get(currentStep).buildPaths();
@@ -82,10 +100,10 @@ public class ExampleRunnableWrapper extends OpMode {
         PathPlanner step = steps.get(currentStep);
         boolean done = step.run();
 
-        telemetry.addData("time", robot.getOpmodeTimeSeconds());
-        telemetry.addData("name", step);
+//        telemetry.addData("time", robot.getOpmodeTimeSeconds());
+//        telemetry.addData("name", step);
 
-        telemetry.update();
+//        telemetry.update();
 
         if (done) {
             currentStep++;

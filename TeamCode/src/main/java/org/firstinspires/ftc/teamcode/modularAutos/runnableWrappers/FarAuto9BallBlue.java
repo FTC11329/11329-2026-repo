@@ -1,10 +1,13 @@
 package org.firstinspires.ftc.teamcode.modularAutos.runnableWrappers;
 
+import androidx.annotation.NonNull;
+
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
+import org.firstinspires.ftc.teamcode.modularAutos.Common;
 import org.firstinspires.ftc.teamcode.modularAutos.Common.StartPoses;
 import org.firstinspires.ftc.teamcode.modularAutos.PathPlanner;
 import org.firstinspires.ftc.teamcode.modularAutos.modules.FromShootFarPos;
@@ -59,6 +62,22 @@ public class FarAuto9BallBlue extends OpMode {
 //        }
 
         robot.follower.setPose(startPose);
+    }
+
+    @Override
+    public void init_loop() {
+        telemetry.addData("start pose", startPose);
+        telemetry.addData("shoot pose", Common.ShootPoses.midShoot);
+        telemetry.addLine("=== Motif ===");
+        BallColor[] motif = robot.getMotif(true);
+        if (motif == null) {
+            motif = new BallColor[]{BallColor.None, BallColor.None, BallColor.None};
+        }
+        for (BallColor color : motif) {
+            telemetry.addLine(color.name());
+        }
+
+        telemetry.update();
     }
 
     @Override

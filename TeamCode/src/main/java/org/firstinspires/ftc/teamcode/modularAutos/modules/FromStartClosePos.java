@@ -6,6 +6,7 @@ import org.firstinspires.ftc.teamcode.modularAutos.Common.*;
 import org.firstinspires.ftc.teamcode.modularAutos.PathPlanner;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.paths.Path;
+import org.firstinspires.ftc.teamcode.pedroPathing.paths.PathChain;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
 
@@ -30,12 +31,12 @@ public class FromStartClosePos {
         }
 
         //Path initialization
-        Path toShootPosition;
+        PathChain toShootPosition;
 
         @Override
         public void buildPaths() {
             // Path creation
-            toShootPosition = robot.follower.linearPathBuilder(startPose, ShootPoses.midShoot);
+            toShootPosition = robot.follower.linearPathChainBuilder(startPose, ShootPoses.midShoot, 0.7);
         }
 
         @Override
@@ -51,13 +52,18 @@ public class FromStartClosePos {
                     setPathState(1);
                     break;
                 case 1:
-                    if (robot.follower.getVelocity().getMagnitude() < Timings.shootVelocity) {
-                        robot.indexer.shootAll();
+                    if (!robot.follower.isBusy()) {
                         setPathState(2);
                     }
                     break;
                 case 2:
-                    if (robot.indexer.isHasBallsEmpty() && robot.follower.getCurrentTValue() > 0.75) {
+                    if (pathTimer.getElapsedTimeSeconds() > 0.25) {
+                        robot.indexer.shootAll();
+                        setPathState(3);
+                    }
+                    break;
+                case 3:
+                    if (robot.indexer.isHasBallsEmpty()) {
                         isFinished = true;
                     }
                     break;

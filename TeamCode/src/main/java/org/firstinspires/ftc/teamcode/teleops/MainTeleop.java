@@ -102,7 +102,7 @@ public class MainTeleop {
     public void init_loop() {
         resetPose.checkStatus(gamepad2.y);
 
-        if (gamepad2.bWasPressed()) {
+        if (gamepad2.bWasPressed() || gamepad1.bWasPressed()) {
             startPose = new Pose(0,0,0);
             robot.follower.setPose(startPose);
             robot.turret.encoderOffset = 0;
@@ -125,7 +125,7 @@ public class MainTeleop {
     }
 
     public void loop() {
-        unjamSpindexer.checkStatus(gamepad1.right_trigger > .5);
+        unjamSpindexer.checkStatus(gamepad1.right_trigger > .5 || gamepad2.right_trigger > .5);
         intake.checkStatus(gamepad2.left_bumper); // Toggle on to intake
         spitIntake.checkStatus(gamepad2.right_bumper || gamepad1.left_bumper); // Hold to spit
 
@@ -135,7 +135,7 @@ public class MainTeleop {
         fastShootButton.checkStatus(gamepad2.b); // press to shoot 3
         smartShoot.checkStatus(gamepad2.back); // Toggle to turn on smart shoot
 
-        overrideIntake.checkStatus(gamepad2.ps || gamepad2.left_bumper); // hold to turn on ignore allowintaking
+        overrideIntake.checkStatus(gamepad2.left_bumper); // hold to turn on ignore allowintaking
 
         movePoseUp.checkStatus(gamepad2.dpad_up);
         movePoseDown.checkStatus(gamepad2.dpad_down);  //Buttons to control where the robot aims
@@ -232,10 +232,6 @@ public class MainTeleop {
                 robot.offsetPose.addX(-1);
             }
         }
-        telemetry.addData("encoder", robot.indexer.getEncoderPercentage());
-        telemetry.addData("Indexer Encoder Offset", robot.indexer.encoderOffsetFromAuto);
-        telemetry.addData("servo", robot.indexer.spindexer2.getPosition());
-        telemetry.addData("servo", robot.indexer.lastIndexerTarget);
         if (resetPose.startPress) {
             robot.reZeroAtCorner();
         }

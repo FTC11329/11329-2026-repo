@@ -26,8 +26,16 @@ public class Vision {
     public Vision(HardwareMap hardwareMap, RobotSide robotSide){
         this.robotSide = robotSide;
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
-        limelight.pipelineSwitch(0);
+        limelight.pipelineSwitch(1);
         limelight.start();
+    }
+
+    public void start() {
+        pipelineSwitch(0);
+    }
+
+    public void pipelineSwitch(int index) {
+        limelight.pipelineSwitch(index);
     }
 
     public Pose getRobotPose() {
