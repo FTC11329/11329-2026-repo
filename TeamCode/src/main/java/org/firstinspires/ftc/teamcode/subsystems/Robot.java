@@ -225,7 +225,7 @@ public class Robot {
         lastTimeTurret = System.nanoTime();
 
         // Est Time In Flight for ball at current pose
-        double timeInFlight = rpmRatio * stv.get(currentPose.distanceFrom(futrGoal)).timeInFlight;
+        double timeInFlight = (1 / rpmRatio) * stv.get(currentPose.distanceFrom(futrGoal)).timeInFlight;
 
         Vector virtualVelocity = follower.getVelocity().plus(follower.getAcceleration().times(.015));
         // Logic for future pose
