@@ -147,11 +147,6 @@ public class Shooter {
         return rotationsPerSec * 60 + 140;
     }
 
-    public double getBallVelocity(){
-        double rps = 2 * PI * getRPM() / 60.0;
-        return rps * (Constants.ShooterParamaters.MotorToWheel+Constants.ShooterParamaters.R_WHEEL_M) / 2.0;
-    }
-
     public void resetController() {
         shooterPID.resetController();
     }

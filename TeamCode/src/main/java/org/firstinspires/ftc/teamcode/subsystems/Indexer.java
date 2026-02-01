@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.ColorFunctions;
-import org.firstinspires.ftc.teamcode.util.IndexerEnumsButEvenNewerThisTime;
+import org.firstinspires.ftc.teamcode.util.IndexerEnums;
 
 public class Indexer {
 
@@ -28,13 +28,13 @@ public class Indexer {
     BallColor[] ballCells = new BallColor[3];
     private BallColor transferColor = BallColor.None;
 
-    public IndexerEnumsButEvenNewerThisTime currentIndexerState = IndexerEnumsButEvenNewerThisTime.intake0;
+    public IndexerEnums currentIndexerState = IndexerEnums.intake0;
     public double lastIndexerTarget = 0.676767676767676767676767676767676767676767676767676767676767676767676767676767676767676767676767676767676767;
     double lastTransferPower;
     boolean beenInited = false;
     public double encoderOffsetFromAuto = 0;
     int updatingEncoderPos;
-    public IndexerEnumsButEvenNewerThisTime deleteme = IndexerEnumsButEvenNewerThisTime.intake1;
+    public IndexerEnums deleteme = IndexerEnums.intake1;
 
     boolean startShooting = false;
     boolean shooting = false;
@@ -62,7 +62,7 @@ public class Indexer {
 
         spindexer1 = hardwareMap.get(ServoImplEx.class, "spindexer1");
         spindexer2 = hardwareMap.get(ServoImplEx.class, "spindexer2");
-        spindexer1.setPwmRange(new PwmControl.PwmRange(500, 2500)); // probably the wrong way to do this but it works
+        spindexer1.setPwmRange(new PwmControl.PwmRange(500, 2500));
         spindexer2.setPwmRange(new PwmControl.PwmRange(500, 2500));
         spindexer1.setDirection(Servo.Direction.REVERSE);
         spindexer2.setDirection(Servo.Direction.REVERSE);
@@ -86,9 +86,9 @@ public class Indexer {
     }
 
     // DO NOT USE THESE FUNCTIONS TO MOVE THE INDEXER DURING NORMAL OPERATION. USE UPDATE() INSTEAD
-    public void setIndexerPos(IndexerEnumsButEvenNewerThisTime indexerEnum) {
+    public void setIndexerPos(IndexerEnums indexerEnum) {
         currentIndexerState = indexerEnum;
-        setIndexerPos(IndexerEnumsButEvenNewerThisTime.convertEnumToPercentOfRot(indexerEnum));
+        setIndexerPos(IndexerEnums.convertEnumToPercentOfRot(indexerEnum));
     }
     public void setIndexerPos(double set) {
         if (lastIndexerTarget != set) {
@@ -272,7 +272,7 @@ public class Indexer {
     public int findIndexWithColor(BallColor color) {
         // searches in a special order
         int[] searchOrder;
-        if (IndexerEnumsButEvenNewerThisTime.isAShootEnum(currentIndexerState)) {
+        if (IndexerEnums.isAShootEnum(currentIndexerState)) {
             switch (currentIndexerState) {
                 case shoot0:
                     searchOrder = new int[]{0, 2, 1};
@@ -348,14 +348,14 @@ public class Indexer {
     public void unjamUpdate() {
         spinTransferWheel(true);
         if (shotTimer.getElapsedTimeSeconds() > .2){
-            setIndexerPos(currentIndexerState == IndexerEnumsButEvenNewerThisTime.intake0 ? IndexerEnumsButEvenNewerThisTime.intake3: IndexerEnumsButEvenNewerThisTime.intake0);
+            setIndexerPos(currentIndexerState == IndexerEnums.intake0 ? IndexerEnums.intake3: IndexerEnums.intake0);
             shotTimer.resetTimer();
             unjamCounter++;
         }
         if (unjamCounter > 4) {
             unjam = false;
             spinTransferWheel(false);
-            setIndexerPos(IndexerEnumsButEvenNewerThisTime.intake0);
+            setIndexerPos(IndexerEnums.intake0);
             clearBallCells();
             allowIntaking = true;
         }
@@ -387,19 +387,19 @@ public class Indexer {
                 case intake1:
                 case intake2:
                 case intake3:
-                    setIndexerPos(IndexerEnumsButEvenNewerThisTime.shoot1);
+                    setIndexerPos(IndexerEnums.shoot1);
                     hasShot = false;
                     break;
                 case shoot1:
-                    setIndexerPos(IndexerEnumsButEvenNewerThisTime.shoot0);
+                    setIndexerPos(IndexerEnums.shoot0);
                     hasShot = false;
                     break;
                 case shoot0:
-                    setIndexerPos(IndexerEnumsButEvenNewerThisTime.shoot2);
+                    setIndexerPos(IndexerEnums.shoot2);
                     hasShot = false;
                     break;
                 case shoot2:
-                    setIndexerPos(IndexerEnumsButEvenNewerThisTime.intake0);
+                    setIndexerPos(IndexerEnums.intake0);
                     break;
                 case intake0: //todo: deal with this if this is true immediately
                     shooting = false;
@@ -431,7 +431,7 @@ public class Indexer {
                     nextIndex++;
                 }
 
-                setIndexerPos(IndexerEnumsButEvenNewerThisTime.getEnum(nextIndex, false));
+                setIndexerPos(IndexerEnums.getEnum(nextIndex, false));
                 if (nextIndex == 3) {
                     allowIntaking = false;
                     doSpit = true;
@@ -439,7 +439,7 @@ public class Indexer {
             }
         }
         if (!beenInited && encoderOffsetFromAuto >= 0.001 && intaking) {
-            setIndexerPos(IndexerEnumsButEvenNewerThisTime.intake0);
+            setIndexerPos(IndexerEnums.intake0);
             beenInited = true;
         }
     }
@@ -447,7 +447,7 @@ public class Indexer {
     public void dumbShootLogicUpdate(boolean readyToShoot) {
         // move to highest full index
         if (startShooting && readyToShoot) {
-            setIndexerPos(IndexerEnumsButEvenNewerThisTime.shoot1);
+            setIndexerPos(IndexerEnums.shoot1);
             spinTransferWheel(true);
             shotTimer.resetTimer();
             startShooting = false;
@@ -456,7 +456,7 @@ public class Indexer {
 
         // once at highest full index, shoot while going back to intake
         if (shooting && !dumbShootState1 && !dumbShootState2 && isAtPosition() && shotTimer.getElapsedTimeSeconds() > .2) {
-            setIndexerPos(IndexerEnumsButEvenNewerThisTime.intake0);
+            setIndexerPos(IndexerEnums.intake0);
             dumbShootState1 = true;
             boostPID = false;
         }
@@ -480,8 +480,8 @@ public class Indexer {
             spinTransferWheel(false);
         }
         if (startShooting && readyToShoot) {
-            deleteme = IndexerEnumsButEvenNewerThisTime.getEnum(findIndexWithColor(queuedBalls[0]), true);
-            setIndexerPos(IndexerEnumsButEvenNewerThisTime.getEnum(findIndexWithColor(queuedBalls[0]), true));
+            deleteme = IndexerEnums.getEnum(findIndexWithColor(queuedBalls[0]), true);
+            setIndexerPos(IndexerEnums.getEnum(findIndexWithColor(queuedBalls[0]), true));
             smartShootStage1 = true;
             startShooting = false;
         }
@@ -499,11 +499,11 @@ public class Indexer {
             if (isQueuedBallsEmpty()) {
                 allowIntaking = true;
                 // if no more queue then go to intake
-                setIndexerPos(IndexerEnumsButEvenNewerThisTime.intake0);
+                setIndexerPos(IndexerEnums.intake0);
                 shooting = false;
                 smartShootStage2 = false;
             } else {
-                setIndexerPos(IndexerEnumsButEvenNewerThisTime.getEnum(findIndexWithColor(queuedBalls[0]), true));
+                setIndexerPos(IndexerEnums.getEnum(findIndexWithColor(queuedBalls[0]), true));
                 smartShootStage2 = false;
                 smartShootStage1 = true;
             }

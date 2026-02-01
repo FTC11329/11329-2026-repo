@@ -63,8 +63,6 @@ public class Robot {
     public double angleToGoalAcceleration;
     Pose goal = new Pose(0,0,0);
     Pose shootFromPose = null;
-    int i = 0;
-    long lastTime = System.nanoTime();
     Telemetry telemetry;
     public Robot(Telemetry telemetry, HardwareMap hardwareMap, RobotSide robotSide, int startTurretTicks, double startIndexerTicks) {
         this(telemetry, hardwareMap, robotSide, startTurretTicks, startIndexerTicks, new BallColor[]{BallColor.None, BallColor.None, BallColor.None});
@@ -199,6 +197,7 @@ public class Robot {
     double lastTimeTurret = 0;
     double lastAngleToGoal = 0;
     double deltaDeg;
+    double rpmRatio;
     public void prepareShooter(Pose currentPose) {
         // Gets current Pose
 
@@ -225,9 +224,8 @@ public class Robot {
         lastAngleToGoal = angleToGoal;
         lastTimeTurret = System.nanoTime();
 
-
         // Est Time In Flight for ball at current pose
-        double timeInFlight = stv.get(currentPose.distanceFrom(futrGoal)).timeInFlight;
+        double timeInFlight = rpmRatio * stv.get(currentPose.distanceFrom(futrGoal)).timeInFlight;
 
         Vector virtualVelocity = follower.getVelocity().plus(follower.getAcceleration().times(.015));
         // Logic for future pose
@@ -255,10 +253,17 @@ public class Robot {
         double shooterRPM = farBack() ? futureShooterParams.rpm + 150 : futureShooterParams.rpm;
         shooter.adjustTargetRPM(shooterRPM);
 
+        hoodAngleCompensation(futureShooterParams);
+
+        // gets hood angle
+        shooter.setHoodDeg(futureShooterParams.hoodAngle + 1 * deltaDeg);
+    }
+
+    public void hoodAngleCompensation(ShooterState futureShooterParams) {
         double hoodDeg = futureShooterParams.hoodAngle;
         double hoodRad = Math.toRadians(hoodDeg);
 
-        double rpmRatio = futureShooterParams.rpm / shooter.getRPM();
+        rpmRatio = futureShooterParams.rpm / shooter.getRPM();
 
         double correctedRad =
                 Math.atan(rpmRatio * Math.tan(hoodRad));
@@ -271,12 +276,10 @@ public class Robot {
         }
 
         deltaDeg = clamp(deltaDeg, -8.0, 8.0);
+
         if (smartShoot) {
             deltaDeg = 0;
         }
-//        panelsTelemetry.addData("delta degrees", deltaDeg);
-        // gets hood angle
-        shooter.setHoodDeg(futureShooterParams.hoodAngle + 1 * deltaDeg);
     }
 
     public void setShooterTargetRPM(double set) {
@@ -301,8 +304,7 @@ public class Robot {
         goal = goal.plus(offsetPose);
 
 
-        double height = 32; //todo: verify this height (inches)
-
+        double height = 32;
         double deltaX = goal.getX() - curPose.getX();
         double deltaY = goal.getY() - curPose.getY();
         double angleToGoal = (Math.atan2(deltaY, deltaX));
@@ -318,7 +320,7 @@ public class Robot {
 
         double entryAngle = Math.toRadians(-45);
 
-        double hoodAngle = Math.atan(2 * height / distance - Math.tan(entryAngle)); //todo make sure atan returns a number
+        double hoodAngle = Math.atan(2 * height / distance - Math.tan(entryAngle));
         double flywheelSpeed = Math.sqrt(g * distance * distance / (2 * Math.pow(Math.cos(hoodAngle), 2) * (distance * Math.tan(hoodAngle) - height)));
 
         Vector robotVelocity = follower.getVelocity();
@@ -347,6 +349,7 @@ public class Robot {
 
         double dragCoefficient = .00437 * .6;
         double dragCompensation = Math.pow(Math.E, dragCoefficient * distanceToGoal());
+
         shooter.setTargetRPM(rpmOffset + shooter.velocityToRPM(flywheelSpeed)); // todo: fix the velocity to rpm function
     }
 
