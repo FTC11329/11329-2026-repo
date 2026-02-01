@@ -185,6 +185,13 @@ public class Robot {
         this.shootFromPose = shootFromPose;
     }
 
+    public void prepareShooter(boolean panic) {
+        if (panic) {
+            prepareShooter(Common.ShootPoses.panicShoot);
+        } else {
+            prepareShooter();
+        }
+    }
     public void prepareShooter() {
         if (shootFromPose == null) {
             prepareShooter(follower.getCenterOfShooterPose());

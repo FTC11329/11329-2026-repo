@@ -89,11 +89,14 @@ public class Common {
         public static Pose midShoot = new Pose(8.9,18.5, Math.toRadians(90));
         public static Pose farShoot = new Pose(-54.7,9.9, Math.toRadians(90));
 
+        public static Pose panicShoot = new Pose(25,25, Math.toRadians(45));
+
         static void convert(boolean toRed) {
             parkShoot = convertToRed(parkShoot, toRed);
             closeShoot = convertToRed(closeShoot, toRed);
             midShoot = convertToRed(midShoot, toRed);
             farShoot = convertToRed(farShoot, toRed);
+            panicShoot = convertToRed(panicShoot, toRed);
         }
     }
 

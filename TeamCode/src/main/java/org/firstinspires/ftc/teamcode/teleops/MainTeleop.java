@@ -136,6 +136,7 @@ public class MainTeleop {
         smartShoot.checkStatus(gamepad2.back); // Toggle to turn on smart shoot
 
         overrideIntake.checkStatus(gamepad2.left_bumper); // hold to turn on ignore allowintaking
+        panicShoot.checkStatus(gamepad2.ps); // toggle to turn on panic shoot
 
         movePoseUp.checkStatus(gamepad2.dpad_up);
         movePoseDown.checkStatus(gamepad2.dpad_down);  //Buttons to control where the robot aims
@@ -182,7 +183,7 @@ public class MainTeleop {
         }
 
         if (autoShoot.isOn) {
-            robot.prepareShooter();
+            robot.prepareShooter(panicShoot.isOn);
         } else if (autoShoot.endPress) {
 //            robot.casualShooterModeOn();
             robot.shooter.stop();
@@ -243,7 +244,6 @@ public class MainTeleop {
 //        lastTime = time.milliseconds();
 
 
-        //todo implement some type of panic shoot before comp
     }
 
     public void stop() {
