@@ -119,6 +119,9 @@ public class FromShootMidPos {
                     }
                     break;
                 case 5:
+                    if (pathTimer.getElapsedTimeSeconds() > 1.5) {
+                        robot.indexerUnjam();
+                    }
                     if (robot.indexer.isHasBallsEmpty() || (sort && robot.indexer.isQueuedBallsEmpty())) {
 //                        robot.setShootFromPose(null);
                         robot.follower.setMaxPower(1);
@@ -243,6 +246,9 @@ public class FromShootMidPos {
                     }
                     break;
                 case 5:
+                    if (pathTimer.getElapsedTimeSeconds() > 1.5) {
+                        robot.indexerUnjam();
+                    }
                     if (robot.indexer.isHasBallsEmpty() || (sort && robot.indexer.isQueuedBallsEmpty())) {
 //                        robot.setShootFromPose(null);
                         robot.follower.setMaxPower(1);
@@ -346,6 +352,9 @@ public class FromShootMidPos {
                     }
                     break;
                 case 4:
+                    if (pathTimer.getElapsedTimeSeconds() > 1.5) {
+                        robot.indexerUnjam();
+                    }
                     if (robot.indexer.isHasBallsEmpty() || (sort && robot.indexer.isQueuedBallsEmpty())) {
                         if (!parkAfter) {
 //                            robot.setShootFromPose(null);
@@ -464,6 +473,24 @@ public class FromShootMidPos {
                     }
                     break;
                 case 4:
+                    if (pathTimer.getElapsedTimeSeconds() > .5) {
+                        robot.spitIntake();
+                        setPathState(5);
+                    }
+                    break;
+                case 5:
+                    if (pathTimer.getElapsedTimeSeconds() > 0.25) {
+                        robot.spitIntake(false);
+                        robot.setIntakeOverride(true);
+                        setPathState(6);
+                    }
+                    break;
+                case 6:
+                    if (pathTimer.getElapsedTimeSeconds() > 0.5) {
+                        robot.setIntakeOverride(false);
+                        setPathState(7);
+                    }
+                case 7:
                     if ((robot.inShootingZone() || !robot.follower.isBusy()) && robot.follower.getVelocity().getMagnitude() < Timings.shootVelocity) {
                         if (parkAfter) {
                             robot.follower.setMaxPower(DrivePower.shootOnThFly);
@@ -474,10 +501,13 @@ public class FromShootMidPos {
                         } else {
                             robot.indexer.shootAll();
                         }
-                        setPathState(5);
+                        setPathState(8);
                     }
                     break;
-                case 5://       if robot shoot all balls v                                                                                                              if timeout v
+                case 8://       if robot shoot all balls v                                                                                                              if timeout v
+                    if (pathTimer.getElapsedTimeSeconds() > 1.5) {
+                        robot.indexerUnjam();
+                    }
                     if (robot.indexer.isHasBallsEmpty() || (sort && robot.indexer.isQueuedBallsEmpty())) {
                         robot.follower.setMaxPower(1);
                         robot.doSmartShoot(false);

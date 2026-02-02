@@ -9,13 +9,13 @@ public class Common {
     // Close is close to goal (so usually higher x)
     // Outer is closer to driver wall (so usually higher y)
 
-    public static Pose toRedOffset = new Pose(-1,-0.5,0); // red offset remember y is reversed
+    public static Pose toRedOffset = new Pose(-1,0,0); // red offset remember y is reversed
     public static boolean wasLastRed = false;
     public static class Timings {
         public static int moveAwayRampAmount = 3; // balls
 
         public static double spikeIntakeTimeOut = 1.25;
-        public static double rampIntakeTimeOut = 1; // sec
+        public static double rampIntakeTimeOut = 0.75; // sec
         public static double longLeverPressTime = 2;
         public static double shortLeverPressTime = 1;
         public static double longLeverRampIntakeTimeOut = rampIntakeTimeOut + shortLeverPressTime - longLeverPressTime;

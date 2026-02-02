@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.modularAutos.Common;
-import org.firstinspires.ftc.teamcode.modularAutos.Common.*;
+import org.firstinspires.ftc.teamcode.modularAutos.Common.StartPoses;
 import org.firstinspires.ftc.teamcode.modularAutos.PathPlanner;
 import org.firstinspires.ftc.teamcode.modularAutos.modules.FromShootMidPos;
 import org.firstinspires.ftc.teamcode.modularAutos.modules.FromStartClosePos;
@@ -20,8 +20,8 @@ import org.firstinspires.ftc.teamcode.util.RobotSide;
 import java.util.ArrayList;
 import java.util.List;
 
-@Autonomous(name = "Close 18 Blue", group = "       Testing", preselectTeleOp = "Main Teleop Blue")
-public class CloseAuto18BallBlue extends OpMode {
+@Autonomous(name = "Close 18 Red Purple Robo", group = "      Testing", preselectTeleOp = "Main Teleop Red")
+public class CloseAuto18BallRedPurpleRobo extends OpMode {
     Pose startPose;
     RobotSide robotSide;
     Robot robot;
@@ -35,7 +35,7 @@ public class CloseAuto18BallBlue extends OpMode {
     @Override
     public void init() {
         lastTime = System.nanoTime();
-        robotSide = RobotSide.Blue;
+        robotSide = RobotSide.Red;
         robot = new Robot(telemetry, hardwareMap, robotSide, 0,0,
                 new BallColor[]{
                         BallColor.Green,
@@ -50,8 +50,8 @@ public class CloseAuto18BallBlue extends OpMode {
         steps.add(new FromShootMidPos.ToIntakeSpike2  (robot, lastPose(), false,  false, false));
         steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPose(), false,  false, true));
         steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPose(), false,  false, true));
-        steps.add(new FromShootMidPos.ToIntakeSpike1  (robot, lastPose(), false,  false, false));
-        steps.add(new FromShootMidPos.ToIntakeSpike3  (robot, lastPose(), false,  true));
+        steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPose(), false,  false, true));
+        steps.add(new FromShootMidPos.ToIntakeSpike1  (robot, lastPose(), false,  true, false));
 
         robot.follower.setPose(startPose);
     }
@@ -59,7 +59,7 @@ public class CloseAuto18BallBlue extends OpMode {
     @Override
     public void init_loop() {
         telemetry.addData("start pose", startPose);
-        telemetry.addData("shoot pose", ShootPoses.midShoot);
+        telemetry.addData("shoot pose", Common.ShootPoses.midShoot);
         telemetry.addData("red", Common.wasLastRed);
         telemetry.addLine("=== Motif ===");
         BallColor[] motif = robot.getMotif(true);

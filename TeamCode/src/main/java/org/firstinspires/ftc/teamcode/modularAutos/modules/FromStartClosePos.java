@@ -57,12 +57,15 @@ public class FromStartClosePos {
                     }
                     break;
                 case 2:
-                    if (pathTimer.getElapsedTimeSeconds() > 0.25) {
+                    if (pathTimer.getElapsedTimeSeconds() > 0.1) {
                         robot.indexer.shootAll();
                         setPathState(3);
                     }
                     break;
                 case 3:
+                    if (pathTimer.getElapsedTimeSeconds() > 1.5) {
+                        robot.indexerUnjam();
+                    }
                     if (robot.indexer.isHasBallsEmpty()) {
                         isFinished = true;
                     }

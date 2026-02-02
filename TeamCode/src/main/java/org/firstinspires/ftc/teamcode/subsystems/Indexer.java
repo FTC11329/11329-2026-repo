@@ -162,6 +162,7 @@ public class Indexer {
     }
 
 
+
     public void setBallCellAtIntakeToColor(BallColor ballColor) {
         switch (currentIndexerState) {
             case intake0:
@@ -304,8 +305,10 @@ public class Indexer {
     }
 
     public void unjam() {
-        unjam = true;
-        unjamCounter = 0;
+        if (!unjam) {
+            unjam = true;
+            unjamCounter = 0;
+        }
     }
 
     public void update(boolean intaking, boolean readyToShoot) {
@@ -443,6 +446,10 @@ public class Indexer {
             beenInited = true;
         }
     }
+    public void spit() {
+        doSpit = true;
+    }
+
     boolean dumbShootState2 = false;
     public void dumbShootLogicUpdate(boolean readyToShoot) {
         // move to highest full index
