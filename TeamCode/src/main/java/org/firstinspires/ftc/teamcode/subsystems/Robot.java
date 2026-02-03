@@ -249,12 +249,15 @@ public class Robot {
         double deltaYFutr = futrGoal.getY() + goalOffset.getY() - currentPose.getY();
         double angleToGoalFutr = Math.toDegrees(Math.atan2(deltaYFutr, deltaXFutr));
 
+        Vector robotToGoal = goal.getAsVector().plus(goalOffset.getAsVector()).minus(currentPose.getAsVector());
+
+        Vector dir = findVector(follower.getVelocity(), robotToGoal);
 
         // Sets Turret angle
-        turret.setTargetDeg(angleToGoalFutr - Math.toDegrees(currentPose.getHeading()));
+        turret.setTargetDeg(Math.toDegrees(dir.getTheta()) - Math.toDegrees(currentPose.getHeading()));
 
         // Gets shooter params based on future pose
-        ShooterState futureShooterParams = stv.get(currentPose.distanceFrom(futrGoal));
+        ShooterState futureShooterParams = stv.get(dir.getMagnitude());
 
         // Sets shooter rpm
         double shooterRPM = farBack() ? futureShooterParams.rpm + 150 : futureShooterParams.rpm;
@@ -265,6 +268,47 @@ public class Robot {
         // gets hood angle
         shooter.setHoodDeg(futureShooterParams.hoodAngle + 1 * deltaDeg);
     }
+
+    // =================== Shooter on the Fly =======================
+    public double findDist(Vector u, Vector ad){
+        List<Double> distances = shooterTestValues.getDistances();
+        int index = 0;
+        for (int i = 0; i < distances.size() - 1; i++){
+            double bottom = evaluateSOTF(distances.get(i), u, ad);
+            double top = evaluateSOTF(distances.get(i + 1), u, ad);
+            if (bottom >= 0 && top <= 0) {
+                double lambda = - top / (bottom - top);
+                telemetry.addData("SOTF regular: ", false);
+                return lambda * distances.get(i) + (1 - lambda) * distances.get(i + 1);
+            }
+
+            if (bottom <= 0 && top >= 0) {
+                double lambda = - bottom / (top - bottom);
+                telemetry.addData("SOTF regular: ", false);
+                return lambda * distances.get(i) + (1 - lambda) * distances.get(i + 1);
+            }
+        }
+        telemetry.addData("SOTF regular: ", true);
+        return ad.getMagnitude();
+    }
+
+    public Vector findVector(Vector u, Vector ad){
+        double mag = findDist(u, ad);
+        Vector v = ad.minus(u.times(shooterTestValues.get(mag).timeInFlight));
+        double angle = v.getTheta();
+        telemetry.addData("SOTF actual: ", ad);
+        telemetry.addData("SOTF lie: ", mag);
+        telemetry.addData("SOTF ANGLE: ", angle - ad.getTheta());
+
+        return new Vector(mag, angle);
+    }
+
+    public double evaluateSOTF(double d, Vector velocity, Vector actualD){
+        Vector vector = actualD.minus(velocity.times(shooterTestValues.get(d).timeInFlight));
+        return vector.getMagnitude() - d;
+    }
+    // ============= end shooter on the fly ===================
+
 
     public void hoodAngleCompensation(ShooterState futureShooterParams) {
         double hoodDeg = futureShooterParams.hoodAngle;
