@@ -108,7 +108,6 @@ public class Robot {
     public BallColor[] getMotif(boolean force) {
         if (force || motif == null) {
             motif = vision.getMotif();
-        } else if (motif == null) {
         }
         return motif;
     }
@@ -436,7 +435,7 @@ public class Robot {
         indexer.shootAll();
     }
     public void spindexerUpdate() {
-        indexer.update(isIntaking, readyToShootMotors(), smartShoot, farBack(), getCurrentPose());
+        indexer.update(isIntaking, readyToShootMotors(), smartShoot, farBack());
     }
     public void indexerUnjam() {
         indexer.unjam();
