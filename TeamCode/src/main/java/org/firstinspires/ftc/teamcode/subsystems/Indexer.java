@@ -12,10 +12,13 @@ import com.qualcomm.robotcore.hardware.ServoImplEx;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Constants;
+import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.ColorFunctions;
+import org.firstinspires.ftc.teamcode.util.FieldShapes;
 import org.firstinspires.ftc.teamcode.util.IndexerEnums;
+import org.firstinspires.ftc.teamcode.util.ShapeDetection;
 
 public class Indexer {
 
@@ -45,6 +48,9 @@ public class Indexer {
     boolean smartShootStage2 = false;
     private boolean allowIntaking = true;
     private boolean doSpit = false;
+    private boolean startIndexerPlug = false;
+    private boolean indexerPlug = false;
+    private Pose lastPosition = new Pose(0,0,0);
     Timer spitTimer = new Timer();
     Timer feedTimer = new Timer();
 
@@ -311,13 +317,12 @@ public class Indexer {
         }
     }
 
-    public void update(boolean intaking, boolean readyToShoot) {
-        update(intaking, readyToShoot, false, false);
+    public void update(boolean intaking, boolean readyToShoot, Pose currentPose) {
+        update(intaking, readyToShoot, false, false, currentPose);
     }
 
-    public void update(boolean intaking, boolean readyToShoot, boolean doSmartShoot, boolean isFarShot) {
+    public void update(boolean intaking, boolean readyToShoot, boolean doSmartShoot, boolean isFarShot, Pose currentPose) {
         updatingEncoderPos = -encoder.getCurrentPosition(); //updates this variable on tick so we are not calling multiple times in one tick
-
         if (unjam) {
             unjamUpdate();
             return;
@@ -331,10 +336,28 @@ public class Indexer {
             shooting = true; // makes sure things don't run this loop in intake
         }
 
+        if (startIndexerPlug && !indexerPlug) {
+            lastPosition = currentPose;
+            setIndexerPos(IndexerEnums.shoot0);
+            startIndexerPlug = false;
+            indexerPlug = true;
+        }
+
+        if (((shooting || ShapeDetection.doesRobotIntersect(FieldShapes.farTriangle, currentPose)) || ShapeDetection.doesRobotIntersect(FieldShapes.farTriangle, currentPose)) && indexerPlug) {
+            setIndexerPos(IndexerEnums.intake1);
+            indexerPlug = false;
+        }
+
+        if (indexerPlug) {
+            if (currentPose.distanceFrom(lastPosition) > Constants.Indexer.indexerPlugDistance) {
+                setIndexerPos(IndexerEnums.intake2);
+                indexerPlug = false;
+            }
+        }
+
         if (isAtPosition(true)) {
             doSpit = false;
         }
-
         intakeLogicUpdate(intaking, readyToShoot);
         if (doSmartShoot) {
             smartShootLogicUpdate(readyToShoot);
@@ -420,7 +443,7 @@ public class Indexer {
         ballCells = set;
     }
     public void intakeLogicUpdate(boolean intaking, boolean readyToShoot) {
-        if (intaking && !isHasBallsFull() && isAtPosition() && !shooting) {
+        if (intaking && !isHasBallsFull() && isAtPosition() && !shooting && !indexerPlug) {
             BallColor curColor = getColor();
 
             if (curColor != BallColor.None) {
@@ -434,7 +457,12 @@ public class Indexer {
                     nextIndex++;
                 }
 
-                setIndexerPos(IndexerEnums.getEnum(nextIndex, false));
+                if (nextIndex == 2) {
+                    // do the thing where we plug the intake until we move x inches
+                    startIndexerPlug = true;
+                } else {
+                    setIndexerPos(IndexerEnums.getEnum(nextIndex, false));
+                }
                 if (nextIndex == 3) {
                     allowIntaking = false;
                     doSpit = true;

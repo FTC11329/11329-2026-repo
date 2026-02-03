@@ -1,8 +1,9 @@
-package org.firstinspires.ftc.teamcode.modularAutos.runnableWrappers;
+package org.firstinspires.ftc.teamcode.modularAutos.archivedAutos;
 
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.modularAutos.Common;
@@ -20,6 +21,7 @@ import org.firstinspires.ftc.teamcode.util.RobotSide;
 import java.util.ArrayList;
 import java.util.List;
 
+@Disabled
 @Autonomous(name = "Close 18 Red Purple Robo", group = "      Testing", preselectTeleOp = "Main Teleop Red")
 public class CloseAuto18BallRedPurpleRobo extends OpMode {
     Pose startPose;
@@ -48,7 +50,7 @@ public class CloseAuto18BallRedPurpleRobo extends OpMode {
 
         steps.add(new FromStartClosePos.ShootAndGoToMidShootPos(robot, lastPose()));
         steps.add(new FromShootMidPos.ToIntakeSpike2  (robot, lastPose(), false,  false, false));
-        steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPose(), false,  false, true));
+        steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPose(), false,  false, false));
         steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPose(), false,  false, true));
         steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPose(), false,  false, true));
         steps.add(new FromShootMidPos.ToIntakeSpike1  (robot, lastPose(), false,  true, false));

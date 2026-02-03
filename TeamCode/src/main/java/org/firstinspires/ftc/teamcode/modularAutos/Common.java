@@ -15,10 +15,12 @@ public class Common {
         public static int moveAwayRampAmount = 3; // balls
 
         public static double spikeIntakeTimeOut = 1.25;
-        public static double rampIntakeTimeOut = 0.75; // sec
+
+        public static double shortLeverPressTime = 0.5;
         public static double longLeverPressTime = 2;
-        public static double shortLeverPressTime = 1;
-        public static double longLeverRampIntakeTimeOut = rampIntakeTimeOut + shortLeverPressTime - longLeverPressTime;
+        public static double shortSTunnelIntakeTimeOut = 1.5;
+        public static double longSTunnelIntakeTimeOut = 0;
+
         public static double humanIntakeTime = 1;
         public static double farShootWaitUntil = 23;
 

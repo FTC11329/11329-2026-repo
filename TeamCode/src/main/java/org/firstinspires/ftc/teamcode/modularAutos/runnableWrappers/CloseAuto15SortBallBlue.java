@@ -52,8 +52,6 @@ public class CloseAuto15SortBallBlue extends OpMode {
         steps.add(new FromShootMidPos.ToIntakeSpike1  (robot, lastPose(), true,  false, false));
         steps.add(new FromShootMidPos.ToIntakeSpike3  (robot, lastPose(), true,  true));
 
-
-
         robot.follower.setPose(startPose);
     }
 

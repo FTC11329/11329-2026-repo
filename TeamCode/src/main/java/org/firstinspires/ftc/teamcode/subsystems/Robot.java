@@ -108,6 +108,7 @@ public class Robot {
     public BallColor[] getMotif(boolean force) {
         if (force || motif == null) {
             motif = vision.getMotif();
+        } else if (motif == null) {
         }
         return motif;
     }
@@ -435,7 +436,7 @@ public class Robot {
         indexer.shootAll();
     }
     public void spindexerUpdate() {
-        indexer.update(isIntaking, readyToShootMotors(), smartShoot, farBack());
+        indexer.update(isIntaking, readyToShootMotors(), smartShoot, farBack(), getCurrentPose());
     }
     public void indexerUnjam() {
         indexer.unjam();
@@ -586,6 +587,7 @@ public class Robot {
         telemetry.addData("Ready to shoot", readyToShootMotors());
         telemetry.addLine("=== VISION ===");
         telemetry.addData("Motif", motif);
+
 
         double rateOfChangeOfHoodAngle = (shooter.getHoodPosDeg() - previousHoodAngle) / (System.currentTimeMillis() - previousTime);
         previousTime = System.currentTimeMillis();

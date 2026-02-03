@@ -64,12 +64,12 @@ public class Vision {
                 for (LLResultTypes.FiducialResult fr : fiducialResults) {
                     if (fr.getFiducialId() == 21){
                         motif = new BallColor[]{BallColor.Green, BallColor.Purple, BallColor.Purple};
-                    }
-                    if (fr.getFiducialId() == 22){
+                    } else if (fr.getFiducialId() == 22){
                         motif = new BallColor[]{BallColor.Purple, BallColor.Green, BallColor.Purple};
-                    }
-                    if (fr.getFiducialId() == 23){
+                    } else if (fr.getFiducialId() == 23){
                         motif = new BallColor[]{BallColor.Purple, BallColor.Purple, BallColor.Green};
+                    } else {
+                        motif = new BallColor[]{BallColor.Purple, BallColor.Green, BallColor.Purple};
                     }
                 }
             }

@@ -3,17 +3,17 @@ package org.firstinspires.ftc.teamcode;
 import org.firstinspires.ftc.teamcode.pedroPathing.control.PIDFCoefficients;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 
-import kotlin.jvm.JvmField;
-
 public class Constants {
     public static class Indexer {
 
-        public static double indexerTolerance = 0.07;  // has to be big for smart shooting, has to be small for spit timing
-        public static double wideIndexerTolerance = 0.14;  // has to be big for smart shooting, has to be small for spit timing
+        public static double indexerTolerance = 0.07;  // has to be small for smart shooting, has to be big for spit timing
+        public static double wideIndexerTolerance = 0.14;  // has to be small for smart shooting, has to be big for spit timing
         public static double transferPower = 1;
 
         public static double smartFeedSec = 0.2;
         public static double smartShootSpacingSec = 0.3;
+
+        public static double indexerPlugDistance = 12; //inches
     }
 
     public static class Intake {

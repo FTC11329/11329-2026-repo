@@ -48,7 +48,7 @@ public class CloseAuto18BallRed extends OpMode {
 
         steps.add(new FromStartClosePos.ShootAndGoToMidShootPos(robot, lastPose()));
         steps.add(new FromShootMidPos.ToIntakeSpike2  (robot, lastPose(), false,  false, false));
-        steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPose(), false,  false, true));
+        steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPose(), false,  false, false));
         steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPose(), false,  false, true));
         steps.add(new FromShootMidPos.ToIntakeSpike1  (robot, lastPose(), false,  false, false));
         steps.add(new FromShootMidPos.ToIntakeSpike3  (robot, lastPose(), false,  true));

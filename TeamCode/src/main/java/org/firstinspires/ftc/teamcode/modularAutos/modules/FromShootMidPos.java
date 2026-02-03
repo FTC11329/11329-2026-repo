@@ -1,9 +1,7 @@
 package org.firstinspires.ftc.teamcode.modularAutos.modules;
 
-import org.firstinspires.ftc.teamcode.modularAutos.Common;
 import org.firstinspires.ftc.teamcode.modularAutos.PathPlanner;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.BezierCurve;
-import org.firstinspires.ftc.teamcode.pedroPathing.geometry.BezierLine;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.paths.Path;
 import org.firstinspires.ftc.teamcode.pedroPathing.paths.PathBuilder;
@@ -11,7 +9,6 @@ import org.firstinspires.ftc.teamcode.pedroPathing.paths.PathChain;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
 import org.firstinspires.ftc.teamcode.util.BallColor;
-import org.opencv.core.Mat;
 
 import static org.firstinspires.ftc.teamcode.modularAutos.Common.*;
 
@@ -408,7 +405,7 @@ public class FromShootMidPos {
             this.longLever = longLever;
 
             leverTimeOut = longLever ? Timings.longLeverPressTime         : Timings.shortLeverPressTime;
-            rampTimeOut =  longLever ? Timings.longLeverRampIntakeTimeOut : Timings.rampIntakeTimeOut;
+            rampTimeOut =  longLever ? Timings.longSTunnelIntakeTimeOut : Timings.shortSTunnelIntakeTimeOut;
             lastPose =     parkAfter ? ShootPoses.parkShoot               : ShootPoses.midShoot;
         }
 
@@ -473,24 +470,6 @@ public class FromShootMidPos {
                     }
                     break;
                 case 4:
-                    if (pathTimer.getElapsedTimeSeconds() > .5) {
-                        robot.spitIntake();
-                        setPathState(5);
-                    }
-                    break;
-                case 5:
-                    if (pathTimer.getElapsedTimeSeconds() > 0.25) {
-                        robot.spitIntake(false);
-                        robot.setIntakeOverride(true);
-                        setPathState(6);
-                    }
-                    break;
-                case 6:
-                    if (pathTimer.getElapsedTimeSeconds() > 0.5) {
-                        robot.setIntakeOverride(false);
-                        setPathState(7);
-                    }
-                case 7:
                     if ((robot.inShootingZone() || !robot.follower.isBusy()) && robot.follower.getVelocity().getMagnitude() < Timings.shootVelocity) {
                         if (parkAfter) {
                             robot.follower.setMaxPower(DrivePower.shootOnThFly);
@@ -501,10 +480,10 @@ public class FromShootMidPos {
                         } else {
                             robot.indexer.shootAll();
                         }
-                        setPathState(8);
+                        setPathState(5);
                     }
                     break;
-                case 8://       if robot shoot all balls v                                                                                                              if timeout v
+                case 5://       if robot shoot all balls v                                                                                                              if timeout v
                     if (pathTimer.getElapsedTimeSeconds() > 1.5) {
                         robot.indexerUnjam();
                     }
