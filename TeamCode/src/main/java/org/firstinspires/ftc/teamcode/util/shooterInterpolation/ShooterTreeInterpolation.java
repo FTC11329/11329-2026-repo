@@ -1,15 +1,19 @@
 package org.firstinspires.ftc.teamcode.util.shooterInterpolation;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
 public class ShooterTreeInterpolation {
 
     private final TreeMap<Double, ShooterState> map = new TreeMap<>();
+    private final List<Double> keys = new ArrayList<>();
     //sorted map of distance from target and optimal shooter state
 
     public void put(double distance, ShooterState state) {
         map.put(distance, state);
+        keys.add(distance);
     } //fills the map with the example points
 
     public ShooterState get(double distance) {
@@ -41,6 +45,10 @@ public class ShooterTreeInterpolation {
         double timeInFlight = lowerShooterState.timeInFlight + (upperShooterState.timeInFlight - lowerShooterState.timeInFlight) * t;
 
         return new ShooterState(rpm, hood, timeInFlight);
+    }
+
+    public List<Double> getKeys(){
+        return keys;
     }
 }
 

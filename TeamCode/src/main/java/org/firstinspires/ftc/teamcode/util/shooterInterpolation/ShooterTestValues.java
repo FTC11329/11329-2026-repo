@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.util.shooterInterpolation;
 
 import com.bylazar.configurables.annotations.Configurable;
 
+import java.util.List;
+
 @Configurable
 public class ShooterTestValues implements ShooterValuesParent {
     private final ShooterTreeInterpolation shooterMap = new ShooterTreeInterpolation();
@@ -42,6 +44,10 @@ public class ShooterTestValues implements ShooterValuesParent {
 
     public ShooterState get(double distance) {
         return shooterMap.get(distance);
+    }
+
+    public List<Double> getDistances(){
+        return shooterMap.getKeys();
     }
 }
 
