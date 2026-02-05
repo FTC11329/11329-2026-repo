@@ -159,7 +159,7 @@ public class Robot {
 
     double angleToGoalVelocity;
     public void turretUpdate() {
-        turret.update(angleToGoalVelocity);
+        turret.update(angleToGoalVelocity + follower.getAngularVelocity(), angleToGoalAcceleration + follower.getAcceleration().getTheta());
     }
 
     // SHOOTER*************************************************************************************~
@@ -203,10 +203,10 @@ public class Robot {
     //corrects the hood, turret, and shooter rpm
     double lastTimeTurret = 0;
     double lastAngleToGoal = 0;
-    double deltaDeg;
     double rpmRatio;
     double previousTOF;
     double lastTOFtime;
+    double previousVelocityTime;
     public void prepareShooter(Pose currentPose) {
         ShooterValuesParent stv = shooterTestValues;
 
@@ -245,7 +245,9 @@ public class Robot {
         double r2 = ((deltaXFutr * deltaXFutr) + (deltaYFutr * deltaYFutr));
         angleToGoalVelocity = ((deltaXFutr * velocity.getYComponent()) - (deltaYFutr * velocity.getXComponent())) / r2;
 
-        panelsTelemetry.addData("angle to goal velocity (vector)", angleToGoalVelocity);
+        angleToGoalAcceleration = (angleToGoalVelocity - previousAngleToGoalVelocity) / (System.nanoTime() - previousVelocityTime);
+        previousVelocityTime = System.nanoTime();
+        previousAngleToGoalVelocity = angleToGoalVelocity;
 
         // Sets Turret angle
         turret.setTargetDeg(angleToGoalFutr - Math.toDegrees(currentPose.getHeading()));
@@ -254,16 +256,16 @@ public class Robot {
         ShooterState futureShooterParams = stv.get(currentPose.distanceFrom(futrGoal));
 
         // Sets shooter rpm
-        double shooterRPM = farBack() ? futureShooterParams.rpm + 150 : futureShooterParams.rpm;
+        double shooterRPM = farBack() ? futureShooterParams.rpm + 150: futureShooterParams.rpm;
         shooter.adjustTargetRPM(shooterRPM);
 
-        hoodAngleCompensation(futureShooterParams);
+        double deltaDeg = hoodAngleCompensation(futureShooterParams);
 
         // gets hood angle
-        shooter.setHoodDeg(futureShooterParams.hoodAngle + 1 * deltaDeg);
+        shooter.setHoodDeg(futureShooterParams.hoodAngle + deltaDeg);
     }
 
-    public void hoodAngleCompensation(ShooterState futureShooterParams) {
+    public double hoodAngleCompensation(ShooterState futureShooterParams) {
         double hoodDeg = futureShooterParams.hoodAngle;
         double hoodRad = Math.toRadians(hoodDeg);
 
@@ -272,7 +274,7 @@ public class Robot {
         double correctedRad =
                 Math.atan(rpmRatio * Math.tan(hoodRad));
 
-        deltaDeg =
+        double deltaDeg =
                 Math.toDegrees(correctedRad - hoodRad);
 
         if (Math.abs(deltaDeg) < .7) {
@@ -284,6 +286,7 @@ public class Robot {
         if (smartShoot) {
             deltaDeg = 0;
         }
+        return deltaDeg;
     }
     public void setShooterTargetRPM(double set) {
         shooter.setTargetRPM(set);
@@ -431,7 +434,7 @@ public class Robot {
         indexer.shootAll();
     }
     public void spindexerUpdate() {
-        indexer.update(isIntaking, readyToShootMotors(), smartShoot, farBack());
+        indexer.update(isIntaking, readyToShootMotors(), smartShoot, farBack(), follower.getPose());
     }
     public void indexerUnjam() {
         indexer.unjam();
@@ -482,6 +485,11 @@ public class Robot {
         turretUpdate();
         follower.update();
         lightsUpdate();
+        vision.update(Math.toDegrees(follower.getPose().getHeading()));
+
+        panelsTelemetry.addData("turret err", (turret.turretPID.getTargetPosition() - turret.getAngle()));
+        panelsTelemetry.addData("turret target", turret.turretPID.getTargetPosition());
+        panelsTelemetry.addData("turret actual", turret.getAngle());
 
 //        panelsTelemetry.addData("shooter target", shooter.getTargetRpm() - 200);
 //        panelsTelemetry.addData("shooter actual", shooter.getRPM());
@@ -504,8 +512,8 @@ public class Robot {
         if (debug) {
             debug();
         }
-        telemetry.update();
-//        panelsTelemetry.update();
+//        telemetry.update();
+        panelsTelemetry.update();
     }
 
     public void debug() {
@@ -537,6 +545,9 @@ public class Robot {
 //        long lights = System.currentTimeMillis();
 //        Drawing.drawShapesDebug(this.follower);
 //        Drawing.drawDebug(this.follower);
+        panelsTelemetry.addData("turret err", (turret.turretPID.getTargetPosition() - turret.getAngle()));
+        panelsTelemetry.addData("turret target", turret.turretPID.getTargetPosition());
+        panelsTelemetry.addData("turret actual", turret.getAngle());
 
 //        panelsTelemetry.addData("shooter", -(start - shooter));
 //        panelsTelemetry.addData("intake", -(shooter - intake));
@@ -549,7 +560,6 @@ public class Robot {
 
 
 //        panelsTelemetry.addData("spindexer", (spindexer - intake) * 1e-3);
-//        panelsTelemetry.addData("turret err", (turret.turretPID.getTargetPosition() - turret.getAngle()));
 //        panelsTelemetry.addData("turret pos", turret.getAngle());
 //        panelsTelemetry.addData("turret pow", turret.turretPID.run());
 //        panelsTelemetry.addData("turret Accel", angleToGoalAcceleration);
@@ -568,8 +578,6 @@ public class Robot {
         panelsTelemetry.addData("spindexer error", Math.abs(indexer.getEncoderPercentage() - indexer.lastIndexerTarget));
         Drawing.drawShapesDebug(follower);
 
-        panelsTelemetry.addData("turret target", turret.turretPID.getTargetPosition());
-        panelsTelemetry.addData("turret actual", turret.getAngle());
 
         telemetry.addData("hood", shooter.getHoodPosDeg());
         telemetry.addData("rpm", shooter.getRPM());

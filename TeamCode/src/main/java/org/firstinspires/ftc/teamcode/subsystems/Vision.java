@@ -76,6 +76,9 @@ public class Vision {
         }
         return motif;
     }
+    public void update(double yawDegrees) {
+        limelight.updateRobotOrientation(yawDegrees);
+    }
 
     public void stop() {}
 }

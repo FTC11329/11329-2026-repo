@@ -87,8 +87,10 @@ public class Turret {
 
 
     public void setPower(double set) {
-        turretServo1.setPower(set);
-        turretServo2.setPower(set);
+        if (Double.isFinite(set)) {
+            turretServo1.setPower(set);
+            turretServo2.setPower(set);
+        }
     }
 
     // Converts raw encoder ticks to turret angle

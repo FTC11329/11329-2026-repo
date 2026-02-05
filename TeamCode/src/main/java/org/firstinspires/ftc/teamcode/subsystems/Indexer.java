@@ -50,6 +50,10 @@ public class Indexer {
     private boolean doSpit = false;
     Timer spitTimer = new Timer();
     Timer feedTimer = new Timer();
+    private boolean startIndexerPlug = false;
+    private boolean lastIndexerPlug = false;
+    private boolean indexerPlug = false;
+    private Pose lastPosition = new Pose(0,0,0);
 
     BallColor[] queuedBalls = new BallColor[]{BallColor.None, BallColor.None, BallColor.None};
 
@@ -314,10 +318,11 @@ public class Indexer {
         }
     }
 
-    public void update(boolean intaking, boolean readyToShoot) {
-        update(intaking, readyToShoot, false, false);
+    public void update(boolean intaking, boolean readyToShoot, Pose currentPose) {
+        update(intaking, readyToShoot, false, false, currentPose);
     }
-    public void update(boolean intaking, boolean readyToShoot, boolean doSmartShoot, boolean isFarShot) {
+
+    public void update(boolean intaking, boolean readyToShoot, boolean doSmartShoot, boolean isFarShot, Pose currentPose) {
         updatingEncoderPos = -encoder.getCurrentPosition(); //updates this variable on tick so we are not calling multiple times in one tick
         if (unjam) {
             unjamUpdate();
@@ -330,6 +335,25 @@ public class Indexer {
 
         if (startShooting && readyToShoot) {
             shooting = true; // makes sure things don't run this loop in intake
+        }
+
+        if (startIndexerPlug && !indexerPlug) {
+            lastPosition = currentPose;
+            setIndexerPos(IndexerEnums.shoot0);
+            startIndexerPlug = false;
+            indexerPlug = true;
+        }
+
+        if (((shooting || ShapeDetection.doesRobotIntersect(FieldShapes.farTriangle, currentPose)) || ShapeDetection.doesRobotIntersect(FieldShapes.farTriangle, currentPose)) && indexerPlug) {
+            setIndexerPos(IndexerEnums.intake1);
+            indexerPlug = false;
+        }
+
+        if (indexerPlug) {
+            if (currentPose.distanceFrom(lastPosition) > Constants.Indexer.indexerPlugDistance) {
+                setIndexerPos(IndexerEnums.intake2);
+                indexerPlug = false;
+            }
         }
 
         if (isAtPosition(true)) {
@@ -346,6 +370,21 @@ public class Indexer {
         if (isHasBallsFull() && readyToShoot && isAtPosition() && !doSmartShoot) {
             spinTransferWheel(true);
         }
+
+        if (indexerPlug && !shooting) {
+            if (beamBroken()) {
+                intaking = false;
+            } else {
+                intaking = true;
+            }
+        }
+        if (!indexerPlug && lastIndexerPlug && !intaking) {
+            intaking = true;
+        }
+        lastIndexerPlug = indexerPlug;
+    }
+    public boolean beamBroken() {
+        return false; //TODO add beam break
     }
     private int unjamCounter = 0;
     public void unjamUpdate() {
@@ -434,7 +473,12 @@ public class Indexer {
                     nextIndex++;
                 }
 
-                setIndexerPos(IndexerEnums.getEnum(nextIndex, false));
+                if (nextIndex == 2) {
+                    // do the thing where we plug the intake until we move x inches
+                    startIndexerPlug = true;
+                } else {
+                    setIndexerPos(IndexerEnums.getEnum(nextIndex, false));
+                }
 
                 if (nextIndex == 3) {
                     allowIntaking = false;

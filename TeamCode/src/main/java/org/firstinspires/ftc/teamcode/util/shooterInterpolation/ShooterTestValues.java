@@ -31,15 +31,15 @@ public class ShooterTestValues implements ShooterValuesParent {
         shooterMap.put(95.2 + ADDITION, new ShooterState(2300,37.3,.766));
         shooterMap.put(100.2 + ADDITION, new ShooterState(2350,36.3,.718));
         shooterMap.put(105.2 + ADDITION, new ShooterState(2450,35.3,.7575));
-        shooterMap.put(110.2 + ADDITION, new ShooterState(2450 + FAR_RPM_ADDITION,34.3,.72));
-        shooterMap.put(115.2 + ADDITION, new ShooterState(2600 + FAR_RPM_ADDITION,36.3,.718));
-        shooterMap.put(120.2 + ADDITION, new ShooterState(2660 + FAR_RPM_ADDITION,30,.892));
-        shooterMap.put(125.2 + ADDITION, new ShooterState(2700 + FAR_RPM_ADDITION,29.5,.836));
-        shooterMap.put(130.2 + ADDITION, new ShooterState(2822 + FAR_RPM_ADDITION,29,.914));
-        shooterMap.put(135.2 + ADDITION, new ShooterState(2914 + FAR_RPM_ADDITION,29,.876));
-        shooterMap.put(140.2 + ADDITION, new ShooterState(2911 + FAR_RPM_ADDITION,29,.914));
-        shooterMap.put(145.2 + ADDITION, new ShooterState(2940 + FAR_RPM_ADDITION,26,1.002));
-        shooterMap.put(150.2 + ADDITION, new ShooterState(3058 + FAR_RPM_ADDITION,26,1.004));
+        shooterMap.put(110.2 + ADDITION + FAR_ADDITION, new ShooterState(2450 + FAR_RPM_ADDITION,34.3,.72));
+        shooterMap.put(115.2 + ADDITION + FAR_ADDITION, new ShooterState(2600 + FAR_RPM_ADDITION,36.3,.718));
+        shooterMap.put(120.2 + ADDITION + FAR_ADDITION, new ShooterState(2660 + FAR_RPM_ADDITION,30,.892));
+        shooterMap.put(125.2 + ADDITION + FAR_ADDITION, new ShooterState(2700 + FAR_RPM_ADDITION,29.5,.836));
+        shooterMap.put(130.2 + ADDITION + FAR_ADDITION, new ShooterState(2822 + FAR_RPM_ADDITION,29,.914));
+        shooterMap.put(135.2 + ADDITION + FAR_ADDITION, new ShooterState(2914 + FAR_RPM_ADDITION,29,.876));
+        shooterMap.put(140.2 + ADDITION + FAR_ADDITION, new ShooterState(2911 + FAR_RPM_ADDITION,29,.914));
+        shooterMap.put(145.2 + ADDITION + FAR_ADDITION, new ShooterState(2940 + FAR_RPM_ADDITION,26,1.002));
+        shooterMap.put(150.2 + ADDITION + FAR_ADDITION, new ShooterState(3058 + FAR_RPM_ADDITION,26,1.004));
     }
 
     public ShooterState get(double distance) {
