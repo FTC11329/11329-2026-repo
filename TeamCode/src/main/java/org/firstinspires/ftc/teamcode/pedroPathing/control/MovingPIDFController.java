@@ -25,6 +25,7 @@ public class MovingPIDFController implements Controller {
     private double feedForwardInput;
     private double lastError;
     private double errorDerivative;
+    private double voltageCompensation = Double.NaN;
 
 
     private long previousUpdateTimeNano;
@@ -53,7 +54,7 @@ public class MovingPIDFController implements Controller {
      * @return this returns the value of the PIDF from the current error.
      */
     public double run() {
-        return error * P() + positionDerivative * D() + errorIntegral * I() + feedForwardInput * F() + targetPosition / kV;
+        return error * P() + positionDerivative * D() + errorIntegral * I() + feedForwardInput * F() + (targetPosition / kV) * voltageCompensation;
     }
 
     /**
@@ -76,7 +77,20 @@ public class MovingPIDFController implements Controller {
         positionDerivative = - (position - previousPosition) / (deltaTimeNano / Math.pow(10.0, 9));
         errorDerivative = (error - lastError) / (deltaTimeNano / Math.pow(10.0, 9));
     }
+    public void updatePosition(double position, double voltageCompensation) {
+        previousPosition = this.position;
+        this.position = position;
+        lastError = this.error;
+        error = targetPosition - this.position;
+        this.voltageCompensation = voltageCompensation;
 
+        deltaTimeNano = System.nanoTime() - previousUpdateTimeNano;
+        previousUpdateTimeNano = System.nanoTime();
+
+        errorIntegral += error * (deltaTimeNano / Math.pow(10.0, 9));
+        positionDerivative = - (position - previousPosition) / (deltaTimeNano / Math.pow(10.0, 9));
+        errorDerivative = (error - lastError) / (deltaTimeNano / Math.pow(10.0, 9));
+    }
     /**
      * As opposed to updating position against a target position, this just sets the error to some
      * specified value.

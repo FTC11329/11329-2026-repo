@@ -159,7 +159,7 @@ public class Robot {
 
     double angleToGoalVelocity;
     public void turretUpdate() {
-        turret.update(angleToGoalVelocity, angleToGoalAcceleration);
+        turret.update(angleToGoalVelocity);
     }
 
     // SHOOTER*************************************************************************************~
@@ -205,9 +205,9 @@ public class Robot {
     double lastAngleToGoal = 0;
     double deltaDeg;
     double rpmRatio;
+    double previousTOF;
+    double lastTOFtime;
     public void prepareShooter(Pose currentPose) {
-        // Gets current Pose
-
         ShooterValuesParent stv = shooterTestValues;
 
         Pose futrGoal = goal;
@@ -218,23 +218,12 @@ public class Robot {
         }
         goal = goal.plus(offsetPose);
 
-        double deltaX = goal.getX() - currentPose.getX();
-        double deltaY = goal.getY() - currentPose.getY();
-        double angleToGoal = Math.toDegrees(Math.atan2(deltaY, deltaX));
-
-        // this is to pass to the feed forward on the turret to offset for the rate of change of the angle to goal
-        previousAngleToGoalVelocity = angleToGoalVelocity;
-        angleToGoalVelocity = -((Math.toRadians(angleToGoal - lastAngleToGoal)) / ((System.nanoTime() - lastTimeTurret) * 1e-9)); // todo work in velocity vector
-        angleToGoalVelocity += follower.getAngularVelocity();
-
-        angleToGoalAcceleration = (angleToGoalVelocity - previousAngleToGoalVelocity) / ((System.nanoTime() - lastTimeTurret) * 1e-9);
-        lastAngleToGoal = angleToGoal;
-        lastTimeTurret = System.nanoTime();
-
         // Est Time In Flight for ball at current pose
         double timeInFlight = (1 / rpmRatio) * stv.get(currentPose.distanceFrom(futrGoal)).timeInFlight;
+        double rateOfChangeOfTOF = (timeInFlight - previousTOF) / ((System.nanoTime() - lastTOFtime) / 1e-9);
+        lastTOFtime = System.nanoTime();
 
-        Vector virtualVelocity = follower.getVelocity().plus(follower.getAcceleration().times(.015));
+        Vector virtualVelocity = follower.getVelocity();//todo: retune accel
         // Logic for future pose
         futrGoal = goal.plusVector(virtualVelocity, - timeInFlight);
 
@@ -249,15 +238,20 @@ public class Robot {
         double deltaYFutr = futrGoal.getY() + goalOffset.getY() - currentPose.getY();
         double angleToGoalFutr = Math.toDegrees(Math.atan2(deltaYFutr, deltaXFutr));
 
-        Vector robotToGoal = goal.getAsVector().plus(goalOffset.getAsVector()).minus(currentPose.getAsVector());
+        Vector virtualGoalVelocity = follower.getAcceleration().times(-timeInFlight).minus(follower.getVelocity().times(rateOfChangeOfTOF));
+        Vector velocity = follower.getVelocity().minus(virtualGoalVelocity);
 
-        Vector dir = findVector(follower.getVelocity(), robotToGoal);
+        // this is to pass to the feed forward on the turret to offset for the rate of change of the angle to goal
+        double r2 = ((deltaXFutr * deltaXFutr) + (deltaYFutr * deltaYFutr));
+        angleToGoalVelocity = ((deltaXFutr * velocity.getYComponent()) - (deltaYFutr * velocity.getXComponent())) / r2;
+
+        panelsTelemetry.addData("angle to goal velocity (vector)", angleToGoalVelocity);
 
         // Sets Turret angle
-        turret.setTargetDeg(Math.toDegrees(dir.getTheta()) - Math.toDegrees(currentPose.getHeading()));
+        turret.setTargetDeg(angleToGoalFutr - Math.toDegrees(currentPose.getHeading()));
 
         // Gets shooter params based on future pose
-        ShooterState futureShooterParams = stv.get(dir.getMagnitude());
+        ShooterState futureShooterParams = stv.get(currentPose.distanceFrom(futrGoal));
 
         // Sets shooter rpm
         double shooterRPM = farBack() ? futureShooterParams.rpm + 150 : futureShooterParams.rpm;
@@ -268,47 +262,6 @@ public class Robot {
         // gets hood angle
         shooter.setHoodDeg(futureShooterParams.hoodAngle + 1 * deltaDeg);
     }
-
-    // =================== Shooter on the Fly =======================
-    public double findDist(Vector u, Vector ad){
-        List<Double> distances = shooterTestValues.getDistances();
-        int index = 0;
-        for (int i = 0; i < distances.size() - 1; i++){
-            double bottom = evaluateSOTF(distances.get(i), u, ad);
-            double top = evaluateSOTF(distances.get(i + 1), u, ad);
-            if (bottom >= 0 && top <= 0) {
-                double lambda = - top / (bottom - top);
-                telemetry.addData("SOTF regular: ", false);
-                return lambda * distances.get(i) + (1 - lambda) * distances.get(i + 1);
-            }
-
-            if (bottom <= 0 && top >= 0) {
-                double lambda = - bottom / (top - bottom);
-                telemetry.addData("SOTF regular: ", false);
-                return lambda * distances.get(i) + (1 - lambda) * distances.get(i + 1);
-            }
-        }
-        telemetry.addData("SOTF regular: ", true);
-        return ad.getMagnitude();
-    }
-
-    public Vector findVector(Vector u, Vector ad){
-        double mag = findDist(u, ad);
-        Vector v = ad.minus(u.times(shooterTestValues.get(mag).timeInFlight));
-        double angle = v.getTheta();
-        telemetry.addData("SOTF actual: ", ad);
-        telemetry.addData("SOTF lie: ", mag);
-        telemetry.addData("SOTF ANGLE: ", angle - ad.getTheta());
-
-        return new Vector(mag, angle);
-    }
-
-    public double evaluateSOTF(double d, Vector velocity, Vector actualD){
-        Vector vector = actualD.minus(velocity.times(shooterTestValues.get(d).timeInFlight));
-        return vector.getMagnitude() - d;
-    }
-    // ============= end shooter on the fly ===================
-
 
     public void hoodAngleCompensation(ShooterState futureShooterParams) {
         double hoodDeg = futureShooterParams.hoodAngle;
@@ -332,7 +285,6 @@ public class Robot {
             deltaDeg = 0;
         }
     }
-
     public void setShooterTargetRPM(double set) {
         shooter.setTargetRPM(set);
     }
@@ -545,14 +497,14 @@ public class Robot {
 //
 //        double r2 = ((xOffset * xOffset) + (yOffset * yOffset));
 //        double angleToGoalVelocityVector = ((xOffset * velocityY) - (yOffset * velocityX)) / r2;
-
+//
 //        panelsTelemetry.addData("angle to goal velocity (vector)", angleToGoalVelocityVector);
 //        panelsTelemetry.addData("angle to goal velocity (derived)", angleToGoalVelocity - follower.getAngularVelocity());
 
         if (debug) {
             debug();
         }
-//        telemetry.update();
+        telemetry.update();
 //        panelsTelemetry.update();
     }
 

@@ -64,6 +64,9 @@ public class Turret {
     public void setTargetRad(double rad) {
         setTargetDeg(Math.toDegrees(rad));
     }
+    public void update(double angVel) {
+        update(angVel, 0);
+    }
 
     public void update(double angVel, double angAccel) {
         double curAngle = getAngle();

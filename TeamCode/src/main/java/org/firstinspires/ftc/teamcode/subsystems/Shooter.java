@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Constants;
@@ -28,10 +29,12 @@ public class Shooter {
     double derivative;
     double lastPower;
     double flywheelVelocity = 0;
+//    VoltageSensor voltageSensor;
 
 
 
     public Shooter(HardwareMap hardwareMap){
+//        voltageSensor = hardwareMap.voltageSensor.get("flywheel");
         flywheel = hardwareMap.get(DcMotorEx.class, "flywheel");
 
         flywheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -169,11 +172,15 @@ public class Shooter {
     public PIDFCoefficients getPID() {
         return shooterPID.getCoefficients();
     }
+    public double getVoltageCompensation() {
+//        voltageSensor.getVoltage();
+        return 1;
+    }
 
     public void update() {
         flywheelVelocity = flywheel.getVelocity();
         if (shooterSpin && usePID) {
-            shooterPID.updatePosition(getRPM());
+            shooterPID.updatePosition(getRPM(), getVoltageCompensation());
             if (shooterPID.getTargetPosition() > 10) {
                 if (isGettingUpToSpeed) {
                     if (shooterPID.getError() < Constants.Shooter.closeEnoughRPM) {

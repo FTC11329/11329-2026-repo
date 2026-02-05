@@ -108,7 +108,7 @@ public class Indexer {
     }
 
     private void spinTransferWheel(boolean set) {
-        setFeederPower(set ? Constants.Indexer.transferPower : 0);
+        setFeederPower(set ? Constants.Indexer.transferPower : -.2);
     }
 
     BallColor[] lastColors = new BallColor[]{BallColor.None, BallColor.None, BallColor.None};
@@ -317,7 +317,6 @@ public class Indexer {
     public void update(boolean intaking, boolean readyToShoot) {
         update(intaking, readyToShoot, false, false);
     }
-
     public void update(boolean intaking, boolean readyToShoot, boolean doSmartShoot, boolean isFarShot) {
         updatingEncoderPos = -encoder.getCurrentPosition(); //updates this variable on tick so we are not calling multiple times in one tick
         if (unjam) {
