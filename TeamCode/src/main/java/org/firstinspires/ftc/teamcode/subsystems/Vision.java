@@ -38,20 +38,28 @@ public class Vision {
         limelight.pipelineSwitch(index);
     }
 
+
+    private LLResult cachedResult;
+
+    public void update(double yawDegrees) {
+        limelight.updateRobotOrientation(yawDegrees);
+        cachedResult = limelight.getLatestResult();
+    }
+
     public Pose getRobotPose() {
-        //Creating a 3d array to store the distances of each block for comparison
-        LLResult result = limelight.getLatestResult();
-        Pose pose = null;
-        if (result != null) {
-            if (result.isValid()) {
-                List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
-                for (LLResultTypes.FiducialResult fr : fiducialResults) {
-                    Pose3D robotPoseWeirdM = fr.getRobotPoseFieldSpace();
-                    pose = new Pose(-robotPoseWeirdM.getPosition().x * 39.37, -robotPoseWeirdM.getPosition().y * 39.37, Math.toRadians(robotPoseWeirdM.getOrientation().getYaw() - 180));
-                }
-            }
+
+        if (cachedResult == null || !cachedResult.isValid()) {
+            return null;
         }
-        return pose;
+
+        Pose3D botposeMt2 = cachedResult.getBotpose_MT2();
+
+        double x = botposeMt2.getPosition().x * 39.37;
+        double y = botposeMt2.getPosition().y * 39.37;
+
+        double heading = Math.toRadians(botposeMt2.getOrientation().getYaw());
+
+        return new Pose(x, y, heading);
     }
 
     public BallColor[] getMotif() {
@@ -75,9 +83,6 @@ public class Vision {
             }
         }
         return motif;
-    }
-    public void update(double yawDegrees) {
-        limelight.updateRobotOrientation(yawDegrees);
     }
 
     public void stop() {}

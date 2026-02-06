@@ -223,12 +223,16 @@ public class Robot {
 
         // Est Time In Flight for ball at current pose
         double timeInFlight = (1 / rpmRatio) * stv.get(currentPose.distanceFrom(futrGoal)).timeInFlight;
+        Vector virtualVelocity = follower.getVelocity();
+        futrGoal = goal.plusVector(virtualVelocity, - timeInFlight);
+
+        timeInFlight = (1 / rpmRatio) * stv.get(currentPose.distanceFrom(futrGoal)).timeInFlight;
+        futrGoal = goal.plusVector(virtualVelocity, - timeInFlight); //todo test if this iteration helps or hurts
+
         double rateOfChangeOfTOF = (timeInFlight - previousTOF) / ((System.nanoTime() - lastTOFtime) / 1e-9);
         lastTOFtime = System.nanoTime();
 
-        Vector virtualVelocity = follower.getVelocity();//todo: retune accel
         // Logic for future pose
-        futrGoal = goal.plusVector(virtualVelocity, - timeInFlight);
 
         Pose goalOffset;
         if (robotSide == RobotSide.Blue) {
