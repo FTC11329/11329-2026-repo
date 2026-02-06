@@ -4,6 +4,7 @@ import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -479,28 +480,10 @@ public class Robot {
         follower.update();
         lightsUpdate();
         vision.update(Math.toDegrees(follower.getPose().getHeading()));
+//        Drawing.drawShapesDebug(follower);
 
-        panelsTelemetry.addData("turret err", (turret.turretPID.getTargetPosition() - turret.getAngle()));
-        panelsTelemetry.addData("turret target", turret.turretPID.getTargetPosition());
-        panelsTelemetry.addData("turret actual", turret.getAngle());
-
-//        panelsTelemetry.addData("shooter target", shooter.getTargetRpm() - 200);
-//        panelsTelemetry.addData("shooter actual", shooter.getRPM());
-//        panelsTelemetry.addData("turret error", turret.turretPID.getError());
-//        panelsTelemetry.addData("turret actual", turret.getAngle());
-//        telemetry.addData("indexer state", indexer.currentIndexerState);
-
-//        Pose curPose = follower.getPose();
-//        double xOffset = curPose.getX() - goal.getX();
-//        double yOffset = curPose.getY() - goal.getY();
-//        double velocityX = follower.getVelocity().getXComponent();
-//        double velocityY = follower.getVelocity().getYComponent();
-//
-//        double r2 = ((xOffset * xOffset) + (yOffset * yOffset));
-//        double angleToGoalVelocityVector = ((xOffset * velocityY) - (yOffset * velocityX)) / r2;
-//
-//        panelsTelemetry.addData("angle to goal velocity (vector)", angleToGoalVelocityVector);
-//        panelsTelemetry.addData("angle to goal velocity (derived)", angleToGoalVelocity - follower.getAngularVelocity());
+        panelsTelemetry.addData("shooter target", shooter.getTargetRpm());
+        panelsTelemetry.addData("shooter actual", shooter.getRPM());
 
         if (debug) {
             debug();

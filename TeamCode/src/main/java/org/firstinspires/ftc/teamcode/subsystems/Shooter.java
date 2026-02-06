@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import static java.lang.Math.PI;
 
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -10,6 +11,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.VoltageUnit;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.control.PIDFCoefficients;
 import org.firstinspires.ftc.teamcode.pedroPathing.control.MovingPIDFController;
@@ -17,6 +19,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.control.MovingPIDFController;
 public class Shooter {
     // declaring motor variables
     public DcMotorEx flywheel;
+    HardwareMap.DeviceMapping<VoltageSensor> voltageSensors;
     boolean usePID = false;
     Servo hoodServo1;
     Servo hoodServo2;
@@ -29,12 +32,8 @@ public class Shooter {
     double derivative;
     double lastPower;
     double flywheelVelocity = 0;
-//    VoltageSensor voltageSensor;
-
-
 
     public Shooter(HardwareMap hardwareMap){
-//        voltageSensor = hardwareMap.voltageSensor.get("flywheel");
         flywheel = hardwareMap.get(DcMotorEx.class, "flywheel");
 
         flywheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -52,6 +51,8 @@ public class Shooter {
 
         shooterPID = new MovingPIDFController(Constants.Shooter.shooterVelocityPID, Constants.Shooter.kV);
         shooterPID.updateFeedForwardInput(1);
+
+        voltageSensors = hardwareMap.voltageSensor;
     }
 
     public void setPower(double power){
@@ -173,8 +174,7 @@ public class Shooter {
         return shooterPID.getCoefficients();
     }
     public double getVoltageCompensation() {
-//        voltageSensor.getVoltage();
-        return 1;
+        return getBatteryVoltage() / 13;
     }
 
     public void update() {
@@ -198,4 +198,22 @@ public class Shooter {
             setPower(0.5);
         }
     }
+    double lastTime = System.currentTimeMillis();
+    double lastVolt = 0;
+    public double getBatteryVoltage() {
+        if (System.currentTimeMillis() - lastTime < 400) {
+            return lastVolt;
+        }
+        double result = Double.POSITIVE_INFINITY;
+        for (VoltageSensor sensor : voltageSensors) {
+            double voltage = sensor.getVoltage();
+            if (voltage > 0) {
+                result = Math.min(result, voltage);
+            }
+        }
+        lastTime = System.currentTimeMillis();
+        lastVolt = result;
+        return result;
+    }
+
 }

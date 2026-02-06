@@ -62,15 +62,18 @@ public class TemporaryClassThatWeAreTotallyGoingToDelete extends OpMode {
         for (LynxModule hub : hubs) {
             hub.clearBulkCache();
         }
-        panelsTelemetry.addData("voltage", getBatteryVoltage());
 //
-        hoodPos += 0.000000001;
+        shooter.setPower(0.666667);
+        shooter.update();
 
         long time1 = System.nanoTime();
 
-        if (System.currentTimeMillis() % 17 == 0) {
-            shooter.setHoodDeg(hoodPos);
-        }
+
+
+//
+//        if (System.currentTimeMillis() % 17 == 0) {
+//            shooter.setHoodDeg(hoodPos);
+//        }
 //        leftBack.setPower(0.1);
 //        leftFront.setPower(0.1);
 //        rightBack.setPower(0.1);
@@ -80,11 +83,16 @@ public class TemporaryClassThatWeAreTotallyGoingToDelete extends OpMode {
 //        turretServo2.setPower(hoodPos - 5);
 
         long time2 = System.nanoTime();
-        panelsTelemetry.addData("hood", hoodPos);
+        panelsTelemetry.addData("volt", getBatteryVoltage());
         panelsTelemetry.addData("prep shooter", (time2 - time1) * 1e-6);
         panelsTelemetry.update();
     }
+    double lastTime = System.currentTimeMillis();
+    double lastVolt = 0;
     public double getBatteryVoltage() {
+        if (System.currentTimeMillis() - lastTime < 1000) {
+            return lastVolt;
+        }
         double result = Double.POSITIVE_INFINITY;
         for (VoltageSensor sensor : hardwareMap.voltageSensor) {
             double voltage = sensor.getVoltage();
@@ -92,6 +100,8 @@ public class TemporaryClassThatWeAreTotallyGoingToDelete extends OpMode {
                 result = Math.min(result, voltage);
             }
         }
+        lastTime = System.currentTimeMillis();
+        lastVolt = result;
         return result;
     }
 

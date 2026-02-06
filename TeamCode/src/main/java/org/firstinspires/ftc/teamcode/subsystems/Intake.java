@@ -34,7 +34,7 @@ public class Intake {
         setIntakePower(set ? Constants.Intake.spitPower : Constants.Intake.intakeOffPower);
     }
     public boolean isBeamBroken() {
-        return beamBreak.getState();
+        return !beamBreak.getState();
     }
 
     public void setIntakePower(double set) {
@@ -46,7 +46,7 @@ public class Intake {
 
     public void update(boolean spitIntake, boolean isIntaking, boolean isShooting, boolean forceSpit, boolean allowIntaking, boolean isPlugged, boolean intakeOverride) {
         if (isPlugged && isBeamBroken()) {
-            setIntakePower(Constants.Intake.intakeOffPower);
+            setIntakePower(0);
         } else if (spitIntake || forceSpit) {
             spit(true);
         } else if ((isIntaking && allowIntaking) || intakeOverride) {

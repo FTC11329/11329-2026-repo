@@ -13,13 +13,13 @@ public class Constants {
         public static double smartFeedSec = 0.2;
         public static double smartShootSpacingSec = 0.3;
 
-        public static double indexerPlugDistance = 6; //inches
+        public static double indexerPlugDistance = 8; //inches
     }
 
     public static class Intake {
         public static double intakePower = 1;
         public static double spitPower = -0.67; //67 67 67 67 67 67 67 67 67 67
-        public static double intakeOffPower = 0.2;
+        public static double intakeOffPower = 0.12;
         public static double spitTime = 0.3;
     }
 
@@ -48,7 +48,7 @@ public class Constants {
     }
     public static class Shooter {
         public static PIDFCoefficients shooterVelocityPID = new PIDFCoefficients(.005, 0, 0, 0);
-        public static double kV = 4456;
+        public static double kV = 4545;
         public static double RPMoffset = 0;
         public static double closeEnoughRPM = 50;
         public static double ticksPerRevolution = 28;

@@ -4,6 +4,8 @@ import static org.firstinspires.ftc.teamcode.pedroPathing.math.MathFunctions.fin
 
 import org.firstinspires.ftc.teamcode.pedroPathing.Drivetrain;
 import org.firstinspires.ftc.teamcode.pedroPathing.math.Vector;
+
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;

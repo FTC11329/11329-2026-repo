@@ -359,8 +359,8 @@ public class Indexer {
             indexerPlug = true;
         }
 
-        if (((shooting || ShapeDetection.doesRobotIntersect(FieldShapes.farTriangle, currentPose)) || ShapeDetection.doesRobotIntersect(FieldShapes.farTriangle, currentPose)) && indexerPlug) {
-            setIndexerPos(IndexerEnums.intake1);
+        if (indexerPlug && (ShapeDetection.doesRobotIntersect(FieldShapes.farTriangle, currentPose) || ShapeDetection.doesRobotIntersect(FieldShapes.closeTriangle, currentPose))) {
+            setIndexerPos(IndexerEnums.intake2);
             indexerPlug = false;
         }
 
@@ -370,14 +370,8 @@ public class Indexer {
                 indexerPlug = false;
                 forceEndPlug = false;
             }
-            allowIntaking = false;
         } else if (forceEndPlug) {
             forceEndPlug = false;
-        }
-
-        // Spitting
-        if (isAtPosition(true)) {
-            doSpit = false;
         }
 
         // Bulk Runs
@@ -496,7 +490,6 @@ public class Indexer {
 
                 if (nextIndex == 3) {
                     allowIntaking = false;
-                    doSpit = true;
                 }
             }
         }
