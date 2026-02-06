@@ -3,9 +3,9 @@ package org.firstinspires.ftc.teamcode.subsystems;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.robotcontroller.external.samples.ConceptAprilTag;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Constants;
 
@@ -13,14 +13,18 @@ public class Intake {
     // declaring motor variables
 
     DcMotorEx intakeMotor;
+    DigitalChannel beamBreak;
     double lastPower = 0;
 
-    public Intake(HardwareMap hardwaremap) {
-        intakeMotor = hardwaremap.get(DcMotorEx.class, "intake");
+    public Intake(HardwareMap hardwareMap) {
+        intakeMotor = hardwareMap.get(DcMotorEx.class, "intake");
         intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         intakeMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         intakeMotor.setCurrentAlert(3, CurrentUnit.AMPS);
+
+        beamBreak = hardwareMap.get(DigitalChannel.class, "intakeSensor");
+        beamBreak.setMode(DigitalChannel.Mode.INPUT);
     }
 
     public void intake(boolean set) {
@@ -28,6 +32,9 @@ public class Intake {
     }
     public void spit(boolean set) {
         setIntakePower(set ? Constants.Intake.spitPower : Constants.Intake.intakeOffPower);
+    }
+    public boolean isBeamBroken() {
+        return beamBreak.getState();
     }
 
     public void setIntakePower(double set) {
@@ -37,11 +44,24 @@ public class Intake {
         }
     }
 
+    public void update(boolean spitIntake, boolean isIntaking, boolean isShooting, boolean forceSpit, boolean allowIntaking, boolean isPlugged, boolean intakeOverride) {
+        if (isPlugged && isBeamBroken()) {
+            setIntakePower(Constants.Intake.intakeOffPower);
+        } else if (spitIntake || forceSpit) {
+            spit(true);
+        } else if ((isIntaking && allowIntaking) || intakeOverride) {
+            intake(true);
+        } else if (isShooting){
+            setIntakePower(.5);
+        } else {
+            intake(false);
+        }
+    }
+
     public void stop() {
         intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         intakeMotor.setPower(0);
     }
-
 }
 

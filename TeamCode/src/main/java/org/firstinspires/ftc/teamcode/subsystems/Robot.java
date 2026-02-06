@@ -403,21 +403,14 @@ public class Robot {
     boolean intakeInit = false;
 
     public void intakeUpdate() {
+        // don't spin until robot is started
         if (!intakeInit && isIntaking) {
             intakeInit = true;
         } else if (!intakeInit) {
             intake.setIntakePower(0);
             return;
         }
-        if (spitIntake || indexer.doSpit()) {
-            intake.spit(true);
-        } else if ((isIntaking && indexer.allowIntaking()) || intakeOverride) {
-            intake.intake(true);
-        } else if (indexer.shooting){
-            intake.setIntakePower(.5);
-        } else {
-            intake.intake(false);
-        }
+        intake.update(spitIntake, isIntaking, indexer.shooting, indexer.doSpit(), indexer.allowIntaking(), indexer.isPlugged(), intakeOverride);
     }
 
 

@@ -6,14 +6,14 @@ import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 public class Constants {
     public static class Indexer {
 
-        public static double indexerTolerance = 0.07;  // has to be small for smart shooting, has to be big for spit timing
-        public static double wideIndexerTolerance = 0.14;  // has to be small for smart shooting, has to be big for spit timing
+        public static double indexerTolerance = 0.07;
+        public static double wideIndexerTolerance = 0.14;
         public static double transferPower = 1;
 
         public static double smartFeedSec = 0.2;
         public static double smartShootSpacingSec = 0.3;
 
-        public static double indexerPlugDistance = 12; //inches
+        public static double indexerPlugDistance = 6; //inches
     }
 
     public static class Intake {

@@ -1,9 +1,12 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.PwmControl;
@@ -34,6 +37,7 @@ public class Indexer {
     public IndexerEnums currentIndexerState = IndexerEnums.intake0;
     public double lastIndexerTarget = 0.676767676767676767676767676767676767676767676767676767676767676767676767676767676767676767676767676767676767;
     double lastTransferPower;
+    boolean spinTransferWheelVariable = false;
     boolean beenInited = false;
     public double encoderOffsetFromAuto = 0;
     int updatingEncoderPos;
@@ -47,11 +51,11 @@ public class Indexer {
     boolean smartShootStage1 = false;
     boolean smartShootStage2 = false;
     private boolean allowIntaking = true;
+    private boolean forceEndPlug = false;
     private boolean doSpit = false;
     Timer spitTimer = new Timer();
     Timer feedTimer = new Timer();
     private boolean startIndexerPlug = false;
-    private boolean lastIndexerPlug = false;
     private boolean indexerPlug = false;
     private Pose lastPosition = new Pose(0,0,0);
 
@@ -82,7 +86,6 @@ public class Indexer {
         feeder.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         feeder.setDirection(DcMotorSimple.Direction.REVERSE);
 
-
         colorSensor = hardwareMap.get(RevColorSensorV3.class, "spindexerColorSensor");
         setHasBalls(ballCells);
     }
@@ -112,7 +115,16 @@ public class Indexer {
     }
 
     private void spinTransferWheel(boolean set) {
-        setFeederPower(set ? Constants.Indexer.transferPower : -.2);
+        spinTransferWheelVariable = set;
+    }
+
+    // because we will want to change power in between calls to the function above
+    private void spinTransferWheelUpdate() {
+        if (spinTransferWheelVariable) {
+            setFeederPower(Constants.Indexer.transferPower);
+        } else {
+            setFeederPower(isAtPosition() ? 0 : -0.2);
+        }
     }
 
     BallColor[] lastColors = new BallColor[]{BallColor.None, BallColor.None, BallColor.None};
@@ -317,17 +329,19 @@ public class Indexer {
             unjamCounter = 0;
         }
     }
-
+    //Update **************************************************************************************~
     public void update(boolean intaking, boolean readyToShoot, Pose currentPose) {
         update(intaking, readyToShoot, false, false, currentPose);
     }
 
     public void update(boolean intaking, boolean readyToShoot, boolean doSmartShoot, boolean isFarShot, Pose currentPose) {
         updatingEncoderPos = -encoder.getCurrentPosition(); //updates this variable on tick so we are not calling multiple times in one tick
+        // Stops if unjamming
         if (unjam) {
             unjamUpdate();
             return;
         }
+
         // starts shooting if there is anything in queue
         if (!isQueuedBallsEmpty() && doSmartShoot && !shooting) {
             startShooting = true;
@@ -337,6 +351,7 @@ public class Indexer {
             shooting = true; // makes sure things don't run this loop in intake
         }
 
+        // Plugging (https://www.youtube.com/@ftc11329)
         if (startIndexerPlug && !indexerPlug) {
             lastPosition = currentPose;
             setIndexerPos(IndexerEnums.shoot0);
@@ -350,15 +365,22 @@ public class Indexer {
         }
 
         if (indexerPlug) {
-            if (currentPose.distanceFrom(lastPosition) > Constants.Indexer.indexerPlugDistance) {
+            if (currentPose.distanceFrom(lastPosition) > Constants.Indexer.indexerPlugDistance || forceEndPlug) {
                 setIndexerPos(IndexerEnums.intake2);
                 indexerPlug = false;
+                forceEndPlug = false;
             }
+            allowIntaking = false;
+        } else if (forceEndPlug) {
+            forceEndPlug = false;
         }
 
+        // Spitting
         if (isAtPosition(true)) {
             doSpit = false;
         }
+
+        // Bulk Runs
         intakeLogicUpdate(intaking, readyToShoot);
         if (doSmartShoot) {
             smartShootLogicUpdate(readyToShoot);
@@ -370,21 +392,13 @@ public class Indexer {
         if (isHasBallsFull() && readyToShoot && isAtPosition() && !doSmartShoot) {
             spinTransferWheel(true);
         }
-
-        if (indexerPlug && !shooting) {
-            if (beamBroken()) {
-                intaking = false;
-            } else {
-                intaking = true;
-            }
-        }
-        if (!indexerPlug && lastIndexerPlug && !intaking) {
-            intaking = true;
-        }
-        lastIndexerPlug = indexerPlug;
+        spinTransferWheelUpdate();
     }
-    public boolean beamBroken() {
-        return false; //TODO add beam break
+    public boolean isPlugged() {
+        return indexerPlug;
+    }
+    public void forceEndPlug() {
+        forceEndPlug = true;
     }
     private int unjamCounter = 0;
     public void unjamUpdate() {
@@ -459,7 +473,7 @@ public class Indexer {
         ballCells = set;
     }
     public void intakeLogicUpdate(boolean intaking, boolean readyToShoot) {
-        if (intaking && !isHasBallsFull() && isAtPosition() && !shooting) {
+        if (intaking && !isHasBallsFull() && isAtPosition() && !shooting && !indexerPlug) {
             BallColor curColor = getColor();
 
             if (curColor != BallColor.None) {
