@@ -174,7 +174,7 @@ public class Shooter {
         return shooterPID.getCoefficients();
     }
     public double getVoltageCompensation() {
-        return getBatteryVoltage() / 13;
+        return getBatteryVoltage() / 12.7;
     }
 
     public void update() {
@@ -201,7 +201,7 @@ public class Shooter {
     double lastTime = System.currentTimeMillis();
     double lastVolt = 0;
     public double getBatteryVoltage() {
-        if (System.currentTimeMillis() - lastTime < 400) {
+        if (System.currentTimeMillis() - lastTime < 200) {
             return lastVolt;
         }
         double result = Double.POSITIVE_INFINITY;

@@ -17,7 +17,6 @@ public class Turret {
     CRServo turretServo2;
     public int encoderOffset;
 
-
     Pose goalPose;
 
     public final DcMotorEx encoder;
@@ -87,10 +86,8 @@ public class Turret {
 
 
     public void setPower(double set) {
-        if (Double.isFinite(set)) {
-            turretServo1.setPower(set);
-            turretServo2.setPower(set);
-        }
+        turretServo1.setPower(set);
+        turretServo2.setPower(set);
     }
 
     // Converts raw encoder ticks to turret angle

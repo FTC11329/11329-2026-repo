@@ -63,4 +63,58 @@ public class Commands {
             return "Wait Time: " + waitSec;
         }
     }
+    public static class WaitUntilRemainingTime implements PathPlanner {
+        /// Waits until time remaing in auto
+        // Variables
+        Pose offset = new Pose();
+        private Timer pathTimer;
+        private int state = 0;
+        private boolean isFinished = false;
+
+        // Pass-through Variables
+        private volatile Robot robot;
+        private Pose startPose;
+        private double endTime;
+        public WaitUntilRemainingTime(Robot robot, Pose startPose, double endTime) {
+            pathTimer = new Timer();
+            this.robot = robot;
+            this.startPose = startPose;
+            this.endTime = endTime;
+        }
+
+        @Override
+        public void buildPaths() {
+        }
+
+        @Override
+        public Pose getEndPoseEst() {
+            return startPose;
+        }
+
+        @Override
+        public boolean run() {
+            switch (state) {
+                case 0:
+                    setPathState(1);
+                    break;
+                case 1:
+                    if (robot.getOpmodeTimeSeconds() > endTime) {
+                        isFinished = true;
+                    }
+            }
+
+            return isFinished;
+        }
+
+        private void setPathState(int state) {
+            this.state = state;
+            pathTimer.resetTimer();
+        }
+
+        @NonNull
+        @Override
+        public String toString() {
+            return "Wait Until Remaining Time: " + endTime;
+        }
+    }
 }

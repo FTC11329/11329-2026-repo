@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import android.os.FileUtils;
+
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.hardware.lynx.LynxModule;
@@ -204,10 +206,10 @@ public class Robot {
     //corrects the hood, turret, and shooter rpm
     double lastTimeTurret = 0;
     double lastAngleToGoal = 0;
-    double rpmRatio;
+    double rpmRatio = 1;
     double previousTOF;
     double lastTOFtime;
-    double previousVelocityTime;
+    double previousVelocityTime = System.nanoTime();
     public void prepareShooter(Pose currentPose) {
         ShooterValuesParent stv = shooterTestValues;
 
@@ -433,6 +435,9 @@ public class Robot {
     public void indexerUnjam() {
         indexer.unjam();
     }
+    public boolean basicallyHas3() {
+        return indexer.isPlugged() && intake.isBeamBroken();
+    }
 
     // LIGHTS**************************************************************************************~
     public void lightsUpdate() {
@@ -481,15 +486,12 @@ public class Robot {
         lightsUpdate();
         vision.update(Math.toDegrees(follower.getPose().getHeading()));
 //        Drawing.drawShapesDebug(follower);
-
-        panelsTelemetry.addData("shooter target", shooter.getTargetRpm());
-        panelsTelemetry.addData("shooter actual", shooter.getRPM());
+        telemetry.addData("broke", intake.isBeamBroken());
+        telemetry.addData("error", turret.turretPID.getError());
 
         if (debug) {
             debug();
         }
-//        telemetry.update();
-        panelsTelemetry.update();
     }
 
     public void debug() {
@@ -645,6 +647,7 @@ public class Robot {
     }
 
     public void stopAllSubsystems() {
+        follower.update();
         lights.stop();
         intake.stop();
         turret.stop();
@@ -653,7 +656,6 @@ public class Robot {
         shooter.stop();
         follower.stop();
         drivetrain.stop();
-
     }
 
     // TESTING*************************************************************************************~

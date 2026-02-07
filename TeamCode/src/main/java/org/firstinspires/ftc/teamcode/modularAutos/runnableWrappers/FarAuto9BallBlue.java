@@ -87,17 +87,24 @@ public class FarAuto9BallBlue extends OpMode {
         robot.spinIntake();
     }
 
+    List<Double> changeTime = new ArrayList<>();
+    boolean firstDeInit = false;
     @Override
     public void loop() {
         // to stop the auto
         if (robot.getOpmodeTimeSeconds() > 30) {
+            for (double time : changeTime) {
+                telemetry.addData("change time", time);
+            }
+            telemetry.addData("vel", robot.follower.getVelocity().getMagnitude());
+            telemetry.addData("time ", zeroVelocityTimer.getElapsedTimeSeconds());
+
             telemetry.addData("Done", true);
-            telemetry.addData("zeroVelTimer", zeroVelocityTimer.getElapsedTimeSeconds());
             telemetry.update();
 
             robot.stopAllSubsystems();
-            robot.follower.update();
-            if (robot.follower.getVelocity().getMagnitude() > 1.5) {
+            if (robot.follower.getVelocity().getMagnitude() > 1.5 || !firstDeInit) {
+                firstDeInit = true;
                 zeroVelocityTimer.resetTimer();
             }
             if (zeroVelocityTimer.getElapsedTimeSeconds() > 1.5) {
@@ -128,9 +135,9 @@ public class FarAuto9BallBlue extends OpMode {
             }
             steps.get(currentStep).buildPaths();
         }
-        Drawing.drawDebug(robot.follower);
+//        Drawing.drawDebug(robot.follower);
 //        telemetry.addData("time", robot.getOpmodeTimeSeconds());
-        telemetry.addData("name", step);
+//        telemetry.addData("name", step);
 //        for (BallColor i : robot.indexer.getBallCells()) {
 //            telemetry.addData("hasBalls", i);
 //        }

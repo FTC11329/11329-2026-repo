@@ -70,15 +70,24 @@ public class ExampleRunnableWrapper extends OpMode {
         robot.spinIntake();
     }
 
+    List<Double> changeTime = new ArrayList<>();
+    boolean firstDeInit = false;
     @Override
     public void loop() {
         // to stop the auto
         if (robot.getOpmodeTimeSeconds() > 30) {
+            for (double time : changeTime) {
+                telemetry.addData("change time", time);
+            }
+            telemetry.addData("vel", robot.follower.getVelocity().getMagnitude());
+            telemetry.addData("time ", zeroVelocityTimer.getElapsedTimeSeconds());
+
             telemetry.addData("Done", true);
             telemetry.update();
 
             robot.stopAllSubsystems();
-            if (robot.follower.getVelocity().getMagnitude() > 1.5) {
+            if (robot.follower.getVelocity().getMagnitude() > 1.5 || !firstDeInit) {
+                firstDeInit = true;
                 zeroVelocityTimer.resetTimer();
             }
             if (zeroVelocityTimer.getElapsedTimeSeconds() > 1.5) {

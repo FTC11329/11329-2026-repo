@@ -20,7 +20,7 @@ import org.firstinspires.ftc.teamcode.util.RobotSide;
 import java.util.ArrayList;
 import java.util.List;
 
-@Autonomous(name = "Close 15 Sort Blue", group = "       Testing", preselectTeleOp = "Main Teleop Blue")
+@Autonomous(name = "Close 15 Sort Blue", group = "      Testing", preselectTeleOp = "Main Teleop Blue")
 public class CloseAuto15SortBallBlue extends OpMode {
     Pose startPose;
     RobotSide robotSide;
@@ -78,18 +78,27 @@ public class CloseAuto15SortBallBlue extends OpMode {
         robot.spinIntake();
     }
 
+    List<Double> changeTime = new ArrayList<>();
+    boolean firstDeInit = false;
     @Override
     public void loop() {
         // to stop the auto
         if (robot.getOpmodeTimeSeconds() > 30) {
+            for (double time : changeTime) {
+                telemetry.addData("change time", time);
+            }
+            telemetry.addData("vel", robot.follower.getVelocity().getMagnitude());
+            telemetry.addData("time ", zeroVelocityTimer.getElapsedTimeSeconds());
+
             telemetry.addData("Done", true);
             telemetry.update();
 
             robot.stopAllSubsystems();
-            if (robot.follower.getVelocity().getMagnitude() > 1.5) {
+            if (robot.follower.getVelocity().getMagnitude() > 1.5 || !firstDeInit) {
+                firstDeInit = true;
                 zeroVelocityTimer.resetTimer();
             }
-            if (zeroVelocityTimer.getElapsedTimeSeconds() > 1.5) {
+            if (zeroVelocityTimer.getElapsedTimeSeconds() > 10) {
                 requestOpModeStop();
             }
             return;
@@ -117,6 +126,7 @@ public class CloseAuto15SortBallBlue extends OpMode {
 //        }
 
         if (done) {
+            changeTime.add(robot.getOpmodeTimeSeconds());
             currentStep++;
             if (currentStep >= steps.size()) {
                 return;

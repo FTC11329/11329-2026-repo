@@ -44,9 +44,9 @@ public final class PathConstraints {
     /**
      * A multiplier for the zero power acceleration to change the speed the robot decelerates at
      * the end of paths.
-     * Increasing this will cause the robot to try to decelerate faster, at the risk of overshoots
+     * Decreasing this will cause the robot to try to decelerate faster, at the risk of overshoots
      * or localization slippage.
-     * Decreasing this will cause the deceleration at the end of the Path to be slower, making the
+     * Increasing this will cause the deceleration at the end of the Path to be slower, making the
      * robot slower but reducing risk of end-of-path overshoots or localization slippage.
      * This can be set individually for each Path, but this is the default.
      * Default Value: 1
@@ -54,7 +54,10 @@ public final class PathConstraints {
     private double brakingStrength;
 
     /**
-     * Multiplier for when the path should start its deceleration
+     * This controls when the braking starts. The higher the value, the earlier the braking starts.
+     * The lower the value, the later the braking starts.
+     * A very high value may cause the robot to stop too early, while a very low value may cause
+     * the robot to stop too late.
      */
     private double brakingStart;
 

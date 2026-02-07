@@ -8,7 +8,7 @@ import java.util.List;
 public class ShooterTestValues implements ShooterValuesParent {
     private final ShooterTreeInterpolation shooterMap = new ShooterTreeInterpolation();
 
-    private final double ADDITION = -7.5; // - shooter farther
+    private final double ADDITION = -10; // - shooter farther
     private final double FAR_ADDITION = 0; // + shooter farther
     private final double FAR_RPM_ADDITION = -50; // + shooter farther
     public ShooterTestValues() {

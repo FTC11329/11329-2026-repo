@@ -27,7 +27,7 @@ public class Common {
         public static double shootTimeOut = 0.7;
         public static double sortShootTimeOut = 3.5;
 
-        public static double shootVelocity = 7; // in / s
+        public static double shootVelocity = 5; // in / s
     }
     public static class DrivePower {
         public static double intake = 1;
@@ -58,7 +58,7 @@ public class Common {
 
         public static Pose movingToPushLeverControlPoint = new Pose(-3.8, 25.3);
         public static Pose pushLeverAfterSpike = new Pose(-0.4,56.1, Math.toRadians(60));
-        public static Pose pushLever = new Pose(-10.25, 58.8, Math.toRadians(70));
+        public static Pose pushLever = new Pose(-9.5, 58.8, Math.toRadians(70));
         public static Pose intakeFromSTunnel = new Pose(-17, 58.25, Math.toRadians(45)); // pointing at ramp
 
         public static Pose intakeHuman = new Pose(-62,62, Math.toRadians(90));

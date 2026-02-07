@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.modularAutos.Common;
 import org.firstinspires.ftc.teamcode.modularAutos.Common.StartPoses;
 import org.firstinspires.ftc.teamcode.modularAutos.PathPlanner;
+import org.firstinspires.ftc.teamcode.modularAutos.modules.Commands;
 import org.firstinspires.ftc.teamcode.modularAutos.modules.FromShootMidPos;
 import org.firstinspires.ftc.teamcode.modularAutos.modules.FromStartClosePos;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
@@ -20,7 +21,7 @@ import org.firstinspires.ftc.teamcode.util.RobotSide;
 import java.util.ArrayList;
 import java.util.List;
 
-@Autonomous(name = "Close 18 3 Ramp Blue", group = "       Testing", preselectTeleOp = "Main Teleop Blue")
+@Autonomous(name = "Close 18 z3 Ramp Blue", group = "       Testing", preselectTeleOp = "Main Teleop Blue")
 public class CloseAuto18BallRamp3Blue extends OpMode {
     Pose startPose;
     RobotSide robotSide;
@@ -51,8 +52,8 @@ public class CloseAuto18BallRamp3Blue extends OpMode {
         steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPose(), false, false, false));
         steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPose(), false, false, true));
         steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPose(), false, false, true));
-        steps.add(new FromShootMidPos.ToIntakeSpike1  (robot, lastPose(), false, false, false));
-        steps.add(new FromShootMidPos.ToIntakeSpike3  (robot, lastPose(), false, true));
+//        steps.add(new Commands.WaitUntilRemainingTime(robot, lastPose(), 26.2));
+        steps.add(new FromShootMidPos.ToIntakeSpike1  (robot, lastPose(), false, true, false));
 
         robot.follower.setPose(startPose);
     }
@@ -80,15 +81,24 @@ public class CloseAuto18BallRamp3Blue extends OpMode {
         robot.spinIntake();
     }
 
+    List<Double> changeTime = new ArrayList<>();
+    boolean firstDeInit = false;
     @Override
     public void loop() {
         // to stop the auto
         if (robot.getOpmodeTimeSeconds() > 30) {
+            for (double time : changeTime) {
+                telemetry.addData("change time", time);
+            }
+            telemetry.addData("vel", robot.follower.getVelocity().getMagnitude());
+            telemetry.addData("time ", zeroVelocityTimer.getElapsedTimeSeconds());
+
             telemetry.addData("Done", true);
             telemetry.update();
 
             robot.stopAllSubsystems();
-            if (robot.follower.getVelocity().getMagnitude() > 1.5) {
+            if (robot.follower.getVelocity().getMagnitude() > 1.5 || !firstDeInit) {
+                firstDeInit = true;
                 zeroVelocityTimer.resetTimer();
             }
             if (zeroVelocityTimer.getElapsedTimeSeconds() > 1.5) {
@@ -119,6 +129,7 @@ public class CloseAuto18BallRamp3Blue extends OpMode {
 //        }
 
         if (done) {
+            changeTime.add(robot.getOpmodeTimeSeconds());
             currentStep++;
             if (currentStep >= steps.size()) {
                 return;

@@ -37,7 +37,16 @@ public class Intake {
         return !beamBreak.getState();
     }
 
+    boolean superSlowOnce = true;
     public void setIntakePower(double set) {
+        if (Math.abs(set) < 0.15) {
+            if (!superSlowOnce) {
+                superSlowOnce = true;
+                set = -1;
+            }
+        } else {
+            superSlowOnce = false;
+        }
         if (lastPower != set) {
             lastPower = set;
             intakeMotor.setPower(set);
@@ -46,7 +55,7 @@ public class Intake {
 
     public void update(boolean spitIntake, boolean isIntaking, boolean isShooting, boolean forceSpit, boolean allowIntaking, boolean isPlugged, boolean intakeOverride) {
         if (isPlugged && isBeamBroken()) {
-            setIntakePower(0);
+            setIntakePower(Constants.Intake.intakeOffPower/2.0);
         } else if (spitIntake || forceSpit) {
             spit(true);
         } else if ((isIntaking && allowIntaking) || intakeOverride) {
