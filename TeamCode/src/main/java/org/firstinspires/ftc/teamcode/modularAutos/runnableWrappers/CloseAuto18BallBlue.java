@@ -136,9 +136,9 @@ public class CloseAuto18BallBlue extends OpMode {
 //        for (BallColor i : robot.indexer.getBallCells()) {
 //            telemetry.addData("hasBalls", i);
 //        }
-        panelsTelemetry.addData("all", (System.nanoTime() - lastTime) * 1e-6);
-        panelsTelemetry.update();
-        lastTime = System.nanoTime();
+//        panelsTelemetry.addData("all", (System.nanoTime() - lastTime) * 1e-6);
+//        panelsTelemetry.update();
+//        lastTime = System.nanoTime();
     }
 
     private Pose lastPose() {

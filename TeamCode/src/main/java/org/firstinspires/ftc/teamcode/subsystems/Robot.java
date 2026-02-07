@@ -471,10 +471,10 @@ public class Robot {
     double maxHoodAngleChange;
     double lastTime = System.nanoTime();
     public void update(boolean debug) {
-        long now = System.nanoTime();
-        panelsTelemetry.addData("dt", (now - lastTime) * 1e-6);
-        panelsTelemetry.update();
-        lastTime = now;
+//        long now = System.nanoTime();
+//        panelsTelemetry.addData("dt", (now - lastTime) * 1e-6);
+//        panelsTelemetry.update();
+//        lastTime = now;
         for (LynxModule hub : hubs) {
             hub.clearBulkCache();
         }
