@@ -98,7 +98,7 @@ public class CloseAuto15SortBallBlue extends OpMode {
                 firstDeInit = true;
                 zeroVelocityTimer.resetTimer();
             }
-            if (zeroVelocityTimer.getElapsedTimeSeconds() > 10) {
+            if (zeroVelocityTimer.getElapsedTimeSeconds() > 1.5) {
                 requestOpModeStop();
             }
             return;
