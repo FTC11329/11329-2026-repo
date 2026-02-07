@@ -469,11 +469,12 @@ public class Robot {
     double previousHoodAngle;
     double previousTime;
     double maxHoodAngleChange;
+    double lastTime = System.nanoTime();
     public void update(boolean debug) {
-//        long now = System.nanoTime();
-//        panelsTelemetry.addData("dt", (now - lastTime) * 1e-6);
-//        panelsTelemetry.update();
-//        lastTime = now;
+        long now = System.nanoTime();
+        panelsTelemetry.addData("dt", (now - lastTime) * 1e-6);
+        panelsTelemetry.update();
+        lastTime = now;
         for (LynxModule hub : hubs) {
             hub.clearBulkCache();
         }
@@ -486,8 +487,8 @@ public class Robot {
         lightsUpdate();
         vision.update(Math.toDegrees(follower.getPose().getHeading()));
 //        Drawing.drawShapesDebug(follower);
-        telemetry.addData("broke", intake.isBeamBroken());
-        telemetry.addData("error", turret.turretPID.getError());
+//        telemetry.addData("broke", intake.isBeamBroken());
+//        telemetry.addData("error", turret.turretPID.getError());
 
         if (debug) {
             debug();

@@ -45,7 +45,7 @@ public class Constants {
     public static PathConstraints pathConstraints = new PathConstraints(
             0.99,
             100,
-            0.6,
+            0.47,
             1);
 
     public static MecanumConstants driveConstants = new MecanumConstants()

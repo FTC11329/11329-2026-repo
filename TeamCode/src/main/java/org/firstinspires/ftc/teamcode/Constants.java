@@ -48,7 +48,7 @@ public class Constants {
     }
     public static class Shooter {
         public static PIDFCoefficients shooterVelocityPID = new PIDFCoefficients(.005, 0, 0, 0);
-        public static double kV = 4000;
+        public static double kV = 4545;
         public static double RPMoffset = 0;
         public static double closeEnoughRPM = 50;
         public static double ticksPerRevolution = 28;

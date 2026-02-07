@@ -45,15 +45,15 @@ public class Common {
 
     public static class IntakeBallPoses {
         public static Pose intakeSpike1ControlPoint = new Pose(12.2, 20.9, Math.toRadians(90));
-        public static Pose intakeSpike1Start = new Pose(12, 32, Math.toRadians(90));
-        public static Pose intakeSpike1End = new Pose(12, 53, Math.toRadians(90));
+        public static Pose intakeSpike1Start = new Pose(13.5, 32, Math.toRadians(90));
+        public static Pose intakeSpike1End = new Pose(13.5, 53, Math.toRadians(90));
 
         public static Pose intakeSpike2ControlPoint = new Pose(-11.7,19.8, Math.toRadians(90));
-        public static Pose intakeSpike2Start = new Pose(-12, 32, Math.toRadians(90));
-        public static Pose intakeSpike2End = new Pose(-12, 60, Math.toRadians(90));
+        public static Pose intakeSpike2Start = new Pose(-10.5, 32, Math.toRadians(90));
+        public static Pose intakeSpike2End = new Pose(-10.5, 60, Math.toRadians(90));
 
         public static Pose intakeSpike3ControlPoint = new Pose(10.1, 14.9, Math.toRadians(90));
-        public static Pose intakeSpike3Start = new Pose(-32, 32, Math.toRadians(90));
+        public static Pose intakeSpike3Start = new Pose(-30.5, 32, Math.toRadians(90));
         public static Pose intakeSpike3End = new Pose(-36, 60, Math.toRadians(90));
 
         public static Pose movingToPushLeverControlPoint = new Pose(-3.8, 25.3);

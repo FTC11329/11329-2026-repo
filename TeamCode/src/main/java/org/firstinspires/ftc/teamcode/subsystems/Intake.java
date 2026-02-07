@@ -39,10 +39,10 @@ public class Intake {
 
     boolean superSlowOnce = true;
     public void setIntakePower(double set) {
-        if (Math.abs(set) < 0.15) {
+        if (0.15 > set && set > Constants.Intake.intakeOffPower/2.0) {
             if (!superSlowOnce) {
                 superSlowOnce = true;
-                set = -1;
+                set = 0;
             }
         } else {
             superSlowOnce = false;
