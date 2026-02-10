@@ -219,8 +219,14 @@ public class Robot {
 
         shooter.setTargetRPM(s.rpm);
 
-        double deltaDeg = hoodAngleCompensation.hoodAngleCompensation(s.rpm, shooter.getRPM(), s.hoodDeg);
-        rpmRatio = hoodAngleCompensation.getRpmRatio();
+        double deltaDeg;
+        if (shotType == ShotType.TABLE) {
+            deltaDeg = hoodAngleCompensation.hoodAngleCompensation(s.rpm, shooter.getRPM(), s.hoodDeg);
+            rpmRatio = hoodAngleCompensation.getRpmRatio();
+        } else {
+            rpmRatio = 1;
+            deltaDeg = 0;
+        }
 
         shooter.setHoodDeg(s.hoodDeg + deltaDeg);
     }
