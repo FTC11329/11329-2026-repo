@@ -8,17 +8,18 @@ import java.util.List;
 public class ShooterTestValues implements ShooterValuesParent {
     private final ShooterTreeInterpolation shooterMap = new ShooterTreeInterpolation();
 
-    private final double ADDITION = -10; // - shooter farther
-    private final double FAR_ADDITION = 0; // + shooter farther
+    private final double CLOSE_ADDITION = -4; // - shooter farther
+    private final double ADDITION = -8; // - shooter farther
+    private final double FAR_ADDITION = 0; // - shooter farther
     private final double FAR_RPM_ADDITION = -50; // + shooter farther
     public ShooterTestValues() {
         // Distance units must have a consistent unit
-        shooterMap.put(20.2 + ADDITION, new ShooterState(1920, 9, .8125));
-        shooterMap.put(25.2 + ADDITION, new ShooterState(1860, 12, .786));
-        shooterMap.put(30.2 + ADDITION, new ShooterState(1770, 19.1, .672));
-        shooterMap.put(35.2 + ADDITION, new ShooterState(1750, 24.1, .598));
-        shooterMap.put(40.2 + ADDITION, new ShooterState(1800, 25.1, .664));
-        shooterMap.put(45.2 + ADDITION, new ShooterState(1783,30,.602));
+        shooterMap.put(20.2 + ADDITION + CLOSE_ADDITION, new ShooterState(1920, 9, .8125));
+        shooterMap.put(25.2 + ADDITION + CLOSE_ADDITION, new ShooterState(1860, 12, .786));
+        shooterMap.put(30.2 + ADDITION + CLOSE_ADDITION, new ShooterState(1770, 19.1, .672));
+        shooterMap.put(35.2 + ADDITION + CLOSE_ADDITION, new ShooterState(1750, 24.1, .598));
+        shooterMap.put(40.2 + ADDITION + CLOSE_ADDITION, new ShooterState(1800, 25.1, .664));
+        shooterMap.put(45.2 + ADDITION + CLOSE_ADDITION, new ShooterState(1783,30,.602));
         shooterMap.put(50.2 + ADDITION, new ShooterState(1872,30,.684));
         shooterMap.put(55.2 + ADDITION, new ShooterState(1900,30.6,.692));
         shooterMap.put(60.2 + ADDITION, new ShooterState(1940,31,.694));

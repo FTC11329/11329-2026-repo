@@ -35,6 +35,7 @@ public class Lights {
     GoBildaPrismDriver prism;
     boolean debounce = false;
     boolean lastSmartShoot = false;
+    boolean lastBasicallyHas3 = false;
     boolean bigRedBoolean = false;
     Timer bigRedTimer = new Timer();
     BallColor[] lastBallColors = new BallColor[] {BallColor.None, BallColor.None, BallColor.None};
@@ -77,17 +78,17 @@ public class Lights {
         teamColorAnimation.setIndexes(0, 17);
     }
 
-    public void setBallColors(BallColor[] ballColor, BallColor[] queuedBalls, boolean isInSmartShoot) {
+    public void setBallColors(BallColor[] ballColor, BallColor[] queuedBalls, boolean basicallyHas3, boolean isInSmartShoot) {
         if (bigRedBoolean && bigRedTimer.getElapsedTimeSeconds() > 0.2) {
             bigRedBoolean = false;
             ballCellsAnimation = updateBallCellsAnimation(ballColor, ballCellsAnimation);
             queueCellsAnimation = updateBallCellsAnimation(queuedBalls, queueCellsAnimation);
             printColors(isInSmartShoot);
         }
-        if (Arrays.equals(lastBallColors, ballColor) && Arrays.equals(lastQueuedBallColors, queuedBalls) && isInSmartShoot == lastSmartShoot) {
+        if (Arrays.equals(lastBallColors, ballColor) && Arrays.equals(lastQueuedBallColors, queuedBalls) && isInSmartShoot == lastSmartShoot && basicallyHas3 == lastBasicallyHas3) {
             return;
         }
-        if (!isListFull(lastBallColors) && isListFull(ballColor)) {
+        if ((!isListFull(lastBallColors) && isListFull(ballColor) || (!lastBasicallyHas3 && basicallyHas3))) {
             prism.clearAllAnimations();
             prism.insertAndUpdateAnimation(0, bigRed);
             bigRedBoolean = true;

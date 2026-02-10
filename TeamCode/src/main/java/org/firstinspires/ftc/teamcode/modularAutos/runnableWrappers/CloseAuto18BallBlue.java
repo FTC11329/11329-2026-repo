@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.modularAutos.Common;
 import org.firstinspires.ftc.teamcode.modularAutos.Common.*;
 import org.firstinspires.ftc.teamcode.modularAutos.PathPlanner;
+import org.firstinspires.ftc.teamcode.modularAutos.modules.Commands;
 import org.firstinspires.ftc.teamcode.modularAutos.modules.FromShootMidPos;
 import org.firstinspires.ftc.teamcode.modularAutos.modules.FromStartClosePos;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
@@ -86,7 +87,7 @@ public class CloseAuto18BallBlue extends OpMode {
     @Override
     public void loop() {
         // to stop the auto
-        if (robot.getOpmodeTimeSeconds() > 30) {
+        if (robot.getOpmodeTimeSeconds() > 60) {
             for (double time : changeTime) {
                 telemetry.addData("change time", time);
             }
@@ -97,11 +98,11 @@ public class CloseAuto18BallBlue extends OpMode {
             telemetry.update();
 
             robot.stopAllSubsystems();
-            if (robot.follower.getVelocity().getMagnitude() > 1.5 || !firstDeInit) {
+            if (robot.follower.getVelocity().getMagnitude() > 0.5 || !firstDeInit) {
                 firstDeInit = true;
                 zeroVelocityTimer.resetTimer();
             }
-            if (zeroVelocityTimer.getElapsedTimeSeconds() > 1.5) {
+            if (zeroVelocityTimer.getElapsedTimeSeconds() > 10) {
                 requestOpModeStop();
             }
             return;

@@ -336,6 +336,7 @@ public class Indexer {
         // Stops if unjamming
         if (unjam) {
             unjamUpdate();
+            spinTransferWheelUpdate();
             return;
         }
 

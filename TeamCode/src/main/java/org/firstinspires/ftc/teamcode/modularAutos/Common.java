@@ -9,16 +9,16 @@ public class Common {
     // Close is close to goal (so usually higher x)
     // Outer is closer to driver wall (so usually higher y)
 
-    public static Pose toRedOffset = new Pose(-1,0,0); // red offset remember y is reversed
+    public static Pose toRedOffset = new Pose(-2.25,-0.75,0); // red offset remember y is reversed
     public static boolean wasLastRed = false;
     public static class Timings {
         public static int moveAwayRampAmount = 3; // balls
 
         public static double spikeIntakeTimeOut = 1.25;
 
-        public static double shortLeverPressTime = 0.5;
-        public static double longLeverPressTime = 2;
-        public static double shortSTunnelIntakeTimeOut = 1.5;
+        public static double shortLeverPressTime = 0.3;
+        public static double longLeverPressTime = 1.5;
+        public static double shortSTunnelIntakeTimeOut = 1.2;
         public static double longSTunnelIntakeTimeOut = 0;
 
         public static double humanIntakeTime = 1;
@@ -36,10 +36,12 @@ public class Common {
     public static class StartPoses {
         public static Pose closeInner = new Pose(62.5, 39, Math.toRadians(-90));
         public static Pose far = new Pose(-63.5, 15.75, Math.toRadians(0));
+        public static Pose reZeroAtCorner = new Pose(-65, -61, Math.toRadians(-90));
 
         static void convert(boolean toRed) {
             closeInner = convertToRed(closeInner, toRed, true);
             far = convertToRed(far, toRed, true);
+            reZeroAtCorner = convertToRed(reZeroAtCorner, toRed, true);
         }
     }
 

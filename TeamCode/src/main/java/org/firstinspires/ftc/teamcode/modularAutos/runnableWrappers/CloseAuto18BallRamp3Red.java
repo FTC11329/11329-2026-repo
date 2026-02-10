@@ -8,7 +8,6 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.modularAutos.Common;
 import org.firstinspires.ftc.teamcode.modularAutos.Common.StartPoses;
 import org.firstinspires.ftc.teamcode.modularAutos.PathPlanner;
-import org.firstinspires.ftc.teamcode.modularAutos.modules.Commands;
 import org.firstinspires.ftc.teamcode.modularAutos.modules.FromShootMidPos;
 import org.firstinspires.ftc.teamcode.modularAutos.modules.FromStartClosePos;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
@@ -21,8 +20,8 @@ import org.firstinspires.ftc.teamcode.util.RobotSide;
 import java.util.ArrayList;
 import java.util.List;
 
-@Autonomous(name = "Close 18 Red", group = "       Testing", preselectTeleOp = "Main Teleop Red")
-public class CloseAuto18BallRed extends OpMode {
+@Autonomous(name = "Close 18  3 Ramp Red", group = "       Testing", preselectTeleOp = "Main Teleop Red")
+public class CloseAuto18BallRamp3Red extends OpMode {
     Pose startPose;
     RobotSide robotSide;
     Robot robot;
@@ -39,7 +38,7 @@ public class CloseAuto18BallRed extends OpMode {
         robotSide = RobotSide.Red;
         robot = new Robot(telemetry, hardwareMap, robotSide, 0,0,
                 new BallColor[]{
-                        BallColor.Green,
+                        BallColor.Purple,
                         BallColor.Purple,
                         BallColor.Purple
                 });
@@ -48,13 +47,13 @@ public class CloseAuto18BallRed extends OpMode {
         startPose = StartPoses.closeInner;
 
         steps.add(new FromStartClosePos.ShootAndGoToMidShootPos(robot, lastPose()));
-        steps.add(new FromShootMidPos.ToIntakeSpike2  (robot, lastPose(), false,  false, false));
-        steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPose(), false,  false, true));
-        steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPose(), false,  false, true));
-        steps.add(new FromShootMidPos.ToIntakeSpike1  (robot, lastPose(), false,  false, false));
-        steps.add(new FromShootMidPos.ToIntakeSpike3  (robot, lastPose(), false,  true));
+        steps.add(new FromShootMidPos.ToIntakeSpike2  (robot, lastPose(), false, false, false));
+        steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPose(), false, false, true));
+        steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPose(), false, false, true));
+        steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPose(), false, false, true));
+//        steps.add(new Commands.WaitUntilRemainingTime(robot, lastPose(), 26.2));
+        steps.add(new FromShootMidPos.ToIntakeSpike1  (robot, lastPose(), false, true, false));
 
-//        steps.add(new Commands.goToPose(robot, lastPose(), new Pose(0,0, Math.toRadians(-90))));
         robot.follower.setPose(startPose);
     }
 
@@ -62,7 +61,6 @@ public class CloseAuto18BallRed extends OpMode {
     public void init_loop() {
         telemetry.addData("start pose", startPose);
         telemetry.addData("shoot pose", Common.ShootPoses.midShoot);
-        telemetry.addData("red", Common.wasLastRed);
         telemetry.addLine("=== Motif ===");
         BallColor[] motif = robot.getMotif(true);
         if (motif == null) {
@@ -75,7 +73,6 @@ public class CloseAuto18BallRed extends OpMode {
 
         telemetry.update();
     }
-
     @Override
     public void start() {
         robot.start();
@@ -111,6 +108,7 @@ public class CloseAuto18BallRed extends OpMode {
 
         robot.update();
         robot.prepareShooter();
+//        Drawing.drawDebug(robot.follower);
 
         // Stops the robot if done
         if (currentStep >= steps.size()) {
@@ -123,20 +121,20 @@ public class CloseAuto18BallRed extends OpMode {
         PathPlanner step = steps.get(currentStep);
         boolean done = step.run();
 
+//        telemetry.addData("time", robot.getOpmodeTimeSeconds());
+//        telemetry.addData("name", step);
+//        for (BallColor i : robot.indexer.getBallCells()) {
+//            telemetry.addData("hasBalls", i);
+//        }
 
         if (done) {
+            changeTime.add(robot.getOpmodeTimeSeconds());
             currentStep++;
             if (currentStep >= steps.size()) {
                 return;
             }
             steps.get(currentStep).buildPaths();
         }
-//        Drawing.drawDebug(robot.follower);
-//        telemetry.addData("time", robot.getOpmodeTimeSeconds());
-//        telemetry.addData("name", step);
-//        for (BallColor i : robot.indexer.getBallCells()) {
-//            telemetry.addData("hasBalls", i);
-//        }
 //        panelsTelemetry.addData("all", (System.nanoTime() - lastTime) * 1e-6);
 //        panelsTelemetry.update();
 //        lastTime = System.nanoTime();

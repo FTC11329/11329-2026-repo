@@ -94,11 +94,11 @@ public class CloseAuto15SortBallBlue extends OpMode {
             telemetry.update();
 
             robot.stopAllSubsystems();
-            if (robot.follower.getVelocity().getMagnitude() > 1.5 || !firstDeInit) {
+            if (robot.follower.getVelocity().getMagnitude() > 0.5 || !firstDeInit) {
                 firstDeInit = true;
                 zeroVelocityTimer.resetTimer();
             }
-            if (zeroVelocityTimer.getElapsedTimeSeconds() > 1.5) {
+            if (zeroVelocityTimer.getElapsedTimeSeconds() > 2) {
                 requestOpModeStop();
             }
             return;

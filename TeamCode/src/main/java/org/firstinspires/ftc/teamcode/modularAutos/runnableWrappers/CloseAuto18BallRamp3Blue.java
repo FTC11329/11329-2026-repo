@@ -21,7 +21,7 @@ import org.firstinspires.ftc.teamcode.util.RobotSide;
 import java.util.ArrayList;
 import java.util.List;
 
-@Autonomous(name = "Close 18 z3 Ramp Blue", group = "       Testing", preselectTeleOp = "Main Teleop Blue")
+@Autonomous(name = "Close 18  3 Ramp Blue", group = "       Testing", preselectTeleOp = "Main Teleop Blue")
 public class CloseAuto18BallRamp3Blue extends OpMode {
     Pose startPose;
     RobotSide robotSide;
@@ -49,7 +49,7 @@ public class CloseAuto18BallRamp3Blue extends OpMode {
 
         steps.add(new FromStartClosePos.ShootAndGoToMidShootPos(robot, lastPose()));
         steps.add(new FromShootMidPos.ToIntakeSpike2  (robot, lastPose(), false, false, false));
-        steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPose(), false, false, false));
+        steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPose(), false, false, true));
         steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPose(), false, false, true));
         steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPose(), false, false, true));
 //        steps.add(new Commands.WaitUntilRemainingTime(robot, lastPose(), 26.2));
@@ -97,11 +97,11 @@ public class CloseAuto18BallRamp3Blue extends OpMode {
             telemetry.update();
 
             robot.stopAllSubsystems();
-            if (robot.follower.getVelocity().getMagnitude() > 1.5 || !firstDeInit) {
+            if (robot.follower.getVelocity().getMagnitude() > 0.5 || !firstDeInit) {
                 firstDeInit = true;
                 zeroVelocityTimer.resetTimer();
             }
-            if (zeroVelocityTimer.getElapsedTimeSeconds() > 1.5) {
+            if (zeroVelocityTimer.getElapsedTimeSeconds() > 2) {
                 requestOpModeStop();
             }
             return;
