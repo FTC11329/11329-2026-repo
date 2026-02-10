@@ -183,7 +183,8 @@ public class MainTeleop {
         }
 
         if (autoShoot.isOn) {
-            robot.prepareShooter(panicShoot.isOn);
+//            robot.prepareShooter(panicShoot.isOn);
+            robot.calculateIdealShot();
         } else if (autoShoot.endPress) {
 //            robot.casualShooterModeOn();
             robot.shooter.stop();

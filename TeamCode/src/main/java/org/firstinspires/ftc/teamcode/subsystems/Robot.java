@@ -266,17 +266,18 @@ public class Robot {
         double shooterRPM = farBack() ? futureShooterParams.rpm + 150: futureShooterParams.rpm;
         shooter.adjustTargetRPM(shooterRPM);
 
-        double deltaDeg = hoodAngleCompensation(futureShooterParams);
+        double deltaDeg = hoodAngleCompensation(futureShooterParams.rpm, futureShooterParams.hoodAngle);
 
         // gets hood angle
         shooter.setHoodDeg(futureShooterParams.hoodAngle + deltaDeg);
     }
 
-    public double hoodAngleCompensation(ShooterState futureShooterParams) {
-        double hoodDeg = futureShooterParams.hoodAngle;
+    public double hoodAngleCompensation(double targetRPM, double hoodDeg) {
+
         double hoodRad = Math.toRadians(hoodDeg);
 
-        rpmRatio = futureShooterParams.rpm / shooter.getRPM();
+        rpmRatio = clamp(targetRPM / shooter.getRPM(), 0.8, 1.2);
+
 
         double correctedRad =
                 Math.atan(rpmRatio * Math.tan(hoodRad));
@@ -284,19 +285,13 @@ public class Robot {
         double deltaDeg =
                 Math.toDegrees(correctedRad - hoodRad);
 
-        if (Math.abs(deltaDeg) < .7) {
-            deltaDeg = 0;
-        }
+        if (Math.abs(deltaDeg) < .7) deltaDeg = 0;
 
         deltaDeg = clamp(deltaDeg, -8.0, 8.0);
 
-        if (smartShoot) {
-            deltaDeg = 0;
-        }
+        if (smartShoot) deltaDeg = 0;
+
         return deltaDeg;
-    }
-    public void setShooterTargetRPM(double set) {
-        shooter.setTargetRPM(set);
     }
 
     public void calculateIdealShot() {
@@ -331,7 +326,7 @@ public class Robot {
 
         double distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 
-        double entryAngle = Math.toRadians(-45);
+        double entryAngle = Math.toRadians(-25);
 
         double hoodAngle = Math.atan(2 * height / distance - Math.tan(entryAngle));
         double flywheelSpeed = Math.sqrt(g * distance * distance / (2 * Math.pow(Math.cos(hoodAngle), 2) * (distance * Math.tan(hoodAngle) - height)));
@@ -356,14 +351,24 @@ public class Robot {
         panelsTelemetry.addData("target hood angle", hoodAngle);
         panelsTelemetry.addData("target velocity", flywheelSpeed);
 
+
         turret.setTargetRad(angleToGoal - turretVelocityOffset - curPose.getHeading());
 
-        shooter.setHoodRad((Math.toRadians(hoodAngleOffset)) + Math.PI/2 - hoodAngle - hoodAngleOffset);
+        double targetRPM = shooter.velocityToRPM(flywheelSpeed);
+        panelsTelemetry.addData("target rpm", targetRPM);
+
+        double hoodDeg = Math.toDegrees(Math.PI/2 - hoodAngle);
+
+        double deltaDeg = hoodAngleCompensation(targetRPM, hoodDeg);
+//        double deltaDeg = 0;
+        double correctedHoodDeg = hoodDeg + deltaDeg + hoodAngleOffset;
+
+        shooter.setHoodDeg(correctedHoodDeg);
 
         double dragCoefficient = .00437 * .6;
         double dragCompensation = Math.pow(Math.E, dragCoefficient * distanceToGoal());
 
-        shooter.setTargetRPM(rpmOffset + shooter.velocityToRPM(flywheelSpeed)); // todo: fix the velocity to rpm function
+        shooter.setTargetRPM(targetRPM); // todo: fix the velocity to rpm function
     }
 
     double pictureTime = 0;
@@ -475,10 +480,6 @@ public class Robot {
     double maxHoodAngleChange;
     double lastTime = System.nanoTime();
     public void update(boolean debug) {
-        long now = System.nanoTime();
-        panelsTelemetry.addData("dt", (now - lastTime) * 1e-6);
-        panelsTelemetry.update();
-        lastTime = now;
         for (LynxModule hub : hubs) {
             hub.clearBulkCache();
         }
@@ -489,14 +490,15 @@ public class Robot {
         turretUpdate();
         follower.update();
         lightsUpdate();
-        vision.update(Math.toDegrees(follower.getPose().getHeading()));
-//        Drawing.drawShapesDebug(follower);
-//        telemetry.addData("broke", intake.isBeamBroken());
-//        telemetry.addData("error", turret.turretPID.getError());
 
         if (debug) {
             debug();
         }
+        long now = System.nanoTime();
+        panelsTelemetry.addData("RPM", shooter.getRPM());
+        panelsTelemetry.addData("dt", (now - lastTime) * 1e-6);
+        panelsTelemetry.update();
+        lastTime = now;
     }
 
     public void debug() {

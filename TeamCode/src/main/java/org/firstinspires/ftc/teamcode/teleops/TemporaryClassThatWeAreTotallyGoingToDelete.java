@@ -13,13 +13,16 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.teamcode.subsystems.Indexer;
+import org.firstinspires.ftc.teamcode.subsystems.Robot;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
+import org.firstinspires.ftc.teamcode.util.RobotSide;
 
 import java.util.List;
 
 @TeleOp(name = "TEST", group = "       group")
 public class TemporaryClassThatWeAreTotallyGoingToDelete extends OpMode {
     Shooter shooter;
+    Robot robot;
     List<LynxModule> hubs;
     Indexer indexer;
     TelemetryManager panelsTelemetry;
@@ -35,17 +38,13 @@ public class TemporaryClassThatWeAreTotallyGoingToDelete extends OpMode {
     TouchSensor touchSensor;
     @Override
     public void init() {
-        indexer = new Indexer(hardwareMap);
+        robot = new Robot(telemetry, hardwareMap, RobotSide.Blue, 0, 0);
+        shooter.setHoodDeg(30);
+        shooter.setTargetRPM(2400);
     }
 
     @Override
     public void loop() {
-        telemetry.addData("color", indexer.getColor());
-        telemetry.addData("red", indexer.getColorRGBA().red);
-        telemetry.addData("green", indexer.getColorRGBA().green);
-        telemetry.addData("blue", indexer.getColorRGBA().blue);
-        telemetry.addData("alpha", indexer.getColorRGBA().alpha);
-        telemetry.addData("dis", indexer.getDistance());
-
+        shooter.update();
     }
 }

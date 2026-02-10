@@ -134,15 +134,15 @@ public class Shooter {
     }
 
     public double velocityToRPM_Regression(double exitVelocity) {
-        double a = 0.0013149578634563265;
-        double b = 5.559109887421296;
-        double c = 741.0912371298367;
+        double a = 0;
+        double b = 14.3659377869;
+        double c = 400;
         return a * exitVelocity * exitVelocity + b * exitVelocity + c;
     }
 
     public double velocityToRPM(double exitVelocity) {
         // exitVelocity in in/s
-        double wheelDiameter = 2.0;
+        double wheelDiameter = 1.75;
 
         double surfaceVelocity = PI * wheelDiameter;
 
