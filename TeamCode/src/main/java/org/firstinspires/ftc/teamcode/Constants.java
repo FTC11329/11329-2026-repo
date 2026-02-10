@@ -28,6 +28,8 @@ public class Constants {
         public static Pose blueGoal = new Pose(60, 60);
         public static Pose redGoalAimOffset = new Pose(0, 0);
         public static Pose blueGoalAimOffset = new Pose(0, 2.5);
+        public static Pose redGoalPhysics = new Pose(67, -67);
+        public static Pose blueGoalPhysics = new Pose(67, 67);
     }
 
     public static class Turret {
@@ -54,6 +56,8 @@ public class Constants {
         public static double ticksPerRevolution = 28;
         public static double minHoodAngle = 5;
         public static double maxHoodAngle = 53.5;
+        public static double entryAngle = Math.toRadians(-25);
+        public static double entryHeight = 32;
     }
     public static class Color {
         public static double[] green = {0.0269, 0.0792, 0.06, 0.9551}; //0.743

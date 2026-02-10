@@ -1,12 +1,9 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import android.os.FileUtils;
-
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -16,15 +13,17 @@ import org.firstinspires.ftc.teamcode.modularAutos.Common;
 import org.firstinspires.ftc.teamcode.pedroPathing.Drawing;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
-import org.firstinspires.ftc.teamcode.pedroPathing.math.Vector;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.FieldShapes;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
 import org.firstinspires.ftc.teamcode.util.ShapeDetection;
-import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterState;
+import org.firstinspires.ftc.teamcode.util.ShootOnTheFly.HoodAngleCompensation;
+import org.firstinspires.ftc.teamcode.util.ShootOnTheFly.ShotCalculator;
+import org.firstinspires.ftc.teamcode.util.ShootOnTheFly.ShotContext;
+import org.firstinspires.ftc.teamcode.util.ShootOnTheFly.ShotSolution;
+import org.firstinspires.ftc.teamcode.util.ShootOnTheFly.ShotType;
 import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterTestValues;
-import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterValuesParent;
 
 import java.util.List;
 //todo import java.awt.Shape to make the inShootingZone() better
@@ -41,9 +40,8 @@ public class Robot {
     public RobotSide robotSide;
     public Drivetrain drivetrain;
     public Indexer indexer;
-
-
-    ShooterTestValues shooterTestValues;
+    private ShotCalculator shotCalculator;
+    private HoodAngleCompensation hoodAngleCompensation;
     public ElapsedTime shooterTimer;
     TelemetryManager panelsTelemetry;
 
@@ -84,11 +82,12 @@ public class Robot {
         turret = new Turret(hardwareMap, startTurretTicks, robotSide);
         drivetrain = new Drivetrain(hardwareMap);
         shooter = new Shooter(hardwareMap);
+        shotCalculator = new ShotCalculator();
+        hoodAngleCompensation = new HoodAngleCompensation();
 
         follower.setStartingPose(new Pose(0,0,0));
 
         shooterTimer = new ElapsedTime();
-        shooterTestValues = new ShooterTestValues();
         shooter.resetController();
 
         if (robotSide == RobotSide.Blue)  {
@@ -188,188 +187,43 @@ public class Robot {
         this.shootFromPose = shootFromPose;
     }
 
-    public void prepareShooter(boolean panic) {
-        if (panic) {
-            prepareShooter(Common.ShootPoses.panicShoot);
-        } else {
-            prepareShooter();
-        }
-    }
     public void prepareShooter() {
-        if (shootFromPose == null) {
-            prepareShooter(follower.getCenterOfShooterPose());
-        } else {
-            prepareShooter(shootFromPose);
-        }
+        prepareShooter(ShotType.TABLE);
     }
-
-    //corrects the hood, turret, and shooter rpm
-    double lastTimeTurret = 0;
-    double lastAngleToGoal = 0;
     double rpmRatio = 1;
-    double previousTOF;
-    double lastTOFtime;
-    double previousVelocityTime = System.nanoTime();
-    public void prepareShooter(Pose currentPose) {
-        ShooterValuesParent stv = shooterTestValues;
+    public void prepareShooter(ShotType shotType) {
+        ShotContext ctx = new ShotContext();
 
-        Pose futrGoal = goal;
-        if (robotSide == RobotSide.Blue)  {
-            goal = Constants.Vision.blueGoal;
-        } else {
-            goal = Constants.Vision.redGoal;
-        }
-        goal = goal.plus(offsetPose);
-
-        // Est Time In Flight for ball at current pose
-        double timeInFlight = (1 / rpmRatio) * stv.get(currentPose.distanceFrom(futrGoal)).timeInFlight;
-        Vector virtualVelocity = follower.getVelocity();
-        futrGoal = goal.plusVector(virtualVelocity, - timeInFlight);
-
-        timeInFlight = (1 / rpmRatio) * stv.get(currentPose.distanceFrom(futrGoal)).timeInFlight;
-        futrGoal = goal.plusVector(virtualVelocity, - timeInFlight); //todo test if this iteration helps or hurts
-
-        double rateOfChangeOfTOF = (timeInFlight - previousTOF) / ((System.nanoTime() - lastTOFtime) / 1e-9);
-        lastTOFtime = System.nanoTime();
-
-        // Logic for future pose
-
-        Pose goalOffset;
+        ctx.robotPose = follower.getCenterOfShooterPose();
+        Pose goalPose;
         if (robotSide == RobotSide.Blue) {
-            goalOffset = Constants.Vision.blueGoalAimOffset;
+            goalPose = shotType == ShotType.PHYSICAL ? Constants.Vision.blueGoalPhysics : Constants.Vision.blueGoal;
         } else {
-            goalOffset = Constants.Vision.redGoalAimOffset;
+            goalPose = shotType == ShotType.PHYSICAL ? Constants.Vision.redGoalPhysics : Constants.Vision.redGoal;
         }
+        ctx.goalPose = goalPose.plus(offsetPose);
+        ctx.velocity = follower.getVelocity();
+        ctx.acceleration = follower.getAcceleration();
+        ctx.side = robotSide;
+        ctx.rpmRatio = rpmRatio;
 
-        double deltaXFutr = futrGoal.getX() + goalOffset.getX() - currentPose.getX();
-        double deltaYFutr = futrGoal.getY() + goalOffset.getY() - currentPose.getY();
-        double angleToGoalFutr = Math.toDegrees(Math.atan2(deltaYFutr, deltaXFutr));
 
-        Vector virtualGoalVelocity = follower.getAcceleration().times(-timeInFlight).minus(follower.getVelocity().times(rateOfChangeOfTOF));
-        Vector velocity = follower.getVelocity().minus(virtualGoalVelocity);
+        ShotSolution s = shotCalculator.solveShot(ctx, shotType);
 
-        // this is to pass to the feed forward on the turret to offset for the rate of change of the angle to goal
-        double r2 = ((deltaXFutr * deltaXFutr) + (deltaYFutr * deltaYFutr));
-        angleToGoalVelocity = ((deltaXFutr * velocity.getYComponent()) - (deltaYFutr * velocity.getXComponent())) / r2;
+        // expose turret feedforward
+        angleToGoalVelocity = s.turretVel;
+        angleToGoalAcceleration = s.turretAccel;
 
-        angleToGoalAcceleration = (angleToGoalVelocity - previousAngleToGoalVelocity) / (System.nanoTime() - previousVelocityTime);
-        previousVelocityTime = System.nanoTime();
-        previousAngleToGoalVelocity = angleToGoalVelocity;
+        turret.setTargetRad(s.turretAngleRad);
 
-        // Sets Turret angle
-        turret.setTargetDeg(angleToGoalFutr - Math.toDegrees(currentPose.getHeading()));
+        shooter.setTargetRPM(s.rpm);
 
-        // Gets shooter params based on future pose
-        ShooterState futureShooterParams = stv.get(currentPose.distanceFrom(futrGoal));
+        double deltaDeg = hoodAngleCompensation.hoodAngleCompensation(s.rpm, shooter.getRPM(), s.hoodDeg);
+        rpmRatio = hoodAngleCompensation.getRpmRatio();
 
-        // Sets shooter rpm
-        double shooterRPM = farBack() ? futureShooterParams.rpm + 150: futureShooterParams.rpm;
-        shooter.adjustTargetRPM(shooterRPM);
-
-        double deltaDeg = hoodAngleCompensation(futureShooterParams.rpm, futureShooterParams.hoodAngle);
-
-        // gets hood angle
-        shooter.setHoodDeg(futureShooterParams.hoodAngle + deltaDeg);
+        shooter.setHoodDeg(s.hoodDeg + deltaDeg);
     }
 
-    public double hoodAngleCompensation(double targetRPM, double hoodDeg) {
-
-        double hoodRad = Math.toRadians(hoodDeg);
-
-        rpmRatio = clamp(targetRPM / shooter.getRPM(), 0.8, 1.2);
-
-
-        double correctedRad =
-                Math.atan(rpmRatio * Math.tan(hoodRad));
-
-        double deltaDeg =
-                Math.toDegrees(correctedRad - hoodRad);
-
-        if (Math.abs(deltaDeg) < .7) deltaDeg = 0;
-
-        deltaDeg = clamp(deltaDeg, -8.0, 8.0);
-
-        if (smartShoot) deltaDeg = 0;
-
-        return deltaDeg;
-    }
-
-    public void calculateIdealShot() {
-        calculateIdealShot(0, 0);
-    }
-    public void calculateIdealShot(double rpmOffset, double hoodAngleOffset) {
-        double g = 386.09;
-
-        // Gets current Pose
-        Pose curPose = follower.getCenterOfShooterPose();
-
-        // Gets goal Pose
-        if (robotSide == RobotSide.Blue)  {
-            goal = Constants.Vision.blueGoal;
-        } else {
-            goal = Constants.Vision.redGoal;
-        }
-        goal = goal.plus(offsetPose);
-
-
-        double height = 32;
-        double deltaX = goal.getX() - curPose.getX();
-        double deltaY = goal.getY() - curPose.getY();
-        double angleToGoal = (Math.atan2(deltaY, deltaX));
-
-        // this is to pass to the feed forward on the turret to offset for the rate of change of the angle to goal
-        angleToGoalVelocity = -((angleToGoal - lastAngleToGoal) / ((System.nanoTime() - lastTimeTurret) * 1e-9));
-        angleToGoalVelocity += follower.getAngularVelocity();
-
-        lastAngleToGoal = angleToGoal;
-        lastTimeTurret = System.nanoTime();
-
-        double distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-
-        double entryAngle = Math.toRadians(-25);
-
-        double hoodAngle = Math.atan(2 * height / distance - Math.tan(entryAngle));
-        double flywheelSpeed = Math.sqrt(g * distance * distance / (2 * Math.pow(Math.cos(hoodAngle), 2) * (distance * Math.tan(hoodAngle) - height)));
-
-        Vector robotVelocity = follower.getVelocity();
-
-        double coordinateTheta = robotVelocity.getTheta() - angleToGoal;
-
-        double parallelComponent = - Math.cos(coordinateTheta) * robotVelocity.getMagnitude();
-        double perpendicularComponent = Math.sin(coordinateTheta) * robotVelocity.getMagnitude();
-
-        double vz = flywheelSpeed * Math.sin(hoodAngle);
-        double time = distance / (flywheelSpeed * Math.cos(hoodAngle));
-        double ivr = distance / time + parallelComponent;
-        double nvr = Math.sqrt(ivr * ivr + perpendicularComponent * perpendicularComponent);
-        double ndr = nvr * time;
-
-        hoodAngle = Math.atan(vz / nvr);
-        flywheelSpeed = Math.sqrt(g * ndr * ndr / (2 * Math.pow(Math.cos(hoodAngle), 2) * (distance * Math.tan(hoodAngle) - height)));
-
-        double turretVelocityOffset = Math.atan2(perpendicularComponent, ivr);
-        panelsTelemetry.addData("target hood angle", hoodAngle);
-        panelsTelemetry.addData("target velocity", flywheelSpeed);
-
-
-        turret.setTargetRad(angleToGoal - turretVelocityOffset - curPose.getHeading());
-
-        double targetRPM = shooter.velocityToRPM(flywheelSpeed);
-        panelsTelemetry.addData("target rpm", targetRPM);
-
-        double hoodDeg = Math.toDegrees(Math.PI/2 - hoodAngle);
-
-        double deltaDeg = hoodAngleCompensation(targetRPM, hoodDeg);
-//        double deltaDeg = 0;
-        double correctedHoodDeg = hoodDeg + deltaDeg + hoodAngleOffset;
-
-        shooter.setHoodDeg(correctedHoodDeg);
-
-        double dragCoefficient = .00437 * .6;
-        double dragCompensation = Math.pow(Math.E, dragCoefficient * distanceToGoal());
-
-        shooter.setTargetRPM(targetRPM); // todo: fix the velocity to rpm function
-    }
 
     double pictureTime = 0;
     public void shooterUpdate() {
@@ -496,6 +350,7 @@ public class Robot {
         }
         long now = System.nanoTime();
         panelsTelemetry.addData("RPM", shooter.getRPM());
+        panelsTelemetry.addData("RPM error", shooter.shooterPID.getError());
         panelsTelemetry.addData("dt", (now - lastTime) * 1e-6);
         panelsTelemetry.update();
         lastTime = now;
