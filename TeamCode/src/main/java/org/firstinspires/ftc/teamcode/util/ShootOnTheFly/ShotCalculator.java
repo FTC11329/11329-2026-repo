@@ -9,6 +9,7 @@ import org.firstinspires.ftc.teamcode.util.RobotSide;
 import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterState;
 import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterTestValues;
 import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterValuesParent;
+import org.locationtech.jts.math.Vector3D;
 
 public class ShotCalculator {
     public ShotSolution solveShot(ShotContext ctx, ShotType mode) {
@@ -110,6 +111,11 @@ public class ShotCalculator {
                         (2 * Math.pow(Math.cos(hoodAngle), 2) *
                                 (distance * Math.tan(hoodAngle) - height)));
 
+        double theta = angleToGoal;
+        double omega = hoodAngle;
+
+        Vector3D vel = new Vector3D(flywheelSpeed * Math)
+
         double coordinateTheta = ctx.velocity.getTheta() - angleToGoal;
         double parallel = -Math.cos(coordinateTheta) * ctx.velocity.getMagnitude();
         double perp = Math.sin(coordinateTheta) * ctx.velocity.getMagnitude();
@@ -152,6 +158,46 @@ public class ShotCalculator {
 
         return shotSolution;
     }
+
+    private ShotSolution solveIdealShotCorrect(ShotContext ctx) {
+
+        ShotSolution shotSolution = new ShotSolution();
+
+        double g = 386.09;
+        double height = Constants.Shooter.entryHeight;
+        double entryAngle = Constants.Shooter.entryAngle;
+
+        double deltaX = ctx.goalPose.getX() - ctx.robotPose.getX();
+        double deltaY = ctx.goalPose.getY() - ctx.robotPose.getY();
+        double angleToGoal = Math.atan2(deltaY, deltaX);
+
+        double distance = Math.hypot(deltaX, deltaY);
+
+        double hoodAngle = Math.atan(2 * height / distance - Math.tan(entryAngle));
+        double flywheelSpeed =
+                Math.sqrt(g * distance * distance /
+                        (2 * Math.pow(Math.cos(hoodAngle), 2) *
+                                (distance * Math.tan(hoodAngle) - height)));
+
+        double theta = angleToGoal;
+        double omega = hoodAngle;
+
+        Vector3D vel = new Vector3D(flywheelSpeed * Math.cos(omega) * Math.sin(theta), flywheelSpeed * Math.cos(omega) * Math.cos(theta), flywheelSpeed * Math.sin(omega));
+        vel = vel.subtract(new Vector3D(ctx.velocity.getXComponent(), ctx.velocity.getYComponent(), 0));
+        double turretVelocityOffset = Math.atan2(vel.getY(), vel.getX());
+        flywheelSpeed = vel.length();
+        hoodAngle = Math.atan2(vel.getZ(), Math.hypot(vel.getY(), vel.getX()));
+
+        shotSolution.turretAngleRad = turretVelocityOffset - ctx.robotPose.getHeading();
+
+        shotSolution.hoodDeg = Math.toDegrees(Math.PI/2 - hoodAngle);
+        shotSolution.rpm = velocityToRPM(flywheelSpeed);
+        shotSolution.tof = distance / flywheelSpeed * Math.cos(omega);
+        shotSolution.futureGoal = ctx.goalPose;
+
+        return shotSolution;
+    }
+
     private static double velocityToRPM(double exitVelocity) {
         // exitVelocity in in/s
         double wheelDiameter = 1.75;
