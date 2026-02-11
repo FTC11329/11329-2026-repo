@@ -108,7 +108,7 @@ public class Turret {
         turretPID.updatePosition(curAngle);  // degrees
         double velocityFF = angVel * Constants.Turret.kV;
         double accelerationFF = angAccel * Constants.Turret.kA;
-        setPower(turretPID.run() + velocityFF + accelerationFF);
+        setPower(turretPID.run() - velocityFF - accelerationFF);
     }
 
     public double getAngularError(double currentAngle, double targetAngle) {

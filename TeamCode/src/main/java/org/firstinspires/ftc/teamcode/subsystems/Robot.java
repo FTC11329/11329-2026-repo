@@ -152,14 +152,30 @@ public class Robot {
         offsetPose = new Pose();
         follower.setPose(Common.StartPoses.reZeroAtCorner);
     }
-    Pose holdPose;
-    public void holdPoint(boolean hold) {
-        if (holdPose == null){holdPose = getCurrentPose();}
-        else {
-            follower.holdPoint(holdPose);
+    public void setAveragePose() {
+        Pose newPose = vision.averageRobotPose();
+        if (newPose != null) {
+            follower.setPose(newPose);
         }
-        if (!hold){holdPose = null;}
     }
+    public void clearAveragePose() {
+        vision.clearPoseList();
+    }
+    public void setPipelineIndex(int index) {
+        set = false;
+        pipelineIndex = index;
+        vision.pipelineSwitch(index);
+    }
+    public int pipelineIndex;
+    public boolean set;
+    public void visionUpdate() {
+        if (!set && vision.getPipeline() != pipelineIndex) {
+            vision.pipelineSwitch(pipelineIndex);
+        } else {
+            set = true;
+        }
+    }
+
     // TURRET**************************************************************************************~
 
     double angleToGoalVelocity;
@@ -357,20 +373,18 @@ public class Robot {
         turretUpdate();
         follower.update();
         lightsUpdate();
+        visionUpdate();
 
-        panelsTelemetry.addData("turret err", (turret.turretPID.getTargetPosition() - turret.getAngle()));
-        panelsTelemetry.addData("turret target", turret.turretPID.getTargetPosition());
-        panelsTelemetry.addData("turret actual", turret.getAngle());
-        panelsTelemetry.addData("RPM", shooter.getRPM());
-        panelsTelemetry.addData("hood angle", shooter.getHoodPosDeg());
-        panelsTelemetry.addData("target rpm", shooter.shooterPID.getTargetPosition());
-        panelsTelemetry.addData("rpm error", shooter.shooterPID.getError());
+        panelsTelemetry.addData("velocity", follower.getVelocity().getMagnitude());
+        panelsTelemetry.addData("acceleration", follower.getAcceleration().getMagnitude());
+        Drawing.drawShapesDebug(this.follower);
 
+        telemetry.addData("List length", vision.listLength());
+        telemetry.update();
         if (debug) {
             debug();
         }
         panelsTelemetry.update();
-
     }
 
     public void debug() {
@@ -414,7 +428,6 @@ public class Robot {
 //        panelsTelemetry.addData("turret pow", turret.turretPID.run());
 //        panelsTelemetry.addData("turret Accel", angleToGoalAcceleration);
 //        panelsTelemetry.addData("turret velocity", angleToGoalVelocity);
-//        Drawing.drawShapesDebug(this.follower);
 
         telemetry.addData("encoder", indexer.getEncoderPercentage());
         telemetry.addData("Indexer Encoder Offset", indexer.encoderOffsetFromAuto);

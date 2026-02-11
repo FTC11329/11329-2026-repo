@@ -196,8 +196,10 @@ public class MainTeleop {
             robot.indexerUnjam();
         }
         // Take Photo to set position
-        if (takePhoto.isOn) {
-            robot.autoSetCurrentPose();
+        if (takePhoto.isPressed) {
+            robot.setAveragePose();
+        } else if (takePhoto.endPress) {
+            robot.clearAveragePose();
         }
 
          // Changing our aim

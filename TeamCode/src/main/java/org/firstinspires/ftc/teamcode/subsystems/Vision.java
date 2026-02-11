@@ -15,6 +15,9 @@ import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterState;
 import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterTestValues;
 
 
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 
 public class Vision {
@@ -37,6 +40,9 @@ public class Vision {
     public void pipelineSwitch(int index) {
         limelight.pipelineSwitch(index);
     }
+    public int getPipeline() {
+        return limelight.getStatus().getPipelineIndex();
+    }
 
 
     private LLResult cachedResult;
@@ -57,10 +63,72 @@ public class Vision {
                     pose = new Pose(-robotPoseWeirdM.getPosition().x * 39.37,
                             -robotPoseWeirdM.getPosition().y * 39.37,
                             Math.toRadians(robotPoseWeirdM.getOrientation().getYaw() - 180));
+                    averagingList.add(pose);
                 }
             }
         }
         return pose;
+    }
+    public void clearPoseList() {
+        averagingList.clear();
+    }
+    Pose previousPose = new Pose();
+    public Pose averageRobotPose() {
+        //Creating a 3d array to store the distances of each block for comparison
+        LLResult result = limelight.getLatestResult();
+        Pose pose = null;
+        if (result != null && result.isValid()) {
+            List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
+            for (LLResultTypes.FiducialResult fr : fiducialResults) {
+                Pose3D robotPoseWeirdM = fr.getRobotPoseFieldSpace();
+                pose = new Pose(-robotPoseWeirdM.getPosition().x * 39.37,
+                        -robotPoseWeirdM.getPosition().y * 39.37,
+                        Math.toRadians(robotPoseWeirdM.getOrientation().getYaw() - 180));
+                if (pose.distanceFrom(previousPose) > 1e-6) {averagingList.add(pose);}
+                previousPose = pose;
+            }
+        }
+        if (!averagingList.isEmpty()) {
+            return averagePoses(averagingList);
+        }
+        return null;
+    }
+    private final List<Pose> averagingList = new ArrayList<>();
+    public int listLength() {
+        return averagingList.size();
+    }
+    public static Pose averagePoses(List<Pose> poses) {
+
+        if (poses == null || poses.isEmpty()) return null;
+
+        double sumX = 0;
+        double sumY = 0;
+
+        double sumSin = 0;
+        double sumCos = 0;
+
+        int count = 0;
+
+        for (Pose p : poses) {
+            if (p == null) continue;
+
+            sumX += p.getX();
+            sumY += p.getY();
+
+            sumSin += Math.sin(p.getHeading());
+            sumCos += Math.cos(p.getHeading());
+
+            count++;
+        }
+
+        if (count == 0) return null;
+
+        double avgX = sumX / count;
+        double avgY = sumY / count;
+
+        double avgHeading = Math.atan2(sumSin / count, sumCos / count);
+
+        return new Pose(avgX, avgY, avgHeading);
     }
 
     public BallColor[] getMotif() {
