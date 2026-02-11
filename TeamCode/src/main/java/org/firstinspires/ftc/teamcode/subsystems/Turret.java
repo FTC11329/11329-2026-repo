@@ -68,6 +68,7 @@ public class Turret {
     }
 
     public void update(double angVel, double angAccel) {
+        //todo: refactor so the whole class works in robot relative
         double curAngle = getAngle();
 
         if (Math.abs(curAngle - turretPID.getTargetPosition()) < 0.23) {

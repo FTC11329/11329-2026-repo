@@ -37,6 +37,7 @@ public class MainTeleop {
     FancyButton movePoseRight;
     FancyButton resetPose;
     FancyButton unjamSpindexer;
+    FancyButton climb;
 
     FancyButton deleteme;
 
@@ -85,6 +86,7 @@ public class MainTeleop {
 
         debug = new FancyButton(FancyButton.PressType.Toggle);
 
+        climb = new FancyButton(FancyButton.PressType.Toggle);
         unjamSpindexer = new FancyButton(FancyButton.PressType.LongPress);
         resetPose = new FancyButton(FancyButton.PressType.LongPress);
         takePhoto = new FancyButton(FancyButton.PressType.LongPress);
@@ -146,6 +148,7 @@ public class MainTeleop {
         takePhoto.checkStatus(gamepad1.y); // press to take photo
         debug.checkStatus(gamepad1.start); // toggle to print telemetry
         resetPose.checkStatus(gamepad1.x);
+        climb.checkStatus(gamepad1.back);
 
         robot.drivetrain.teleopMovement(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, gamepad1.right_bumper);
 
@@ -183,8 +186,7 @@ public class MainTeleop {
         }
 
         if (autoShoot.isOn) {
-//            robot.prepareShooter(panicShoot.isOn);
-            robot.calculateIdealShot();
+            robot.prepareShooter();
         } else if (autoShoot.endPress) {
 //            robot.casualShooterModeOn();
             robot.shooter.stop();
@@ -236,6 +238,11 @@ public class MainTeleop {
         }
         if (resetPose.startPress) {
             robot.reZeroAtCorner();
+        }
+        if (climb.isOn) {
+            robot.climb();
+        } else {
+            robot.storeClimber();
         }
 
         robot.update(debug.isOn);

@@ -27,7 +27,7 @@ public class Constants {
         public static Pose redGoal = new Pose(60, -60);
         public static Pose blueGoal = new Pose(60, 60);
 
-        public static Pose redGoalPhysics = new Pose(67, -67);
+        public static Pose redGoalPhysics = new Pose(64, -67);
         public static Pose blueGoalPhysics = new Pose(67, 67);
 
         public static Pose redGoalAimOffset = new Pose(0, -3);
@@ -59,8 +59,8 @@ public class Constants {
         public static double minHoodAngle = 5;
         public static double maxHoodAngle = 53.5;
 
-        public static double entryAngle = Math.toRadians(-25);
-        public static double entryHeight = 32;
+        public static double entryAngle = Math.toRadians(-30);
+        public static double entryHeight = 34;
     }
     public static class Color {
         public static double[] green = {0.0269, 0.0792, 0.06, 0.9551}; //0.743
@@ -89,5 +89,9 @@ public class Constants {
 //        public static double[] none2 = {-1, -1, -1, -1}; // unused
 
         public static double backDst = 2.2;
+    }
+    public static class Climber {
+        public static double climbedPosition = 0.4;
+        public static double storedPosition = 1;
     }
 }

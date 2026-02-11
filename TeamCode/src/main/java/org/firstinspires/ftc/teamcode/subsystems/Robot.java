@@ -40,6 +40,7 @@ public class Robot {
     public RobotSide robotSide;
     public Drivetrain drivetrain;
     public Indexer indexer;
+    public Climber climber;
     private ShotCalculator shotCalculator;
     private HoodAngleCompensation hoodAngleCompensation;
     public ElapsedTime shooterTimer;
@@ -76,6 +77,7 @@ public class Robot {
         this.robotSide = robotSide;
         panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
         lights = new Lights(hardwareMap);
+        climber = new Climber(hardwareMap);
         intake = new Intake(hardwareMap);
         vision = new Vision(hardwareMap, robotSide);
         indexer = new Indexer(hardwareMap, ballsInIndexer, startIndexerTicks);
@@ -162,7 +164,7 @@ public class Robot {
 
     double angleToGoalVelocity;
     public void turretUpdate() {
-        turret.update(angleToGoalVelocity + follower.getAngularVelocity(), angleToGoalAcceleration + follower.getAcceleration().getTheta());
+        turret.update(angleToGoalVelocity + follower.getAngularVelocity(), angleToGoalAcceleration);
     }
 
     // SHOOTER*************************************************************************************~
@@ -189,7 +191,7 @@ public class Robot {
     }
 
     public void prepareShooter() {
-        prepareShooter(ShotType.TABLE);
+        prepareShooter(ShotType.PHYSICAL);
     }
     double rpmRatio = 1;
     public void prepareShooter(ShotType shotType) {
@@ -307,6 +309,13 @@ public class Robot {
         return indexer.isPlugged() && intake.isBeamBroken();
     }
 
+    // CLIMB**************************************************************************************~
+    public void climb() {
+        climber.enableClimb();
+    }
+    public void storeClimber() {
+        climber.disableClimb();
+    }
     // LIGHTS**************************************************************************************~
     public void lightsUpdate() {
         lights.setBallColors(indexer.getBallCells(), indexer.getQueuedBalls(), basicallyHas3(), smartShoot);
@@ -343,22 +352,25 @@ public class Robot {
             hub.clearBulkCache();
         }
         shooterUpdate();
-        shooterUpdate();
         intakeUpdate();
         spindexerUpdate();
         turretUpdate();
         follower.update();
         lightsUpdate();
 
+        panelsTelemetry.addData("turret err", (turret.turretPID.getTargetPosition() - turret.getAngle()));
+        panelsTelemetry.addData("turret target", turret.turretPID.getTargetPosition());
+        panelsTelemetry.addData("turret actual", turret.getAngle());
+        panelsTelemetry.addData("RPM", shooter.getRPM());
+        panelsTelemetry.addData("hood angle", shooter.getHoodPosDeg());
+        panelsTelemetry.addData("target rpm", shooter.shooterPID.getTargetPosition());
+        panelsTelemetry.addData("rpm error", shooter.shooterPID.getError());
+
         if (debug) {
             debug();
         }
-        long now = System.nanoTime();
-        panelsTelemetry.addData("RPM", shooter.getRPM());
-        panelsTelemetry.addData("RPM error", shooter.shooterPID.getError());
-        panelsTelemetry.addData("dt", (now - lastTime) * 1e-6);
         panelsTelemetry.update();
-        lastTime = now;
+
     }
 
     public void debug() {
@@ -367,10 +379,6 @@ public class Robot {
 //        panelsTelemetry.addData("Hood Angle correction", deltaDeg);
 //        panelsTelemetry.addData("Shoot overPower", shooter.shooterPID.run() >= 1 ? 1000 : 0);
 //        panelsTelemetry.addData("Shoot power", shooter.shooterPID.run());
-//        panelsTelemetry.addData("RPM", shooter.getRPM());
-//        panelsTelemetry.addData("hood angle", shooter.getHoodPosDeg());
-//        panelsTelemetry.addData("target rpm", shooter.shooterPID.getTargetPosition());
-//        panelsTelemetry.addData("rpm error", shooter.shooterPID.getError());
 //        panelsTelemetry.addData("shooter velocity", shooter.getRPM());
 //        panelsTelemetry.addData("hood pos", shooter.getHoodPosDeg());
 //        telemetry.addData("distance to goal", distanceToGoal());
@@ -390,9 +398,6 @@ public class Robot {
 //        long lights = System.currentTimeMillis();
 //        Drawing.drawShapesDebug(this.follower);
 //        Drawing.drawDebug(this.follower);
-        panelsTelemetry.addData("turret err", (turret.turretPID.getTargetPosition() - turret.getAngle()));
-        panelsTelemetry.addData("turret target", turret.turretPID.getTargetPosition());
-        panelsTelemetry.addData("turret actual", turret.getAngle());
 
 //        panelsTelemetry.addData("shooter", -(start - shooter));
 //        panelsTelemetry.addData("intake", -(shooter - intake));

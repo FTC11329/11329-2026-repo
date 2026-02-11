@@ -111,11 +111,6 @@ public class ShotCalculator {
                         (2 * Math.pow(Math.cos(hoodAngle), 2) *
                                 (distance * Math.tan(hoodAngle) - height)));
 
-        double theta = angleToGoal;
-        double omega = hoodAngle;
-
-        Vector3D vel = new Vector3D(flywheelSpeed * Math)
-
         double coordinateTheta = ctx.velocity.getTheta() - angleToGoal;
         double parallel = -Math.cos(coordinateTheta) * ctx.velocity.getMagnitude();
         double perp = Math.sin(coordinateTheta) * ctx.velocity.getMagnitude();
