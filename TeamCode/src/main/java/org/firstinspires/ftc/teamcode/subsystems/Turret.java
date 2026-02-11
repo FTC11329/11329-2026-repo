@@ -18,6 +18,7 @@ public class Turret {
     public int encoderOffset;
 
     Pose goalPose;
+    double curAngle;
 
     public final DcMotorEx encoder;
     private static final int TICKS_PER_REV = 4096;
@@ -41,7 +42,7 @@ public class Turret {
 
         turretPID = new PIDFController(Constants.Turret.turretPID);
         turretPID.updateFeedForwardInput(Constants.Turret.CW_F);
-        turretPID.setTargetPosition(ticksToDegrees(encoderOffset));
+        turretPID.setTargetPosition(180 + ticksToDegrees(encoderOffset));
         if (robotSide == RobotSide.Blue) {
             goalPose = new Pose(72, 72);
         } else {
@@ -49,17 +50,40 @@ public class Turret {
         }
     }
 
+    /*
+    Turret is bounded from [-180, 225] where 0 degrees is facing straight forward
+    Turret is initialized at 180
+    Turret angle runs counter clockwise ()
+    Encoder ticks increase as angle decreases (can't flip this or the intake will reverse)
+    negative power runs counter clockwise, positive runs clockwise
+     */
+
     public void setTargetDeg(double deg) {
-        double robotDeg = 180 - deg;
-        while (robotDeg > 360) {
-            robotDeg -= 360;
+
+        deg = closestTargetAngle(deg);
+        while (deg > 225) {
+            deg -= 360;
         }
-        while (robotDeg < 0) {
-            robotDeg += 360;
+        while (deg < -180) {
+            deg += 360;
         }
 
-        turretPID.setTargetPosition(robotDeg + Constants.Turret.turretOffset);
+        turretPID.setTargetPosition(deg + Constants.Turret.turretOffset);
     }
+    private double closestTargetAngle(double targetDeg) {
+        double currentDeg = curAngle;
+        // normalize target into [0,360)
+        targetDeg %= 360.0;
+        if (targetDeg < 0) targetDeg += 360.0;
+
+        // find shortest delta in [-180,180)
+        double delta = targetDeg - (currentDeg % 360.0);
+        delta = (delta + 540.0) % 360.0 - 180.0;
+
+        // shift target so it lives near the current angle
+        return currentDeg + delta;
+    }
+
     public void setTargetRad(double rad) {
         setTargetDeg(Math.toDegrees(rad));
     }
@@ -68,10 +92,12 @@ public class Turret {
     }
 
     public void update(double angVel, double angAccel) {
-        //todo: refactor so the whole class works in robot relative
-        double curAngle = getAngle();
+        curAngle = getAngle();
+        double targetAngle = turretPID.getTargetPosition();
 
-        if (Math.abs(curAngle - turretPID.getTargetPosition()) < 0.23) {
+        double error = getAngularError(curAngle, targetAngle);
+
+        if (Math.abs(error) < 0.23) {
             turretPID.updateFeedForwardInput(0);
         } else if (curAngle > turretPID.getTargetPosition()) {
             turretPID.updateFeedForwardInput(Constants.Turret.CCW_F);
@@ -85,10 +111,14 @@ public class Turret {
         setPower(turretPID.run() + velocityFF + accelerationFF);
     }
 
+    public double getAngularError(double currentAngle, double targetAngle) {
+        return targetAngle - currentAngle;
+    }
+
 
     public void setPower(double set) {
-        turretServo1.setPower(set);
-        turretServo2.setPower(set);
+        turretServo1.setPower(- set);
+        turretServo2.setPower(- set);
     }
 
     // Converts raw encoder ticks to turret angle
@@ -102,7 +132,8 @@ public class Turret {
         return ticksToDegrees(getTicks());
     }
     public int getTicks() {
-        return encoder.getCurrentPosition() + encoderOffset;
+        // this gives the ticks in robot relative numbers so it is easier to use
+        return 12800 - (encoder.getCurrentPosition() + encoderOffset);
     }
     public boolean closeEnoughToTarget(Pose robotPose) {
         return robotPose.distanceFrom(goalPose) * Math.sin(Math.toRadians(Math.abs(turretPID.getError()/4))) <= Constants.Turret.closeEnough;
