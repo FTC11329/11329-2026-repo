@@ -31,6 +31,7 @@ import java.util.Objects;
  */
 public class PinpointLocalizer implements Localizer {
     private final GoBildaPinpointDriver odo;
+    private final PinpointConstants constants;
     private double previousHeading;
     private double totalHeading;
     private Pose startPose;
@@ -63,7 +64,7 @@ public class PinpointLocalizer implements Localizer {
         }
 
         if(constants.customEncoderResolution.isPresent()) {
-            odo.setEncoderResolution(constants.customEncoderResolution.getAsDouble(), DistanceUnit.INCH);
+            odo.setEncoderResolution(constants.customEncoderResolution.getAsDouble(), constants.distanceUnit);
         } else {
             odo.setEncoderResolution(constants.encoderResolution);
         }
@@ -75,6 +76,7 @@ public class PinpointLocalizer implements Localizer {
         pinpointPose = startPose;
         currentVelocity = new Pose();
         previousHeading = setStartPose.getHeading();
+        this.constants = constants;
     }
 
     /**
@@ -108,8 +110,7 @@ public class PinpointLocalizer implements Localizer {
     }
 
     /**
-     * This sets the start pose. Since nobody should be using this after the robot has begun moving,
-     * and due to issues with the PinpointLocalizer, this is functionally the same as setPose(Pose).
+     * This sets the start pose. This alters the start position even if it is already set, compensating as needed.
      *
      * @param setStart the new start pose
      */
@@ -145,7 +146,8 @@ public class PinpointLocalizer implements Localizer {
     public void update() {
         odo.update();
         Pose currentPinpointPose = PoseConverter.pose2DToPose(odo.getPosition(), PedroCoordinates.INSTANCE);
-        totalHeading += MathFunctions.getSmallestAngleDifference(currentPinpointPose.getHeading(), previousHeading);
+        // Thank you to GoldenElf58 of FTC Team 16657 for spotting a bug here; it was resolved by adding the turn direction.
+        totalHeading += MathFunctions.getSmallestAngleDifference(currentPinpointPose.getHeading(), previousHeading) * MathFunctions.getTurnDirection(previousHeading, currentPinpointPose.getHeading());
         previousHeading = currentPinpointPose.getHeading();
         currentVelocity = new Pose(odo.getVelX(DistanceUnit.INCH), odo.getVelY(DistanceUnit.INCH), odo.getHeadingVelocity(AngleUnit.RADIANS.getUnnormalized()));
         pinpointPose = currentPinpointPose;
@@ -225,6 +227,7 @@ public class PinpointLocalizer implements Localizer {
         }
         odo.recalibrateIMU();
 
+
         try {
             Thread.sleep(300);
         } catch (InterruptedException e) {
@@ -256,5 +259,20 @@ public class PinpointLocalizer implements Localizer {
      */
     public GoBildaPinpointDriver getPinpoint() {
         return odo;
+    }
+
+    @Override
+    public void setX(double x) {
+        odo.setPosX(x, constants.distanceUnit);
+    }
+
+    @Override
+    public void setY(double y) {
+        odo.setPosY(y, constants.distanceUnit);
+    }
+
+    @Override
+    public void setHeading(double heading) {
+        odo.setHeading(heading, AngleUnit.RADIANS);
     }
 }

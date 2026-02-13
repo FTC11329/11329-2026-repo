@@ -5,6 +5,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.core.localization.CustomIMU;
 import org.firstinspires.ftc.teamcode.pedroPathing.core.localization.Encoder;
 import org.firstinspires.ftc.teamcode.pedroPathing.core.localization.RevHubIMU;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+import com.qualcomm.robotcore.hardware.IMU;
 
 /**
  * This is the TwoWheelConstants class. It holds many constants and parameters for the Two Wheel Localizer.

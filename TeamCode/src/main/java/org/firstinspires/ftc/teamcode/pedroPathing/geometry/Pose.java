@@ -177,7 +177,7 @@ public final class Pose implements FuturePose {
 
     /**
      * Adds a delta x to this pose.
-     * 
+     *
      * @param deltaX the change in x
      */
     public void addX(double deltaX) {
@@ -186,7 +186,7 @@ public final class Pose implements FuturePose {
 
     /**
      * Adds a delta y to this pose.
-     * 
+     *
      * @param deltaY the change in y
      */
     public void addY(double deltaY) {
@@ -196,13 +196,14 @@ public final class Pose implements FuturePose {
 
     /**
      * Adds a delta heading to this pose.
-     * 
+     *
      * @param deltaHeading the change in heading
      */
 
     public void addHeading(double deltaHeading) {
         this.heading = this.heading + deltaHeading;
     }
+
 
     /**
      * Adds another pose to this pose, converting coordinate systems if necessary.
@@ -231,7 +232,8 @@ public final class Pose implements FuturePose {
         Pose inCurrentCoordinates = coordinateSystem == other.coordinateSystem ? other :
                 other.getAsCoordinateSystem(
                         coordinateSystem);
-        return new Pose(x - inCurrentCoordinates.x,
+        return new Pose(
+                x - inCurrentCoordinates.x,
                 y - inCurrentCoordinates.y,
                 heading - inCurrentCoordinates.heading,
                 coordinateSystem);
@@ -350,22 +352,38 @@ public final class Pose implements FuturePose {
     }
 
     /**
-     * This mirrors this pose across x = 72 in Pedro coordinates. This will return a new Pose in Pedro coordinates.
+     * This mirrors this pose across the field (default of 141.5 inches in length + width) in Pedro coordinates. This will return a new Pose in Pedro coordinates.
      * @return the mirrored Pose.
      */
     public Pose mirror() {
+        return mirror(141.5);
+    }
+
+    /**
+     * This mirrors this pose across the field in Pedro coordinates. This will return a new Pose in Pedro coordinates.
+     * @param fieldLength Distance from one end of the field to the other along the x-axis.
+     * @return the mirrored Pose.
+     */
+    public Pose mirror(double fieldLength) {
         Pose k = getAsCoordinateSystem(PedroCoordinates.INSTANCE);
-        return new Pose(144 - k.getX(), k.getY(), MathFunctions.normalizeAngle(Math.PI - k.getHeading()), PedroCoordinates.INSTANCE);
+        return new Pose(fieldLength - k.getX(), k.getY(), MathFunctions.normalizeAngle(Math.PI - k.getHeading()), PedroCoordinates.INSTANCE);
     }
 
     /**
      * Converts this pose to the specified coordinate system.
-     *
+     * Thank you to johnlaur for pointing out an error in an earlier version of this method.
      * @param coordinateSystem the target coordinate system
      * @return the pose in the target coordinate system
      */
     public Pose getAsCoordinateSystem(CoordinateSystem coordinateSystem) {
-        return coordinateSystem.convertFromPedro(this.coordinateSystem.convertToPedro(this));
+        if (this.coordinateSystem == coordinateSystem)
+            return this.copy();
+
+        Pose inPedro = this.coordinateSystem.convertToPedro(this);
+        if (coordinateSystem == PedroCoordinates.INSTANCE)
+            return inPedro;
+
+        return coordinateSystem.convertFromPedro(inPedro);
     }
 
     /**
@@ -387,7 +405,7 @@ public final class Pose implements FuturePose {
      * @return an array \`[r, theta]\` where r is the radius and theta is the angle in radians
      */
     public static double[] cartesianToPolar(double x, double y) {
-        return new double[] {Math.sqrt(x * x + y * y), Math.atan2(y, x)};
+        return new double[] {Math.sqrt(x * x + y * y), MathFunctions.normalizeAngle(Math.atan2(y, x))};
     }
 
     /**
@@ -418,14 +436,14 @@ public final class Pose implements FuturePose {
     }
 
     /**
-     * This sets the heading value.
+     * Returns a new pose with the specified heading, keeping x and y the same.
      *
-     * @param set the heading value
+     * @param heading the new heading in radians
+     * @return a new pose with updated heading
      */
-    public void setHeading(double set) {
-        heading = MathFunctions.normalizeAngle(set);
+    public Pose setHeading(double heading) {
+        return new Pose(x, y, heading);
     }
-
 
     /** Returns a new pose with the same coordinate system, keeping x, y, and heading. */
     public Pose copy() {
@@ -433,8 +451,7 @@ public final class Pose implements FuturePose {
     }
 
     /**
-     * Returns a string representation of the pose in the format (x, y, heading in degrees)
-     * rounded to the nearest hundredth.
+     * Returns a string representation of the pose in the format (x, y, heading in degrees, coordinate system).
      *
      * @return a string representation of the pose
      */

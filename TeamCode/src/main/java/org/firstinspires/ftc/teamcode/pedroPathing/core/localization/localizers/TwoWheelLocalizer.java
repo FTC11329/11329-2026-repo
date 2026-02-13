@@ -4,6 +4,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.core.localization.CustomIMU;
 import org.firstinspires.ftc.teamcode.pedroPathing.core.localization.constants.TwoWheelConstants;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.core.localization.Encoder;
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.Localizer;

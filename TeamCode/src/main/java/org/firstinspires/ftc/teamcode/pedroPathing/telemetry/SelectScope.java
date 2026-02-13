@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.pedroPathing.telemetry;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import com.pedropathing.telemetry.Selectable;
 
 public final class SelectScope<T> {
     private final List<Selectable<T>> selectables = new ArrayList<>();

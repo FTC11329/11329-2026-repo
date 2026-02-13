@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.pedroPathing.telemetry;
 
 import java.util.ArrayList;
 import java.util.List;
+import com.pedropathing.telemetry.Selectable;
 
 public final class Folder<T> extends Selectable<T> {
     private final List<Selectable<T>> children;

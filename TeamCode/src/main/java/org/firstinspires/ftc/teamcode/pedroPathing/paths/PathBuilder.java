@@ -27,12 +27,12 @@ import java.util.List;
  * @version 1.0, 3/11/2024
  */
 public class PathBuilder {
-    private ArrayList<Path> paths = new ArrayList<>();
+    private final ArrayList<Path> paths = new ArrayList<>();
     private PathChain.DecelerationType decelerationType = PathChain.DecelerationType.LAST_PATH;
-    private ArrayList<PathCallback> callbacks = new ArrayList<>();
+    private final ArrayList<PathCallback> callbacks = new ArrayList<>();
     private PathConstraints constraints;
     private HeadingInterpolator headingInterpolator;
-    private Follower follower;
+    private final Follower follower;
 
     /**
      * This is an constructor for the PathBuilder class so it can get started with specific constraints.
@@ -117,12 +117,7 @@ public class PathBuilder {
     public PathBuilder curveThrough(Pose prevPoint, Pose startPoint, double tension, Pose... points){
         //guard against points being zero length (which means the curve doesn't have an end point)
         if (points.length == 0) {
-            try {
-                throw new Exception("Points array must contain at least one point to curve through.");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return this;
+            throw new IllegalArgumentException("Points array must contain at least one point to curve through.");
         }
         ArrayList<Pose> poses = new ArrayList<>();
 
@@ -201,19 +196,12 @@ public class PathBuilder {
      *         This will be reached at the end of the Path if no end t-value is specified.
      * @return This returns itself with the updated data.
      */
+
     public PathBuilder setLinearHeadingInterpolation(Pose startHeading, Pose endHeading) {
         this.paths.get(paths.size() - 1).setLinearHeadingInterpolation(startHeading.getHeading(), endHeading.getHeading());
         return this;
     }
 
-    /**
-     * This sets a linear heading interpolation on the last Path added to the PathBuilder.
-     *
-     * @param startHeading The start of the linear heading interpolation.
-     * @param endHeading The end of the linear heading interpolation.
-     *         This will be reached at the end of the Path if no end t-value is specified.
-     * @return This returns itself with the updated data.
-     */
     public PathBuilder setLinearHeadingInterpolation(double startHeading, double endHeading) {
         this.paths.get(paths.size() - 1).setLinearHeadingInterpolation(startHeading, endHeading);
         return this;
@@ -308,17 +296,6 @@ public class PathBuilder {
      * @param setHeading The constant heading specified.
      * @return This returns itself with the updated data.
      */
-    public PathBuilder setConstantHeadingInterpolation(Pose setHeading) {
-        this.paths.get(paths.size() - 1).setConstantHeadingInterpolation(setHeading.getHeading());
-        return this;
-    }
-
-    /**
-     * This sets a constant heading interpolation on the last Path added to the PathBuilder.
-     *
-     * @param setHeading The constant heading specified.
-     * @return This returns itself with the updated data.
-     */
     public PathBuilder setConstantHeadingInterpolation(double setHeading) {
         this.paths.get(paths.size() - 1).setConstantHeadingInterpolation(setHeading);
         return this;
@@ -334,6 +311,11 @@ public class PathBuilder {
         headingInterpolator = HeadingInterpolator.constant(setHeading);
         return this;
     }
+    public PathBuilder setConstantHeadingInterpolation(Pose setHeading) {
+        this.paths.get(paths.size() - 1).setConstantHeadingInterpolation(setHeading.getHeading());
+        return this;
+    }
+
 
     /**
      * This sets a reversed heading interpolation on the last Path added to the PathBuilder.
@@ -349,7 +331,7 @@ public class PathBuilder {
      * @return This returns itself with the updated data.
      */
     public PathBuilder setGlobalReversed() {
-        headingInterpolator.reverse();
+        headingInterpolator = headingInterpolator.reverse();
         return this;
     }
 

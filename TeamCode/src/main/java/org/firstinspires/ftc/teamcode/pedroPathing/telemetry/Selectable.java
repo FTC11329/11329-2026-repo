@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.pedroPathing.telemetry;
+package com.pedropathing.telemetry;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -21,7 +21,7 @@ public abstract class Selectable<T> {
      *
      * @param name the name of the selectable
      */
-    Selectable(@NotNull String name) {
+    protected Selectable(@NotNull String name) {
         this.name = name;
     }
 }

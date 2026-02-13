@@ -5,6 +5,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.math.Vector;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * This is the BezierLine class. This class handles the creation of BezierLines, which is what I
@@ -49,6 +50,7 @@ public class BezierLine extends BezierCurve {
             initialize();
         } else {
             futureControlPoints = new ArrayList<>(Arrays.asList(startPose, endPose));
+            lazyInitialize = true;
         }
     }
 

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
+import com.pedropathing.telemetry.Selectable;
 
 public final class Selector<T> {
     private final FolderStack<T> folders = new FolderStack<>();

@@ -63,16 +63,17 @@ public class Path {
      * @param endHeading   The end of the linear heading interpolation.
      *                     This will be reached at the end of the Path if no end time is specified.
      */
-    public void setLinearHeadingInterpolation(double startHeading, double endHeading) {
-        this.headingInterpolator = HeadingInterpolator.linear(startHeading, endHeading);
-    }
-
     public void setLinearHeadingInterpolation(Pose startHeading, Pose endHeading) {
         setLinearHeadingInterpolation(startHeading.getHeading(), endHeading.getHeading());
     }
 
     public void setCustomHeadingInterpolation(HeadingInterpolator.PiecewiseNode[] nodes) {
         this.headingInterpolator = HeadingInterpolator.piecewise(nodes);
+    }
+
+
+    public void setLinearHeadingInterpolation(double startHeading, double endHeading) {
+        this.headingInterpolator = HeadingInterpolator.linear(startHeading, endHeading);
     }
 
     /**
@@ -659,9 +660,10 @@ public class Path {
      * @param constraints the PathConstraints to set.
      */
     public void setConstraints(PathConstraints constraints) {
-        this.constraints = constraints;
+        this.constraints = constraints.copy();
 
-        if (curve != null) curve.setPathConstraints(constraints);
+        if (curve != null)
+            curve.setPathConstraints(this.constraints);
     }
 
     /**

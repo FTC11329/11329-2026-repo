@@ -2,10 +2,14 @@ package org.firstinspires.ftc.teamcode.pedroPathing.paths;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.math.Vector;
+import org.firstinspires.ftc.teamcode.pedroPathing.paths.callbacks.ParametricCallback;
 import org.firstinspires.ftc.teamcode.pedroPathing.paths.callbacks.PathCallback;
+import org.firstinspires.ftc.teamcode.pedroPathing.paths.callbacks.TemporalCallback;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 
 /**
  * This is the PathChain class. This class handles chaining together multiple Paths into a larger
@@ -127,6 +131,14 @@ public class PathChain {
      * @param callbacks the ArrayList of PathCallbacks.
      */
     public void setCallbacks(ArrayList<PathCallback> callbacks) {
+        Comparator<PathCallback> callbackComparator = (pathCallback, other) -> {
+            if (pathCallback instanceof ParametricCallback && other instanceof ParametricCallback)
+                return Double.compare(((ParametricCallback) pathCallback).getStartCondition(), ((ParametricCallback) other).getStartCondition());
+            if (pathCallback instanceof TemporalCallback && other instanceof TemporalCallback)
+                return Double.compare(((TemporalCallback) pathCallback).getStartCondition(), ((TemporalCallback) other).getStartCondition());
+            return 0;
+        };
+        Collections.sort(callbacks, callbackComparator);
         this.callbacks = callbacks;
     }
 

@@ -1,13 +1,18 @@
 package org.firstinspires.ftc.teamcode.pedroPathing.core;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.CoordinateSystem;
+import org.firstinspires.ftc.teamcode.pedroPathing.geometry.PedroCoordinates;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 
 /**
  * An enum that contains the FTC standard coordinate system.
  * This enum implements the {@link CoordinateSystem} interface, which specifies a way to convert to and from FTC standard coordinates.
  *
+ * <p>This implementation performs numeric transforms directly on the Pose components
+ * to avoid calling {@code Pose} methods that may themselves trigger coordinate conversions.</p>
+ *
  * @author BeepBot99
+ * @author Baron Henderson
  */
 public enum FTCCoordinates implements CoordinateSystem {
     INSTANCE;
@@ -20,8 +25,8 @@ public enum FTCCoordinates implements CoordinateSystem {
      */
     @Override
     public Pose convertFromPedro(Pose pose) {
-        Pose normalizedPose = pose.minus(new Pose(72, 72));
-        return normalizedPose.rotate(-Math.PI / 2, true);
+        Pose newPose = pose.minus(new Pose(72, 72)).rotate(-Math.PI / 2, true);
+        return new Pose(newPose.getX(), newPose.getY(), newPose.getHeading(), INSTANCE);
     }
 
     /**
@@ -32,7 +37,7 @@ public enum FTCCoordinates implements CoordinateSystem {
      */
     @Override
     public Pose convertToPedro(Pose pose) {
-        Pose rotatedPose = pose.rotate(-Math.PI / 2, true);
-        return rotatedPose.plus(new Pose(72, 72));
+        Pose newPose = new Pose (pose.getX(), pose.getY(), pose.getHeading(), PedroCoordinates.INSTANCE);
+        return newPose.rotate(-Math.PI / 2, true).plus(new Pose(72, 72));
     }
 }
