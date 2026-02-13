@@ -87,7 +87,7 @@ public class CloseAuto18BallBlue extends OpMode {
     @Override
     public void loop() {
         // to stop the auto
-        if (robot.getOpmodeTimeSeconds() > 60) {
+        if (robot.getOpmodeTimeSeconds() > 30) {
             for (double time : changeTime) {
                 telemetry.addData("change time", time);
             }
@@ -102,7 +102,7 @@ public class CloseAuto18BallBlue extends OpMode {
                 firstDeInit = true;
                 zeroVelocityTimer.resetTimer();
             }
-            if (zeroVelocityTimer.getElapsedTimeSeconds() > 10) {
+            if (zeroVelocityTimer.getElapsedTimeSeconds() > 2) {
                 requestOpModeStop();
             }
             return;

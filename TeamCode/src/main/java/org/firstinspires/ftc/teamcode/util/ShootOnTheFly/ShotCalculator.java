@@ -8,6 +8,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.math.Vector;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
 import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterState;
 import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterTestValues;
+import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterTestValuesPhysicsFar;
 import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterValuesParent;
 import org.locationtech.jts.math.Vector3D;
 
@@ -22,11 +23,11 @@ public class ShotCalculator {
         return null;
     }
     public ShotCalculator() {
-        shooterTestValues = new ShooterTestValues();
+        shooterTestValues = new ShooterTestValuesPhysicsFar();
         lastTOFtime = System.nanoTime();
     }
     double lastTOFtime;
-    ShooterTestValues shooterTestValues;
+    ShooterTestValuesPhysicsFar shooterTestValues;
     double previousTOF;
     private ShotSolution solveTableShot(ShotContext ctx) {
 
@@ -96,8 +97,8 @@ public class ShotCalculator {
         ShotSolution shotSolution = new ShotSolution();
 
         double g = 386.09;
-        double height = Constants.Shooter.entryHeight;
-        double entryAngle = Constants.Shooter.entryAngle;
+        double height = Constants.Shooter.entryHeight; //34in
+        double entryAngle = Constants.Shooter.entryAngle; //-25 degrees
 
         double deltaX = ctx.goalPose.getX() - ctx.robotPose.getX();
         double deltaY = ctx.goalPose.getY() - ctx.robotPose.getY();

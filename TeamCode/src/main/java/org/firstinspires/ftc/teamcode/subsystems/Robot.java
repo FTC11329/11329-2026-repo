@@ -15,6 +15,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.util.BallColor;
+import org.firstinspires.ftc.teamcode.util.ConfigTest;
 import org.firstinspires.ftc.teamcode.util.FieldShapes;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
 import org.firstinspires.ftc.teamcode.util.ShapeDetection;
@@ -207,7 +208,7 @@ public class Robot {
     }
 
     public void prepareShooter() {
-        prepareShooter(ShotType.PHYSICAL);
+        prepareShooter(ShotType.TABLE);
     }
     double rpmRatio = 1;
     public void prepareShooter(ShotType shotType) {
@@ -238,7 +239,7 @@ public class Robot {
         shooter.setTargetRPM(s.rpm);
 
         double deltaDeg;
-        if (shotType == ShotType.TABLE) {
+        if (shotType == ShotType.TABLE && !farBack()) {
             deltaDeg = hoodAngleCompensation.hoodAngleCompensation(s.rpm, shooter.getRPM(), s.hoodDeg);
             rpmRatio = hoodAngleCompensation.getRpmRatio();
         } else {
@@ -375,20 +376,20 @@ public class Robot {
         lightsUpdate();
         visionUpdate();
 
-        panelsTelemetry.addData("velocity", follower.getVelocity().getMagnitude());
-        panelsTelemetry.addData("acceleration", follower.getAcceleration().getMagnitude());
-        Drawing.drawShapesDebug(this.follower);
+//        panelsTelemetry.addData("velocity", follower.getVelocity().getMagnitude());
+//        panelsTelemetry.addData("acceleration", follower.getAcceleration().getMagnitude());
+//        telemetry.addData("test", ConfigTest.test);
+//        telemetry.update();
 
-        telemetry.addData("List length", vision.listLength());
-        telemetry.update();
         if (debug) {
             debug();
         }
-        panelsTelemetry.update();
     }
 
     public void debug() {
 
+        Drawing.drawShapesDebug(this.follower);
+        panelsTelemetry.update();
 
 //        panelsTelemetry.addData("Hood Angle correction", deltaDeg);
 //        panelsTelemetry.addData("Shoot overPower", shooter.shooterPID.run() >= 1 ? 1000 : 0);

@@ -1,9 +1,12 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.bylazar.configurables.annotations.Configurable;
+
 import org.firstinspires.ftc.teamcode.pedroPathing.control.PIDFCoefficients;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 
 public class Constants {
+
     public static class Indexer {
 
         public static double indexerTolerance = 0.07;
@@ -24,6 +27,7 @@ public class Constants {
     }
 
     public static class Vision {
+        public static int configTest = 0;
         public static Pose redGoal = new Pose(60, -60);
         public static Pose blueGoal = new Pose(60, 60);
 

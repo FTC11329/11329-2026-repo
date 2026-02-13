@@ -103,14 +103,12 @@ public class MainTeleop {
 
     public void init_loop() {
         resetPose.checkStatus(gamepad2.y);
-
         if (gamepad2.bWasPressed() || gamepad1.bWasPressed()) {
-            startPose = new Pose(0,0,0);
+            startPose = new Pose();
             robot.follower.setPose(startPose);
             robot.turret.encoderOffset = 0;
             robot.indexer.encoderOffsetFromAuto = 0;
             robot.indexer.setIndexerPos(0);
-            robot.turret.setTargetDeg(180);
         }
 
         telemetry.addData("Start Pose", startPose);
