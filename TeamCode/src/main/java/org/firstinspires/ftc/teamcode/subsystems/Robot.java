@@ -15,36 +15,25 @@ import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.util.BallColor;
-import org.firstinspires.ftc.teamcode.util.ConfigTest;
 import org.firstinspires.ftc.teamcode.util.FieldShapes;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
 import org.firstinspires.ftc.teamcode.util.ShapeDetection;
-import org.firstinspires.ftc.teamcode.util.ShootOnTheFly.HoodAngleCompensation;
-import org.firstinspires.ftc.teamcode.util.ShootOnTheFly.ShotCalculator;
-import org.firstinspires.ftc.teamcode.util.ShootOnTheFly.ShotContext;
-import org.firstinspires.ftc.teamcode.util.ShootOnTheFly.ShotSolution;
-import org.firstinspires.ftc.teamcode.util.ShootOnTheFly.ShotType;
-import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterTestValues;
 
 import java.util.List;
-//todo import java.awt.Shape to make the inShootingZone() better
-
 
 public class Robot {
-    List<LynxModule> hubs;
-    public Turret turret;
+    public volatile Turret turret;
     public Lights lights;
     private Intake intake;
     private Vision vision;
-    public Shooter shooter;
-    public Follower follower;
+    public volatile Shooter shooter;
+    public volatile Follower follower;
     public RobotSide robotSide;
     public Drivetrain drivetrain;
     public Indexer indexer;
     public Climber climber;
-    private ShotCalculator shotCalculator;
-    private HoodAngleCompensation hoodAngleCompensation;
     public ElapsedTime shooterTimer;
+    public ShooterLogicThread shooterLogicThread;
     TelemetryManager panelsTelemetry;
 
     double startTime;
@@ -55,6 +44,7 @@ public class Robot {
     boolean isIntaking = false;
     boolean smartShoot = false;
     boolean intakeOverride = false;
+    boolean doShooting = false;
 
     Pose lastCamPose = new Pose(0,0,0);
     // Offset pose to aim for
@@ -64,7 +54,7 @@ public class Robot {
     int thingies = 0;
     public double previousAngleToGoalVelocity;
     public double angleToGoalAcceleration;
-    Pose goal = new Pose(0,0,0);
+    Pose goal;
     Pose shootFromPose = null;
     Telemetry telemetry;
     public Robot(Telemetry telemetry, HardwareMap hardwareMap, RobotSide robotSide, int startTurretTicks, double startIndexerTicks) {
@@ -85,8 +75,6 @@ public class Robot {
         turret = new Turret(hardwareMap, startTurretTicks, robotSide);
         drivetrain = new Drivetrain(hardwareMap);
         shooter = new Shooter(hardwareMap);
-        shotCalculator = new ShotCalculator();
-        hoodAngleCompensation = new HoodAngleCompensation();
 
         follower.setStartingPose(new Pose(0,0,0));
 
@@ -99,10 +87,9 @@ public class Robot {
             goal = Constants.Vision.redGoal;
         }
 
-        hubs = hardwareMap.getAll(LynxModule.class);
-        for (LynxModule hub : hubs) {
-            hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
-        }
+        shooterLogicThread = new ShooterLogicThread(goal, turret, shooter, follower, robotSide);
+        Thread thread = new Thread(shooterLogicThread);
+        thread.start();
     }
     // VISION**************************************************************************************~
     // sets the motif if we havent seen it yet
@@ -177,13 +164,6 @@ public class Robot {
         }
     }
 
-    // TURRET**************************************************************************************~
-
-    double angleToGoalVelocity;
-    public void turretUpdate() {
-        turret.update(angleToGoalVelocity + follower.getAngularVelocity(), angleToGoalAcceleration);
-    }
-
     // SHOOTER*************************************************************************************~
     public boolean readyToShoot() {
         return inShootingZone() && readyToShootMotors();
@@ -208,51 +188,12 @@ public class Robot {
     }
 
     public void prepareShooter() {
-        prepareShooter(ShotType.TABLE);
+        prepareShooter(true);
     }
-    double rpmRatio = 1;
-    public void prepareShooter(ShotType shotType) {
-        ShotContext ctx = new ShotContext();
-
-        ctx.robotPose = follower.getCenterOfShooterPose();
-        Pose goalPose;
-        if (robotSide == RobotSide.Blue) {
-            goalPose = shotType == ShotType.PHYSICAL ? Constants.Vision.blueGoalPhysics : Constants.Vision.blueGoal;
-        } else {
-            goalPose = shotType == ShotType.PHYSICAL ? Constants.Vision.redGoalPhysics : Constants.Vision.redGoal;
-        }
-        ctx.goalPose = goalPose.plus(offsetPose);
-        ctx.velocity = follower.getVelocity();
-        ctx.acceleration = follower.getAcceleration();
-        ctx.side = robotSide;
-        ctx.rpmRatio = rpmRatio;
-
-
-        ShotSolution s = shotCalculator.solveShot(ctx, shotType);
-
-        // expose turret feedforward
-        angleToGoalVelocity = s.turretVel;
-        angleToGoalAcceleration = s.turretAccel;
-
-        turret.setTargetRad(s.turretAngleRad);
-
-        shooter.setTargetRPM(s.rpm);
-
-        double deltaDeg;
-        if (shotType == ShotType.TABLE && !farBack()) {
-            deltaDeg = hoodAngleCompensation.hoodAngleCompensation(s.rpm, shooter.getRPM(), s.hoodDeg);
-            rpmRatio = hoodAngleCompensation.getRpmRatio();
-        } else {
-            rpmRatio = 1;
-            deltaDeg = 0;
-        }
-
-        shooter.setHoodDeg(s.hoodDeg + deltaDeg);
+    public void prepareShooter(boolean set) {
+        doShooting = set;
     }
     double pictureTime = 0;
-    public void shooterUpdate() {
-        shooter.update();
-    }
 
     public void autoSetCurrentPose() {
         lastCamPose = vision.getRobotPose();
@@ -365,16 +306,17 @@ public class Robot {
     double maxHoodAngleChange;
     double lastTime = System.nanoTime();
     public void update(boolean debug) {
-        for (LynxModule hub : hubs) {
-            hub.clearBulkCache();
-        }
-        shooterUpdate();
         intakeUpdate();
         spindexerUpdate();
-        turretUpdate();
-        follower.update();
         lightsUpdate();
         visionUpdate();
+        if (doShooting) {
+            shooterLogicThread.setOffsetPose(offsetPose);
+            shooterLogicThread.start();
+        } else {
+            shooterLogicThread.start(false);
+            shooterLogicThread.updateSubSystems();
+        }
 
 //        panelsTelemetry.addData("velocity", follower.getVelocity().getMagnitude());
 //        panelsTelemetry.addData("acceleration", follower.getAcceleration().getMagnitude());
@@ -449,7 +391,6 @@ public class Robot {
 
         panelsTelemetry.addData("shooter target", shooter.getTargetRpm());
         panelsTelemetry.addData("shooter actual", shooter.getRPM());
-        panelsTelemetry.addData("sotf", angleToGoalVelocity);
         panelsTelemetry.addData("distance", follower.getCenterOfShooterPose().distanceFrom(goal));
         telemetry.addData("Ready to shoot", readyToShootMotors());
         telemetry.addLine("=== VISION ===");
@@ -533,7 +474,7 @@ public class Robot {
     }
 
     public void stopAllSubsystems() {
-        follower.update();
+        shooterLogicThread.requestStop();
         lights.stop();
         intake.stop();
         turret.stop();
@@ -541,9 +482,9 @@ public class Robot {
         indexer.stop();
         shooter.stop();
         follower.stop();
+        follower.update();
         drivetrain.stop();
     }
 
     // TESTING*************************************************************************************~
-
 }

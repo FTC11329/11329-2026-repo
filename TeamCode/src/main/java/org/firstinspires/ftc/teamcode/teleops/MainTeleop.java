@@ -187,6 +187,7 @@ public class MainTeleop {
             robot.prepareShooter();
         } else if (autoShoot.endPress) {
 //            robot.casualShooterModeOn();
+            robot.prepareShooter(false);
             robot.shooter.stop();
         }
 

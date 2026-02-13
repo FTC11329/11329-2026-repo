@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.EndValuesStorer;
 import org.firstinspires.ftc.teamcode.util.FancyButton;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
+import org.firstinspires.ftc.teamcode.util.ShootOnTheFly.ShotType;
 
 public class AutoReplayTeleop {
     Robot robot;
@@ -201,6 +202,7 @@ public class AutoReplayTeleop {
         if (autoShoot.isOn) {
             robot.prepareShooter();
         } else if (autoShoot.endPress) {
+            robot.prepareShooter(false);
             robot.casualShooterModeOn();
         }
 //        if (smartShoot.startPress) {
