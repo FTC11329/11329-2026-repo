@@ -19,7 +19,6 @@ import org.firstinspires.ftc.teamcode.pedroPathing.control.MovingPIDFController;
 public class Shooter {
     // declaring motor variables
     public DcMotorEx flywheel;
-    HardwareMap.DeviceMapping<VoltageSensor> voltageSensors;
     boolean usePID = false;
     Servo hoodServo1;
     Servo hoodServo2;
@@ -51,8 +50,6 @@ public class Shooter {
 
         shooterPID = new MovingPIDFController(Constants.Shooter.shooterVelocityPID, Constants.Shooter.kV);
         shooterPID.updateFeedForwardInput(1);
-
-        voltageSensors = hardwareMap.voltageSensor;
     }
 
     public void setPower(double power){
@@ -173,21 +170,21 @@ public class Shooter {
     public PIDFCoefficients getPID() {
         return shooterPID.getCoefficients();
     }
-    public double getVoltageCompensation() {
-        return getBatteryVoltage() / 13.0;
-    }
 
     public void update() {
+        update(1);
+    }
+    public void update(double voltageCompensation) {
         flywheelVelocity = flywheel.getVelocity();
         if (shooterSpin && usePID) {
-            shooterPID.updatePosition(getRPM(), getVoltageCompensation());
+            shooterPID.updatePosition(getRPM());
             if (shooterPID.getTargetPosition() > 10) {
                 if (isGettingUpToSpeed) {
                     if (shooterPID.getError() < Constants.Shooter.closeEnoughRPM) {
                         isGettingUpToSpeed = false;
                     }
                 }
-                setPower(shooterPID.run());
+                setPower(shooterPID.run() * voltageCompensation);
             } else {
                 setPower(0);
             }
@@ -197,23 +194,6 @@ public class Shooter {
             }
             setPower(0.5);
         }
-    }
-    double lastTime = System.currentTimeMillis();
-    double lastVolt = 0;
-    public double getBatteryVoltage() {
-        if (System.currentTimeMillis() - lastTime < 300) {
-            return lastVolt;
-        }
-        double result = Double.POSITIVE_INFINITY;
-        for (VoltageSensor sensor : voltageSensors) {
-            double voltage = sensor.getVoltage();
-            if (voltage > 0) {
-                result = Math.min(result, voltage);
-            }
-        }
-        lastTime = System.currentTimeMillis();
-        lastVolt = result;
-        return result;
     }
 
 }

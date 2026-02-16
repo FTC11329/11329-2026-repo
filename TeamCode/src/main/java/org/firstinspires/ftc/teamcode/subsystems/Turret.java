@@ -51,25 +51,48 @@ public class Turret {
 
     public void setTargetDeg(double deg) {
         double robotDeg = 180 - deg;
+        robotDeg = closestTargetAngle(robotDeg);
         while (robotDeg > 360) {
             robotDeg -= 360;
         }
-        while (robotDeg < 0) {
+        while (robotDeg < -45) {
             robotDeg += 360;
         }
 
         turretPID.setTargetPosition(robotDeg + Constants.Turret.turretOffset);
     }
+    private double closestTargetAngle(double targetDeg) {
+        double currentDeg = curAngle;
+        // normalize target into [0,360)
+        targetDeg %= 360.0;
+        if (targetDeg < 0) targetDeg += 360.0;
+
+        // find shortest delta in [-180,180)
+        double delta = targetDeg - (currentDeg % 360.0);
+        delta = (delta + 540.0) % 360.0 - 180.0;
+
+        // shift target so it lives near the current angle
+        return currentDeg + delta;
+    }
     public void setTargetRad(double rad) {
         setTargetDeg(Math.toDegrees(rad));
     }
     public void update(double angVel) {
-        update(angVel, 0);
+        update(angVel, 0, 1);
+    }
+    public void update(double angVel, double angAccel) {
+        update(angVel, angAccel, 1);
     }
 
-    public void update(double angVel, double angAccel) {
-        //todo: refactor so the whole class works in robot relative
-        double curAngle = getAngle();
+    double curAngle = 0;
+    double previousAngle = 0;
+    double previousTime = System.nanoTime() * 1e-9;
+    double curTime = System.nanoTime() * 1e-9;
+    public void update(double angVel, double angAccel, double voltageCompensation) {
+        previousAngle = curAngle;
+        previousTime = curTime;
+        curTime = System.nanoTime() * 1e-9;
+        curAngle = getAngle();
 
         if (Math.abs(curAngle - turretPID.getTargetPosition()) < 0.23) {
             turretPID.updateFeedForwardInput(0);
@@ -85,6 +108,9 @@ public class Turret {
         setPower(turretPID.run() + velocityFF + accelerationFF);
     }
 
+    public double getVelocity() {
+        return (curAngle - previousAngle) / (curTime - previousTime);
+    }
 
     public void setPower(double set) {
         turretServo1.setPower(set);

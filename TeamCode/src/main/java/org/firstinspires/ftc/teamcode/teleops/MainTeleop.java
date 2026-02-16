@@ -186,8 +186,7 @@ public class MainTeleop {
         if (autoShoot.isOn) {
             robot.prepareShooter();
         } else if (autoShoot.endPress) {
-//            robot.casualShooterModeOn();
-            robot.shooter.stop();
+            robot.casualShooterModeOn();
         }
 
         if (unjamSpindexer.startPress) {
@@ -236,6 +235,7 @@ public class MainTeleop {
                 robot.offsetPose.addX(-1);
             }
         }
+//        robot.setShooterOffset(rpmOffset, hoodAngleOffset);
         if (resetPose.startPress) {
             robot.reZeroAtCorner();
         }

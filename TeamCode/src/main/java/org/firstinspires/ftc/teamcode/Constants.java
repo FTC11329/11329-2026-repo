@@ -28,14 +28,14 @@ public class Constants {
 
     public static class Vision {
         public static int configTest = 0;
-        public static Pose redGoal = new Pose(60, -60);
-        public static Pose blueGoal = new Pose(60, 60);
+        public static Pose redGoal = new Pose(65, -67);
+        public static Pose blueGoal = new Pose(67, 67);
 
         public static Pose redGoalPhysics = new Pose(64, -67);
         public static Pose blueGoalPhysics = new Pose(67, 67);
 
-        public static Pose redGoalAimOffset = new Pose(0, -3);
-        public static Pose blueGoalAimOffset = new Pose(1, 2.5);
+        public static Pose redGoalAimOffset = new Pose(0, 0);
+        public static Pose blueGoalAimOffset = new Pose(0, 0);
     }
 
     public static class Turret {
@@ -54,6 +54,7 @@ public class Constants {
 
         public static PIDFCoefficients turretPID = new PIDFCoefficients(P, I, D, 1);
     }
+    @Configurable
     public static class Shooter {
         public static PIDFCoefficients shooterVelocityPID = new PIDFCoefficients(.005, 0, 0, 0);
         public static double kV = 4545;
@@ -95,7 +96,7 @@ public class Constants {
         public static double backDst = 2.2;
     }
     public static class Climber {
-        public static double climbedPosition = 0.4;
+        public static double climbedPosition = 0.5  ;
         public static double storedPosition = 1;
     }
 }

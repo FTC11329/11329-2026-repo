@@ -4,6 +4,7 @@ import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -46,6 +47,8 @@ public class Robot {
     private HoodAngleCompensation hoodAngleCompensation;
     public ElapsedTime shooterTimer;
     TelemetryManager panelsTelemetry;
+    HardwareMap.DeviceMapping<VoltageSensor> voltageSensors;
+
 
     double startTime;
 
@@ -64,7 +67,7 @@ public class Robot {
     int thingies = 0;
     public double previousAngleToGoalVelocity;
     public double angleToGoalAcceleration;
-    Pose goal = new Pose(0,0,0);
+    Pose goal;
     Pose shootFromPose = null;
     Telemetry telemetry;
     public Robot(Telemetry telemetry, HardwareMap hardwareMap, RobotSide robotSide, int startTurretTicks, double startIndexerTicks) {
@@ -87,6 +90,7 @@ public class Robot {
         shooter = new Shooter(hardwareMap);
         shotCalculator = new ShotCalculator();
         hoodAngleCompensation = new HoodAngleCompensation();
+        voltageSensors = hardwareMap.voltageSensor;
 
         follower.setStartingPose(new Pose(0,0,0));
 
@@ -210,6 +214,12 @@ public class Robot {
     public void prepareShooter() {
         prepareShooter(ShotType.TABLE);
     }
+    double rpmOffset;
+    double hoodAngleOffset;
+    public void setShooterOffset(double rpmOffset, double hoodAngleOffset) {
+        this.hoodAngleOffset = hoodAngleOffset;
+        this.rpmOffset = rpmOffset;
+    }
     double rpmRatio = 1;
     public void prepareShooter(ShotType shotType) {
         ShotContext ctx = new ShotContext();
@@ -236,10 +246,10 @@ public class Robot {
 
         turret.setTargetRad(s.turretAngleRad);
 
-        shooter.setTargetRPM(s.rpm);
+        shooter.setTargetRPM(s.rpm + rpmOffset);
 
         double deltaDeg;
-        if (shotType == ShotType.TABLE && !farBack()) {
+        if (shotType == ShotType.TABLE && !farBack() && false) {
             deltaDeg = hoodAngleCompensation.hoodAngleCompensation(s.rpm, shooter.getRPM(), s.hoodDeg);
             rpmRatio = hoodAngleCompensation.getRpmRatio();
         } else {
@@ -247,11 +257,11 @@ public class Robot {
             deltaDeg = 0;
         }
 
-        shooter.setHoodDeg(s.hoodDeg + deltaDeg);
+        shooter.setHoodDeg(s.hoodDeg + deltaDeg + hoodAngleOffset);
     }
     double pictureTime = 0;
     public void shooterUpdate() {
-        shooter.update();
+        shooter.update(getVoltageCompensation());
     }
 
     public void autoSetCurrentPose() {
@@ -339,6 +349,27 @@ public class Robot {
         lights.update();
     }
 
+    // VOLTAGE-COMPENSATION*************************************************************************************~
+    public double getVoltageCompensation() {
+        return 13 / getBatteryVoltage();
+    }
+    double lastTime = System.currentTimeMillis();
+    double lastVolt = 0;
+    public double getBatteryVoltage() {
+        if (System.currentTimeMillis() - lastTime < 300) {
+            return lastVolt;
+        }
+        double result = Double.POSITIVE_INFINITY;
+        for (VoltageSensor sensor : voltageSensors) {
+            double voltage = sensor.getVoltage();
+            if (voltage > 0) {
+                result = Math.min(result, voltage);
+            }
+        }
+        lastTime = System.currentTimeMillis();
+        lastVolt = result;
+        return result;
+    }
     // TELE-OP*************************************************************************************~
 
     // AUTONOMOUS**********************************************************************************~
@@ -363,7 +394,6 @@ public class Robot {
     double previousHoodAngle;
     double previousTime;
     double maxHoodAngleChange;
-    double lastTime = System.nanoTime();
     public void update(boolean debug) {
         for (LynxModule hub : hubs) {
             hub.clearBulkCache();
@@ -376,10 +406,20 @@ public class Robot {
         lightsUpdate();
         visionUpdate();
 
-//        panelsTelemetry.addData("velocity", follower.getVelocity().getMagnitude());
-//        panelsTelemetry.addData("acceleration", follower.getAcceleration().getMagnitude());
-//        telemetry.addData("test", ConfigTest.test);
-//        telemetry.update();
+        panelsTelemetry.addData("turret pos", turret.getAngle());
+        panelsTelemetry.addData("turret target", turret.turretPID.getTargetPosition());
+        panelsTelemetry.addData("turret error", turret.turretPID.getError());
+        panelsTelemetry.addData("turret velocity", turret.getVelocity());
+        panelsTelemetry.addData("turret power", clamp(turret.turretPID.run(), -1, 1) * 360);
+
+
+        panelsTelemetry.addData("RPM", shooter.getRPM());
+        panelsTelemetry.addData("RPM target", shooter.shooterPID.getTargetPosition());
+        panelsTelemetry.addData("Hood angle", shooter.getHoodPosDeg());
+        panelsTelemetry.addData("distance to goal", distanceToGoal());
+        panelsTelemetry.addData("RPM error", shooter.shooterPID.getError());
+
+        panelsTelemetry.update();
 
         if (debug) {
             debug();
