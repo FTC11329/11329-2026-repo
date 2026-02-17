@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.pedroPathing.telemetry;
 
 import org.jetbrains.annotations.NotNull;
-import com.pedropathing.telemetry.Selectable;
+import org.firstinspires.ftc.teamcode.pedroPathing.telemetry.Selectable;
 public final class Item<T> extends Selectable<T> {
 
     public final T value;

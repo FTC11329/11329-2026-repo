@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.util;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Polygon;
 
@@ -52,7 +51,7 @@ public class ShapeDetection {
             new Pose(-2.2,0)
     };
 
-    public static boolean doesRobotIntersect(FieldShapes shape, Pose robotPose) {
+    public static boolean isRobotInside(FieldShapes shape, Pose robotPose) {
         Polygon polyA = null;
         switch (shape) {
             case closeTriangle:
@@ -65,8 +64,23 @@ public class ShapeDetection {
                 polyA = seesObeliskFrontTag;
                 break;
         }
-
         return polyA.intersects(createPolygon(createRobotCorners(robotPose)));
+    }
+
+    public static boolean doesRobotCrossLine(FieldShapes shape, Pose robotPose) {
+        Polygon polyA = null;
+        switch (shape) {
+            case closeTriangle:
+                polyA = closeTriangle;
+                break;
+            case farTriangle:
+                polyA = farTriangle;
+                break;
+            case seesObeliskFrontTag:
+                polyA = seesObeliskFrontTag;
+                break;
+        }
+        return polyA.overlaps(createPolygon(createRobotCorners(robotPose)));
     }
 
     public static Pose[] createRobotCorners(Pose robotPose) {

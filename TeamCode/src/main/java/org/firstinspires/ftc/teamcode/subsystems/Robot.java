@@ -16,7 +16,6 @@ import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.util.BallColor;
-import org.firstinspires.ftc.teamcode.util.ConfigTest;
 import org.firstinspires.ftc.teamcode.util.FieldShapes;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
 import org.firstinspires.ftc.teamcode.util.ShapeDetection;
@@ -25,7 +24,6 @@ import org.firstinspires.ftc.teamcode.util.ShootOnTheFly.ShotCalculator;
 import org.firstinspires.ftc.teamcode.util.ShootOnTheFly.ShotContext;
 import org.firstinspires.ftc.teamcode.util.ShootOnTheFly.ShotSolution;
 import org.firstinspires.ftc.teamcode.util.ShootOnTheFly.ShotType;
-import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterTestValues;
 
 import java.util.List;
 //todo import java.awt.Shape to make the inShootingZone() better
@@ -144,11 +142,11 @@ public class Robot {
 
     public boolean inShootingZone() {
         Pose curPose = follower.getPose();
-        return ShapeDetection.doesRobotIntersect(FieldShapes.closeTriangle, curPose) || ShapeDetection.doesRobotIntersect(FieldShapes.farTriangle, curPose);
+        return ShapeDetection.isRobotInside(FieldShapes.closeTriangle, curPose) || ShapeDetection.isRobotInside(FieldShapes.farTriangle, curPose);
     }
     public boolean inFarZone() {
         Pose curPose = follower.getPose();
-        return ShapeDetection.doesRobotIntersect(FieldShapes.farTriangle, curPose);
+        return ShapeDetection.isRobotInside(FieldShapes.farTriangle, curPose);
     }
     public boolean farBack() {
         return distanceToGoal() > 110;
@@ -406,18 +404,23 @@ public class Robot {
         lightsUpdate();
         visionUpdate();
 
-        panelsTelemetry.addData("turret pos", turret.getAngle());
-        panelsTelemetry.addData("turret target", turret.turretPID.getTargetPosition());
-        panelsTelemetry.addData("turret error", turret.turretPID.getError());
-        panelsTelemetry.addData("turret velocity", turret.getVelocity());
-        panelsTelemetry.addData("turret power", clamp(turret.turretPID.run(), -1, 1) * 360);
+        Drawing.drawShapesDebug(follower);
+        telemetry.addData("angle", turret.getAngle());
 
 
-        panelsTelemetry.addData("RPM", shooter.getRPM());
-        panelsTelemetry.addData("RPM target", shooter.shooterPID.getTargetPosition());
-        panelsTelemetry.addData("Hood angle", shooter.getHoodPosDeg());
-        panelsTelemetry.addData("distance to goal", distanceToGoal());
-        panelsTelemetry.addData("RPM error", shooter.shooterPID.getError());
+
+//        panelsTelemetry.addData("turret pos", turret.getAngle());
+//        panelsTelemetry.addData("turret target", turret.turretPID.getTargetPosition());
+//        panelsTelemetry.addData("turret error", turret.turretPID.getError());
+//        panelsTelemetry.addData("turret velocity", turret.getVelocity());
+//        panelsTelemetry.addData("turret power", clamp(turret.turretPID.run(), -1, 1) * 360);
+
+
+//        panelsTelemetry.addData("RPM", shooter.getRPM());
+//        panelsTelemetry.addData("RPM target", shooter.shooterPID.getTargetPosition());
+//        panelsTelemetry.addData("Hood angle", shooter.getHoodPosDeg());
+//        panelsTelemetry.addData("distance to goal", distanceToGoal());
+//        panelsTelemetry.addData("RPM error", shooter.shooterPID.getError());
 
         panelsTelemetry.update();
 

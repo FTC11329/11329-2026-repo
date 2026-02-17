@@ -89,6 +89,9 @@ public class Turret {
     double previousTime = System.nanoTime() * 1e-9;
     double curTime = System.nanoTime() * 1e-9;
     public void update(double angVel, double angAccel, double voltageCompensation) {
+        update(angVel,angAccel,voltageCompensation, true);
+    }
+    public void update(double angVel, double angAccel, double voltageCompensation, boolean usePid) {
         previousAngle = curAngle;
         previousTime = curTime;
         curTime = System.nanoTime() * 1e-9;
@@ -103,11 +106,14 @@ public class Turret {
         }
 
         turretPID.updatePosition(curAngle);  // degrees
-        double velocityFF = angVel * Constants.Turret.kV;
-        double accelerationFF = angAccel * Constants.Turret.kA;
-        setPower(turretPID.run() + velocityFF + accelerationFF);
+        if (usePid) {
+            double velocityFF = angVel * Constants.Turret.kV;
+            double accelerationFF = angAccel * Constants.Turret.kA;
+            setPower((turretPID.run() + velocityFF + accelerationFF) * voltageCompensation);
+        }
     }
 
+    // deg / sec
     public double getVelocity() {
         return (curAngle - previousAngle) / (curTime - previousTime);
     }

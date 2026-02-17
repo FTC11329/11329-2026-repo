@@ -357,7 +357,7 @@ public class Indexer {
             indexerPlug = true;
         }
 
-        if (indexerPlug && (ShapeDetection.doesRobotIntersect(FieldShapes.farTriangle, currentPose) || ShapeDetection.doesRobotIntersect(FieldShapes.closeTriangle, currentPose))) {
+        if (indexerPlug && (ShapeDetection.isRobotInside(FieldShapes.farTriangle, currentPose) || ShapeDetection.isRobotInside(FieldShapes.closeTriangle, currentPose))) {
             setIndexerPos(IndexerEnums.intake2);
             indexerPlug = false;
         }

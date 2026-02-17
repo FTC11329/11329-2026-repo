@@ -18,7 +18,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 public class Constants {
     public static FollowerConstants followerConstants = new FollowerConstants()
-            .mass(13)
+            .mass(13.5)
             .forwardZeroPowerAcceleration(-46.54367)
             .lateralZeroPowerAcceleration(-87.7)
             .lateralZeroPowerAcceleration(-20)
@@ -43,9 +43,9 @@ public class Constants {
             .strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.REVERSED);
 
     public static PathConstraints pathConstraints = new PathConstraints(
-            0.99,
+            0.95,
             100,
-            0.47,
+            1,
             1);
 
     public static MecanumConstants driveConstants = new MecanumConstants()

@@ -34,8 +34,7 @@ import java.util.List;
  * @author Baron Henderson - 20077 The Indubitables
  * @version 1.0, 6/26/2025
  */
-@Configurable
-@TeleOp(name = "Tuning", group = "Pedro Pathing")
+@TeleOp(name = "Tuning", group = "       Pedro Pathing")
 public class Tuning extends SelectableOpMode {
     public static Follower follower;
 
@@ -890,7 +889,7 @@ class DriveTuner extends OpMode {
 
     @Override
     public void init() {
-        follower.setStartingPose(new Pose(72, 72));
+        follower.setStartingPose(new Pose(0, 0));
     }
 
     /**
@@ -914,15 +913,24 @@ class DriveTuner extends OpMode {
 
         forwards = follower.pathBuilder()
                 .setGlobalDeceleration()
-                .addPath(new BezierLine(new Pose(72,72), new Pose(DISTANCE + 72,72)))
+                .addPath(new BezierLine(new Pose(0,0), new Pose(DISTANCE + 0,0)))
                 .setConstantHeadingInterpolation(0)
                 .build();
 
         backwards = follower.pathBuilder()
                 .setGlobalDeceleration()
-                .addPath(new BezierLine(new Pose(DISTANCE + 72,72), new Pose(72,72)))
+                .addPath(new BezierLine(new Pose(DISTANCE + 0,0), new Pose(0,0)))
                 .setConstantHeadingInterpolation(0)
                 .build();
+
+        try {
+            Thread.sleep(40);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+        Drawing.drawDebug(follower);
+        Drawing.drawShapesDebug(follower);
 
         follower.followPath(forwards);
     }

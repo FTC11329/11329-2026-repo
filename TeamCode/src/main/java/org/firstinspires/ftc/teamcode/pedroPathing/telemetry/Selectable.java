@@ -1,4 +1,4 @@
-package com.pedropathing.telemetry;
+package org.firstinspires.ftc.teamcode.pedroPathing.telemetry;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -25,4 +25,3 @@ public abstract class Selectable<T> {
         this.name = name;
     }
 }
-

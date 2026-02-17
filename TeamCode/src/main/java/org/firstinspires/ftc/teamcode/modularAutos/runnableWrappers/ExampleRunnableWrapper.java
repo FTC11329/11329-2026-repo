@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.modularAutos.runnableWrappers;
 
+import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
@@ -13,7 +14,9 @@ import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
 import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.EndValuesStorer;
+import org.firstinspires.ftc.teamcode.util.FieldShapes;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
+import org.firstinspires.ftc.teamcode.util.ShapeDetection;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,9 +26,12 @@ public class ExampleRunnableWrapper extends OpMode {
     Pose startPose;
     RobotSide robotSide;
     Robot robot;
+    TelemetryManager panelsTelemetry;
+
     private List<PathPlanner> steps = new ArrayList<>();
-    Timer zeroVelocityTimer = new Timer();
+    Timer zeroVelocityTimer = new Timer(2000000);
     private int currentStep = 0;
+    private boolean parkPathFollowed = false;
 
     @Override
     public void init() {
@@ -99,6 +105,28 @@ public class ExampleRunnableWrapper extends OpMode {
         robot.update();
         Drawing.drawShapesDebug(robot.follower);
 
+        if (!parkPathFollowed && robot.getOpmodeTimeSeconds() > 28.75 && (
+                (   (
+                        ShapeDetection.doesRobotCrossLine(FieldShapes.closeTriangle, robot.getCurrentPose()) ||
+                                ShapeDetection.doesRobotCrossLine(FieldShapes.farTriangle, robot.getCurrentPose())
+                ) &&
+                        robot.follower.getVelocity().getMagnitude() < Common.Timings.shootVelocity
+                ) ||
+                        !ShapeDetection.isRobotInside(FieldShapes.closeTriangle, robot.getCurrentPose())
+        )
+        ) {
+            if (robot.getCurrentPose().getX() > - 25) {
+                robot.follower.followPath(robot.follower.linearPathBuilder(Common.ShootPoses.parkShoot, Common.IntakeBallPoses.intakeSpike1Start));
+            } else {
+                robot.follower.followPath(robot.follower.linearPathBuilder(Common.ShootPoses.farShoot, Common.IntakeBallPoses.intakeSpike3Start));
+            }
+            parkPathFollowed = true;
+            return;
+        } else if (parkPathFollowed) {
+            return;
+        }
+
+
         // Stops the robot if done
         if (currentStep >= steps.size()) {
             telemetry.addData("Done", true);
@@ -109,11 +137,6 @@ public class ExampleRunnableWrapper extends OpMode {
         PathPlanner step = steps.get(currentStep);
         boolean done = step.run();
 
-//        telemetry.addData("time", robot.getOpmodeTimeSeconds());
-//        telemetry.addData("name", step);
-
-//        telemetry.update();
-
         if (done) {
             currentStep++;
             if (currentStep >= steps.size()) {
@@ -121,6 +144,17 @@ public class ExampleRunnableWrapper extends OpMode {
             }
             steps.get(currentStep).buildPaths();
         }
+
+//        Drawing.drawDebug(robot.follower);
+//        telemetry.addData("time", robot.getOpmodeTimeSeconds());
+//        telemetry.addData("name", step);
+//        for (BallColor i : robot.indexer.getBallCells()) {
+//            telemetry.addData("hasBalls", i);
+//        }
+//        panelsTelemetry.addData("all", (System.nanoTime() - lastTime) * 1e-6);
+//        panelsTelemetry.update();
+//        lastTime = System.nanoTime();
+
     }
 
     private Pose lastPose() {
