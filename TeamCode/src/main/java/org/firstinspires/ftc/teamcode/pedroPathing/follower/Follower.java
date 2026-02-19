@@ -1146,6 +1146,13 @@ public class Follower {
     public double getAngularVelocity() {
         return poseTracker.getAngularVelocity();
     }
+    /**
+     * This returns the angular acceleration of the robot.
+     * @return returns the angular acceleration as a double.
+     */
+    public double getAngularAcceleration() {
+        return poseTracker.getAngularAcceleration();
+    }
 
     private void setPath(Path path) {
         this.currentPath = path;

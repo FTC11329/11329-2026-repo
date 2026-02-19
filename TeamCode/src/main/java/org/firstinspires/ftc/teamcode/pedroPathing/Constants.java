@@ -38,6 +38,7 @@ public class Constants {
             .strafePodX(-2.3622)
             .distanceUnit(DistanceUnit.INCH)
             .hardwareMapName("pinpoint")
+            .yawScalar(1.00022675)
             .encoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD)
             .forwardEncoderDirection(GoBildaPinpointDriver.EncoderDirection.REVERSED)
             .strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.REVERSED);

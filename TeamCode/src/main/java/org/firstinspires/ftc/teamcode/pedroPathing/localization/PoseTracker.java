@@ -29,6 +29,7 @@ public class PoseTracker {
     private Vector previousVelocity = new Vector();
 
     private Vector currentAcceleration = new Vector();
+    double previousAngularVelocity;
 
     private double xOffset = 0;
     private double yOffset = 0;
@@ -56,6 +57,7 @@ public class PoseTracker {
      */
     public void update() {
         previousVelocity = getVelocity();
+        previousAngularVelocity = getAngularVelocity();
         previousPose = applyOffset(getRawPose());
         currentPose = null;
         currentVelocity = null;
@@ -261,6 +263,10 @@ public class PoseTracker {
         return currentAcceleration.copy();
     }
 
+
+    public double getAngularAcceleration() {
+        return ((getAngularVelocity() - previousAngularVelocity) / (currentPoseTime - previousPoseTime)) / 1e9;
+    }
     /**
      * This resets the heading of the robot to the IMU's heading, using Road Runner's pose reset.
      */

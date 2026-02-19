@@ -512,7 +512,7 @@ public class Indexer {
         }
 
         // once at highest full index, shoot while going back to intake
-        if (shooting && !dumbShootState1 && !dumbShootState2 && isAtPosition() && shotTimer.getElapsedTimeSeconds() > .2) {
+        if (shooting && !dumbShootState1 && !dumbShootState2 && isAtPosition()) {
             setIndexerPos(IndexerEnums.intake0);
             dumbShootState1 = true;
             boostPID = false;

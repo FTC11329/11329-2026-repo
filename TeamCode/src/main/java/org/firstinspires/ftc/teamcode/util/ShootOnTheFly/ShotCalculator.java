@@ -38,7 +38,8 @@ public class ShotCalculator {
                 (1 / ctx.rpmRatio) *
                         stv.get(ctx.robotPose.distanceFrom(ctx.goalPose)).timeInFlight;
 
-        Vector velocity = ctx.velocity.plus(ctx.acceleration.times(.015)); // accounts for lag in reacting to sotf
+//        Vector velocity = ctx.velocity.plus(ctx.acceleration.times(.015)); // accounts for lag in reacting to sotf
+        Vector velocity = ctx.velocity; // accounts for lag in reacting to sotf
         Pose futrGoal = ctx.goalPose.plusVector(velocity, -timeInFlight);
 
         timeInFlight =

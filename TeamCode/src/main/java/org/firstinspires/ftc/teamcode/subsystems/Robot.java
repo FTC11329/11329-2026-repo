@@ -183,7 +183,7 @@ public class Robot {
 
     double angleToGoalVelocity;
     public void turretUpdate() {
-        turret.update(angleToGoalVelocity + follower.getAngularVelocity(), angleToGoalAcceleration);
+        turret.update(angleToGoalVelocity + follower.getAngularVelocity(), angleToGoalAcceleration + follower.getAngularAcceleration(), getVoltageCompensation());
     }
 
     // SHOOTER*************************************************************************************~
@@ -405,7 +405,8 @@ public class Robot {
         visionUpdate();
 
         Drawing.drawShapesDebug(follower);
-        telemetry.addData("angle", turret.getAngle());
+//        telemetry.addData("angle", turret.getAngle());
+        telemetry.addData("heading", Math.toDegrees(follower.getPose().getHeading()));
 
 
 
@@ -414,6 +415,7 @@ public class Robot {
 //        panelsTelemetry.addData("turret error", turret.turretPID.getError());
 //        panelsTelemetry.addData("turret velocity", turret.getVelocity());
 //        panelsTelemetry.addData("turret power", clamp(turret.turretPID.run(), -1, 1) * 360);
+//        panelsTelemetry.addData("turret Acceleration", follower.getAngularAcceleration());
 
 
 //        panelsTelemetry.addData("RPM", shooter.getRPM());

@@ -132,7 +132,7 @@ public class MainTeleop {
         queueGreen.checkStatus(gamepad2.y); // Press to queue green
         queuePurple.checkStatus(gamepad2.x); // Press to queue purple
         autoShoot.checkStatus(gamepad2.a); // Toggle to turn on auto shoot
-        fastShootButton.checkStatus(gamepad2.b); // press to shoot 3
+        fastShootButton.checkStatus(gamepad2.b || gamepad1.b); // press to shoot 3
         smartShoot.checkStatus(gamepad2.back); // Toggle to turn on smart shoot
 
         overrideIntake.checkStatus(gamepad2.left_bumper); // hold to turn on ignore allowintaking
