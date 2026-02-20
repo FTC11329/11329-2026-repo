@@ -19,6 +19,7 @@ import org.firstinspires.ftc.teamcode.util.ColorFunctions;
 import org.firstinspires.ftc.teamcode.util.FieldShapes;
 import org.firstinspires.ftc.teamcode.util.IndexerEnums;
 import org.firstinspires.ftc.teamcode.util.ShapeDetection;
+import org.firstinspires.ftc.teamcode.util.SmartShootState;
 
 public class Indexer {
 
@@ -38,15 +39,11 @@ public class Indexer {
     boolean beenInited = false;
     public double encoderOffsetFromAuto = 0;
     int updatingEncoderPos;
-    public IndexerEnums deleteme = IndexerEnums.intake1;
-
     boolean startShooting = false;
     boolean shooting = false;
     boolean unjam = false;
     boolean boostPID;
     boolean dumbShootState1 = false;
-    boolean smartShootStage1 = false;
-    boolean smartShootStage2 = false;
     private boolean allowIntaking = true;
     private boolean forceEndPlug = false;
     private boolean doSpit = false;
@@ -267,6 +264,11 @@ public class Indexer {
         }
     }
 
+    public void emptyQueue() {
+        queuedBalls[0] = BallColor.None;
+        queuedBalls[1] = BallColor.None;
+        queuedBalls[2] = BallColor.None;
+    }
     public BallColor removeFrontQueue() {
         if (!isQueuedBallsEmpty()) {
             BallColor removedColor = queuedBalls[0];
@@ -340,11 +342,6 @@ public class Indexer {
             return;
         }
 
-        // starts shooting if there is anything in queue
-        if (!isQueuedBallsEmpty() && doSmartShoot && !shooting) {
-            startShooting = true;
-        }
-
         if (startShooting && readyToShoot) {
             shooting = true; // makes sure things don't run this loop in intake
         }
@@ -376,10 +373,8 @@ public class Indexer {
         intakeLogicUpdate(intaking, readyToShoot);
         if (doSmartShoot) {
             smartShootLogicUpdate(readyToShoot);
-        } else if (!isFarShot){
-            dumbShootLogicUpdate(readyToShoot);
         } else {
-            farShootingLogicUpdate(readyToShoot);
+            dumbShootLogicUpdate(readyToShoot);
         }
         if (isHasBallsFull() && readyToShoot && isAtPosition() && !doSmartShoot) {
             spinTransferWheel(true);
@@ -408,59 +403,7 @@ public class Indexer {
             allowIntaking = true;
         }
     }
-    boolean shotTimerStarted = false;
-    boolean next = false;
-    boolean hasShot = true;
     Timer shotTimer = new Timer();
-    private final double SHOT_TIME = .2;
-
-    public void farShootingLogicUpdate(boolean readyToShoot) {
-        if (startShooting && readyToShoot) {
-            startShooting = false;
-            shotTimer.resetTimer();
-            spinTransferWheel(true);
-        }
-
-        // once at highest full index, shoot while going back to intake
-        if (shooting && isAtPosition() && !shotTimerStarted) {
-            shotTimerStarted = true;
-            allowIntaking = false;
-        }
-        if (!readyToShoot) {
-            hasShot = true;
-        }
-        if (shooting && shotTimerStarted && shotTimer.getElapsedTimeSeconds() > SHOT_TIME /*&& readyToShoot */ && isAtPosition() && hasShot) {
-            shotTimer.resetTimer();
-            switch (currentIndexerState) {
-                case intake1:
-                case intake2:
-                case intake3:
-                    setIndexerPos(IndexerEnums.shoot1);
-                    hasShot = false;
-                    break;
-                case shoot1:
-                    setIndexerPos(IndexerEnums.shoot0);
-                    hasShot = false;
-                    break;
-                case shoot0:
-                    setIndexerPos(IndexerEnums.shoot2);
-                    hasShot = false;
-                    break;
-                case shoot2:
-                    setIndexerPos(IndexerEnums.intake0);
-                    break;
-                case intake0: //todo: deal with this if this is true immediately
-                    shooting = false;
-                    spinTransferWheel(false);
-                    allowIntaking = true;
-                    shotTimerStarted = false;
-                    clearBallCells();
-                    break;
-                default:
-                    throw new RuntimeException("far shooting switch");
-            }
-        }
-    }
     public void setHasBalls(BallColor[] set) {
         ballCells = set;
     }
@@ -532,38 +475,44 @@ public class Indexer {
             dumbShootState2 = false;
         }
     }
+    SmartShootState smartShootState = SmartShootState.IDLE;
     public void smartShootLogicUpdate(boolean readyToShoot) {
-        if (!isAtPosition()) {
-            spinTransferWheel(false);
-        }
-        if (startShooting && readyToShoot) {
-            deleteme = IndexerEnums.getEnum(findIndexWithColor(queuedBalls[0]), true);
-            setIndexerPos(IndexerEnums.getEnum(findIndexWithColor(queuedBalls[0]), true));
-            smartShootStage1 = true;
-            startShooting = false;
-        }
-        if (shooting && smartShootStage1 && feedTimer.getElapsedTimeSeconds() > Constants.Indexer.smartShootSpacingSec && isAtPosition()) {
-            spinTransferWheel(true);
-            feedTimer.resetTimer();
-            smartShootStage1 = false;
-            smartShootStage2 = true;
-        }
-        if (shooting && smartShootStage2 && feedTimer.getElapsedTimeSeconds() > Constants.Indexer.smartFeedSec) {
-            //removes the cell of the ball we shot
-            spinTransferWheel(false);
-            ballCells[findIndexWithColor(queuedBalls[0])] = BallColor.None;
-            removeFrontQueue();
-            if (isQueuedBallsEmpty()) {
-                allowIntaking = true;
-                // if no more queue then go to intake
-                setIndexerPos(IndexerEnums.intake0);
-                shooting = false;
-                smartShootStage2 = false;
-            } else {
-                setIndexerPos(IndexerEnums.getEnum(findIndexWithColor(queuedBalls[0]), true));
-                smartShootStage2 = false;
-                smartShootStage1 = true;
-            }
+        if (!isAtPosition()) {spinTransferWheel(false);}
+
+        switch (smartShootState) {
+            case IDLE:
+                if (startShooting && readyToShoot) {
+                    startShooting = false;
+                    smartShootState = SmartShootState.GO_TO_INDEX;
+                }
+                break;
+            case GO_TO_INDEX:
+                spinTransferWheel(false);
+                if (isQueuedBallsEmpty()) {
+                    allowIntaking = true;
+                    setIndexerPos(IndexerEnums.intake0);
+                    shooting = false;
+                    smartShootState = SmartShootState.IDLE;
+                } else {
+                    setIndexerPos(IndexerEnums.getEnum(findIndexWithColor(queuedBalls[0]), true));
+                    smartShootState = SmartShootState.SHOOT;
+                }
+                break;
+            case SHOOT:
+                if (shooting && isAtPosition()) {
+                    spinTransferWheel(true);
+                    feedTimer.resetTimer();
+                    ballCells[findIndexWithColor(queuedBalls[0])] = BallColor.None;
+                    removeFrontQueue();
+                    smartShootState = SmartShootState.WAIT_TO_SETTLE;
+                }
+                break;
+            case WAIT_TO_SETTLE:
+                if (queuedBalls[0] == queuedBalls[1]
+                        || feedTimer.getElapsedTimeSeconds() > Constants.Indexer.smartShootSpacingSec) {
+                    smartShootState = SmartShootState.GO_TO_INDEX;
+                }
+                break;
         }
     }
 

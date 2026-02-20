@@ -199,6 +199,7 @@ public class Robot {
     // Adds a ball of color ball color to queuedBalls list
     public void qBall(BallColor qdColor) {
         indexer.addToQueue(qdColor);
+        shootAll();
     }
 
     public void casualShooterModeOn() {
@@ -315,7 +316,10 @@ public class Robot {
     // SPINDEXER***********************************************************************************~
 
     public void doSmartShoot(boolean set) {
-        smartShoot = set;
+        if (smartShoot != set) {
+            smartShoot = set;
+            indexer.emptyQueue();
+        }
     }
     public void isIntaking(boolean isIntaking) {
         this.isIntaking = isIntaking;
@@ -435,6 +439,22 @@ public class Robot {
 
         Drawing.drawShapesDebug(this.follower);
         panelsTelemetry.update();
+
+
+        panelsTelemetry.addData("turret pos", turret.getAngle());
+        panelsTelemetry.addData("turret target", turret.turretPID.getTargetPosition());
+        panelsTelemetry.addData("turret error", turret.turretPID.getError());
+        panelsTelemetry.addData("turret velocity", turret.getVelocity());
+        panelsTelemetry.addData("turret power", clamp(turret.turretPID.run(), -1, 1) * 360);
+        panelsTelemetry.addData("turret Acceleration", follower.getAngularAcceleration());
+
+
+        panelsTelemetry.addData("RPM", shooter.getRPM());
+        panelsTelemetry.addData("RPM target", shooter.shooterPID.getTargetPosition());
+        panelsTelemetry.addData("Hood angle", shooter.getHoodPosDeg());
+        panelsTelemetry.addData("distance to goal", distanceToGoal());
+        panelsTelemetry.addData("RPM error", shooter.shooterPID.getError());
+
 
 //        panelsTelemetry.addData("Hood Angle correction", deltaDeg);
 //        panelsTelemetry.addData("Shoot overPower", shooter.shooterPID.run() >= 1 ? 1000 : 0);
