@@ -166,7 +166,7 @@ public final class MotorEffencicyLogger extends LinearOpMode {
     public double powerIn() {
         return getMotorCurrent(CurrentUnit.AMPS) * getMotorVoltage();
     }
-    
+
     public double motorEfficiency() {
         return powerOut() / powerIn();
     }

@@ -183,7 +183,7 @@ public class Robot {
 
     double angleToGoalVelocity;
     public void turretUpdate() {
-        turret.update(angleToGoalVelocity + follower.getAngularVelocity(), angleToGoalAcceleration + follower.getAngularAcceleration(), getVoltageCompensation());
+        turret.update(angleToGoalVelocity + follower.getAngularVelocity(), follower.getAngularAcceleration(), getVoltageCompensation());
     }
 
     // SHOOTER*************************************************************************************~
@@ -242,6 +242,7 @@ public class Robot {
         // expose turret feedforward
         angleToGoalVelocity = s.turretVel;
         angleToGoalAcceleration = s.turretAccel;
+        panelsTelemetry.addData("angle to goal accel", s.turretAccel);
 
         turret.setTargetRad(s.turretAngleRad);
 
@@ -400,17 +401,33 @@ public class Robot {
         for (LynxModule hub : hubs) {
             hub.clearBulkCache();
         }
-        shooterUpdate();
-        intakeUpdate();
-        spindexerUpdate();
-        turretUpdate();
-        follower.update();
-        lightsUpdate();
-        visionUpdate();
 
-        Drawing.drawShapesDebug(follower);
+        long start = System.currentTimeMillis();
+        shooterUpdate();
+        long shooter = System.currentTimeMillis();
+        intakeUpdate();
+        long intake = System.currentTimeMillis();
+        spindexerUpdate();
+        long spindexer = System.currentTimeMillis();
+        turretUpdate();
+        long turret = System.currentTimeMillis();
+        follower.update();
+        long followa = System.currentTimeMillis();
+        lightsUpdate();
+        long lights = System.currentTimeMillis();
+
+
+        panelsTelemetry.addData("shooter", -(start - shooter));
+        panelsTelemetry.addData("intake", -(shooter - intake));
+        panelsTelemetry.addData("spindexer", -(intake - spindexer));
+        panelsTelemetry.addData("turret", -(spindexer - turret));
+        panelsTelemetry.addData("follower", -(turret - followa));
+        panelsTelemetry.addData("lights", -(followa - lights));
+        panelsTelemetry.addData("all", (lights - lastTime));
+        lastTime = System.currentTimeMillis();
+
+//        telemetry.addData("heading", Math.toDegrees(follower.getPose().getHeading()));
 //        telemetry.addData("angle", turret.getAngle());
-        telemetry.addData("heading", Math.toDegrees(follower.getPose().getHeading()));
 
 
 
@@ -420,13 +437,6 @@ public class Robot {
 //        panelsTelemetry.addData("turret velocity", turret.getVelocity());
 //        panelsTelemetry.addData("turret power", clamp(turret.turretPID.run(), -1, 1) * 360);
 //        panelsTelemetry.addData("turret Acceleration", follower.getAngularAcceleration());
-
-
-//        panelsTelemetry.addData("RPM", shooter.getRPM());
-//        panelsTelemetry.addData("RPM target", shooter.shooterPID.getTargetPosition());
-//        panelsTelemetry.addData("Hood angle", shooter.getHoodPosDeg());
-//        panelsTelemetry.addData("distance to goal", distanceToGoal());
-//        panelsTelemetry.addData("RPM error", shooter.shooterPID.getError());
 
         panelsTelemetry.update();
 

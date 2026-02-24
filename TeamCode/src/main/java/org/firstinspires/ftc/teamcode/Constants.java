@@ -47,7 +47,7 @@ public class Constants {
         public static double CCW_F = -0.045;
         public static double CW_F = 0.1;
         public static double kV = .095;
-        public static double kA = .012;
+        public static double kA = .00;
 
 
         public static PIDFCoefficients turretPID = new PIDFCoefficients(P, I, D, 1);
