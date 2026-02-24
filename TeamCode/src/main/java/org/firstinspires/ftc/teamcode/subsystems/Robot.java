@@ -425,6 +425,8 @@ public class Robot {
         panelsTelemetry.addData("lights", -(followa - lights));
         panelsTelemetry.addData("all", (lights - lastTime));
         lastTime = System.currentTimeMillis();
+        telemetry.addData("color", indexer.getColor());
+
 
 //        telemetry.addData("heading", Math.toDegrees(follower.getPose().getHeading()));
 //        telemetry.addData("angle", turret.getAngle());
