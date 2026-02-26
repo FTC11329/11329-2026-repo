@@ -1,23 +1,17 @@
 package org.firstinspires.ftc.teamcode.teleops;
 
-import com.bylazar.telemetry.PanelsTelemetry;
-import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.hardware.lynx.LynxModule;
-import com.qualcomm.hardware.rev.RevTouchSensor;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.TouchSensor;
-import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.teamcode.subsystems.Indexer;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
-import org.firstinspires.ftc.teamcode.util.RobotSide;
 
 import java.util.List;
 
@@ -41,6 +35,7 @@ public class TemporaryClassThatWeAreTotallyGoingToDelete extends OpMode {
     DcMotorEx rightBack;
     double hoodPos = 5;
     TouchSensor touchSensor;
+    double lastTime = 0;
     @Override
     public void init() {
         analog2 = hardwareMap.get(AnalogInput.class, "spindexerAnalog2");
@@ -49,11 +44,27 @@ public class TemporaryClassThatWeAreTotallyGoingToDelete extends OpMode {
 //        color7 = hardwareMap.get(DigitalChannel.class, "spindexerColor7");
 //        color6.setMode(DigitalChannel.Mode.OUTPUT);
 //        color7.setMode(DigitalChannel.Mode.OUTPUT);
+        lastTime = System.nanoTime();
     }
 
     @Override
     public void loop() {
-        telemetry.addData("Red", analog2.getVoltage());
-        telemetry.addData("Distance", analog3.getVoltage());
+
+        double startTime = System.nanoTime();
+
+        double hue = analog2.getVoltage() / 3.3 * 255;
+        boolean distance = analog3.getVoltage() / 3.3 > 0.5;
+        boolean green  = 91 < hue && hue < 95 && distance;
+        boolean purple = 79 < hue && hue < 89 && distance;
+
+        double loop = (System.nanoTime() - startTime) * 1e-9;
+
+        telemetry.addData("loop IN MS BTW", loop);
+        telemetry.addData("Voltage", analog2.getVoltage());
+        telemetry.addData("Hue", hue);
+        telemetry.addData("Distance", distance);
+        telemetry.addData("Green", green);
+        telemetry.addData("Purple", purple);
+
     }
 }

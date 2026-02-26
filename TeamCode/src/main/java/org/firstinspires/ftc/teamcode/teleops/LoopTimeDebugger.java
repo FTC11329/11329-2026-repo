@@ -19,7 +19,7 @@ import org.firstinspires.ftc.teamcode.util.RobotSide;
 
 import java.util.List;
 
-@TeleOp(name = "Looe Time Debugger", group = "     group")
+@TeleOp(name = "Loop Time Debugger", group = "     group")
 public class LoopTimeDebugger extends OpMode {
     TelemetryManager panelsTelemetry;
 
