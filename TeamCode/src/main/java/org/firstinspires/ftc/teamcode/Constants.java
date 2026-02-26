@@ -39,7 +39,7 @@ public class Constants {
     public static class Turret {
         public static double closeEnough = 8; //Inches
         public static double turretOffset = 0;
-        public static double P = 0.015; //todo: see if we can't up this too make the turret a little snappier
+        public static double P = 0.015;
         public static double I = 0;
         public static double D = 0;
 
@@ -64,6 +64,10 @@ public class Constants {
 
         public static double entryAngle = Math.toRadians(-30);
         public static double entryHeight = 34;
+    }
+    public static class Climber {
+        public static double climbedPosition = 0.5  ;
+        public static double storedPosition = 1;
     }
     public static class Color {
         public static double[] green = {0.0269, 0.0792, 0.06, 0.9551}; //0.743
@@ -93,8 +97,20 @@ public class Constants {
 
         public static double backDst = 2.2;
     }
-    public static class Climber {
-        public static double climbedPosition = 0.5  ;
-        public static double storedPosition = 1;
-    }
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

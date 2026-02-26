@@ -17,6 +17,7 @@ import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterTestValue
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
 
@@ -152,6 +153,60 @@ public class Vision {
             }
         }
         return motif;
+    }
+
+    /**
+     * @return a list of ball poses relative to the center of the robot chassis, with the color, and if you
+     */
+    public List<DetectedBall> searchForBalls() {
+        List<DetectedBall> detectedBalls = new ArrayList<>();
+        LLResult result = limelight.getLatestResult();
+        if (result.isValid()) {
+            List<LLResultTypes.DetectorResult> detections = result.getDetectorResults();
+            for (LLResultTypes.DetectorResult detection : detections) {
+                String className = detection.getClassName(); // What was detected
+                BallColor ballColor;
+                if (className.equals("green")){
+                    ballColor = BallColor.Green;
+                } else if (className.equals("purple")) {
+                    ballColor = BallColor.Purple;
+                } else {
+                    ballColor = BallColor.Any;
+                }
+                double tx = detection.getTargetXDegrees(); // Where it is (left-right)
+                double ty = detection.getTargetYDegrees(); // Where it is (up-down)
+                Pose ballPose = poseEstimation(tx, ty);
+                long timePhotoWasTaken = result.getControlHubTimeStamp();
+                detectedBalls.add(new DetectedBall(ballPose, ballColor, timePhotoWasTaken));
+            }
+        }
+        return detectedBalls;
+    }
+    public Pose poseEstimation(double targetX,double targetY) {
+        //todo: double check these numbers
+            double cameraPitch = Math.toRadians(110); // zero facing straight down 180 facing straight up
+        double ballRadius = 2.5; // radius of the ball in inches
+        double cameraHeight = 12; // distance from the camera to the ground in inches
+        double cameraOffsetX = 0; // distance X to center of the chassis
+        double cameraOffsetY = 8; // distance Y to center of the chassis
+        
+        double cameraToBallAngle = cameraPitch - targetY;
+        double heightOfPointOnBall = (ballRadius * Math.cos(cameraToBallAngle)) + ballRadius;
+        double heightDifference = cameraHeight - heightOfPointOnBall;
+        double distanceToBallY = (ballRadius * Math.sin(cameraToBallAngle)) 
+                + (heightDifference * Math.tan(cameraToBallAngle)); // Y is forward backward
+        double distanceToBallX = distanceToBallY * Math.tan(targetX);
+        return new Pose(distanceToBallX + cameraOffsetX, distanceToBallY + cameraOffsetY);
+    }
+    public static class DetectedBall {
+        Pose ballPose;
+        BallColor ballColor;
+        long timePhotoWasTaken;
+        DetectedBall(Pose ballPose, BallColor ballColor, long timePhotoWasTaken){
+            this.ballColor = ballColor;
+            this.ballPose = ballPose;
+            this.timePhotoWasTaken = timePhotoWasTaken;
+        }
     }
 
     public void stop() {}
