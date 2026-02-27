@@ -134,17 +134,21 @@ public class Indexer {
         return doSpit;
     }
 
+    public double getHue() {
+        return analog2.getVoltage() / 3.3 * 255;
+    }
+
+    public boolean isDistance() {
+        return analog3.getVoltage() / 3.3 > 0.5;
+    }
+
     public BallColor getColor(){
-        double hue = analog2.getVoltage() / 3.3 * 255;
-        boolean distance = analog3.getVoltage() / 3.3 > 0.5;
-        boolean green  = 91 < hue && hue < 95 && distance;
-        boolean purple = 79 < hue && hue < 89 && distance;
-        if (green) {
-            return BallColor.Green;
-        } else if (purple) {
-            return BallColor.Purple;
-        } else {
+        if (!isDistance()) {
             return BallColor.None;
+        } else if (getHue() > 80) {
+            return BallColor.Green;
+        } else {
+            return BallColor.Purple;
         }
     }
     public boolean isHasBallsFull() {

@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
+import org.firstinspires.ftc.teamcode.pedroPathing.math.Vector;
 import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
 import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterState;
@@ -158,7 +159,7 @@ public class Vision {
     /**
      * @return a list of ball poses relative to the center of the robot chassis, with the color, and the time we took the photo
      */
-    public List<DetectedBall> searchForBalls() {
+    public List<DetectedBall> searchForBalls(Pose curPose) {
         List<DetectedBall> detectedBalls = new ArrayList<>();
         LLResult result = limelight.getLatestResult();
         if (result.isValid()) {
@@ -175,14 +176,53 @@ public class Vision {
                 }
                 double tx = detection.getTargetXDegrees(); // Where it is (left-right)
                 double ty = detection.getTargetYDegrees(); // Where it is (up-down)
-                Pose ballPose = poseEstimation(tx, ty);
+                Pose ballPose = poseEstimation(tx, ty, curPose);
                 long timePhotoWasTaken = result.getControlHubTimeStamp();
                 detectedBalls.add(new DetectedBall(ballPose, ballColor, timePhotoWasTaken));
             }
         }
         return detectedBalls;
     }
-    public Pose poseEstimation(double targetX,double targetY) {
+
+    public List<DetectedBall> searchForBallsWithVelocity(List<DetectedBall> lastBalls, Pose curPose) {
+        if (lastBalls.isEmpty()) {
+            return searchForBalls(curPose);
+        }
+        List<DetectedBall> detectedBalls = new ArrayList<>();
+        LLResult result = limelight.getLatestResult();
+        if (result.isValid()) {
+            List<LLResultTypes.DetectorResult> detections = result.getDetectorResults();
+            for (LLResultTypes.DetectorResult detection : detections) {
+                String className = detection.getClassName(); // What was detected
+                BallColor ballColor;
+                if (className.equals("green")){
+                    ballColor = BallColor.Green;
+                } else if (className.equals("purple")) {
+                    ballColor = BallColor.Purple;
+                } else {
+                    ballColor = BallColor.Any;
+                }
+                double tx = detection.getTargetXDegrees(); // Where it is (left-right)
+                double ty = detection.getTargetYDegrees(); // Where it is (up-down)
+                Pose ballPose = poseEstimation(tx, ty, curPose);
+                long timePhotoWasTaken = result.getControlHubTimeStamp();
+                detectedBalls.add(new DetectedBall(ballPose, ballColor, timePhotoWasTaken));
+            }
+        }
+        for (DetectedBall lastBall : lastBalls) {
+            for (DetectedBall thisBall : detectedBalls) {
+                if (lastBall.ballColor == thisBall.ballColor && thisBall.ballPose.distanceFrom(lastBall.ballPose) < 2.5) {
+                    thisBall.setLastPose(lastBall.lastPose);
+                    thisBall.setLastTimePhotoWasTaken(lastBall.timePhotoWasTaken);
+                    thisBall.calcVelocity();
+                }
+            }
+        }
+        return detectedBalls;
+    }
+
+
+    public Pose poseEstimation(double targetX,double targetY, Pose curpose) {
         //todo: double check these numbers
         double cameraPitch = Math.toRadians(110); // zero facing straight down 180 facing straight up
         double ballRadius = 2.5; // radius of the ball in inches
@@ -195,17 +235,39 @@ public class Vision {
         double heightDifference = cameraHeight - heightOfPointOnBall;
         double distanceToBallY = (ballRadius * Math.sin(cameraToBallAngle)) 
                 + (heightDifference * Math.tan(cameraToBallAngle)); // Y is forward backward
-        double distanceToBallX = distanceToBallY * Math.tan(targetX);
-        return new Pose(distanceToBallX + cameraOffsetX, distanceToBallY + cameraOffsetY);
+        double distanceToBallX = (distanceToBallY * Math.tan(targetX));
+
+        Vector robotToBallVector = new Vector(new Pose(distanceToBallX + cameraOffsetX, distanceToBallY + cameraOffsetY));
+        robotToBallVector.rotateVector(curpose.getHeading());
+        return curpose.plusVector(robotToBallVector);
     }
     public static class DetectedBall {
         public Pose ballPose;
+        public Pose lastPose;
         public BallColor ballColor;
         public long timePhotoWasTaken;
+        public long lastTimePhotoWasTaken;
+        public Vector velocity;
         DetectedBall(Pose ballPose, BallColor ballColor, long timePhotoWasTaken){
             this.ballColor = ballColor;
             this.ballPose = ballPose;
             this.timePhotoWasTaken = timePhotoWasTaken;
+        }
+
+        public void setLastPose(Pose lastPose) {
+            this.lastPose = lastPose;
+        }
+
+        public void setLastTimePhotoWasTaken(long lastTimePhotoWasTaken) {
+            this.lastTimePhotoWasTaken = lastTimePhotoWasTaken;
+        }
+
+        public void calcVelocity() {
+            long deltaTime = timePhotoWasTaken - lastTimePhotoWasTaken;
+            double velocityX = (ballPose.getX() - lastPose.getX()) / deltaTime;
+            double velocityY = (ballPose.getY() - lastPose.getY()) / deltaTime;
+
+            velocity = new Vector(new Pose(velocityX, velocityY));
         }
     }
 

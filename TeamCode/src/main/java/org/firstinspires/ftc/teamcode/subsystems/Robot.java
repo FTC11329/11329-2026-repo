@@ -403,6 +403,40 @@ public class Robot {
             hub.clearBulkCache();
         }
 
+        shooterUpdate();
+        intakeUpdate();
+        spindexerUpdate();
+        turretUpdate();
+        follower.update();
+        visionUpdate();
+        lightsUpdate();
+
+        panelsTelemetry.addData("dis", indexer.isDistance() ? 80 : 75);
+        panelsTelemetry.addData("Hue", indexer.getHue());
+
+        lastTime = System.currentTimeMillis();
+
+        List<Vision.DetectedBall> detectedBalls = vision.searchForBalls(getCurrentPose());
+        for (int i = 0; i < detectedBalls.size(); i++) {
+            telemetry.addData("ball " + i + ":", detectedBalls.get(i).ballPose);
+            telemetry.addData("ball color", detectedBalls.get(i).ballColor);
+            telemetry.addData("latency", (System.currentTimeMillis() - detectedBalls.get(i).timePhotoWasTaken) * 1e-3);
+        }
+
+        telemetry.update();
+        panelsTelemetry.update();
+
+        if (debug) {
+            debug();
+        }
+    }
+
+    public void debug() {
+
+        Drawing.drawShapesDebug(this.follower);
+        panelsTelemetry.update();
+
+        /*
         long start = System.currentTimeMillis();
         shooterUpdate();
         long shooter = System.currentTimeMillis();
@@ -425,28 +459,8 @@ public class Robot {
         panelsTelemetry.addData("follower", -(turret - followa));
         panelsTelemetry.addData("lights", -(followa - lights));
         panelsTelemetry.addData("all", (lights - lastTime));
-        lastTime = System.currentTimeMillis();
-
-        List<Vision.DetectedBall> detectedBalls = vision.searchForBalls();
-        for (int i = 0; i < detectedBalls.size(); i++) {
-            telemetry.addData("ball " + i + ":", detectedBalls.get(i).ballPose);
-            telemetry.addData("ball color", detectedBalls.get(i).ballColor);
-            telemetry.addData("latency", (System.currentTimeMillis() - detectedBalls.get(i).timePhotoWasTaken) * 1e-3);
-        }
-
-        telemetry.update();
-        panelsTelemetry.update();
-
-        if (debug) {
-            debug();
-        }
-    }
-
-    public void debug() {
-
-        Drawing.drawShapesDebug(this.follower);
-        panelsTelemetry.update();
-
+        panelsTelemetry.addData("hue", indexer.getHue());
+         */
 
         panelsTelemetry.addData("turret pos", turret.getAngle());
         panelsTelemetry.addData("turret target", turret.turretPID.getTargetPosition());
