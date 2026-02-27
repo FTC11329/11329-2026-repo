@@ -199,9 +199,9 @@ public class Vision {
         return new Pose(distanceToBallX + cameraOffsetX, distanceToBallY + cameraOffsetY);
     }
     public static class DetectedBall {
-        Pose ballPose;
-        BallColor ballColor;
-        long timePhotoWasTaken;
+        public Pose ballPose;
+        public BallColor ballColor;
+        public long timePhotoWasTaken;
         DetectedBall(Pose ballPose, BallColor ballColor, long timePhotoWasTaken){
             this.ballColor = ballColor;
             this.ballPose = ballPose;

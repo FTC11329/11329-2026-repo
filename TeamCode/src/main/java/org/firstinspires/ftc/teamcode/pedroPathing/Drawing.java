@@ -11,14 +11,19 @@ import com.bylazar.field.Line;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 
+import org.firstinspires.ftc.teamcode.subsystems.Vision;
+import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.math.Vector;
 import org.firstinspires.ftc.teamcode.pedroPathing.paths.Path;
 import org.firstinspires.ftc.teamcode.pedroPathing.paths.PathChain;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.PoseHistory;
+import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.FieldShapes;
 import org.firstinspires.ftc.teamcode.util.ShapeDetection;
+
+import java.util.List;
 
 
 /**
@@ -43,6 +48,12 @@ public class Drawing {
     );
     private static final Style seesObeliskLook = new Style(
             "", "#FFBF00", 0.75
+    );
+    private static final Style purpleBallLook = new Style(
+            "", "#71187d", 0.75
+    );
+    private static final Style greenBallLook = new Style(
+            "", "#29c324", 0.75
     );
 
     /**
@@ -98,6 +109,22 @@ public class Drawing {
         sendPacket();
     }
 
+    public static void drawBalls(List<Vision.DetectedBall> detectBallsList) {
+        for (Vision.DetectedBall detectedBall : detectBallsList) {
+            drawBallNoPacketSend(detectedBall.ballPose, detectedBall.ballColor);
+        }
+        sendPacket();
+    }
+
+    public static void drawBallNoPacketSend(Pose ball, BallColor ballColor) {
+        if (ballColor == BallColor.Purple) {
+            panelsField.setStyle(purpleBallLook);
+        } else if (ballColor == BallColor.Green) {
+            panelsField.setStyle(greenBallLook);
+        }
+        panelsField.moveCursor(ball.getX(), ball.getY());
+        panelsField.circle(2.5);
+    }
     private static void drawShapeUsingCorners(Pose[] corners) {
         boolean first = true;
         for (Pose corner : corners) {
