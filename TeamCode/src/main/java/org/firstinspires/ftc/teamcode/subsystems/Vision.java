@@ -156,7 +156,7 @@ public class Vision {
     }
 
     /**
-     * @return a list of ball poses relative to the center of the robot chassis, with the color, and if you
+     * @return a list of ball poses relative to the center of the robot chassis, with the color, and the time we took the photo
      */
     public List<DetectedBall> searchForBalls() {
         List<DetectedBall> detectedBalls = new ArrayList<>();
@@ -184,12 +184,12 @@ public class Vision {
     }
     public Pose poseEstimation(double targetX,double targetY) {
         //todo: double check these numbers
-            double cameraPitch = Math.toRadians(110); // zero facing straight down 180 facing straight up
+        double cameraPitch = Math.toRadians(110); // zero facing straight down 180 facing straight up
         double ballRadius = 2.5; // radius of the ball in inches
-        double cameraHeight = 12; // distance from the camera to the ground in inches
+        double cameraHeight = 11.2; // distance from the camera to the ground in inches
+        double cameraOffsetY = 5; // distance Y to center of the chassis
         double cameraOffsetX = 0; // distance X to center of the chassis
-        double cameraOffsetY = 8; // distance Y to center of the chassis
-        
+
         double cameraToBallAngle = cameraPitch - targetY;
         double heightOfPointOnBall = (ballRadius * Math.cos(cameraToBallAngle)) + ballRadius;
         double heightDifference = cameraHeight - heightOfPointOnBall;

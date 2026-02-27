@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.qualcomm.hardware.rev.RevColorSensorV3;
+import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -27,7 +28,9 @@ public class Indexer {
     public ServoImplEx spindexer2;
     DcMotorEx feeder;
     DcMotorEx encoder;
-    RevColorSensorV3 colorSensor;
+    AnalogInput analog2;
+    AnalogInput analog3;
+
 
     BallColor[] ballCells = new BallColor[3];
     private BallColor transferColor = BallColor.None;
@@ -80,7 +83,9 @@ public class Indexer {
         feeder.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         feeder.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        colorSensor = hardwareMap.get(RevColorSensorV3.class, "spindexerColorSensor");
+        analog2 = hardwareMap.get(AnalogInput.class, "spindexerAnalog2");
+        analog3 = hardwareMap.get(AnalogInput.class, "spindexerAnalog3");
+
         setHasBalls(ballCells);
     }
 
@@ -129,16 +134,18 @@ public class Indexer {
         return doSpit;
     }
 
-    public NormalizedRGBA getColorRGBA(){
-        return colorSensor.getNormalizedColors();
-    }
-
-    public double getDistance(){
-        return colorSensor.getDistance(DistanceUnit.INCH);
-    }
-
     public BallColor getColor(){
-        return ColorFunctions.toColor(getColorRGBA(),getDistance());
+        double hue = analog2.getVoltage() / 3.3 * 255;
+        boolean distance = analog3.getVoltage() / 3.3 > 0.5;
+        boolean green  = 91 < hue && hue < 95 && distance;
+        boolean purple = 79 < hue && hue < 89 && distance;
+        if (green) {
+            return BallColor.Green;
+        } else if (purple) {
+            return BallColor.Purple;
+        } else {
+            return BallColor.None;
+        }
     }
     public boolean isHasBallsFull() {
         for (BallColor color : ballCells) {

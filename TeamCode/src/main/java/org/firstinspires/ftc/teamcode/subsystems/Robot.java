@@ -25,6 +25,7 @@ import org.firstinspires.ftc.teamcode.util.ShootOnTheFly.ShotContext;
 import org.firstinspires.ftc.teamcode.util.ShootOnTheFly.ShotSolution;
 import org.firstinspires.ftc.teamcode.util.ShootOnTheFly.ShotType;
 
+import java.util.ArrayList;
 import java.util.List;
 //todo import java.awt.Shape to make the inShootingZone() better
 
@@ -170,7 +171,7 @@ public class Robot {
         vision.pipelineSwitch(index);
     }
     public int pipelineIndex;
-    public boolean set;
+    public boolean set = false;
     public void visionUpdate() {
         if (!set && vision.getPipeline() != pipelineIndex) {
             vision.pipelineSwitch(pipelineIndex);
@@ -413,9 +414,9 @@ public class Robot {
         long turret = System.currentTimeMillis();
         follower.update();
         long followa = System.currentTimeMillis();
+        visionUpdate();
         lightsUpdate();
         long lights = System.currentTimeMillis();
-
 
         panelsTelemetry.addData("shooter", -(start - shooter));
         panelsTelemetry.addData("intake", -(shooter - intake));
@@ -425,21 +426,15 @@ public class Robot {
         panelsTelemetry.addData("lights", -(followa - lights));
         panelsTelemetry.addData("all", (lights - lastTime));
         lastTime = System.currentTimeMillis();
-        telemetry.addData("color", indexer.getColor());
 
+        List<Vision.DetectedBall> detectedBalls = vision.searchForBalls();
+        for (int i = 0; i < detectedBalls.size(); i++) {
+            telemetry.addData("ball " + i + ":", detectedBalls.get(i).ballPose);
+            telemetry.addData("ball color", detectedBalls.get(i).ballColor);
+            telemetry.addData("latency", (System.currentTimeMillis() - detectedBalls.get(i).timePhotoWasTaken) * 1e-3);
+        }
 
-//        telemetry.addData("heading", Math.toDegrees(follower.getPose().getHeading()));
-//        telemetry.addData("angle", turret.getAngle());
-
-
-
-//        panelsTelemetry.addData("turret pos", turret.getAngle());
-//        panelsTelemetry.addData("turret target", turret.turretPID.getTargetPosition());
-//        panelsTelemetry.addData("turret error", turret.turretPID.getError());
-//        panelsTelemetry.addData("turret velocity", turret.getVelocity());
-//        panelsTelemetry.addData("turret power", clamp(turret.turretPID.run(), -1, 1) * 360);
-//        panelsTelemetry.addData("turret Acceleration", follower.getAngularAcceleration());
-
+        telemetry.update();
         panelsTelemetry.update();
 
         if (debug) {
@@ -550,12 +545,7 @@ public class Robot {
         telemetry.addData("Turret power", turret.turretPID.run());
 
         telemetry.addLine("=== COLOR ===");
-        telemetry.addData("indexer r", indexer.getColorRGBA().red);
-        telemetry.addData("indexer g", indexer.getColorRGBA().green);
-        telemetry.addData("indexer b", indexer.getColorRGBA().blue);
-        telemetry.addData("indexer a", indexer.getColorRGBA().alpha);
         telemetry.addData("indexer col", indexer.getColor());
-        telemetry.addData("indexer dis", indexer.getDistance());
 
         telemetry.addLine("=== POSITION ===");
         telemetry.addData("is at position", indexer.isAtPosition());
