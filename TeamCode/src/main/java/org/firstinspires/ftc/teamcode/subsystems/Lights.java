@@ -117,6 +117,14 @@ public class Lights {
         lastSmartShoot = isInSmartShoot;
     }
 
+    // Required setBallColors() to be called on loop to work
+    public void printBigRed() {
+        prism.clearAllAnimations();
+        prism.insertAndUpdateAnimation(0, bigRed);
+        bigRedBoolean = true;
+        bigRedTimer.resetTimer();
+    }
+
     public boolean isListFull(BallColor[] ballColors) {
         for (BallColor color : ballColors) {
             if (color == BallColor.None) {

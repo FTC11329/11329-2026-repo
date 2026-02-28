@@ -159,6 +159,7 @@ public class Robot {
     public void setAveragePose() {
         Pose newPose = vision.averageRobotPose();
         if (newPose != null) {
+            lights.printBigRed();
             follower.setPose(newPose);
         }
     }

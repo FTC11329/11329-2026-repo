@@ -16,7 +16,7 @@ public class ConfigureColorRangefinder extends LinearOpMode {
             pin0 --> purple
             pin1 --> green */
         crf.setLedBrightness(255);
-        crf.setPin0Analog(ColorRangefinder.AnalogMode.HSV); // voltage() / 3.3 * 255 = (85 - 89 is purple) (91 - 95 is green)
+        crf.setPin1Digital(ColorRangefinder.DigitalMode.HSV, 80, 100); // voltage() / 3.3 * 255 = in green mode rn
         crf.setPin1Digital(ColorRangefinder.DigitalMode.DISTANCE, 0, 11);
     }
 }

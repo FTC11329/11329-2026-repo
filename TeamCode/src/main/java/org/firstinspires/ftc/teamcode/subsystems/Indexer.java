@@ -1,26 +1,27 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
 
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.util.BallColor;
-import org.firstinspires.ftc.teamcode.util.ColorFunctions;
 import org.firstinspires.ftc.teamcode.util.FieldShapes;
 import org.firstinspires.ftc.teamcode.util.IndexerEnums;
 import org.firstinspires.ftc.teamcode.util.ShapeDetection;
 import org.firstinspires.ftc.teamcode.util.SmartShootState;
+import org.firstinspires.ftc.teamcode.util.Tuple;
+
+import java.util.LinkedList;
+import java.util.Queue;
+
 
 public class Indexer {
 
@@ -142,8 +143,56 @@ public class Indexer {
         return analog3.getVoltage() / 3.3 > 0.5;
     }
 
+    // has to return whatever a few ticks ago was
+    private LinkedList<Tuple> distanceHistory = new LinkedList<>();
+
+    private long delayMs = 20;        // Delay before distance becomes true
+    private boolean lastReturnedTrue = false;
+
+    public boolean isDistanceDelayed() {
+        return isDistanceDelayed(false);
+    }
+    public boolean isDistanceDelayed(boolean ignorePosition) {
+
+        long now = System.currentTimeMillis();
+
+        boolean distanceRaw = analog3.getVoltage() / 3.3 > 0.5;
+
+        // Add new tuple
+        distanceHistory.add(new Tuple(distanceRaw, now));
+
+        // Remove entries newer than delay window
+        while (!distanceHistory.isEmpty()) {
+
+            Tuple first = distanceHistory.getFirst();
+
+            long time = (Long) first.get2();
+
+            if (now - time >= delayMs) {
+
+                boolean delayedValue = (Boolean) first.get1();
+
+                distanceHistory.removeFirst();
+
+                // One-shot behavior
+                if (delayedValue && !lastReturnedTrue) {
+                    lastReturnedTrue = true;
+                    return true;
+                }
+
+                if (!delayedValue) {
+                    lastReturnedTrue = false;
+                }
+
+            } else {
+                break;
+            }
+        }
+
+        return false;
+    }
     public BallColor getColor(){
-        if (!isDistance()) {
+        if (!isDistanceDelayed()) {
             return BallColor.None;
         } else if (getHue() > 80) {
             return BallColor.Green;

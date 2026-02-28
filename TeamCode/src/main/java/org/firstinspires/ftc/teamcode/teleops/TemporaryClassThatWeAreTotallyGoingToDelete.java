@@ -38,12 +38,12 @@ public class TemporaryClassThatWeAreTotallyGoingToDelete extends OpMode {
     double lastTime = 0;
     @Override
     public void init() {
-        analog2 = hardwareMap.get(AnalogInput.class, "spindexerAnalog2");
-        analog3 = hardwareMap.get(AnalogInput.class, "spindexerAnalog3");
-//        color6 = hardwareMap.get(DigitalChannel.class, "spindexerColor6");
-//        color7 = hardwareMap.get(DigitalChannel.class, "spindexerColor7");
-//        color6.setMode(DigitalChannel.Mode.OUTPUT);
-//        color7.setMode(DigitalChannel.Mode.OUTPUT);
+//        analog2 = hardwareMap.get(AnalogInput.class, "spindexerAnalog2");
+//        analog3 = hardwareMap.get(AnalogInput.class, "spindexerAnalog3");
+        color6 = hardwareMap.get(DigitalChannel.class, "spindexerColor6");
+        color7 = hardwareMap.get(DigitalChannel.class, "spindexerColor7");
+        color6.setMode(DigitalChannel.Mode.OUTPUT);
+        color7.setMode(DigitalChannel.Mode.OUTPUT);
         lastTime = System.nanoTime();
     }
 
@@ -52,19 +52,15 @@ public class TemporaryClassThatWeAreTotallyGoingToDelete extends OpMode {
 
         double startTime = System.nanoTime();
 
-        double hue = analog2.getVoltage() / 3.3 * 255;
-        boolean distance = analog3.getVoltage() / 3.3 > 0.5;
-        boolean green  = 91 < hue && hue < 95 && distance;
-        boolean purple = 79 < hue && hue < 89 && distance;
+        boolean hue = color6.getState();
+        boolean distance = color7.getState();
+        boolean green  = hue && distance;
+        boolean purple = !hue && distance;
 
-        double loop = (System.nanoTime() - startTime) * 1e-9;
-
-        telemetry.addData("loop IN MS BTW", loop);
-        telemetry.addData("Voltage", analog2.getVoltage());
         telemetry.addData("Hue", hue);
         telemetry.addData("Distance", distance);
-        telemetry.addData("Green", green);
-        telemetry.addData("Purple", purple);
+
+        double loop = (System.nanoTime() - startTime) * 1e-9;
 
     }
 }
