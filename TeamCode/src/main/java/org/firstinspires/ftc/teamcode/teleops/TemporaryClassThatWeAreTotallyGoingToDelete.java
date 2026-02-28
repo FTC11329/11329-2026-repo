@@ -38,8 +38,8 @@ public class TemporaryClassThatWeAreTotallyGoingToDelete extends OpMode {
     double lastTime = 0;
     @Override
     public void init() {
-//        analog2 = hardwareMap.get(AnalogInput.class, "spindexerAnalog2");
-//        analog3 = hardwareMap.get(AnalogInput.class, "spindexerAnalog3");
+        analog2 = hardwareMap.get(AnalogInput.class, "spindexerAnalog2");
+        analog3 = hardwareMap.get(AnalogInput.class, "spindexerAnalog3");
         color6 = hardwareMap.get(DigitalChannel.class, "spindexerColor6");
         color7 = hardwareMap.get(DigitalChannel.class, "spindexerColor7");
         color6.setMode(DigitalChannel.Mode.OUTPUT);
@@ -52,13 +52,11 @@ public class TemporaryClassThatWeAreTotallyGoingToDelete extends OpMode {
 
         double startTime = System.nanoTime();
 
-        boolean hue = color6.getState();
-        boolean distance = color7.getState();
-        boolean green  = hue && distance;
-        boolean purple = !hue && distance;
+        telemetry.addData("Digital Hue", color6.getState());
+        telemetry.addData("Digital Distance ", color7.getState());
 
-        telemetry.addData("Hue", hue);
-        telemetry.addData("Distance", distance);
+        telemetry.addData("Analog Hue", analog2.getVoltage());
+        telemetry.addData("Analog Distance", analog3.getVoltage());
 
         double loop = (System.nanoTime() - startTime) * 1e-9;
 

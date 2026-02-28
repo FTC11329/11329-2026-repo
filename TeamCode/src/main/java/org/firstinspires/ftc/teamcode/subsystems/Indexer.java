@@ -17,10 +17,6 @@ import org.firstinspires.ftc.teamcode.util.FieldShapes;
 import org.firstinspires.ftc.teamcode.util.IndexerEnums;
 import org.firstinspires.ftc.teamcode.util.ShapeDetection;
 import org.firstinspires.ftc.teamcode.util.SmartShootState;
-import org.firstinspires.ftc.teamcode.util.Tuple;
-
-import java.util.LinkedList;
-import java.util.Queue;
 
 
 public class Indexer {
@@ -135,69 +131,29 @@ public class Indexer {
         return doSpit;
     }
 
-    public double getHue() {
-        return analog2.getVoltage() / 3.3 * 255;
+    // DO NOT RUN IN TELEMETRY
+    boolean lastGreen = false;
+    public boolean isGreen() {
+        boolean temp = lastGreen;
+        lastGreen = analog2.getVoltage() > 2.9;
+        return temp && lastGreen;
     }
 
-    public boolean isDistance() {
-        return analog3.getVoltage() / 3.3 > 0.5;
+    // DO NOT RUN IN TELEMETRY
+    boolean lastPurple = false;
+    public boolean isPurple() {
+        boolean temp = lastPurple;
+        lastPurple = analog3.getVoltage() > 2.9;
+        return temp && lastPurple;
     }
 
-    // has to return whatever a few ticks ago was
-    private LinkedList<Tuple> distanceHistory = new LinkedList<>();
-
-    private long delayMs = 20;        // Delay before distance becomes true
-    private boolean lastReturnedTrue = false;
-
-    public boolean isDistanceDelayed() {
-        return isDistanceDelayed(false);
-    }
-    public boolean isDistanceDelayed(boolean ignorePosition) {
-
-        long now = System.currentTimeMillis();
-
-        boolean distanceRaw = analog3.getVoltage() / 3.3 > 0.5;
-
-        // Add new tuple
-        distanceHistory.add(new Tuple(distanceRaw, now));
-
-        // Remove entries newer than delay window
-        while (!distanceHistory.isEmpty()) {
-
-            Tuple first = distanceHistory.getFirst();
-
-            long time = (Long) first.get2();
-
-            if (now - time >= delayMs) {
-
-                boolean delayedValue = (Boolean) first.get1();
-
-                distanceHistory.removeFirst();
-
-                // One-shot behavior
-                if (delayedValue && !lastReturnedTrue) {
-                    lastReturnedTrue = true;
-                    return true;
-                }
-
-                if (!delayedValue) {
-                    lastReturnedTrue = false;
-                }
-
-            } else {
-                break;
-            }
-        }
-
-        return false;
-    }
     public BallColor getColor(){
-        if (!isDistanceDelayed()) {
-            return BallColor.None;
-        } else if (getHue() > 80) {
+        if (isGreen()) {
             return BallColor.Green;
-        } else {
+        } else if (isPurple()) {
             return BallColor.Purple;
+        } else {
+            return BallColor.None;
         }
     }
     public boolean isHasBallsFull() {

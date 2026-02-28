@@ -66,8 +66,8 @@ public class Constants {
         public static double entryHeight = 34;
     }
     public static class Climber {
-        public static double climbedPosition = 0.5  ;
-        public static double storedPosition = 1;
+        public static double climbedPosition = 0.5;
+        public static double storedPosition = 0;
     }
     public static class Color {
         public static double[] green = {0.0269, 0.0792, 0.06, 0.9551}; //0.743

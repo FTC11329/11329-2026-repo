@@ -25,7 +25,6 @@ import org.firstinspires.ftc.teamcode.util.ShootOnTheFly.ShotContext;
 import org.firstinspires.ftc.teamcode.util.ShootOnTheFly.ShotSolution;
 import org.firstinspires.ftc.teamcode.util.ShootOnTheFly.ShotType;
 
-import java.util.ArrayList;
 import java.util.List;
 //todo import java.awt.Shape to make the inShootingZone() better
 
@@ -268,8 +267,17 @@ public class Robot {
 
     public void autoSetCurrentPose() {
         lastCamPose = vision.getRobotPose();
-        if (lastCamPose != null){
-           follower.setPose(lastCamPose);
+        if (lastCamPose != null) {
+            Pose addPose = new Pose();
+            switch (robotSide) {
+                case Red:
+                    addPose = new Pose(-5, 3);
+                    break;
+                case Blue:
+                    addPose = new Pose(-5, -3);
+                    break;
+            }
+            follower.setPose(lastCamPose.plus(addPose));
         }
     }
     public Pose getCurrentPose() {
@@ -412,8 +420,7 @@ public class Robot {
         visionUpdate();
         lightsUpdate();
 
-        panelsTelemetry.addData("dis", indexer.isDistance() ? 80 : 75);
-        panelsTelemetry.addData("Hue", indexer.getHue());
+
 
         lastTime = System.currentTimeMillis();
 
@@ -423,6 +430,11 @@ public class Robot {
             telemetry.addData("ball color", detectedBalls.get(i).ballColor);
             telemetry.addData("latency", (System.currentTimeMillis() - detectedBalls.get(i).timePhotoWasTaken) * 1e-3);
         }
+
+//        panelsTelemetry.addData("error", shooter.shooterPID.getError() / 100.0); // todo keep test with new shooter
+//        panelsTelemetry.addData("power", shooter.shooterPID.run());
+//        panelsTelemetry.addData("1", 1);
+
 
         telemetry.update();
         panelsTelemetry.update();

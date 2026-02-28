@@ -9,13 +9,14 @@ import org.firstinspires.ftc.teamcode.Constants;
 public class Climber {
     Servo leftClimbServo;
     Servo rightClimbServo;
+    double currentPosition = 0;
     public Climber(HardwareMap hardwareMap) {
         leftClimbServo = hardwareMap.get(Servo.class, "leftClimbServo");
-        leftClimbServo.setDirection(Servo.Direction.REVERSE);
+        leftClimbServo.setDirection(Servo.Direction.FORWARD);
         rightClimbServo = hardwareMap.get(Servo.class, "rightClimbServo");
-        rightClimbServo.setDirection(Servo.Direction.FORWARD);
-        leftClimbServo.setPosition(1);
-        rightClimbServo.setPosition(1);
+        rightClimbServo.setDirection(Servo.Direction.REVERSE);
+        leftClimbServo.setPosition(0);
+        rightClimbServo.setPosition(0);
     }
     public boolean climb;
     public void enableClimb() {
@@ -24,7 +25,6 @@ public class Climber {
     public void disableClimb() {
         setPosition(Constants.Climber.storedPosition);
     }
-    double currentPosition = 1;
     public void setPosition(double set) {
         if (currentPosition != set) {
             rightClimbServo.setPosition(set);
