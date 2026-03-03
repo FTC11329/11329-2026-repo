@@ -244,7 +244,7 @@ public class Vision {
         lateralDistance += cameraOffsetX;
 
         Vector robotToBallVector = new Vector(new Pose(- forwardDistance, lateralDistance));
-        robotToBallVector.rotateVector(curpose.getHeading() - headingVelocity * latency);
+        robotToBallVector.rotateVector(curpose.getHeading());
         return curpose.plusVector(robotToBallVector);
     }
     public static class DetectedBall {

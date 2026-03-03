@@ -171,6 +171,12 @@ public class Vector {
         return returnVector;
     }
 
+    public Vector divide(double scalar) {
+        xComponent /= scalar;
+        yComponent /= scalar;
+        return new Vector(magnitude, theta);
+    }
+
     /**
      * This computes the dot product of the current Vector and the other Vector.
      *
