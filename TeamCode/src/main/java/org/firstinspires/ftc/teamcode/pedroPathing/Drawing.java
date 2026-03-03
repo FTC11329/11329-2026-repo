@@ -94,19 +94,19 @@ public class Drawing {
                     break;
             }
             Pose[] corners = ShapeDetection.getCornersOfShape(shapes);
-            drawShapeUsingCorners(corners);
+//            drawShapeUsingCorners(corners);
         }
 
         panelsField.setStyle(robotLook);
         drawShapeUsingCorners(ShapeDetection.createRobotCorners(follower.getPose()));
         drawShapeUsingCornersNoMovingCursor(ShapeDetection.createRobotsArrowCorners(follower.getPose()));
 
-        Pose shooterPose = follower.getCenterOfShooterPose();
+//        Pose shooterPose = follower.getCenterOfShooterPose();
 
-        panelsField.moveCursor(shooterPose.getX(), shooterPose.getY());
-        panelsField.circle(2.6);
-        panelsField.line(60,60);
-        sendPacket();
+//        panelsField.moveCursor(shooterPose.getX(), shooterPose.getY());
+//        panelsField.circle(2.6);
+//        panelsField.line(60,60);
+//        sendPacket();
     }
 
     public static void drawBalls(List<Vision.DetectedBall> detectBallsList) {

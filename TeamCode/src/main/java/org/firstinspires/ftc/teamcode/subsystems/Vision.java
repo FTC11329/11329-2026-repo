@@ -36,7 +36,7 @@ public class Vision {
     }
 
     public void start() {
-        pipelineSwitch(0);
+        pipelineSwitch(2);
     }
 
     public void pipelineSwitch(int index) {
@@ -176,71 +176,75 @@ public class Vision {
                 }
                 double tx = detection.getTargetXDegrees(); // Where it is (left-right)
                 double ty = detection.getTargetYDegrees(); // Where it is (up-down)
-                Pose ballPose = poseEstimation(tx, ty, curPose);
                 long timePhotoWasTaken = result.getControlHubTimeStamp();
+                Pose ballPose = poseEstimation(tx, ty, curPose);
                 detectedBalls.add(new DetectedBall(ballPose, ballColor, timePhotoWasTaken));
             }
         }
         return detectedBalls;
     }
 
-    public List<DetectedBall> searchForBallsWithVelocity(List<DetectedBall> lastBalls, Pose curPose) {
-        if (lastBalls.isEmpty()) {
-            return searchForBalls(curPose);
-        }
-        List<DetectedBall> detectedBalls = new ArrayList<>();
-        LLResult result = limelight.getLatestResult();
-        if (result.isValid()) {
-            List<LLResultTypes.DetectorResult> detections = result.getDetectorResults();
-            for (LLResultTypes.DetectorResult detection : detections) {
-                String className = detection.getClassName(); // What was detected
-                BallColor ballColor;
-                if (className.equals("green")){
-                    ballColor = BallColor.Green;
-                } else if (className.equals("purple")) {
-                    ballColor = BallColor.Purple;
-                } else {
-                    ballColor = BallColor.Any;
-                }
-                double tx = detection.getTargetXDegrees(); // Where it is (left-right)
-                double ty = detection.getTargetYDegrees(); // Where it is (up-down)
-                Pose ballPose = poseEstimation(tx, ty, curPose);
-                long timePhotoWasTaken = result.getControlHubTimeStamp();
-                detectedBalls.add(new DetectedBall(ballPose, ballColor, timePhotoWasTaken));
-            }
-        }
-        for (DetectedBall lastBall : lastBalls) {
-            for (DetectedBall thisBall : detectedBalls) {
-                if (lastBall.ballColor == thisBall.ballColor && thisBall.ballPose.distanceFrom(lastBall.ballPose) < 2.5) {
-                    thisBall.setLastPose(lastBall.lastPose);
-                    thisBall.setLastTimePhotoWasTaken(lastBall.timePhotoWasTaken);
-                    thisBall.calcVelocity();
-                }
-            }
-        }
-        return detectedBalls;
-    }
+//    public List<DetectedBall> searchForBallsWithVelocity(List<DetectedBall> lastBalls, Pose curPose) {
+//        if (lastBalls.isEmpty()) {
+//            return searchForBalls(curPose);
+//        }
+//        List<DetectedBall> detectedBalls = new ArrayList<>();
+//        LLResult result = limelight.getLatestResult();
+//        if (result.isValid()) {
+//            List<LLResultTypes.DetectorResult> detections = result.getDetectorResults();
+//            for (LLResultTypes.DetectorResult detection : detections) {
+//                String className = detection.getClassName(); // What was detected
+//                BallColor ballColor;
+//                if (className.equals("green")){
+//                    ballColor = BallColor.Green;
+//                } else if (className.equals("purple")) {
+//                    ballColor = BallColor.Purple;
+//                } else {
+//                    ballColor = BallColor.Any;
+//                }
+//                double tx = detection.getTargetXDegrees(); // Where it is (left-right)
+//                double ty = detection.getTargetYDegrees(); // Where it is (up-down)
+//                Pose ballPose = poseEstimation(tx, ty, curPose);
+//                long timePhotoWasTaken = result.getControlHubTimeStamp();
+//                detectedBalls.add(new DetectedBall(ballPose, ballColor, timePhotoWasTaken));
+//            }
+//        }
+//        for (DetectedBall lastBall : lastBalls) {
+//            for (DetectedBall thisBall : detectedBalls) {
+//                if (lastBall.ballColor == thisBall.ballColor && thisBall.ballPose.distanceFrom(lastBall.ballPose) < 2.5) {
+//                    thisBall.setLastPose(lastBall.lastPose);
+//                    thisBall.setLastTimePhotoWasTaken(lastBall.timePhotoWasTaken);
+//                    thisBall.calcVelocity();
+//                }
+//            }
+//        }
+//        return detectedBalls;
+//    }
 
 
     public Pose poseEstimation(double targetX,double targetY, Pose curpose) {
+        return poseEstimation(targetX, targetY, curpose, new Vector(), 0, 0);
+    }
+
+    public Pose poseEstimation(double targetX,double targetY, Pose curpose, Vector robotVelocity, double headingVelocity, double latency) {
         //todo: double check these numbers
-        double cameraPitch = 20; // zero facing straight forward 90 facing straight up
+        double cameraPitch = 0; // zero facing straight forward 90 facing straight up
         double ballRadius = 2.5; // radius of the ball in inches
-        double cameraHeight = 11.2; // distance from the camera to the ground in inches
+        double cameraHeight = 10.375; // distance from the camera to the ground in inches
         double cameraOffsetY = 5; // distance Y to center of the chassis
         double cameraOffsetX = 0; // distance X to center of the chassis
 
         double cameraToBallAngle = Math.toRadians(cameraPitch + targetY);
         double heightDifference = cameraHeight - ballRadius;
 
-        double forwardDistance = heightDifference * Math.tan(cameraToBallAngle); // Y is forward backward
+        double forwardDistance = heightDifference / Math.tan(cameraToBallAngle); // Y is forward backward
         double lateralDistance = forwardDistance * Math.tan(Math.toRadians(targetX));
 
         forwardDistance += cameraOffsetY;
         lateralDistance += cameraOffsetX;
 
-        Vector robotToBallVector = new Vector(new Pose(lateralDistance, forwardDistance));
-        robotToBallVector.rotateVector(curpose.getHeading());
+        Vector robotToBallVector = new Vector(new Pose(- forwardDistance, lateralDistance));
+        robotToBallVector.rotateVector(curpose.getHeading() - headingVelocity * latency);
         return curpose.plusVector(robotToBallVector);
     }
     public static class DetectedBall {

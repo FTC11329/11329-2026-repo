@@ -399,7 +399,8 @@ public class Robot {
     public void start() {
         resetTimers();
         indexer.start();
-        vision.start();
+//        vision.start();
+        setPipelineIndex(2);
     }
     public void update() {
         update(false);
@@ -430,6 +431,9 @@ public class Robot {
             telemetry.addData("ball color", detectedBalls.get(i).ballColor);
             telemetry.addData("latency", (System.currentTimeMillis() - detectedBalls.get(i).timePhotoWasTaken) * 1e-3);
         }
+
+        Drawing.drawShapesDebug(this.follower);
+        Drawing.drawBalls(detectedBalls);
 
 //        panelsTelemetry.addData("error", shooter.shooterPID.getError() / 100.0); // todo keep test with new shooter
 //        panelsTelemetry.addData("power", shooter.shooterPID.run());
