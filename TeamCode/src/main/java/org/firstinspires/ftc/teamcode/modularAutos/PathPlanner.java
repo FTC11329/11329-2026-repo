@@ -8,6 +8,8 @@ public interface PathPlanner {
     // Builds all the paths with the previous offset
     void buildPaths();
 
+    default void setOptimalEndPose(Pose optimalEndPose) {}
+
     // Run the step, return true if it's done
     boolean run();
 
@@ -17,5 +19,9 @@ public interface PathPlanner {
     // Gets the name of the module
     @NonNull
     String toString();
+
+    default Pose getOptimalStartPose() {
+        return null;
+    }
 
 }

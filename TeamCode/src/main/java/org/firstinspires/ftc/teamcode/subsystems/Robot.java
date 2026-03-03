@@ -159,7 +159,16 @@ public class Robot {
         Pose newPose = vision.averageRobotPose();
         if (newPose != null) {
             lights.printBigRed();
-            follower.setPose(newPose);
+            Pose addPose = new Pose();
+            switch (robotSide) {
+                case Red:
+                    addPose = new Pose(-5, 3);
+                    break;
+                case Blue:
+                    addPose = new Pose(-5, -3);
+                    break;
+            }
+            follower.setPose(lastCamPose.plus(addPose));
         }
     }
     public void clearAveragePose() {

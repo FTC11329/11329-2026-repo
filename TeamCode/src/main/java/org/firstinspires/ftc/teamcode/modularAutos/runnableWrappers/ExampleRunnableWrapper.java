@@ -49,6 +49,8 @@ public class ExampleRunnableWrapper extends OpMode {
         steps.add(new FromStartClosePos.ShootAndGoToMidShootPos(robot, lastPose()));
         steps.add(new FromShootMidPos.ToIntakeSpike1(robot, lastPose(), true, false, false));
 
+        addOptimalEnds(steps);
+
         robot.follower.setPose(startPose);
     }
 
@@ -56,6 +58,7 @@ public class ExampleRunnableWrapper extends OpMode {
     public void init_loop() {
         telemetry.addData("start pose", startPose);
         telemetry.addData("shoot pose", Common.ShootPoses.midShoot);
+        telemetry.addData("Is Red", Common.wasLastRed);
         telemetry.addLine("=== Motif ===");
         BallColor[] motif = robot.getMotif(true);
         if (motif == null) {
@@ -64,7 +67,6 @@ public class ExampleRunnableWrapper extends OpMode {
         for (BallColor color : motif) {
             telemetry.addLine(color.name());
         }
-
 
         telemetry.update();
     }
@@ -76,18 +78,11 @@ public class ExampleRunnableWrapper extends OpMode {
         robot.spinIntake();
     }
 
-    List<Double> changeTime = new ArrayList<>();
     boolean firstDeInit = false;
     @Override
     public void loop() {
         // to stop the auto
         if (robot.getOpmodeTimeSeconds() > 30) {
-            for (double time : changeTime) {
-                telemetry.addData("change time", time);
-            }
-            telemetry.addData("vel", robot.follower.getVelocity().getMagnitude());
-            telemetry.addData("time ", zeroVelocityTimer.getElapsedTimeSeconds());
-
             telemetry.addData("Done", true);
             telemetry.update();
 
@@ -162,6 +157,17 @@ public class ExampleRunnableWrapper extends OpMode {
             return startPose;
         } else {
             return steps.get(steps.size() - 1).getEndPoseEst();
+        }
+    }
+
+    private void addOptimalEnds(List<PathPlanner> steps) {
+        Pose lastOptimalPose = null;
+        for (int i = steps.size() - 1; i >= 0; i--) {
+            PathPlanner planner = steps.get(i);
+            if (lastOptimalPose != null) {
+                planner.setOptimalEndPose(lastOptimalPose);
+            }
+            lastOptimalPose = planner.getOptimalStartPose();
         }
     }
 

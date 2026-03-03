@@ -35,6 +35,7 @@ public class Common {
     }
     public static class StartPoses {
         public static Pose closeInner = new Pose(62.5, 39, Math.toRadians(-90));
+        public static Pose closeOuter = new Pose(39.6,57.3, Math.toRadians(-90));
         public static Pose far = new Pose(-63.5, 15.75, Math.toRadians(0));
         public static Pose reZeroAtCorner = new Pose(-65, -61, Math.toRadians(-90));
 
@@ -57,6 +58,15 @@ public class Common {
         public static Pose intakeSpike3ControlPoint = new Pose(10.1, 14.9, Math.toRadians(90));
         public static Pose intakeSpike3Start = new Pose(-30.5, 32, Math.toRadians(90));
         public static Pose intakeSpike3End = new Pose(-36, 60, Math.toRadians(90));
+
+        public static Pose intakeSpike1FastControlPoint = new Pose(26.7,47.5);
+        public static Pose intakeSpike1Fast = new Pose(16.8,47.5);
+
+        public static Pose intakeSpike2FastControlPoint = new Pose(2.6,48);
+        public static Pose intakeSpike2Fast = new Pose(-7.9,48);
+
+        public static Pose intakeSpike3FastControlPoint = new Pose(-9,47.9);
+        public static Pose intakeSpike3Fast = new Pose(-31.1,47.9);
 
         public static Pose movingToPushLeverControlPoint = new Pose(-3.8, 25.3);
         public static Pose pushLeverAfterSpike = new Pose(-0.4,56.1, Math.toRadians(60));
@@ -84,6 +94,12 @@ public class Common {
             intakeHuman = convertToRed(intakeHuman, toRed);
             intakeSTunnelAfterHumanControl = convertToRed(intakeSTunnelAfterHumanControl, toRed);
             intakeSTunnelAfterHuman = convertToRed(intakeSTunnelAfterHuman, toRed);
+            intakeSpike1FastControlPoint = convertToRed(intakeSpike1FastControlPoint, toRed);
+            intakeSpike1Fast = convertToRed(intakeSpike1Fast, toRed);
+            intakeSpike2FastControlPoint = convertToRed(intakeSpike2FastControlPoint, toRed);
+            intakeSpike2Fast = convertToRed(intakeSpike2Fast, toRed);
+            intakeSpike3FastControlPoint = convertToRed(intakeSpike3FastControlPoint, toRed);
+            intakeSpike3Fast = convertToRed(intakeSpike3Fast, toRed);
         }
     }
 
@@ -93,14 +109,22 @@ public class Common {
         public static Pose midShoot = new Pose(8.9,18.5, Math.toRadians(90));
         public static Pose farShoot = new Pose(-54.7,9.9, Math.toRadians(90));
 
-        public static Pose panicShoot = new Pose(25,25, Math.toRadians(45));
+        public static Pose fromStartCloseToMidShootControl = new Pose(45.3,49.6);
+
+        public static Pose optimalSpike1Start = new Pose(32.4,38.4, Math.toRadians(123));
+        public static Pose optimalSpike2Start = new Pose(15,26.5, Math.toRadians(120));
+        public static Pose optimalSpike3Start = new Pose(14,24, Math.toRadians(133));
+
 
         static void convert(boolean toRed) {
             parkShoot = convertToRed(parkShoot, toRed);
             closeShoot = convertToRed(closeShoot, toRed);
             midShoot = convertToRed(midShoot, toRed);
             farShoot = convertToRed(farShoot, toRed);
-            panicShoot = convertToRed(panicShoot, toRed);
+            optimalSpike1Start = convertToRed(optimalSpike1Start, toRed);
+            optimalSpike2Start = convertToRed(optimalSpike2Start, toRed);
+            optimalSpike3Start = convertToRed(optimalSpike3Start, toRed);
+            fromStartCloseToMidShootControl = convertToRed(fromStartCloseToMidShootControl, toRed);
         }
     }
 
