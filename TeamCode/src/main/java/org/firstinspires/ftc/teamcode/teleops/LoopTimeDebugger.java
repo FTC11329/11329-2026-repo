@@ -57,7 +57,7 @@ public class LoopTimeDebugger extends OpMode {
 
         hoodServo2 = hardwareMap.get(Servo.class, "hood2");
         hoodServo2.setDirection(Servo.Direction.REVERSE);
-        flywheel = hardwareMap.get(DcMotorEx.class, "flywheel");
+        flywheel = hardwareMap.get(DcMotorEx.class, "flywheel1");
 
         intakeMotor = hardwareMap.get(DcMotorEx.class, "intake");
         intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);

@@ -2,26 +2,24 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import static java.lang.Math.PI;
 
-import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.VoltageUnit;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.control.PIDFCoefficients;
 import org.firstinspires.ftc.teamcode.pedroPathing.control.MovingPIDFController;
 
 public class Shooter {
     // declaring motor variables
-    public DcMotorEx flywheel;
+    public DcMotorEx flywheel1;
+    public DcMotorEx flywheel2;
     boolean usePID = false;
     Servo hoodServo1;
-    Servo hoodServo2;
+//    Servo hoodServo2; todo un comment if new shooter bad, else delete
     double hoodPos = 0.6767676767676767676767676767676767;
     public MovingPIDFController shooterPID;
     boolean isGettingUpToSpeed = true;
@@ -32,18 +30,25 @@ public class Shooter {
     double flywheelVelocity = 0;
 
     public Shooter(HardwareMap hardwareMap){
-        flywheel = hardwareMap.get(DcMotorEx.class, "flywheel");
+        flywheel1 = hardwareMap.get(DcMotorEx.class, "flywheel1");
 
-        flywheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        flywheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        flywheel.setDirection(DcMotorSimple.Direction.REVERSE);
-        flywheel.setCurrentAlert(4, CurrentUnit.AMPS);
+        flywheel1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        flywheel1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        flywheel1.setDirection(DcMotorSimple.Direction.FORWARD);
+        flywheel1.setCurrentAlert(4, CurrentUnit.AMPS);
+
+        flywheel2 = hardwareMap.get(DcMotorEx.class, "flywheel2");
+
+        flywheel2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        flywheel2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        flywheel2.setDirection(DcMotorSimple.Direction.FORWARD);
+        flywheel2.setCurrentAlert(4, CurrentUnit.AMPS);
 
         hoodServo1 = hardwareMap.get(Servo.class, "hood1");
-        hoodServo1.setDirection(Servo.Direction.FORWARD);
+        hoodServo1.setDirection(Servo.Direction.REVERSE);
 
-        hoodServo2 = hardwareMap.get(Servo.class, "hood2");
-        hoodServo2.setDirection(Servo.Direction.REVERSE);
+//        hoodServo2 = hardwareMap.get(Servo.class, "hood2");
+//        hoodServo2.setDirection(Servo.Direction.REVERSE);
 
         setHoodDeg(Constants.Shooter.minHoodAngle);
 
@@ -53,7 +58,8 @@ public class Shooter {
 
     public void setPower(double power){
         lastPower = power;
-        flywheel.setPower(power);
+        flywheel1.setPower(power);
+        flywheel2.setPower(power);
     }
     public boolean hasShot() {
         if (closeEnoughToTarget() || isGettingUpToSpeed){
@@ -86,14 +92,14 @@ public class Shooter {
     // Set hood from 0-1
     public void setHood(double set){
         if (Math.abs(hoodPos - set) >= .004) {
-            hoodPos = Math.max(Math.min(set, (Constants.Shooter.maxHoodAngle - 5) / 80), Constants.Shooter.minHoodAngle / 80);
-            hoodServo1.setPosition(hoodPos);
-            hoodServo2.setPosition(hoodPos);
+            hoodPos = Math.max(Math.min(set, (Constants.Shooter.maxHoodAngle - 13.92) / 44.83), Constants.Shooter.minHoodAngle - 13.92 / 44.83);
+//            hoodServo2.setPosition(hoodPos);
+            hoodServo1.setPosition(set);
         }
     }
     
     public void setHoodDeg(double hoodDeg) {
-        setHood((hoodDeg - 5) / 80);
+        setHood((hoodDeg - 13.92) / 44.83);
     }
     public void setHoodRad(double hoodRad) {
         setHoodDeg(Math.toDegrees(hoodRad));
@@ -101,7 +107,7 @@ public class Shooter {
 
     // get the degrees of the hood
     public double getHoodPosDeg() {
-        return (hoodPos * 80) + 5;
+        return (hoodPos * 44.83) + 13.92;
     }
 
     public void resetShooter(){
@@ -118,7 +124,7 @@ public class Shooter {
         usePID = true;
         shooterPID.setTargetPosition(targetRPM);
     }
-    // this is for when you want to continuously change the RPM of the flywheel
+    // this is for when you want to continuously change the RPM of the flywheel1
     public void adjustTargetRPM(double targetRPM) {
         usePID = true;
         shooterPID.moveTargetPosition(targetRPM);
@@ -150,9 +156,9 @@ public class Shooter {
     }
 
     public void stop() {
-        flywheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        flywheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        flywheel.setPower(0);
+        flywheel1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        flywheel1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        flywheel1.setPower(0);
         setHood(0);
     }
 
@@ -172,7 +178,7 @@ public class Shooter {
         update(1, false, false);
     }
     public void update(double voltageCompensation, boolean panicShoot, boolean panicShootButton) {
-        flywheelVelocity = flywheel.getVelocity();
+        flywheelVelocity = flywheel1.getVelocity();
         if (!panicShoot && usePID) {
             shooterPID.updatePosition(getRPM());
             if (shooterPID.getTargetPosition() > 10) {
@@ -189,7 +195,7 @@ public class Shooter {
             if (!isGettingUpToSpeed) {
                 isGettingUpToSpeed = true;
             }
-            setPower(0.5);
+//            setPower(0.5);
         } else/* if (panicShoot)*/ {
             if (panicShootButton) {
                 setPower(1);

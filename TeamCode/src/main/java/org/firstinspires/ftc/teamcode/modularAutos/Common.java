@@ -15,6 +15,7 @@ public class Common {
         public static int moveAwayRampAmount = 3; // balls
 
         public static double spikeIntakeTimeOut = 1.25;
+        public static double fastSpikeIntakeTimeOut = 1.25;
 
         public static double shortLeverPressTime = 0.3;
         public static double longLeverPressTime = 1.5;
@@ -71,6 +72,7 @@ public class Common {
         public static Pose movingToPushLeverControlPoint = new Pose(-3.8, 25.3);
         public static Pose pushLeverAfterSpike = new Pose(-0.4,56.1, Math.toRadians(60));
         public static Pose pushLever = new Pose(-9.5, 58.8, Math.toRadians(70));
+        public static Pose pushLeverFast = new Pose(-11.4,59.7, Math.toRadians(70));
         public static Pose intakeFromSTunnel = new Pose(-17, 58.25, Math.toRadians(45)); // pointing at ramp
 
         public static Pose intakeHuman = new Pose(-62,62, Math.toRadians(90));
@@ -89,6 +91,7 @@ public class Common {
             intakeSpike3End = convertToRed(intakeSpike3End, toRed);
             pushLeverAfterSpike = convertToRed(pushLeverAfterSpike, toRed);
             pushLever = convertToRed(pushLever, toRed);
+            pushLeverFast = convertToRed(pushLeverFast, toRed);
             movingToPushLeverControlPoint = convertToRed(movingToPushLeverControlPoint, toRed);
             intakeFromSTunnel = convertToRed(intakeFromSTunnel, toRed);
             intakeHuman = convertToRed(intakeHuman, toRed);
@@ -117,17 +120,20 @@ public class Common {
         public static Pose optimalSpike2Start = new Pose(15,26.5, Math.toRadians(120));
         public static Pose optimalSpike3Start = new Pose(14,24, Math.toRadians(133));
 
+        public static Pose optimalLeverStart = new Pose(10.7, 21.6, Math.toRadians(122));
+
 
         static void convert(boolean toRed) {
             parkShoot = convertToRed(parkShoot, toRed);
             closeShoot = convertToRed(closeShoot, toRed);
             midShoot = convertToRed(midShoot, toRed);
             farShoot = convertToRed(farShoot, toRed);
+            fromStartCloseToMidShootControl = convertToRed(fromStartCloseToMidShootControl, toRed);
             panicShoot = convertToRed(panicShoot, toRed);
             optimalSpike1Start = convertToRed(optimalSpike1Start, toRed);
             optimalSpike2Start = convertToRed(optimalSpike2Start, toRed);
             optimalSpike3Start = convertToRed(optimalSpike3Start, toRed);
-            fromStartCloseToMidShootControl = convertToRed(fromStartCloseToMidShootControl, toRed);
+            optimalLeverStart = convertToRed(optimalLeverStart, toRed);
         }
     }
 

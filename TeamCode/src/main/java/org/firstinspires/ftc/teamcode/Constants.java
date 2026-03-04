@@ -55,12 +55,12 @@ public class Constants {
     @Configurable
     public static class Shooter {
         public static PIDFCoefficients shooterVelocityPID = new PIDFCoefficients(.005, 0, 0, 0);
-        public static double kV = 4545;
+        public static double kV = 4371;
         public static double RPMoffset = 0;
         public static double closeEnoughRPM = 50;
         public static double ticksPerRevolution = 28;
-        public static double minHoodAngle = 5;
-        public static double maxHoodAngle = 53.5;
+        public static double minHoodAngle = 14.3;
+        public static double maxHoodAngle = 46;
 
         public static double entryAngle = Math.toRadians(-30);
         public static double entryHeight = 34;

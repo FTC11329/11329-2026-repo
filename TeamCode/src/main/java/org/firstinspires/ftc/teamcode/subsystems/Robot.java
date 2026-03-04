@@ -218,6 +218,12 @@ public class Robot {
         shooter.casualModeOn();
     }
 
+    public void setShootFromPose(boolean shootFromPose) {
+        if (!shootFromPose) {
+            this.shootFromPose = null;
+        }
+    }
+
     public void setShootFromPose(Pose shootFromPose) {
         this.shootFromPose = shootFromPose;
     }
@@ -341,6 +347,9 @@ public class Robot {
 
     // SPINDEXER***********************************************************************************~
 
+    public void doSmartShoot() {
+        doSmartShoot(true);
+    }
     public void doSmartShoot(boolean set) {
         if (smartShoot != set) {
             smartShoot = set;
@@ -462,6 +471,8 @@ public class Robot {
         Drawing.drawShapesDebug(this.follower);
         Drawing.drawBalls(detectedBalls);
 
+        panelsTelemetry.addData("Pos", shooter.getRPM());
+        panelsTelemetry.addData("Tar", shooter.shooterPID.getTargetPosition() );
 //        panelsTelemetry.addData("error", shooter.shooterPID.getError() / 100.0); // todo keep test with new shooter
 //        panelsTelemetry.addData("power", shooter.shooterPID.run());
 //        panelsTelemetry.addData("1", 1);
