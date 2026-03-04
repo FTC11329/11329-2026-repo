@@ -56,6 +56,8 @@ public class Robot {
     boolean isIntaking = false;
     boolean smartShoot = false;
     boolean intakeOverride = false;
+    boolean panicShoot = false;
+    boolean panicShootingButton = false;
 
     Pose lastCamPose = new Pose(0,0,0);
     // Offset pose to aim for
@@ -233,7 +235,11 @@ public class Robot {
     public void prepareShooter(ShotType shotType) {
         ShotContext ctx = new ShotContext();
 
-        ctx.robotPose = follower.getCenterOfShooterPose();
+        if (shootFromPose == null) {
+            ctx.robotPose = follower.getCenterOfShooterPose();
+        } else {
+            ctx.robotPose = shootFromPose;
+        }
         Pose goalPose;
         if (robotSide == RobotSide.Blue) {
             goalPose = shotType == ShotType.PHYSICAL ? Constants.Vision.blueGoalPhysics : Constants.Vision.blueGoal;
@@ -271,7 +277,7 @@ public class Robot {
     }
     double pictureTime = 0;
     public void shooterUpdate() {
-        shooter.update(getVoltageCompensation());
+        shooter.update(getVoltageCompensation(), panicShoot, panicShootingButton);
     }
 
     public void autoSetCurrentPose() {
@@ -358,7 +364,7 @@ public class Robot {
         return indexer.isPlugged() && intake.isBeamBroken();
     }
 
-    // CLIMB**************************************************************************************~
+    // CLIMB***************************************************************************************~
     public void climb() {
         climber.enableClimb();
     }
@@ -371,7 +377,7 @@ public class Robot {
         lights.update();
     }
 
-    // VOLTAGE-COMPENSATION*************************************************************************************~
+    // VOLTAGE COMPENSATION************************************************************************~
     public double getVoltageCompensation() {
         return 13 / getBatteryVoltage();
     }
@@ -393,6 +399,18 @@ public class Robot {
         return result;
     }
     // TELE-OP*************************************************************************************~
+
+    // Does not set panicShootingButton if panic shoot is false
+    public void setPanicShoot(boolean panicShoot, boolean panicShootingButton) {
+        this.panicShoot = panicShoot;
+        this.panicShootingButton = panicShootingButton;
+        if (panicShoot) {
+            setShootFromPose(Common.ShootPoses.panicShoot);
+        } else {
+            setShootFromPose(null);
+            this.panicShootingButton = false;
+        }
+    }
 
     // AUTONOMOUS**********************************************************************************~
 

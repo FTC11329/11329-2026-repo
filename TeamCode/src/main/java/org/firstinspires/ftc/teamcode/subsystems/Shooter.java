@@ -24,7 +24,6 @@ public class Shooter {
     Servo hoodServo2;
     double hoodPos = 0.6767676767676767676767676767676767;
     public MovingPIDFController shooterPID;
-    boolean shooterSpin;
     boolean isGettingUpToSpeed = true;
     boolean onceShot = false;
     double previousError;
@@ -118,13 +117,11 @@ public class Shooter {
     public void setTargetRPM(double targetRPM) {
         usePID = true;
         shooterPID.setTargetPosition(targetRPM);
-        shooterSpin = true;
     }
     // this is for when you want to continuously change the RPM of the flywheel
     public void adjustTargetRPM(double targetRPM) {
         usePID = true;
         shooterPID.moveTargetPosition(targetRPM);
-        shooterSpin = true;
     }
     public double getTargetRpm() {
         return shooterPID.getTargetPosition();
@@ -172,11 +169,11 @@ public class Shooter {
     }
 
     public void update() {
-        update(1);
+        update(1, false, false);
     }
-    public void update(double voltageCompensation) {
+    public void update(double voltageCompensation, boolean panicShoot, boolean panicShootButton) {
         flywheelVelocity = flywheel.getVelocity();
-        if (shooterSpin && usePID) {
+        if (!panicShoot && usePID) {
             shooterPID.updatePosition(getRPM());
             if (shooterPID.getTargetPosition() > 10) {
                 if (isGettingUpToSpeed) {
@@ -188,11 +185,17 @@ public class Shooter {
             } else {
                 setPower(0);
             }
-        } else if (shooterSpin) {
+        } else if (!panicShoot) {
             if (!isGettingUpToSpeed) {
                 isGettingUpToSpeed = true;
             }
             setPower(0.5);
+        } else/* if (panicShoot)*/ {
+            if (panicShootButton) {
+                setPower(1);
+            } else {
+                setPower(shooterPID.customFeedForwardOutput());
+            }
         }
     }
 

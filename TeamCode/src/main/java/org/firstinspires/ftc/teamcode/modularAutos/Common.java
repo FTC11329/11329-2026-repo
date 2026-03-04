@@ -111,6 +111,8 @@ public class Common {
 
         public static Pose fromStartCloseToMidShootControl = new Pose(45.3,49.6);
 
+        public static Pose panicShoot = new Pose(24, 24, Math.toRadians(0));
+
         public static Pose optimalSpike1Start = new Pose(32.4,38.4, Math.toRadians(123));
         public static Pose optimalSpike2Start = new Pose(15,26.5, Math.toRadians(120));
         public static Pose optimalSpike3Start = new Pose(14,24, Math.toRadians(133));
@@ -121,6 +123,7 @@ public class Common {
             closeShoot = convertToRed(closeShoot, toRed);
             midShoot = convertToRed(midShoot, toRed);
             farShoot = convertToRed(farShoot, toRed);
+            panicShoot = convertToRed(panicShoot, toRed);
             optimalSpike1Start = convertToRed(optimalSpike1Start, toRed);
             optimalSpike2Start = convertToRed(optimalSpike2Start, toRed);
             optimalSpike3Start = convertToRed(optimalSpike3Start, toRed);

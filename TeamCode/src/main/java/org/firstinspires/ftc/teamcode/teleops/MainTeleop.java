@@ -236,6 +236,7 @@ public class MainTeleop {
             }
         }
 //        robot.setShooterOffset(rpmOffset, hoodAngleOffset);
+        robot.setPanicShoot(panicShoot.isOn, fastShootButton.isOn);
         if (resetPose.startPress) {
             robot.reZeroAtCorner();
         }

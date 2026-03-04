@@ -57,6 +57,10 @@ public class MovingPIDFController implements Controller {
         return error * P() + positionDerivative * D() + errorIntegral * I() + feedForwardInput * F() + (targetPosition / kV);
     }
 
+    public double customFeedForwardOutput() {
+        return targetPosition / kV;
+    }
+
     /**
      * This can be used to update the PIDF's current position when inputting a current position and
      * a target position to calculate error. This will update the error from the current position to
