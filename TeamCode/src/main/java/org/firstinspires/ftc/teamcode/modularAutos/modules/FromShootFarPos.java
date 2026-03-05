@@ -15,6 +15,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.paths.PathChain;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
 import org.firstinspires.ftc.teamcode.util.BallColor;
+import org.firstinspires.ftc.teamcode.util.MeanBallPoses;
 
 public class FromShootFarPos {
 
@@ -113,6 +114,100 @@ public class FromShootFarPos {
         @Override
         public String toString() {
             return "From shoot Far to intake spike 3, state: " + state;
+        }
+    }
+
+    public static class ToIntakeWVision implements PathPlanner {
+        /// Intakes from around the secret Tunnel with vision
+        // Variables
+        Pose offset = new Pose();
+        private Timer pathTimer;
+        private int state = 0;
+        private boolean isFinished = false;
+
+        // Pass-through Variables
+        private volatile Robot robot;
+        private Pose startPose;
+        private Pose lastPose;
+        public ToIntakeWVision(Robot robot, Pose startPose) {
+            pathTimer = new Timer();
+            this.robot = robot;
+            this.startPose = startPose;
+            this.lastPose = ShootPoses.farShoot;
+        }
+
+        @Override
+        public void setOptimalEndPose(Pose optimalEndPose) {
+            lastPose = optimalEndPose;
+        }
+
+        @Override
+        public Pose getOptimalStartPose() {
+            return ShootPoses.farShoot;
+        }
+
+        //Path initialization
+        PathChain toIntakeBalls;
+        PathChain toShootPose;
+        @Override
+        public void buildPaths() {
+            // We create these on the fly during runtime
+        }
+
+        @Override
+        public Pose getEndPoseEst() {
+            //todo
+            return ShootPoses.farShoot;
+        }
+        Pose intakeBallPose;
+        @Override
+        public boolean run() {
+            switch (state) {
+                case 0:
+                    intakeBallPose = robot.getIntakeBallPoseFromCam();
+                    if (intakeBallPose != null) {
+                        double dx = intakeBallPose.getX() - startPose.getX();
+                        double dy = intakeBallPose.getY() - startPose.getY();
+                        double headingRadians = Math.atan2(dy, dx);
+
+                        intakeBallPose = intakeBallPose.setHeading(headingRadians);
+                        toIntakeBalls = robot.follower.linearPathChainBuilder(startPose, intakeBallPose);
+                        toIntakeBalls.getPath(0).setTangentHeadingInterpolation();
+                        robot.follower.followPath(toIntakeBalls);
+                        setPathState(1);
+                    }
+                    break;
+                case 1:
+                    if (!robot.follower.isBusy() || pathTimer.getElapsedTimeSeconds() > 3 || robot.indexer.isHasBallsFull()) {
+                        toShootPose = robot.follower.linearPathChainBuilder(intakeBallPose, lastPose);
+
+                        robot.follower.followPath(toShootPose);
+                    }
+                    break;
+                case 2:
+                    if (!robot.follower.isBusy()) {
+                        robot.indexer.shootAll();
+                        setPathState(5);
+                    }
+                    break;
+                case 3:
+                    if (robot.indexer.isHasBallsEmpty()) {
+                        isFinished = true;
+                    }
+            }
+            return isFinished;
+        }
+
+        private void setPathState(int state) {
+            this.state = state;
+            pathTimer.resetTimer();
+        }
+
+        @NonNull
+        @Override
+        //todo
+        public String toString() {
+            return "NAME, state: " + state;
         }
     }
 

@@ -55,7 +55,7 @@ public class Turret {
         while (robotDeg > 360) {
             robotDeg -= 360;
         }
-        while (robotDeg < -45) {
+        while (robotDeg < -25) {
             robotDeg += 360;
         }
 
@@ -137,7 +137,8 @@ public class Turret {
         return encoder.getCurrentPosition() + encoderOffset;
     }
     public boolean closeEnoughToTarget(Pose robotPose) {
-        return robotPose.distanceFrom(goalPose) * Math.sin(Math.toRadians(Math.abs(turretPID.getError()/4))) <= Constants.Turret.closeEnough;
+        return true;
+//        return robotPose.distanceFrom(goalPose) * Math.sin(Math.toRadians(Math.abs(turretPID.getError()/4))) <= Constants.Turret.closeEnough;
     }
 
     public void stop() {

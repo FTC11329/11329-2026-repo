@@ -88,7 +88,7 @@ public class ksTurretTuner extends OpMode {
 
 //        shooter.setPower(0.7);
         turret.update(0,0,0,false);
-        turret.setPower(-power);
+        turret.setPower(power);
         telemetry.addData("pow", power);
         telemetry.addData("vel", turret.getVelocity());
 

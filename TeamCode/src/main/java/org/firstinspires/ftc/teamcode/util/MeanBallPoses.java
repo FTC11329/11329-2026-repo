@@ -9,11 +9,9 @@ import java.util.List;
 
 public class MeanBallPoses {
     List<Vision.DetectedBall> detectedBalls;
-    MeanBallPoses(List<Vision.DetectedBall> detectedBalls) {
-        this.detectedBalls = detectedBalls;
-    }
+    public MeanBallPoses() {}
 
-    Pose getIntakeTarget() {
+    public Pose getIntakeTarget(List<Vision.DetectedBall> detectedBalls) {
         List<Vector> points = new ArrayList<>();
         for (Vision.DetectedBall ball : detectedBalls) {
             points.add(new Vector(ball.ballPose.getX(), ball.ballPose.getY()));

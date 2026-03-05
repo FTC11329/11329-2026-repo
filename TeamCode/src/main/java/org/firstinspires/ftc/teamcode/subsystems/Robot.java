@@ -17,6 +17,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.FieldShapes;
+import org.firstinspires.ftc.teamcode.util.MeanBallPoses;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
 import org.firstinspires.ftc.teamcode.util.ShapeDetection;
 import org.firstinspires.ftc.teamcode.util.ShootOnTheFly.HoodAngleCompensation;
@@ -69,6 +70,7 @@ public class Robot {
     public double angleToGoalAcceleration;
     Pose goal;
     Pose shootFromPose = null;
+    MeanBallPoses meanBallPoses;
     Telemetry telemetry;
     public Robot(Telemetry telemetry, HardwareMap hardwareMap, RobotSide robotSide, int startTurretTicks, double startIndexerTicks) {
         this(telemetry, hardwareMap, robotSide, startTurretTicks, startIndexerTicks, new BallColor[]{BallColor.None, BallColor.None, BallColor.None});
@@ -91,6 +93,8 @@ public class Robot {
         shotCalculator = new ShotCalculator();
         hoodAngleCompensation = new HoodAngleCompensation();
         voltageSensors = hardwareMap.voltageSensor;
+        meanBallPoses = new MeanBallPoses();
+
 
         follower.setStartingPose(new Pose(0,0,0));
 
@@ -191,6 +195,21 @@ public class Robot {
         }
     }
 
+    public Pose getIntakeBallPoseFromCam() {
+        if (pipelineIndex != 2) {
+            setPipelineIndex(2);
+        }
+        if (set){
+            List<Vision.DetectedBall> detectedBalls = vision.searchForBalls(getCurrentPose());
+            if (!detectedBalls.isEmpty()) {
+                setPipelineIndex(0);
+                return meanBallPoses.getIntakeTarget(detectedBalls);
+            }
+        }
+        setPipelineIndex(0);
+        return null;
+    }
+
     // TURRET**************************************************************************************~
 
     double angleToGoalVelocity;
@@ -236,6 +255,8 @@ public class Robot {
     public void setShooterOffset(double rpmOffset, double hoodAngleOffset) {
         this.hoodAngleOffset = hoodAngleOffset;
         this.rpmOffset = rpmOffset;
+        panelsTelemetry.addData("hood angle offset", hoodAngleOffset);
+        panelsTelemetry.addData("rpm offset", rpmOffset);
     }
     double rpmRatio = 1;
     public void prepareShooter(ShotType shotType) {
@@ -263,23 +284,12 @@ public class Robot {
 
         // expose turret feedforward
         angleToGoalVelocity = s.turretVel;
-        angleToGoalAcceleration = s.turretAccel;
-        panelsTelemetry.addData("angle to goal accel", s.turretAccel);
 
         turret.setTargetRad(s.turretAngleRad);
 
         shooter.setTargetRPM(s.rpm + rpmOffset);
 
-        double deltaDeg;
-        if (shotType == ShotType.TABLE && !farBack() && false) {
-            deltaDeg = hoodAngleCompensation.hoodAngleCompensation(s.rpm, shooter.getRPM(), s.hoodDeg);
-            rpmRatio = hoodAngleCompensation.getRpmRatio();
-        } else {
-            rpmRatio = 1;
-            deltaDeg = 0;
-        }
-
-        shooter.setHoodDeg(s.hoodDeg + deltaDeg + hoodAngleOffset);
+        shooter.setHoodDeg(s.hoodDeg + hoodAngleOffset);
     }
     double pictureTime = 0;
     public void shooterUpdate() {
@@ -461,18 +471,24 @@ public class Robot {
 
         lastTime = System.currentTimeMillis();
 
-        List<Vision.DetectedBall> detectedBalls = vision.searchForBalls(getCurrentPose());
-        for (int i = 0; i < detectedBalls.size(); i++) {
-            telemetry.addData("ball " + i + ":", detectedBalls.get(i).ballPose);
-            telemetry.addData("ball color", detectedBalls.get(i).ballColor);
-            telemetry.addData("latency", (System.currentTimeMillis() - detectedBalls.get(i).timePhotoWasTaken) * 1e-3);
-        }
+//        List<Vision.DetectedBall> detectedBalls = vision.searchForBalls(getCurrentPose());
+//        for (int i = 0; i < detectedBalls.size(); i++) {
+//            telemetry.addData("ball " + i + ":", detectedBalls.get(i).ballPose);
+//            telemetry.addData("ball color", detectedBalls.get(i).ballColor);
+//            telemetry.addData("latency", (System.currentTimeMillis() - detectedBalls.get(i).timePhotoWasTaken) * 1e-3);
+//        }
 
         Drawing.drawShapesDebug(this.follower);
-        Drawing.drawBalls(detectedBalls);
+//        Drawing.drawBalls(detectedBalls);
 
-        panelsTelemetry.addData("Pos", shooter.getRPM());
-        panelsTelemetry.addData("Tar", shooter.shooterPID.getTargetPosition() );
+        panelsTelemetry.addData("hood angle", shooter.getHoodPosDeg());
+        panelsTelemetry.addData("Shooter Pos", shooter.getRPM());
+        panelsTelemetry.addData("Shooter Tar", shooter.shooterPID.getTargetPosition() );
+        panelsTelemetry.addData("Turret Pos", turret.getAngle());
+        panelsTelemetry.addData("Turret Tar", turret.turretPID.getTargetPosition());
+        panelsTelemetry.addData("Turret Error", turret.turretPID.getError());
+        panelsTelemetry.addData("distance", distanceToGoal());
+
 //        panelsTelemetry.addData("error", shooter.shooterPID.getError() / 100.0); // todo keep test with new shooter
 //        panelsTelemetry.addData("power", shooter.shooterPID.run());
 //        panelsTelemetry.addData("1", 1);

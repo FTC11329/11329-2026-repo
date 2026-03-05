@@ -34,14 +34,14 @@ public class Shooter {
 
         flywheel1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         flywheel1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        flywheel1.setDirection(DcMotorSimple.Direction.FORWARD);
+        flywheel1.setDirection(DcMotorSimple.Direction.REVERSE);
         flywheel1.setCurrentAlert(4, CurrentUnit.AMPS);
 
         flywheel2 = hardwareMap.get(DcMotorEx.class, "flywheel2");
 
         flywheel2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         flywheel2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        flywheel2.setDirection(DcMotorSimple.Direction.FORWARD);
+        flywheel2.setDirection(DcMotorSimple.Direction.REVERSE);
         flywheel2.setCurrentAlert(4, CurrentUnit.AMPS);
 
         hoodServo1 = hardwareMap.get(Servo.class, "hood1");
@@ -92,8 +92,7 @@ public class Shooter {
     // Set hood from 0-1
     public void setHood(double set){
         if (Math.abs(hoodPos - set) >= .004) {
-            hoodPos = Math.max(Math.min(set, (Constants.Shooter.maxHoodAngle - 13.92) / 44.83), Constants.Shooter.minHoodAngle - 13.92 / 44.83);
-//            hoodServo2.setPosition(hoodPos);
+            hoodPos = Math.max(Math.min((set * 44.83) + 13.92, (Constants.Shooter.maxHoodAngle - 13.92) / 44.83), Constants.Shooter.minHoodAngle - 13.92 / 44.83);
             hoodServo1.setPosition(set);
         }
     }
@@ -107,7 +106,7 @@ public class Shooter {
 
     // get the degrees of the hood
     public double getHoodPosDeg() {
-        return (hoodPos * 44.83) + 13.92;
+        return hoodPos;
     }
 
     public void resetShooter(){

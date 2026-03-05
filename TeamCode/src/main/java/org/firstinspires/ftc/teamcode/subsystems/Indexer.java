@@ -362,6 +362,7 @@ public class Indexer {
         }
 
         // Plugging (https://www.youtube.com/@ftc11329)
+        startIndexerPlug = false;
         if (startIndexerPlug && !indexerPlug) {
             lastPosition = currentPose;
             setIndexerPos(IndexerEnums.shoot0);

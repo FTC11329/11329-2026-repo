@@ -24,19 +24,31 @@ public class Example {
         // Pass-through Variables
         private volatile Robot robot;
         private Pose startPose;
+        private Pose lastPose;
         // todo
         public NAME(Robot robot, Pose startPose) {
             pathTimer = new Timer();
             this.robot = robot;
             this.startPose = startPose;
+            this.lastPose = ShootPoses.midShoot;
         }
+
+        @Override
+        public void setOptimalEndPose(Pose optimalEndPose) {
+            lastPose = optimalEndPose;
+        }
+
+        @Override
+        public Pose getOptimalStartPose() {
+            return ShootPoses.optimalSpike1Start;
+        }
+
         //Path initialization
         Path toShootPosition;
-
         @Override
         public void buildPaths() {
             // Path creation
-            toShootPosition = robot.follower.linearPathBuilder(startPose, ShootPoses.midShoot);
+            toShootPosition = robot.follower.linearPathBuilder(startPose, lastPose);
         }
 
         @Override

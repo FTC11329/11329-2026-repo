@@ -26,8 +26,8 @@ public class Constants {
 
     public static class Vision {
         public static int configTest = 0;
-        public static Pose redGoal = new Pose(65, -67);
-        public static Pose blueGoal = new Pose(65, 67);
+        public static Pose redGoal = new Pose(67, -64);
+        public static Pose blueGoal = new Pose(67, 64);
 
         public static Pose redGoalPhysics = new Pose(64, -67);
         public static Pose blueGoalPhysics = new Pose(67, 67);
@@ -46,7 +46,7 @@ public class Constants {
 
         public static double CCW_F = -0.045;
         public static double CW_F = 0.1;
-        public static double kV = .095;
+        public static double kV = .105;
         public static double kA = .00;
 
 

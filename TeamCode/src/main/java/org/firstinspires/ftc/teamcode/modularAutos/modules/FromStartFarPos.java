@@ -6,6 +6,7 @@ import static org.firstinspires.ftc.teamcode.modularAutos.Common.Timings;
 
 import androidx.annotation.NonNull;
 
+import org.firstinspires.ftc.teamcode.modularAutos.Common;
 import org.firstinspires.ftc.teamcode.modularAutos.PathPlanner;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.BezierCurve;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
@@ -30,12 +31,19 @@ public class FromStartFarPos {
         private volatile Robot robot;
         private Pose startPose;
         private boolean sort;
+        private Pose lastPose;
 
         public shootPreloads(Robot robot, Pose startPose, boolean sort) {
             pathTimer = new Timer();
             this.robot = robot;
             this.startPose = startPose;
             this.sort = sort;
+            lastPose = ShootPoses.farShoot;
+        }
+
+        @Override
+        public void setOptimalEndPose(Pose optimalEndPose) {
+            lastPose = optimalEndPose;
         }
 
         //Path initialization
@@ -44,7 +52,7 @@ public class FromStartFarPos {
         @Override
         public void buildPaths() {
             // Path creation
-            toShootPose = robot.follower.linearPathChainBuilder(startPose, ShootPoses.farShoot);
+            toShootPose = robot.follower.linearPathChainBuilder(startPose, lastPose);
         }
 
         @Override
