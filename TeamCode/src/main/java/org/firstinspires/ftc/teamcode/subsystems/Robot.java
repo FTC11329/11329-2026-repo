@@ -162,19 +162,24 @@ public class Robot {
         follower.setPose(Common.StartPoses.reZeroAtCorner);
     }
     public void setAveragePose() {
-        Pose newPose = vision.averageRobotPose();
-        if (newPose != null) {
-            lights.printBigRed();
-            Pose addPose = new Pose();
-            switch (robotSide) {
-                case Red:
-                    addPose = new Pose(-5, 3);
-                    break;
-                case Blue:
-                    addPose = new Pose(-5, -3);
-                    break;
+        if (pipelineIndex != 0) {
+            setPipelineIndex(0);
+        }
+        if (set) {
+            Pose newPose = vision.averageRobotPose();
+            if (newPose != null) {
+                lights.printBigRed();
+                Pose addPose = new Pose();
+                switch (robotSide) {
+                    case Red:
+                        addPose = new Pose(-5, 3);
+                        break;
+                    case Blue:
+                        addPose = new Pose(-5, -3);
+                        break;
+                }
+                follower.setPose(lastCamPose.plus(addPose));
             }
-            follower.setPose(lastCamPose.plus(addPose));
         }
     }
     public void clearAveragePose() {
@@ -480,6 +485,8 @@ public class Robot {
 
         Drawing.drawShapesDebug(this.follower);
 //        Drawing.drawBalls(detectedBalls);
+
+        telemetry.addData("is stuck", indexer.isStuck);
 
         panelsTelemetry.addData("hood angle", shooter.getHoodPosDeg());
         panelsTelemetry.addData("Shooter Pos", shooter.getRPM());

@@ -166,6 +166,8 @@ public class Vision {
         if (result.isValid()) {
             List<LLResultTypes.DetectorResult> detections = result.getDetectorResults();
             for (LLResultTypes.DetectorResult detection : detections) {
+                double tx = detection.getTargetXDegrees(); // Where it is (left-right)
+                double ty = detection.getTargetYDegrees(); // Where it is (up-down)
                 String className = detection.getClassName(); // What was detected
                 BallColor ballColor;
                 if (className.equals("green")){
@@ -175,8 +177,6 @@ public class Vision {
                 } else {
                     ballColor = BallColor.Any;
                 }
-                double tx = detection.getTargetXDegrees(); // Where it is (left-right)
-                double ty = detection.getTargetYDegrees(); // Where it is (up-down)
                 long timePhotoWasTaken = result.getControlHubTimeStampNanos();
                 if (timePhotoWasTaken - System.nanoTime() * 1e-6 > 20) {
                     return lastDetectedBalls;

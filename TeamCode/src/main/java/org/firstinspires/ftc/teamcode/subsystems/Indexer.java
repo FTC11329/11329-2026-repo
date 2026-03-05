@@ -343,12 +343,25 @@ public class Indexer {
             unjamCounter = 0;
         }
     }
+    long lastStuck;
+    public boolean isStuck = false;
+    public void stuckUpdate() {
+        if (isAtPosition()) {
+            lastStuck = System.nanoTime();
+        } else if ((lastStuck - System.nanoTime()) * 1e-9 > .5) {
+            isStuck = true;
+        } else {
+            isStuck = false;
+        }
+    }
     //Update **************************************************************************************~
     public void update(boolean intaking, boolean readyToShoot, Pose currentPose) {
         update(intaking, readyToShoot, false, false, currentPose);
     }
 
     public void update(boolean intaking, boolean readyToShoot, boolean doSmartShoot, boolean isFarShot, Pose currentPose) {
+        stuckUpdate();
+
         updatingEncoderPos = -encoder.getCurrentPosition(); //updates this variable on tick so we are not calling multiple times in one tick
         // Stops if unjamming
         if (unjam) {
