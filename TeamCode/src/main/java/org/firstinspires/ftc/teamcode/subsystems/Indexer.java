@@ -40,9 +40,8 @@ public class Indexer {
     public double encoderOffsetFromAuto = 0;
     int updatingEncoderPos;
     boolean startShooting = false;
-    boolean shooting = false;
+    public boolean shooting = false;
     boolean unjam = false;
-    boolean boostPID;
     boolean dumbShootState1 = false;
     private boolean allowIntaking = true;
     private boolean forceEndPlug = false;
@@ -467,14 +466,12 @@ public class Indexer {
             spinTransferWheel(true);
             shotTimer.resetTimer();
             startShooting = false;
-            boostPID = true;
         }
 
         // once at highest full index, shoot while going back to intake
         if (shooting && !dumbShootState1 && !dumbShootState2 && isAtPosition()) {
             setIndexerPos(IndexerEnums.intake0);
             dumbShootState1 = true;
-            boostPID = false;
         }
 
         // once back at intake, stop shooting

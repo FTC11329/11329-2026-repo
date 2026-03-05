@@ -159,6 +159,7 @@ public class Vision {
     /**
      * @return a list of ball poses on the field, with the color, and the time we took the photo
      */
+    List<DetectedBall> lastDetectedBalls = new ArrayList<>();
     public List<DetectedBall> searchForBalls(Pose curPose) {
         List<DetectedBall> detectedBalls = new ArrayList<>();
         LLResult result = limelight.getLatestResult();
@@ -176,11 +177,15 @@ public class Vision {
                 }
                 double tx = detection.getTargetXDegrees(); // Where it is (left-right)
                 double ty = detection.getTargetYDegrees(); // Where it is (up-down)
-                long timePhotoWasTaken = result.getControlHubTimeStamp();
+                long timePhotoWasTaken = result.getControlHubTimeStampNanos();
+                if (timePhotoWasTaken - System.nanoTime() * 1e-6 > 20) {
+                    return lastDetectedBalls;
+                }
                 Pose ballPose = poseEstimation(tx, ty, curPose);
                 detectedBalls.add(new DetectedBall(ballPose, ballColor, timePhotoWasTaken));
             }
         }
+        lastDetectedBalls = detectedBalls;
         return detectedBalls;
     }
 

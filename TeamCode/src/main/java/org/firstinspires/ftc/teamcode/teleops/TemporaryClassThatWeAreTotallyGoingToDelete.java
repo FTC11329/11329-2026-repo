@@ -61,9 +61,13 @@ public class TemporaryClassThatWeAreTotallyGoingToDelete extends OpMode {
             indexer.shootAll();
         }
 
-        shooter.setTargetRPM(2500);
-        shooter.setHoodDeg(30);
-        indexer.update(true, true, new Pose());
+        if(gamepad1.right_bumper){
+            shooter.setTargetRPM(2500);
+        } else {
+            shooter.setTargetRPM(0);
+        }
+        shooter.setHoodDeg(22);
+        indexer.update(true, shooter.getRPM() > 2450, new Pose());
         shooter.update();
         panelsTelemetry.addData("Power", gamepad1.left_stick_y);
         panelsTelemetry.addData("Hood", hoodPos);

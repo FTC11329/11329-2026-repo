@@ -54,8 +54,8 @@ public class Constants {
     }
     @Configurable
     public static class Shooter {
-        public static PIDFCoefficients shooterVelocityPID = new PIDFCoefficients(.005, 0, 0, 0);
-        public static double kV = 4371;
+        public static PIDFCoefficients shooterVelocityPID = new PIDFCoefficients(.005, 0, 0, .1143);
+        public static double kV = 5060;
         public static double RPMoffset = 0;
         public static double closeEnoughRPM = 50;
         public static double ticksPerRevolution = 28;
