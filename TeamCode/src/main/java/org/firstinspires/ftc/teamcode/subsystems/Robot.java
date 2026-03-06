@@ -478,21 +478,25 @@ public class Robot {
 
         Drawing.drawShapesDebug(this.follower);
 
-        panelsTelemetry.addData("hood angle", shooter.getHoodPosDeg());
-        panelsTelemetry.addData("Shooter Pos", shooter.getRPM());
-        panelsTelemetry.addData("Shooter Tar", shooter.shooterPID.getTargetPosition() );
-        panelsTelemetry.addData("Turret Pos", turret.getAngle());
-        panelsTelemetry.addData("Turret Tar", turret.turretPID.getTargetPosition());
-        panelsTelemetry.addData("Turret Error", turret.turretPID.getError());
-        panelsTelemetry.addData("distance", distanceToGoal());
-        panelsTelemetry.addData("green", indexer.isGreenTelem());
-        panelsTelemetry.addData("purp", indexer.isPurpTelem());
+//        panelsTelemetry.addData("getColor", indexer.getColor());
+        panelsTelemetry.addData("hue", indexer.getHue());
+        panelsTelemetry.addData("distance", indexer.isDistance());
+        panelsTelemetry.addData("this", indexer.thisDistance ? 110 : 0);
+        panelsTelemetry.addData("Last", indexer.lastDistance ? 120 : 0);
 
         panelsTelemetry.update();
 
         if (debug) {
             debug();
         }
+//        panelsTelemetry.addData("hood angle", shooter.getHoodPosDeg());
+//        panelsTelemetry.addData("Shooter Pos", shooter.getRPM());
+//        panelsTelemetry.addData("Shooter Tar", shooter.shooterPID.getTargetPosition() );
+//        panelsTelemetry.addData("Turret Pos", turret.getAngle());
+//        panelsTelemetry.addData("Turret Tar", turret.turretPID.getTargetPosition());
+//        panelsTelemetry.addData("Turret Error", turret.turretPID.getError());
+//        panelsTelemetry.addData("distance", distanceToGoal());
+
     }
 
     public void debug() {
