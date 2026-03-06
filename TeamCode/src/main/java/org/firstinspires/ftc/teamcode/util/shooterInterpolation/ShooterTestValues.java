@@ -8,39 +8,28 @@ import java.util.List;
 public class ShooterTestValues implements ShooterValuesParent {
     private final ShooterTreeInterpolation shooterMap = new ShooterTreeInterpolation();
 
-    private final double CLOSE_ADDITION = -4; // - shooter farther
-    private final double ADDITION = -8; // - shooter farther
+    private final double CLOSE_ADDITION = 0; // - shooter farther
+    private final double ADDITION = 0; // - shooter farther
     private final double FAR_ADDITION = 0; // - shooter farther
-    private final double FAR_RPM_ADDITION = -50; // + shooter farther
+    private final double FAR_RPM_ADDITION = 0; // + shooter farther
+    private final double FAR_ANGLE_ADDITION = 0; // + shooter farther
     public ShooterTestValues() {
         // Distance units must have a consistent unit
-        shooterMap.put(20.2 + ADDITION + CLOSE_ADDITION, new ShooterState(1920, 9, .8125));
-        shooterMap.put(25.2 + ADDITION + CLOSE_ADDITION, new ShooterState(1860, 12, .786));
-        shooterMap.put(30.2 + ADDITION + CLOSE_ADDITION, new ShooterState(1770, 19.1, .672));
-        shooterMap.put(35.2 + ADDITION + CLOSE_ADDITION, new ShooterState(1750, 24.1, .598));
-        shooterMap.put(40.2 + ADDITION + CLOSE_ADDITION, new ShooterState(1800, 25.1, .664));
-        shooterMap.put(45.2 + ADDITION + CLOSE_ADDITION, new ShooterState(1783,30,.602));
-        shooterMap.put(50.2 + ADDITION, new ShooterState(1872,30,.684));
-        shooterMap.put(55.2 + ADDITION, new ShooterState(1900,30.6,.692));
-        shooterMap.put(60.2 + ADDITION, new ShooterState(1940,31,.694));
-        shooterMap.put(65.2 + ADDITION, new ShooterState(1990,31.6,.68));
-        shooterMap.put(70.2 + ADDITION, new ShooterState(2076,35,.67 /*SIX SEVEN INTERROBANG*/));
-        shooterMap.put(75.2 + ADDITION, new ShooterState(2100,35,.718));
-        shooterMap.put(80.2 + ADDITION, new ShooterState(2140,35.3,.748));
-        shooterMap.put(85.2 + ADDITION, new ShooterState(2200,35.7,.756));
-        shooterMap.put(90.2 + ADDITION, new ShooterState(2250,36.2,.754));
-        shooterMap.put(95.2 + ADDITION, new ShooterState(2300,37.3,.766));
-        shooterMap.put(100.2 + ADDITION, new ShooterState(2350,36.3,.718));
-        shooterMap.put(105.2 + ADDITION, new ShooterState(2450,35.3,.7575));
-        shooterMap.put(110.2 + ADDITION + FAR_ADDITION, new ShooterState(2450 + FAR_RPM_ADDITION,34.3,.72));
-        shooterMap.put(115.2 + ADDITION + FAR_ADDITION, new ShooterState(2600 + FAR_RPM_ADDITION,36.3,.718));
-        shooterMap.put(120.2 + ADDITION + FAR_ADDITION, new ShooterState(2660 + FAR_RPM_ADDITION,30,.892));
-        shooterMap.put(125.2 + ADDITION + FAR_ADDITION, new ShooterState(2700 + FAR_RPM_ADDITION,29.5,.836));
-        shooterMap.put(130.2 + ADDITION + FAR_ADDITION, new ShooterState(2822 + FAR_RPM_ADDITION,29,.914));
-        shooterMap.put(135.2 + ADDITION + FAR_ADDITION, new ShooterState(2914 + FAR_RPM_ADDITION,29,.876));
-        shooterMap.put(140.2 + ADDITION + FAR_ADDITION, new ShooterState(2911 + FAR_RPM_ADDITION,29,.914));
-        shooterMap.put(145.2 + ADDITION + FAR_ADDITION, new ShooterState(2940 + FAR_RPM_ADDITION,26,1.002));
-        shooterMap.put(150.2 + ADDITION + FAR_ADDITION, new ShooterState(3058 + FAR_RPM_ADDITION,26,1.004));
+        shooterMap.put(25 + ADDITION + CLOSE_ADDITION, new ShooterState(2500, 16, .736));
+        shooterMap.put(35 + ADDITION + CLOSE_ADDITION, new ShooterState(2390, 22, .524));
+        shooterMap.put(45 + ADDITION + CLOSE_ADDITION, new ShooterState(2450, 24.6, .576));
+        shooterMap.put(55. + ADDITION + CLOSE_ADDITION, new ShooterState(2580, 28.5, .588));
+        shooterMap.put(65. + ADDITION + CLOSE_ADDITION, new ShooterState(2790, 30.9, .628));
+        shooterMap.put(75. + ADDITION + CLOSE_ADDITION, new ShooterState(2878,32.8,.644));
+        shooterMap.put(85. + ADDITION, new ShooterState(3080,34,.666));
+        shooterMap.put(95. + ADDITION, new ShooterState(3150,38,.742));
+        shooterMap.put(105 + ADDITION, new ShooterState(3340,42,.662));
+        shooterMap.put(115 + FAR_ADDITION, new ShooterState(3362 + FAR_RPM_ADDITION,40.5+ FAR_ANGLE_ADDITION,0.736));
+        shooterMap.put(125. + FAR_ADDITION, new ShooterState(3540 + FAR_RPM_ADDITION,37.5+ FAR_ANGLE_ADDITION,.810));
+        shooterMap.put(135. + FAR_ADDITION, new ShooterState(3650 + FAR_RPM_ADDITION,36+ FAR_ANGLE_ADDITION,.934));
+        shooterMap.put(145. + FAR_ADDITION, new ShooterState(3750 + FAR_RPM_ADDITION,38.5+ FAR_ANGLE_ADDITION,.884));
+        shooterMap.put(155. + FAR_ADDITION, new ShooterState(3900 + FAR_RPM_ADDITION,40+ FAR_ANGLE_ADDITION,.902));
+        shooterMap.put(165.+ FAR_ADDITION, new ShooterState(4000 + FAR_RPM_ADDITION,42+ FAR_ANGLE_ADDITION,.890));
     }
 
     public ShooterState get(double distance) {

@@ -202,24 +202,20 @@ public class MainTeleop {
          // Changing our aim
         if (robotSide == RobotSide.Blue) {
             if (movePoseUp.startPress) {
-                rpmOffset += 50;
-//                robot.offsetPose.addY(1);
-//                robot.offsetPose.addX(1);
+                robot.offsetPose.addY(1);
+                robot.offsetPose.addX(1);
             }
             if (movePoseDown.startPress) {
-                rpmOffset -= 50;
-//                robot.offsetPose.addY(-1);
-//                robot.offsetPose.addX(-1);
+                robot.offsetPose.addY(-1);
+                robot.offsetPose.addX(-1);
             }
             if (movePoseLeft.startPress) {
-                hoodAngleOffset -= 1;
-//                robot.offsetPose.addY(1);
-//                robot.offsetPose.addX(-1);
+                robot.offsetPose.addY(1);
+                robot.offsetPose.addX(-1);
             }
             if (movePoseRight.startPress) {
-                hoodAngleOffset += 1;
-//                robot.offsetPose.addY(-1);
-//                robot.offsetPose.addX(1);
+                robot.offsetPose.addY(-1);
+                robot.offsetPose.addX(1);
             }
         } else {
             if (movePoseUp.startPress) {

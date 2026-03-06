@@ -119,8 +119,8 @@ public class Turret {
     }
 
     public void setPower(double set) {
-//        turretServo1.setPower(set);
-//        turretServo2.setPower(set);
+        turretServo1.setPower(set);
+        turretServo2.setPower(set);
     }
 
     // Converts raw encoder ticks to turret angle
@@ -137,9 +137,8 @@ public class Turret {
         return encoder.getCurrentPosition() + encoderOffset;
     }
     public boolean closeEnoughToTarget(Pose robotPose) {
-        return true;
-//        return robotPose.distanceFrom(goalPose) * Math.sin(Math.toRadians(Math.abs(turretPID.getError()/4))) <= Constants.Turret.closeEnough;
-    }
+        return robotPose.distanceFrom(goalPose) * Math.sin(Math.toRadians(Math.abs(turretPID.getError()/4))) <= Constants.Turret.closeEnough;
+}
 
     public void stop() {
         turretServo1.setPower(0);

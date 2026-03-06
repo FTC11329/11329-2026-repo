@@ -23,11 +23,11 @@ public class ShotCalculator {
         return null;
     }
     public ShotCalculator() {
-        shooterTestValues = new ShooterTestValuesPhysicsFar();
+        shooterTestValues = new ShooterTestValues();
         lastTOFtime = System.nanoTime();
     }
     double lastTOFtime;
-    ShooterTestValuesPhysicsFar shooterTestValues;
+    ShooterTestValues shooterTestValues;
     double previousTOF;
     private ShotSolution solveTableShot(ShotContext ctx) {
 

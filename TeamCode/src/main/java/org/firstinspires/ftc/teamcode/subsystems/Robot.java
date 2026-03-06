@@ -476,17 +476,7 @@ public class Robot {
 
         lastTime = System.currentTimeMillis();
 
-//        List<Vision.DetectedBall> detectedBalls = vision.searchForBalls(getCurrentPose());
-//        for (int i = 0; i < detectedBalls.size(); i++) {
-//            telemetry.addData("ball " + i + ":", detectedBalls.get(i).ballPose);
-//            telemetry.addData("ball color", detectedBalls.get(i).ballColor);
-//            telemetry.addData("latency", (System.currentTimeMillis() - detectedBalls.get(i).timePhotoWasTaken) * 1e-3);
-//        }
-
         Drawing.drawShapesDebug(this.follower);
-//        Drawing.drawBalls(detectedBalls);
-
-        telemetry.addData("is stuck", indexer.isStuck);
 
         panelsTelemetry.addData("hood angle", shooter.getHoodPosDeg());
         panelsTelemetry.addData("Shooter Pos", shooter.getRPM());
@@ -495,13 +485,9 @@ public class Robot {
         panelsTelemetry.addData("Turret Tar", turret.turretPID.getTargetPosition());
         panelsTelemetry.addData("Turret Error", turret.turretPID.getError());
         panelsTelemetry.addData("distance", distanceToGoal());
+        panelsTelemetry.addData("green", indexer.isGreenTelem());
+        panelsTelemetry.addData("purp", indexer.isPurpTelem());
 
-//        panelsTelemetry.addData("error", shooter.shooterPID.getError() / 100.0); // todo keep test with new shooter
-//        panelsTelemetry.addData("power", shooter.shooterPID.run());
-//        panelsTelemetry.addData("1", 1);
-
-
-        telemetry.update();
         panelsTelemetry.update();
 
         if (debug) {

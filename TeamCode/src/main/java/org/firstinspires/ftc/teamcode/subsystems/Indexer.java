@@ -145,6 +145,14 @@ public class Indexer {
         lastPurple = analog3.getVoltage() > 2.9;
         return temp && lastPurple;
     }
+    public boolean isGreenTelem() {
+        return analog2.getVoltage() > 2.9;
+    }
+
+    // DO NOT RUN IN TELEMETRY
+    public boolean isPurpTelem() {
+        return analog3.getVoltage() > 2.9;
+    }
 
     public BallColor getColor(){
         if (isGreen()) {
@@ -375,7 +383,6 @@ public class Indexer {
         }
 
         // Plugging (https://www.youtube.com/@ftc11329)
-        startIndexerPlug = false;
         if (startIndexerPlug && !indexerPlug) {
             lastPosition = currentPose;
             setIndexerPos(IndexerEnums.shoot0);
