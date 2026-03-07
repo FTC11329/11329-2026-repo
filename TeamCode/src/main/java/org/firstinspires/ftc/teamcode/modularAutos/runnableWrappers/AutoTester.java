@@ -1,30 +1,31 @@
-package org.firstinspires.ftc.teamcode.modularAutos.archivedAutos;
+package org.firstinspires.ftc.teamcode.modularAutos.runnableWrappers;
 
-import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.modularAutos.Common;
-import org.firstinspires.ftc.teamcode.modularAutos.Common.StartPoses;
 import org.firstinspires.ftc.teamcode.modularAutos.PathPlanner;
 import org.firstinspires.ftc.teamcode.modularAutos.modules.Commands;
 import org.firstinspires.ftc.teamcode.modularAutos.modules.FromShootMidPos;
+import org.firstinspires.ftc.teamcode.modularAutos.modules.FromShootMidPosFast;
 import org.firstinspires.ftc.teamcode.modularAutos.modules.FromStartClosePos;
+import org.firstinspires.ftc.teamcode.pedroPathing.Drawing;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
 import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.EndValuesStorer;
+import org.firstinspires.ftc.teamcode.util.FieldShapes;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
+import org.firstinspires.ftc.teamcode.util.ShapeDetection;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Disabled
-@Autonomous(name = "Close 18 Red Purple Robo", group = "      Testing", preselectTeleOp = "Main Teleop Red")
-public class CloseAuto18BallRedPurpleRobo extends OpMode {
+@Autonomous(name = "Auto Test", group = "Comp", preselectTeleOp = "Main Teleop Red")
+public class AutoTester extends OpMode {
     Pose startPose;
     RobotSide robotSide;
     Robot robot;
@@ -33,28 +34,26 @@ public class CloseAuto18BallRedPurpleRobo extends OpMode {
     private List<PathPlanner> steps = new ArrayList<>();
     Timer zeroVelocityTimer = new Timer(2000000);
     private int currentStep = 0;
-    long lastTime;
+    private boolean parkPathFollowed = false;
 
     @Override
     public void init() {
-        lastTime = System.nanoTime();
-        robotSide = RobotSide.Red;
+        robotSide = RobotSide.Blue;
         robot = new Robot(telemetry, hardwareMap, robotSide, 0,0,
                 new BallColor[]{
                         BallColor.Green,
                         BallColor.Purple,
                         BallColor.Purple
                 });
-        panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
+        startPose = Common.StartPoses.closeOuter;
 
-        startPose = StartPoses.closeInner;
+        steps.add(new FromStartClosePos.ShootAndGoToMidShootPosFast(robot, lastPlanner()));
+        steps.add(new FromShootMidPosFast.ToIntakeSpike1  (robot, lastPlanner(), false, false));
+        steps.add(new FromShootMidPosFast.ToIntakeSpike2  (robot, lastPlanner(), false, false));
+        steps.add(new FromShootMidPosFast.ToIntakeFromRamp(robot, lastPlanner(), false, false, false));
+        steps.add(new FromShootMidPosFast.ToIntakeSpike3  (robot, lastPlanner(), false, false));
 
-        steps.add(new FromStartClosePos.ShootAndGoToMidShootPos(robot, lastPlanner()));
-        steps.add(new FromShootMidPos.ToIntakeSpike2  (robot, lastPlanner(), false,  false, false));
-        steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPlanner(), false,  false, false));
-        steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPlanner(), false,  false, true));
-        steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPlanner(), false,  false, true));
-        steps.add(new FromShootMidPos.ToIntakeSpike1  (robot, lastPlanner(), false,  true, false));
+        wComms(steps);
 
         robot.follower.setPose(startPose);
     }
@@ -63,7 +62,7 @@ public class CloseAuto18BallRedPurpleRobo extends OpMode {
     public void init_loop() {
         telemetry.addData("start pose", startPose);
         telemetry.addData("shoot pose", Common.ShootPoses.midShoot);
-        telemetry.addData("red", Common.wasLastRed);
+        telemetry.addData("Is Red", Common.wasLastRed);
         telemetry.addLine("=== Motif ===");
         BallColor[] motif = robot.getMotif(true);
         if (motif == null) {
@@ -72,7 +71,6 @@ public class CloseAuto18BallRedPurpleRobo extends OpMode {
         for (BallColor color : motif) {
             telemetry.addLine(color.name());
         }
-
 
         telemetry.update();
     }
@@ -84,17 +82,17 @@ public class CloseAuto18BallRedPurpleRobo extends OpMode {
         robot.spinIntake();
     }
 
+    boolean firstDeInit = false;
     @Override
     public void loop() {
         // to stop the auto
         if (robot.getOpmodeTimeSeconds() > 30) {
             telemetry.addData("Done", true);
-            telemetry.addData("zeroVelTimer", zeroVelocityTimer.getElapsedTimeSeconds());
             telemetry.update();
 
             robot.stopAllSubsystems();
-            robot.follower.update();
-            if (robot.follower.getVelocity().getMagnitude() > 0.5) {
+            if (robot.follower.getVelocity().getMagnitude() > 0.5 || !firstDeInit) {
+                firstDeInit = true;
                 zeroVelocityTimer.resetTimer();
             }
             if (zeroVelocityTimer.getElapsedTimeSeconds() > 2) {
@@ -105,6 +103,29 @@ public class CloseAuto18BallRedPurpleRobo extends OpMode {
 
         robot.update();
         robot.prepareShooter();
+        Drawing.drawShapesDebug(robot.follower);
+
+        if (!parkPathFollowed && robot.getOpmodeTimeSeconds() > 28.75 && (
+                (   (
+                        ShapeDetection.doesRobotCrossLine(FieldShapes.closeTriangle, robot.getCurrentPose()) ||
+                                ShapeDetection.doesRobotCrossLine(FieldShapes.farTriangle, robot.getCurrentPose())
+                ) &&
+                        robot.follower.getVelocity().getMagnitude() < Common.Timings.shootVelocity
+                ) ||
+                        !ShapeDetection.isRobotInside(FieldShapes.closeTriangle, robot.getCurrentPose())
+        )
+        ) {
+            if (robot.getCurrentPose().getX() > - 25) {
+                robot.follower.followPath(robot.follower.linearPathBuilder(Common.ShootPoses.parkShoot, Common.IntakeBallPoses.intakeSpike1Start));
+            } else {
+                robot.follower.followPath(robot.follower.linearPathBuilder(Common.ShootPoses.farShoot, Common.IntakeBallPoses.intakeSpike3Start));
+            }
+            parkPathFollowed = true;
+            return;
+        } else if (parkPathFollowed) {
+            return;
+        }
+
 
         // Stops the robot if done
         if (currentStep >= steps.size()) {
@@ -113,10 +134,8 @@ public class CloseAuto18BallRedPurpleRobo extends OpMode {
             return;
         }
 
-
         PathPlanner step = steps.get(currentStep);
         boolean done = step.run();
-
 
         if (done) {
             currentStep++;
@@ -125,15 +144,17 @@ public class CloseAuto18BallRedPurpleRobo extends OpMode {
             }
             steps.get(currentStep).buildPaths();
         }
+
 //        Drawing.drawDebug(robot.follower);
 //        telemetry.addData("time", robot.getOpmodeTimeSeconds());
 //        telemetry.addData("name", step);
 //        for (BallColor i : robot.indexer.getBallCells()) {
 //            telemetry.addData("hasBalls", i);
 //        }
-        panelsTelemetry.addData("all", (System.nanoTime() - lastTime) * 1e-6);
-        panelsTelemetry.update();
-        lastTime = System.nanoTime();
+//        panelsTelemetry.addData("all", (System.nanoTime() - lastTime) * 1e-6);
+//        panelsTelemetry.update();
+//        lastTime = System.nanoTime();
+
     }
 
     private PathPlanner lastPlanner() {
@@ -141,6 +162,21 @@ public class CloseAuto18BallRedPurpleRobo extends OpMode {
             return new Commands.nullPlanner(startPose);
         } else {
             return steps.get(steps.size() - 1);
+        }
+    }
+
+    private void wComms(List<PathPlanner> steps) {
+        Pose lastOptimalPose = null;
+        for (int i = steps.size() - 1; i >= 0; i--) {
+            PathPlanner planner = steps.get(i);
+            if (!planner.hasComms()) {
+                lastOptimalPose = null;
+                continue;
+            }
+            if (lastOptimalPose != null) {
+                planner.setOptimalEndPose(lastOptimalPose);
+            }
+            lastOptimalPose = planner.getOptimalStartPose();
         }
     }
 

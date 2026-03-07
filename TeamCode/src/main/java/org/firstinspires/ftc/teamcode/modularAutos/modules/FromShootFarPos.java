@@ -33,10 +33,10 @@ public class FromShootFarPos {
         private volatile Robot robot;
         private Pose startPose;
         private boolean sort;
-        public ToIntakeSpike3(Robot robot, Pose startPose, boolean sort) {
+        public ToIntakeSpike3(Robot robot, PathPlanner prevPlanner, boolean sort) {
             pathTimer = new Timer();
             this.robot = robot;
-            this.startPose = startPose;
+            this.startPose = prevPlanner.getEndPoseEst();
             this.sort = sort;
         }
 

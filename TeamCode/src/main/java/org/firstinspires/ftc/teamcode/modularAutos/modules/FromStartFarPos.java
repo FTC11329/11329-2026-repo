@@ -1,16 +1,11 @@
 package org.firstinspires.ftc.teamcode.modularAutos.modules;
 
-import static org.firstinspires.ftc.teamcode.modularAutos.Common.IntakeBallPoses;
 import static org.firstinspires.ftc.teamcode.modularAutos.Common.ShootPoses;
-import static org.firstinspires.ftc.teamcode.modularAutos.Common.Timings;
 
 import androidx.annotation.NonNull;
 
-import org.firstinspires.ftc.teamcode.modularAutos.Common;
 import org.firstinspires.ftc.teamcode.modularAutos.PathPlanner;
-import org.firstinspires.ftc.teamcode.pedroPathing.geometry.BezierCurve;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
-import org.firstinspires.ftc.teamcode.pedroPathing.paths.Path;
 import org.firstinspires.ftc.teamcode.pedroPathing.paths.PathChain;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
@@ -18,7 +13,7 @@ import org.firstinspires.ftc.teamcode.util.BallColor;
 
 public class FromStartFarPos {
 
-    public static class shootPreloads implements PathPlanner {
+    public static class ShootPreloads implements PathPlanner {
         /// shoots preloads
 
         Pose offset = new Pose();
@@ -33,10 +28,10 @@ public class FromStartFarPos {
         private boolean sort;
         private Pose lastPose;
 
-        public shootPreloads(Robot robot, Pose startPose, boolean sort) {
+        public ShootPreloads(Robot robot, PathPlanner prevPlanner, boolean sort) {
             pathTimer = new Timer();
             this.robot = robot;
-            this.startPose = startPose;
+            this.startPose = prevPlanner.getEndPoseEst();
             this.sort = sort;
             lastPose = ShootPoses.farShoot;
         }

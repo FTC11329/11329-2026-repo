@@ -2,6 +2,7 @@
 package org.firstinspires.ftc.teamcode.autos;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.Constants;
@@ -16,6 +17,7 @@ import org.firstinspires.ftc.teamcode.util.AutoEnums.CloseAutoPhases;
 import org.firstinspires.ftc.teamcode.util.EndValuesStorer;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
 
+@Disabled
 @Autonomous(name = "Red Close Auto", group = "  autos")
 public class RedCloseAuto extends OpMode {
 	private Robot robot;

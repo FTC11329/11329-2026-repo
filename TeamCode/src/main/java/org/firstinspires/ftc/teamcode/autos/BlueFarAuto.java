@@ -2,6 +2,7 @@
 package org.firstinspires.ftc.teamcode.autos;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
@@ -14,6 +15,7 @@ import org.firstinspires.ftc.teamcode.util.EndValuesStorer;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
 import org.firstinspires.ftc.teamcode.util.AutoEnums.FarAutoPhases;
 
+@Disabled
 @Autonomous(name = "Blue Far Auto", group = " autos")
 public class BlueFarAuto extends OpMode {
 	private Robot robot;

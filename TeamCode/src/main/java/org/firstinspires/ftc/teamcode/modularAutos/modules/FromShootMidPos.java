@@ -32,10 +32,10 @@ public class FromShootMidPos {
         private boolean parkAfter;
         Pose lastPose;
 
-        public ToIntakeSpike1(Robot robot, Pose startPose, boolean sort, boolean parkAfter, boolean lever) {
+        public ToIntakeSpike1(Robot robot, PathPlanner prevPlanner, boolean sort, boolean parkAfter, boolean lever) {
             pathTimer = new Timer();
             this.robot = robot;
-            this.startPose = startPose;
+            this.startPose = prevPlanner.getEndPoseEst();
             this.lever = lever;
             this.sort = sort;
             this.parkAfter = parkAfter;
@@ -157,10 +157,10 @@ public class FromShootMidPos {
         private boolean parkAfter;
         Pose lastPose;
 
-        public ToIntakeSpike2(Robot robot, Pose startPose, boolean sort, boolean parkAfter, boolean lever) {
+        public ToIntakeSpike2(Robot robot, PathPlanner prevPlanner, boolean sort, boolean parkAfter, boolean lever) {
             pathTimer = new Timer();
             this.robot = robot;
-            this.startPose = startPose;
+            this.startPose = prevPlanner.getEndPoseEst();
             this.lever = lever;
             this.sort = sort;
             this.parkAfter = parkAfter;
@@ -284,10 +284,10 @@ public class FromShootMidPos {
         private boolean sort;
         private boolean parkAfter;
         Pose lastPose;
-        public ToIntakeSpike3(Robot robot, Pose startPose, boolean sort, boolean parkAfter) {
+        public ToIntakeSpike3(Robot robot, PathPlanner prevPlanner, boolean sort, boolean parkAfter) {
             pathTimer = new Timer();
             this.robot = robot;
-            this.startPose = startPose;
+            this.startPose = prevPlanner.getEndPoseEst();
             this.sort = sort;
             this.parkAfter = parkAfter;
             lastPose = parkAfter ? ShootPoses.parkShoot : ShootPoses.midShoot;
@@ -398,10 +398,10 @@ public class FromShootMidPos {
         double rampTimeOut;
         Pose lastPose;
 
-        public ToIntakeFromRamp(Robot robot, Pose startPose, boolean sort, boolean parkAfter, boolean longLever) {
+        public ToIntakeFromRamp(Robot robot, PathPlanner prevPlanner, boolean sort, boolean parkAfter, boolean longLever) {
             pathTimer = new Timer();
             this.robot = robot;
-            this.startPose = startPose;
+            this.startPose = prevPlanner.getEndPoseEst();
             this.sort = sort;
             this.parkAfter = parkAfter;
             this.longLever = longLever;

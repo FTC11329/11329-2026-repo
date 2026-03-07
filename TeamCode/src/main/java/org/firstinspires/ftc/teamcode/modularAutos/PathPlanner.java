@@ -5,10 +5,16 @@ import androidx.annotation.NonNull;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 
 public interface PathPlanner {
+    default boolean hasComms() {
+        return false;
+    }
+    default void setOptimalEndPose(Pose optimalEndPose) {}
+    default Pose getOptimalStartPose() {
+        return null;
+    }
+
     // Builds all the paths with the previous offset
     void buildPaths();
-
-    default void setOptimalEndPose(Pose optimalEndPose) {}
 
     // Run the step, return true if it's done
     boolean run();
@@ -19,9 +25,5 @@ public interface PathPlanner {
     // Gets the name of the module
     @NonNull
     String toString();
-
-    default Pose getOptimalStartPose() {
-        return null;
-    }
 
 }

@@ -23,10 +23,10 @@ public class Commands {
         private volatile Robot robot;
         private Pose startPose;
         private double waitSec;
-        public WaitSeconds(Robot robot, Pose startPose, double waitSec) {
+        public WaitSeconds(Robot robot, PathPlanner prevPlanner) {
             pathTimer = new Timer();
             this.robot = robot;
-            this.startPose = startPose;
+            this.startPose = prevPlanner.getEndPoseEst();
             this.waitSec = waitSec;
         }
 
@@ -77,10 +77,10 @@ public class Commands {
         private volatile Robot robot;
         private Pose startPose;
         private double endTime;
-        public WaitUntilRemainingTime(Robot robot, Pose startPose, double endTime) {
+        public WaitUntilRemainingTime(Robot robot, PathPlanner prevPlanner, double endTime) {
             pathTimer = new Timer();
             this.robot = robot;
-            this.startPose = startPose;
+            this.startPose = prevPlanner.getEndPoseEst();
             this.endTime = endTime;
         }
 
@@ -131,10 +131,10 @@ public class Commands {
         private volatile Robot robot;
         private Pose startPose;
         private Pose endPose;
-        public goToPose(Robot robot, Pose startPose, Pose endPose) {
+        public goToPose(Robot robot, PathPlanner prevPlanner, Pose endPose) {
             pathTimer = new Timer();
             this.robot = robot;
-            this.startPose = startPose;
+            this.startPose = prevPlanner.getEndPoseEst();
             this.endPose = endPose;
         }
 
@@ -179,6 +179,39 @@ public class Commands {
         @Override
         public String toString() {
             return "to Pose " + endPose;
+        }
+    }
+
+    public static class nullPlanner implements PathPlanner {
+
+        private Pose lastPose;
+
+        public nullPlanner(Pose lastPose) {
+            this.lastPose = lastPose;
+        }
+
+        @Override
+        public void buildPaths() {}
+
+        @Override
+        public boolean run() {
+            return false;
+        }
+
+        @Override
+        public Pose getEndPoseEst() {
+            return lastPose;
+        }
+
+        @Override
+        public boolean hasComms() {
+            return true;
+        }
+
+        @NonNull
+        @Override
+        public String toString() {
+            return "Null Planner?";
         }
     }
 }

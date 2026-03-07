@@ -478,13 +478,6 @@ public class Robot {
 
         Drawing.drawShapesDebug(this.follower);
 
-//        panelsTelemetry.addData("getColor", indexer.getColor());
-        panelsTelemetry.addData("hue", indexer.getHue());
-        panelsTelemetry.addData("distance", indexer.isDistance());
-        panelsTelemetry.addData("this", indexer.thisDistance ? 110 : 0);
-        panelsTelemetry.addData("Last", indexer.lastDistance ? 120 : 0);
-
-        panelsTelemetry.update();
 
         if (debug) {
             debug();

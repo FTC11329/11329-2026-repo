@@ -33,13 +33,22 @@ public class FromShootMidPosFast {
         private boolean parkAfter;
         Pose lastPose;
 
-        public ToIntakeSpike1(Robot robot, Pose startPose, boolean sort, boolean parkAfter) {
+        public ToIntakeSpike1(Robot robot, PathPlanner prevPlanner, boolean sort, boolean parkAfter) {
             pathTimer = new Timer();
             this.robot = robot;
-            this.startPose = startPose;
             this.sort = sort;
             this.parkAfter = parkAfter;
             lastPose = parkAfter ? ShootPoses.parkShoot : ShootPoses.midShoot;
+            if (!prevPlanner.hasComms()) {
+                startPose = getOptimalStartPose();
+            } else {
+                startPose = prevPlanner.getEndPoseEst();
+            }
+        }
+
+        @Override
+        public boolean hasComms() {
+            return true;
         }
 
         @Override
@@ -54,7 +63,7 @@ public class FromShootMidPosFast {
 
         //Path initialization
         PathChain pathChain;
-        Path toShootPose;
+        PathChain toShootPose;
         @Override
         public void buildPaths() {
             // Path creation
@@ -62,7 +71,10 @@ public class FromShootMidPosFast {
                     .addPath(new BezierCurve(startPose, IntakeBallPoses.intakeSpike1FastControlPoint, IntakeBallPoses.intakeSpike1Fast))
                     .setTangentHeadingInterpolation()
                     .build();
-            toShootPose.setLinearHeadingInterpolation(IntakeBallPoses.intakeSpike1Fast, lastPose);
+
+            toShootPose = robot.follower.pathBuilder()
+                    .addPath(robot.follower.linearPathBuilder(IntakeBallPoses.intakeSpike1Fast, lastPose))
+                    .build();
 
         }
 
@@ -143,15 +155,22 @@ public class FromShootMidPosFast {
         private Pose startPose;
         private boolean sort;
         private boolean parkAfter;
+        private boolean prevHasComms;
         Pose lastPose;
 
-        public ToIntakeSpike2(Robot robot, Pose startPose, boolean sort, boolean parkAfter) {
+        public ToIntakeSpike2(Robot robot, PathPlanner prevPlanner, boolean sort, boolean parkAfter) {
             pathTimer = new Timer();
             this.robot = robot;
-            this.startPose = startPose;
+            this.startPose = prevPlanner.getEndPoseEst();
             this.sort = sort;
             this.parkAfter = parkAfter;
             lastPose = parkAfter ? ShootPoses.parkShoot : ShootPoses.midShoot;
+            prevHasComms = prevPlanner.hasComms();
+        }
+
+        @Override
+        public boolean hasComms() {
+            return true;
         }
 
         @Override
@@ -167,7 +186,7 @@ public class FromShootMidPosFast {
         //Path initialization
         PathBuilder pathChainBuilder;
         PathChain pathChain;
-        Path toShootPose;
+        PathChain toShootPose;
         @Override
         public void buildPaths() {
             // Path creation
@@ -175,7 +194,9 @@ public class FromShootMidPosFast {
                     .addPath(new BezierCurve(startPose, IntakeBallPoses.intakeSpike2FastControlPoint, IntakeBallPoses.intakeSpike2Fast))
                     .setTangentHeadingInterpolation()
                     .build();
-            toShootPose.setLinearHeadingInterpolation(IntakeBallPoses.intakeSpike2Fast, lastPose);
+            toShootPose = robot.follower.pathBuilder()
+                    .addPath(robot.follower.linearPathBuilder(IntakeBallPoses.intakeSpike2Fast, lastPose))
+                    .build();
         }
 
         @Override
@@ -256,13 +277,22 @@ public class FromShootMidPosFast {
         private boolean sort;
         private boolean parkAfter;
         Pose lastPose;
-        public ToIntakeSpike3(Robot robot, Pose startPose, boolean sort, boolean parkAfter) {
+        public ToIntakeSpike3(Robot robot, PathPlanner prevPlanner, boolean sort, boolean parkAfter) {
             pathTimer = new Timer();
             this.robot = robot;
-            this.startPose = startPose;
             this.sort = sort;
             this.parkAfter = parkAfter;
             lastPose = parkAfter ? ShootPoses.parkShoot : ShootPoses.midShoot;
+            if (!prevPlanner.hasComms()) {
+                startPose = getOptimalStartPose();
+            } else {
+                startPose = prevPlanner.getEndPoseEst();
+            }
+        }
+
+        @Override
+        public boolean hasComms() {
+            return true;
         }
 
         @Override
@@ -278,7 +308,7 @@ public class FromShootMidPosFast {
 
         //Path initialization
         PathChain pathChain;
-        Path toShootPose;
+        PathChain toShootPose;
         @Override
         public void buildPaths() {
             // Path creation
@@ -286,7 +316,9 @@ public class FromShootMidPosFast {
                     .addPath(new BezierCurve(startPose, IntakeBallPoses.intakeSpike3FastControlPoint, IntakeBallPoses.intakeSpike3Fast))
                     .setTangentHeadingInterpolation()
                     .build();
-            toShootPose.setLinearHeadingInterpolation(IntakeBallPoses.intakeSpike3Fast, lastPose);
+            toShootPose = robot.follower.pathBuilder()
+                    .addPath(robot.follower.linearPathBuilder(IntakeBallPoses.intakeSpike3Fast, lastPose))
+                    .build();
         }
 
         @Override
@@ -371,17 +403,27 @@ public class FromShootMidPosFast {
         double rampTimeOut;
         Pose lastPose;
 
-        public ToIntakeFromRamp(Robot robot, Pose startPose, boolean sort, boolean parkAfter, boolean longLever) {
+        public ToIntakeFromRamp(Robot robot, PathPlanner prevPlanner, boolean sort, boolean parkAfter, boolean longLever) {
             pathTimer = new Timer();
             this.robot = robot;
-            this.startPose = startPose;
+            this.startPose = prevPlanner.getEndPoseEst();
             this.sort = sort;
             this.parkAfter = parkAfter;
             this.longLever = longLever;
+            if (!prevPlanner.hasComms()) {
+                startPose = getOptimalStartPose();
+            } else {
+                startPose = prevPlanner.getEndPoseEst();
+            }
 
             leverTimeOut = longLever ? Timings.longLeverPressTime         : Timings.shortLeverPressTime;
             rampTimeOut =  longLever ? Timings.longSTunnelIntakeTimeOut   : Timings.shortSTunnelIntakeTimeOut;
             lastPose =     parkAfter ? ShootPoses.parkShoot               : ShootPoses.midShoot;
+        }
+
+        @Override
+        public boolean hasComms() {
+            return true;
         }
 
         @Override

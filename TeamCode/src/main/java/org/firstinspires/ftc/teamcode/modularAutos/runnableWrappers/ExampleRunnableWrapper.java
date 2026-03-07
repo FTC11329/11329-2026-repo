@@ -2,9 +2,11 @@ package org.firstinspires.ftc.teamcode.modularAutos.runnableWrappers;
 
 import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.modularAutos.Common;
+import org.firstinspires.ftc.teamcode.modularAutos.modules.Commands;
 import org.firstinspires.ftc.teamcode.modularAutos.modules.FromShootMidPos;
 import org.firstinspires.ftc.teamcode.modularAutos.modules.FromStartClosePos;
 import org.firstinspires.ftc.teamcode.modularAutos.PathPlanner;
@@ -21,7 +23,8 @@ import org.firstinspires.ftc.teamcode.util.ShapeDetection;
 import java.util.ArrayList;
 import java.util.List;
 
-@Autonomous
+@Disabled
+@Autonomous(name = "Exaple", group = "Comp", preselectTeleOp = "Main Teleop Red")
 public class ExampleRunnableWrapper extends OpMode {
     Pose startPose;
     RobotSide robotSide;
@@ -46,10 +49,10 @@ public class ExampleRunnableWrapper extends OpMode {
         // todo Set These Before Creating
         startPose = null;
 
-        steps.add(new FromStartClosePos.ShootAndGoToMidShootPos(robot, lastPose()));
-        steps.add(new FromShootMidPos.ToIntakeSpike1(robot, lastPose(), true, false, false));
+        steps.add(new FromStartClosePos.ShootAndGoToMidShootPos(robot, lastPlanner()));
+        steps.add(new FromShootMidPos.ToIntakeSpike1(robot, lastPlanner(), true, false, false));
 
-        addOptimalEnds(steps);
+        wComms(steps);
 
         robot.follower.setPose(startPose);
     }
@@ -98,6 +101,7 @@ public class ExampleRunnableWrapper extends OpMode {
         }
 
         robot.update();
+        robot.prepareShooter();
         Drawing.drawShapesDebug(robot.follower);
 
         if (!parkPathFollowed && robot.getOpmodeTimeSeconds() > 28.75 && (
@@ -152,18 +156,22 @@ public class ExampleRunnableWrapper extends OpMode {
 
     }
 
-    private Pose lastPose() {
+    private PathPlanner lastPlanner() {
         if (steps.isEmpty()) {
-            return startPose;
+            return new Commands.nullPlanner(startPose);
         } else {
-            return steps.get(steps.size() - 1).getEndPoseEst();
+            return steps.get(steps.size() - 1);
         }
     }
 
-    private void addOptimalEnds(List<PathPlanner> steps) {
+    private void wComms(List<PathPlanner> steps) {
         Pose lastOptimalPose = null;
         for (int i = steps.size() - 1; i >= 0; i--) {
             PathPlanner planner = steps.get(i);
+            if (!planner.hasComms()) {
+                lastOptimalPose = null;
+                continue;
+            }
             if (lastOptimalPose != null) {
                 planner.setOptimalEndPose(lastOptimalPose);
             }

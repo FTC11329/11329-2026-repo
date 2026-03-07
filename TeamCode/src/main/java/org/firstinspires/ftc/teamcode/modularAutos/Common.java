@@ -61,13 +61,13 @@ public class Common {
         public static Pose intakeSpike3End = new Pose(-36, 60, Math.toRadians(90));
 
         public static Pose intakeSpike1FastControlPoint = new Pose(26.7,47.5);
-        public static Pose intakeSpike1Fast = new Pose(16.8,47.5);
+        public static Pose intakeSpike1Fast = new Pose(16.8,47.5, Math.toRadians(180));
 
         public static Pose intakeSpike2FastControlPoint = new Pose(2.6,48);
-        public static Pose intakeSpike2Fast = new Pose(-7.9,48);
+        public static Pose intakeSpike2Fast = new Pose(-7.9,48, Math.toRadians(180));
 
         public static Pose intakeSpike3FastControlPoint = new Pose(-9,47.9);
-        public static Pose intakeSpike3Fast = new Pose(-31.1,47.9);
+        public static Pose intakeSpike3Fast = new Pose(-31.1,47.9, Math.toRadians(180));
 
         public static Pose movingToPushLeverControlPoint = new Pose(-3.8, 25.3);
         public static Pose pushLeverAfterSpike = new Pose(-0.4,56.1, Math.toRadians(60));

@@ -26,10 +26,10 @@ public class Example {
         private Pose startPose;
         private Pose lastPose;
         // todo
-        public NAME(Robot robot, Pose startPose) {
+        public NAME(Robot robot, PathPlanner prevPlanner) {
             pathTimer = new Timer();
             this.robot = robot;
-            this.startPose = startPose;
+            this.startPose = prevPlanner.getEndPoseEst();
             this.lastPose = ShootPoses.midShoot;
         }
 

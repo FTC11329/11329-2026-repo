@@ -5,6 +5,7 @@ import androidx.annotation.NonNull;
 import org.firstinspires.ftc.teamcode.modularAutos.Common;
 import org.firstinspires.ftc.teamcode.modularAutos.Common.*;
 import org.firstinspires.ftc.teamcode.modularAutos.PathPlanner;
+import org.firstinspires.ftc.teamcode.pedroPathing.geometry.BezierCurve;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.paths.Path;
 import org.firstinspires.ftc.teamcode.pedroPathing.paths.PathChain;
@@ -24,11 +25,13 @@ public class FromStartClosePos {
         // Pass-through Variables
         private volatile Robot robot;
         private Pose startPose;
+        private boolean prevHasComms;
 
-        public ShootAndGoToMidShootPos(Robot robot, Pose startPose) {
+        public ShootAndGoToMidShootPos(Robot robot, PathPlanner prevPlanner) {
             pathTimer = new Timer();
             this.robot = robot;
-            this.startPose = startPose;
+            this.startPose = prevPlanner.getEndPoseEst();
+            prevHasComms = prevPlanner.hasComms();
         }
 
         //Path initialization
@@ -87,8 +90,6 @@ public class FromStartClosePos {
             return "FromStartClosePosition ShootAndGoToMidShootPos, step: " + state;
         }
     }
-    /*
-    not working
     public static class ShootAndGoToMidShootPosFast implements PathPlanner {
         /// Starts Close and goes to shoot mid pos while shooting
         // Variables
@@ -100,60 +101,72 @@ public class FromStartClosePos {
         // Pass-through Variables
         private volatile Robot robot;
         private Pose startPose;
+        private Pose lastPose;
 
-        public ShootAndGoToMidShootPosFast(Robot robot, Pose startPose) {
+        public ShootAndGoToMidShootPosFast(Robot robot, PathPlanner prevPlanner) {
             pathTimer = new Timer();
             this.robot = robot;
-            this.startPose = startPose;
+            this.lastPose = ShootPoses.midShoot;
+
+            if (!prevPlanner.hasComms()) {
+                startPose = getOptimalStartPose();
+            } else {
+                startPose = prevPlanner.getEndPoseEst();
+            }
+        }
+
+        @Override
+        public boolean hasComms() {
+            return true;
+        }
+
+        @Override
+        public void setOptimalEndPose(Pose optimalEndPose) {
+            lastPose = optimalEndPose;
         }
 
         //Path initialization
-        PathChain toShootPosition;
-        Path shootOnTheFlyPath;
+        PathChain shootOnTheFlyPath;
 
         @Override
         public void buildPaths() {
+            if (startPose == null) {
+                throw new RuntimeException("start");
+            }
+            if (lastPose == null) {
+                throw new RuntimeException("end");
+            }
             // Path creation
-            toShootPosition = robot.follower.linearPathChainBuilder(startPose, ShootPoses.parkShoot, 1);
-            shootOnTheFlyPath = robot.follower.linearPathBuilder(ShootPoses.parkShoot, ShootPoses.midShoot);
+            shootOnTheFlyPath = robot.follower.pathBuilder()
+                    .addPath(new BezierCurve(startPose, ShootPoses.fromStartCloseToMidShootControl, lastPose))
+                    .setLinearHeadingInterpolation(startPose, lastPose)
+                    .build();
         }
 
         @Override
         public Pose getEndPoseEst() {
-            return new Pose(-12, 12, Math.toRadians(90));
+            return lastPose;
         }
 
         @Override
         public boolean run() {
             switch (state) {
                 case 0:
-                    robot.follower.followPath(toShootPosition);
+                    robot.follower.setMaxPower(DrivePower.shootOnThFly);
+                    robot.follower.followPath(shootOnTheFlyPath);
                     setPathState(1);
                     break;
                 case 1:
-                    if (robot.readyToShootMotors()) {
-                        robot.follower.followPath(shootOnTheFlyPath);
-                        setPathState(2);
-                    }
-                    break;
-                case 2:
-                    if (pathTimer.getElapsedTimeSeconds() > 0.25) {
-                        robot.follower.setMaxPower(DrivePower.shootOnThFly);
-                        robot.indexer.shootAll();
-                        setPathState(3);
-                    }
-                    break;
-                case 3:
-                    if (pathTimer.getElapsedTimeSeconds() > 1.5) {
+                    if (pathTimer.getElapsedTimeSeconds() > 3) {
                         robot.indexerUnjam();
                     }
-                    if (robot.indexer.isHasBallsEmpty()) {
+                    if (robot.indexer.isHasBallsEmpty() && !robot.follower.isBusy()) {
                         robot.follower.setMaxPower(1);
                         isFinished = true;
+                    } else if (robot.indexer.isHasBallsEmpty()) {
+                        robot.follower.setMaxPower(1);
                     }
-                    break;
             }
-
             return isFinished;
         }
 
@@ -168,5 +181,4 @@ public class FromStartClosePos {
             return "FromStartClosePosition ShootAndGoToMidShootPosFast, step: " + state;
         }
     }
-     */
 }
