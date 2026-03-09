@@ -36,7 +36,7 @@ public class ShotCalculator {
 
         double timeInFlight =
                 (1 / ctx.rpmRatio) *
-                        stv.get(ctx.robotPose.distanceFrom(ctx.goalPose)).timeInFlight;
+                        stv.get(ctx.robotPose.distanceFrom(ctx.goalPose) + ctx.distanceOffset).timeInFlight;
 
 //        Vector velocity = ctx.velocity.plus(ctx.acceleration.times(.015)); // accounts for lag in reacting to sotf
         Vector velocity = ctx.velocity; // accounts for lag in reacting to sotf
@@ -85,7 +85,7 @@ public class ShotCalculator {
                         ((dX * correctedVelocity.getXComponent()
                                 + dY * correctedVelocity.getYComponent()) / r2);
 
-        ShooterState params = stv.get(ctx.robotPose.distanceFrom(futrGoal));
+        ShooterState params = stv.get(ctx.robotPose.distanceFrom(futrGoal) + ctx.distanceOffset);
 
         shotSolution.rpm = params.rpm;
         shotSolution.hoodDeg = params.hoodAngle;

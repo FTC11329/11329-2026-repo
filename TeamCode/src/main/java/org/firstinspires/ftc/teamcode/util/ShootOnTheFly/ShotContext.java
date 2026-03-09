@@ -11,5 +11,7 @@ public class ShotContext {
     public Vector acceleration;
     public RobotSide side;
     public double rpmRatio;
+    public double distanceOffset;
+
 }
 

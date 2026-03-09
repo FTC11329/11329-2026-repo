@@ -47,6 +47,8 @@ public class MainTeleop {
     RobotSide robotSide;
     HardwareMap hardwareMap;
     double RPMoffset;
+    double distanceOffset;
+    double turretOffset;
 
     public MainTeleop(Gamepad gamepad1, Gamepad gamepad2, Telemetry telemetry, HardwareMap hardwareMap, RobotSide robotSide) {
         this.gamepad1 = gamepad1;
@@ -200,41 +202,19 @@ public class MainTeleop {
         }
 
          // Changing our aim
-        if (robotSide == RobotSide.Blue) {
-            if (movePoseUp.startPress) {
-                robot.offsetPose.addY(1);
-                robot.offsetPose.addX(1);
-            }
-            if (movePoseDown.startPress) {
-                robot.offsetPose.addY(-1);
-                robot.offsetPose.addX(-1);
-            }
-            if (movePoseLeft.startPress) {
-                robot.offsetPose.addY(1);
-                robot.offsetPose.addX(-1);
-            }
-            if (movePoseRight.startPress) {
-                robot.offsetPose.addY(-1);
-                robot.offsetPose.addX(1);
-            }
-        } else {
-            if (movePoseUp.startPress) {
-                robot.offsetPose.addY(-1);
-                robot.offsetPose.addX(1);
-            }
-            if (movePoseDown.startPress) {
-                robot.offsetPose.addY(1);
-                robot.offsetPose.addX(-1);
-            }
-            if (movePoseLeft.startPress) {
-                robot.offsetPose.addY(1);
-                robot.offsetPose.addX(1);
-            }
-            if (movePoseRight.startPress) {
-                robot.offsetPose.addY(-1);
-                robot.offsetPose.addX(-1);
-            }
+        if (movePoseUp.startPress) {
+            distanceOffset += 1.4;
         }
+        if (movePoseDown.startPress) {
+            distanceOffset -= 1.4;
+        }
+        if (movePoseLeft.startPress) {
+            turretOffset += 1;
+        }
+        if (movePoseRight.startPress) {
+            turretOffset -= 1;
+        }
+        robot.setOffset(distanceOffset, turretOffset);
         robot.setPanicShoot(panicShoot.isOn, fastShootButton.isOn);
         if (resetPose.startPress) {
             robot.reZeroAtCorner();
@@ -252,7 +232,6 @@ public class MainTeleop {
 //        double deltaTime = time.milliseconds() - lastTime;
 //        telemetry.addData("loopTimes", deltaTime);
 //        lastTime = time.milliseconds();
-
 
     }
 

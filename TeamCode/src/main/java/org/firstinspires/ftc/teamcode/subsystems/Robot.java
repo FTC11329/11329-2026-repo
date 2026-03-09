@@ -63,6 +63,8 @@ public class Robot {
     Pose lastCamPose = new Pose(0,0,0);
     // Offset pose to aim for
     public Pose offsetPose = new Pose(0,0,0);
+    double distanceOffset;
+    double turretOffset;
     //This is an array of the 3 special colors of the games MOTIF
     public BallColor[] motif = null;
     int thingies = 0;
@@ -214,6 +216,10 @@ public class Robot {
         setPipelineIndex(0);
         return null;
     }
+    public void setOffset(double distanceOffset, double turretOffset){
+        this.distanceOffset = distanceOffset;
+        this.turretOffset = turretOffset;
+    }
 
     // TURRET**************************************************************************************~
 
@@ -283,6 +289,7 @@ public class Robot {
         ctx.acceleration = follower.getAcceleration();
         ctx.side = robotSide;
         ctx.rpmRatio = rpmRatio;
+        ctx.distanceOffset = distanceOffset;
 
 
         ShotSolution s = shotCalculator.solveShot(ctx, shotType);
@@ -290,7 +297,7 @@ public class Robot {
         // expose turret feedforward
         angleToGoalVelocity = s.turretVel;
 
-        turret.setTargetRad(s.turretAngleRad);
+        turret.setTargetRad(s.turretAngleRad + Math.toRadians(turretOffset));
 
         shooter.setTargetRPM(s.rpm + rpmOffset);
 
