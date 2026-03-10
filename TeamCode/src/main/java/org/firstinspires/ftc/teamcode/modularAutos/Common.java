@@ -36,14 +36,17 @@ public class Common {
     }
     public static class StartPoses {
         public static Pose closeInner = new Pose(62.5, 39, Math.toRadians(-90));
-        public static Pose closeOuter = new Pose(39.6,57.3, Math.toRadians(-90));
+        public static Pose closeOuter = new Pose(40.55, 53.5, Math.toRadians(90));
         public static Pose far = new Pose(-63.5, 15.75, Math.toRadians(0));
         public static Pose reZeroAtCorner = new Pose(-65, -61, Math.toRadians(-90));
+        public static Pose farZoneAutoPark = new Pose(-48, 12, Math.toRadians(90));
 
         static void convert(boolean toRed) {
             closeInner = convertToRed(closeInner, toRed, true);
+            closeOuter = convertToRed(closeOuter, toRed, true);
             far = convertToRed(far, toRed, true);
             reZeroAtCorner = convertToRed(reZeroAtCorner, toRed, true);
+            farZoneAutoPark = convertToRed(farZoneAutoPark, toRed, true);
         }
     }
 
@@ -53,8 +56,8 @@ public class Common {
         public static Pose intakeSpike1End = new Pose(13.5, 53, Math.toRadians(90));
 
         public static Pose intakeSpike2ControlPoint = new Pose(-11.7,19.8, Math.toRadians(90));
-        public static Pose intakeSpike2Start = new Pose(-10.5, 32, Math.toRadians(90));
-        public static Pose intakeSpike2End = new Pose(-10.5, 60, Math.toRadians(90));
+        public static Pose intakeSpike2Start = new Pose(-11.5, 32, Math.toRadians(90));
+        public static Pose intakeSpike2End = new Pose(-11.5, 60, Math.toRadians(90));
 
         public static Pose intakeSpike3ControlPoint = new Pose(10.1, 14.9, Math.toRadians(90));
         public static Pose intakeSpike3Start = new Pose(-30.5, 32, Math.toRadians(90));
@@ -71,8 +74,7 @@ public class Common {
 
         public static Pose movingToPushLeverControlPoint = new Pose(-3.8, 25.3);
         public static Pose pushLeverAfterSpike = new Pose(-0.4,56.1, Math.toRadians(60));
-        public static Pose pushLever = new Pose(-9.5, 58.8, Math.toRadians(70));
-        public static Pose pushLeverFast = new Pose(-11.4,59.7, Math.toRadians(70));
+        public static Pose pushLever = new Pose(-11.1, 58, Math.toRadians(70));
         public static Pose intakeFromSTunnel = new Pose(-17, 58.25, Math.toRadians(45)); // pointing at ramp
 
         public static Pose intakeHuman = new Pose(-62,62, Math.toRadians(90));
@@ -91,7 +93,6 @@ public class Common {
             intakeSpike3End = convertToRed(intakeSpike3End, toRed);
             pushLeverAfterSpike = convertToRed(pushLeverAfterSpike, toRed);
             pushLever = convertToRed(pushLever, toRed);
-            pushLeverFast = convertToRed(pushLeverFast, toRed);
             movingToPushLeverControlPoint = convertToRed(movingToPushLeverControlPoint, toRed);
             intakeFromSTunnel = convertToRed(intakeFromSTunnel, toRed);
             intakeHuman = convertToRed(intakeHuman, toRed);

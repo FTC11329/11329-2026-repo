@@ -48,8 +48,8 @@ public class Indexer {
     private boolean doSpit = false;
     Timer spitTimer = new Timer();
     Timer feedTimer = new Timer();
-    private boolean startIndexerPlug = false;
-    private boolean indexerPlug = false;
+    public boolean startIndexerPlug = false;
+    public boolean indexerPlug = false;
     private Pose lastPosition = new Pose(0,0,0);
 
     BallColor[] queuedBalls = new BallColor[]{BallColor.None, BallColor.None, BallColor.None};

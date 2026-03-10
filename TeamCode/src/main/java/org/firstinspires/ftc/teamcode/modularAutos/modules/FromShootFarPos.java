@@ -50,7 +50,6 @@ public class FromShootFarPos {
             toIntakeSpike3 = robot.follower.linearPathBuilder(startPose, IntakeBallPoses.intakeSpike3Start);
             finishIntakeSpike3 = robot.follower.linearPathBuilder(IntakeBallPoses.intakeSpike3Start, IntakeBallPoses.intakeSpike3End);
             toShootPose = robot.follower.linearPathBuilder(IntakeBallPoses.intakeSpike3End, ShootPoses.farShoot);
-            toShootPose.setBrakingStrength(0.3);
         }
 
         @Override
@@ -79,23 +78,24 @@ public class FromShootFarPos {
                     break;
                 case 3:
                     if (robot.indexer.isHasBallsFull() || pathTimer.getElapsedTimeSeconds() > Timings.spikeIntakeTimeOut) {
-                        robot.indexer.setHasBalls(new BallColor[]{BallColor.Green, BallColor.Purple, BallColor.Purple});
                         setPathState(4);
                     }
                     break;
                 case 4:
                     if (robot.inShootingZone() || !robot.follower.isBusy()) {
-                        robot.doSmartShoot(true);
                         if (sort) {
+                            robot.doSmartShoot(true);
                             robot.indexer.setQueuedBalls(robot.getMotif());
                         } else {
-                            robot.indexer.setQueuedBalls(new BallColor[]{BallColor.Any, BallColor.Any, BallColor.Any});
+                            robot.indexer.shootAll();
                         }
                         setPathState(5);
                     }
                     break;
                 case 5:
-//                    if ((robot.indexer.isHasBallsEmpty() || (sort && robot.indexer.isQueuedBallsEmpty())) || (sort && pathTimer.getElapsedTimeSeconds() > Timings.sortShootTimeOut || !sort && pathTimer.getElapsedTimeSeconds() > Timings.shootTimeOut)) {
+                    if (pathTimer.getElapsedTimeSeconds() > 1.5 && !sort) {
+                        robot.indexerUnjam();
+                    }
                     if (robot.indexer.isHasBallsEmpty() || (sort && robot.indexer.isQueuedBallsEmpty())) {
                         robot.follower.setMaxPower(1);
                         robot.doSmartShoot(false);
@@ -129,11 +129,13 @@ public class FromShootFarPos {
         private volatile Robot robot;
         private Pose startPose;
         private Pose lastPose;
-        public ToIntakeWVision(Robot robot, Pose startPose) {
+        private boolean sort;
+        public ToIntakeWVision(Robot robot, Pose startPose, boolean sort) {
             pathTimer = new Timer();
             this.robot = robot;
             this.startPose = startPose;
             this.lastPose = ShootPoses.farShoot;
+            this.sort = sort;
         }
 
         @Override
@@ -156,7 +158,6 @@ public class FromShootFarPos {
 
         @Override
         public Pose getEndPoseEst() {
-            //todo
             return ShootPoses.farShoot;
         }
         Pose intakeBallPose;
@@ -186,11 +187,19 @@ public class FromShootFarPos {
                     break;
                 case 2:
                     if (!robot.follower.isBusy()) {
-                        robot.indexer.shootAll();
+                        if (sort) {
+                            robot.doSmartShoot();
+                            robot.indexer.setQueuedBalls(robot.getMotif());
+                        } else {
+                            robot.indexer.shootAll();
+                        }
                         setPathState(5);
                     }
                     break;
                 case 3:
+                    if (pathTimer.getElapsedTimeSeconds() > 1.5 && !sort) {
+                        robot.indexerUnjam();
+                    }
                     if (robot.indexer.isHasBallsEmpty()) {
                         isFinished = true;
                     }
@@ -225,10 +234,10 @@ public class FromShootFarPos {
         private volatile Robot robot;
         private Pose startPose;
         private boolean sort;
-        public ToIntakeHuman(Robot robot, Pose startPose, boolean sort) {
+        public ToIntakeHuman(Robot robot, PathPlanner lastPlanner, boolean sort) {
             pathTimer = new Timer();
             this.robot = robot;
-            this.startPose = startPose;
+            this.startPose = lastPlanner.getEndPoseEst();
             this.sort = sort;
         }
 
@@ -240,7 +249,6 @@ public class FromShootFarPos {
             // Path creation
             toIntakeHuman = robot.follower.linearPathBuilder(startPose, IntakeBallPoses.intakeHuman);
             toShootPose = robot.follower.linearPathBuilder(IntakeBallPoses.intakeHuman, ShootPoses.farShoot);
-            toShootPose.setBrakingStrength(0.3);
         }
 
         @Override
@@ -268,23 +276,26 @@ public class FromShootFarPos {
                     break;
                 case 3:
                     if (robot.indexer.isHasBallsFull() || pathTimer.getElapsedTimeSeconds() > Timings.spikeIntakeTimeOut) {
-                        robot.indexer.setHasBalls(new BallColor[]{BallColor.Green, BallColor.Purple, BallColor.Purple});
+                        if (sort) {
+                            robot.doSmartShoot(true);
+                        }
                         setPathState(4);
                     }
                     break;
                 case 4:
                     if (!robot.follower.isBusy()) {
-                        robot.doSmartShoot(true);
                         if (sort) {
                             robot.indexer.setQueuedBalls(robot.getMotif());
                         } else {
-                            robot.indexer.setQueuedBalls(new BallColor[]{BallColor.Any, BallColor.Any, BallColor.Any});
+                            robot.indexer.shootAll();
                         }
                         setPathState(5);
                     }
                     break;
                 case 5:
-//                    if ((robot.indexer.isHasBallsEmpty() || (sort && robot.indexer.isQueuedBallsEmpty())) || (sort && pathTimer.getElapsedTimeSeconds() > Timings.sortShootTimeOut || !sort && pathTimer.getElapsedTimeSeconds() > Timings.shootTimeOut)) {
+                    if (pathTimer.getElapsedTimeSeconds() > 1.5 && !sort) {
+                        robot.indexerUnjam();
+                    }
                     if (robot.indexer.isHasBallsEmpty() || (sort && robot.indexer.isQueuedBallsEmpty())) {
                         robot.follower.setMaxPower(1);
                         robot.doSmartShoot(false);
@@ -319,10 +330,10 @@ public class FromShootFarPos {
         private volatile Robot robot;
         private Pose startPose;
         private boolean sort;
-        public ToIntakeHumanThenWait(Robot robot, Pose startPose, boolean sort) {
+        public ToIntakeHumanThenWait(Robot robot, PathPlanner lastPlanner, boolean sort) {
             pathTimer = new Timer();
             this.robot = robot;
-            this.startPose = startPose;
+            this.startPose = lastPlanner.getEndPoseEst();
             this.sort = sort;
         }
 
@@ -352,11 +363,7 @@ public class FromShootFarPos {
             switch (state) {
                 case 0:
                     robot.follower.followPath(toIntakeHuman);
-                    if (robot.getOpmodeTimeSeconds() > Timings.farShootWaitUntil) {
-                        setPathState(67676767/*tehe*/);
-                    } else {
-                        setPathState(1);
-                    }
+                    setPathState(1);
                     break;
                 case 1:
                     if (robot.indexer.isHasBallsFull() || !robot.follower.isBusy()) {
@@ -366,6 +373,7 @@ public class FromShootFarPos {
                     break;
                 case 2:
                     if (robot.indexer.isHasBallsFull() || robot.getOpmodeTimeSeconds() > Timings.farShootWaitUntil) {
+                        robot.follower.followPath(toShootPose);
                         setPathState(3);
                     }
                     break;

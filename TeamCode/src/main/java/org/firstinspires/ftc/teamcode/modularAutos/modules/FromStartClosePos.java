@@ -11,6 +11,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.paths.Path;
 import org.firstinspires.ftc.teamcode.pedroPathing.paths.PathChain;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
+import org.firstinspires.ftc.teamcode.util.RobotSide;
 
 public class FromStartClosePos {
     // allows for either close inner or outer startPositions
@@ -101,72 +102,54 @@ public class FromStartClosePos {
         // Pass-through Variables
         private volatile Robot robot;
         private Pose startPose;
-        private Pose lastPose;
+        private boolean prevHasComms;
 
         public ShootAndGoToMidShootPosFast(Robot robot, PathPlanner prevPlanner) {
             pathTimer = new Timer();
             this.robot = robot;
-            this.lastPose = ShootPoses.midShoot;
-
-            if (!prevPlanner.hasComms()) {
-                startPose = getOptimalStartPose();
-            } else {
-                startPose = prevPlanner.getEndPoseEst();
-            }
-        }
-
-        @Override
-        public boolean hasComms() {
-            return true;
-        }
-
-        @Override
-        public void setOptimalEndPose(Pose optimalEndPose) {
-            lastPose = optimalEndPose;
+            this.startPose = prevPlanner.getEndPoseEst();
+            prevHasComms = prevPlanner.hasComms();
         }
 
         //Path initialization
-        PathChain shootOnTheFlyPath;
+        PathChain toShootPosition;
 
         @Override
         public void buildPaths() {
-            if (startPose == null) {
-                throw new RuntimeException("start");
-            }
-            if (lastPose == null) {
-                throw new RuntimeException("end");
-            }
             // Path creation
-            shootOnTheFlyPath = robot.follower.pathBuilder()
-                    .addPath(new BezierCurve(startPose, ShootPoses.fromStartCloseToMidShootControl, lastPose))
-                    .setLinearHeadingInterpolation(startPose, lastPose)
-                    .build();
+            toShootPosition = robot.follower.linearPathChainBuilder(startPose, ShootPoses.midShoot, 0.7);
         }
 
         @Override
         public Pose getEndPoseEst() {
-            return lastPose;
+            return ShootPoses.midShoot;
         }
 
         @Override
         public boolean run() {
             switch (state) {
                 case 0:
-                    robot.follower.setMaxPower(DrivePower.shootOnThFly);
-                    robot.follower.followPath(shootOnTheFlyPath);
+                    robot.follower.followPath(toShootPosition);
                     setPathState(1);
                     break;
                 case 1:
-                    if (pathTimer.getElapsedTimeSeconds() > 3) {
+                    if (robot.readyToShootMotors()) {
+                        robot.indexer.shootAll();
+                        robot.follower.setMaxPower(DrivePower.shootOnThFly);
+                        setPathState(2);
+                    }
+                    break;
+                case 2:
+                    if (pathTimer.getElapsedTimeSeconds() > 1) {
                         robot.indexerUnjam();
                     }
-                    if (robot.indexer.isHasBallsEmpty() && !robot.follower.isBusy()) {
+                    if (robot.indexer.isHasBallsEmpty()) {
                         robot.follower.setMaxPower(1);
                         isFinished = true;
-                    } else if (robot.indexer.isHasBallsEmpty()) {
-                        robot.follower.setMaxPower(1);
                     }
+                    break;
             }
+
             return isFinished;
         }
 
@@ -178,7 +161,7 @@ public class FromStartClosePos {
         @NonNull
         @Override
         public String toString() {
-            return "FromStartClosePosition ShootAndGoToMidShootPosFast, step: " + state;
+            return "FromStartClosePosition ShootAndGoToMidShootPos, step: " + state;
         }
     }
 }

@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.modularAutos.runnableWrappers;
 
+import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
@@ -55,6 +56,7 @@ public class ExampleRunnableWrapper extends OpMode {
         wComms(steps);
 
         robot.follower.setPose(startPose);
+        panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
     }
 
     @Override
@@ -104,7 +106,7 @@ public class ExampleRunnableWrapper extends OpMode {
         robot.prepareShooter();
         Drawing.drawShapesDebug(robot.follower);
 
-        if (!parkPathFollowed && robot.getOpmodeTimeSeconds() > 28.75 && (
+        if (!parkPathFollowed && robot.getOpmodeTimeSeconds() > 29.5 && (
                 (   (
                         ShapeDetection.doesRobotCrossLine(FieldShapes.closeTriangle, robot.getCurrentPose()) ||
                                 ShapeDetection.doesRobotCrossLine(FieldShapes.farTriangle, robot.getCurrentPose())
@@ -117,7 +119,7 @@ public class ExampleRunnableWrapper extends OpMode {
             if (robot.getCurrentPose().getX() > - 25) {
                 robot.follower.followPath(robot.follower.linearPathBuilder(Common.ShootPoses.parkShoot, Common.IntakeBallPoses.intakeSpike1Start));
             } else {
-                robot.follower.followPath(robot.follower.linearPathBuilder(Common.ShootPoses.farShoot, Common.IntakeBallPoses.intakeSpike3Start));
+                robot.follower.followPath(robot.follower.linearPathBuilder(Common.ShootPoses.farShoot, Common.StartPoses.farZoneAutoPark));
             }
             parkPathFollowed = true;
             return;

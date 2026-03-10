@@ -71,7 +71,7 @@ public class Robot {
     public double previousAngleToGoalVelocity;
     public double angleToGoalAcceleration;
     Pose goal;
-    Pose shootFromPose = null;
+    public Pose shootFromPose = null;
     MeanBallPoses meanBallPoses;
     Telemetry telemetry;
     public Robot(Telemetry telemetry, HardwareMap hardwareMap, RobotSide robotSide, int startTurretTicks, double startIndexerTicks) {
@@ -113,6 +113,7 @@ public class Robot {
         for (LynxModule hub : hubs) {
             hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
         }
+        lastTimeLoop = System.nanoTime();
     }
     // VISION**************************************************************************************~
     // sets the motif if we havent seen it yet
@@ -278,6 +279,7 @@ public class Robot {
         } else {
             ctx.robotPose = shootFromPose;
         }
+        panelsTelemetry.addData("shootPose", ctx.robotPose);
         Pose goalPose;
         if (robotSide == RobotSide.Blue) {
             goalPose = shotType == ShotType.PHYSICAL ? Constants.Vision.blueGoalPhysics : Constants.Vision.blueGoal;
@@ -453,8 +455,10 @@ public class Robot {
         return opmodeTimer.getElapsedTimeSeconds();
     }
 
+    double lastTimeLoop;
     // SYSTEM**************************************************************************************~
     public void start() {
+        lastTimeLoop = System.nanoTime();
         resetTimers();
         indexer.start();
 //        vision.start();
@@ -478,12 +482,10 @@ public class Robot {
         follower.update();
         visionUpdate();
         lightsUpdate();
+//        panelsTelemetry.addData("all", (System.nanoTime() - lastTimeLoop) * 1e-6);
 
 
-
-        lastTime = System.currentTimeMillis();
-
-        Drawing.drawShapesDebug(this.follower);
+//        Drawing.drawShapesDebug(this.follower);
 
 
         if (debug) {
@@ -492,11 +494,14 @@ public class Robot {
 //        panelsTelemetry.addData("hood angle", shooter.getHoodPosDeg());
 //        panelsTelemetry.addData("Shooter Pos", shooter.getRPM());
 //        panelsTelemetry.addData("Shooter Tar", shooter.shooterPID.getTargetPosition() );
+//        panelsTelemetry.addData("Power", shooter.shooterPID.run() > 1.0 ? 1000 : 0);
 //        panelsTelemetry.addData("Turret Pos", turret.getAngle());
 //        panelsTelemetry.addData("Turret Tar", turret.turretPID.getTargetPosition());
 //        panelsTelemetry.addData("Turret Error", turret.turretPID.getError());
 //        panelsTelemetry.addData("distance", distanceToGoal());
 
+//        panelsTelemetry.update();
+//        lastTimeLoop = System.nanoTime();
     }
 
     public void debug() {

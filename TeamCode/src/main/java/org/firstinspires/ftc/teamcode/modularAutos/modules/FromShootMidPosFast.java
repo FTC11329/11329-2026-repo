@@ -69,7 +69,6 @@ public class FromShootMidPosFast {
             // Path creation
             pathChain = robot.follower.pathBuilder()
                     .addPath(new BezierCurve(startPose, IntakeBallPoses.intakeSpike1FastControlPoint, IntakeBallPoses.intakeSpike1Fast))
-                    .setTangentHeadingInterpolation()
                     .build();
 
             toShootPose = robot.follower.pathBuilder()
@@ -192,7 +191,6 @@ public class FromShootMidPosFast {
             // Path creation
             pathChain = robot.follower.pathBuilder()
                     .addPath(new BezierCurve(startPose, IntakeBallPoses.intakeSpike2FastControlPoint, IntakeBallPoses.intakeSpike2Fast))
-                    .setTangentHeadingInterpolation()
                     .build();
             toShootPose = robot.follower.pathBuilder()
                     .addPath(robot.follower.linearPathBuilder(IntakeBallPoses.intakeSpike2Fast, lastPose))
@@ -236,7 +234,7 @@ public class FromShootMidPosFast {
                         setPathState(4);
                     }
                     break;
-                case 5:
+                case 4:
                     if (pathTimer.getElapsedTimeSeconds() > 1.5 && !sort) {
                         robot.indexerUnjam();
                     }
@@ -444,7 +442,7 @@ public class FromShootMidPosFast {
         @Override
         public void buildPaths() {
             // Path creation
-            toLever = robot.follower.linearPathChainBuilder(startPose, IntakeBallPoses.pushLeverFast);
+            toLever = robot.follower.linearPathChainBuilder(startPose, IntakeBallPoses.pushLever);
 
             toIntake = robot.follower.linearPathChainBuilder(IntakeBallPoses.pushLever, IntakeBallPoses.intakeFromSTunnel);
 
@@ -453,9 +451,9 @@ public class FromShootMidPosFast {
                 toShootBuilder.addPath(robot.follower.linearPathBuilder(IntakeBallPoses.intakeFromSTunnel, IntakeBallPoses.pushLever));
             }
             if (sort || longLever) {
-                toShootBuilder.addPath(new BezierCurve(IntakeBallPoses.pushLever, lastPose));
+                toShootBuilder.addPath(robot.follower.linearPathBuilder(IntakeBallPoses.pushLever, lastPose));
             } else {
-                toShootBuilder.addPath(new BezierCurve(IntakeBallPoses.intakeFromSTunnel, lastPose));
+                toShootBuilder.addPath(robot.follower.linearPathBuilder(IntakeBallPoses.intakeFromSTunnel, lastPose));
             }
             toShootPose = toShootBuilder.build();
         }

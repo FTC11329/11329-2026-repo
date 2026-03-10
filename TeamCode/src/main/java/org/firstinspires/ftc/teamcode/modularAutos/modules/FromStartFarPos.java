@@ -59,23 +59,24 @@ public class FromStartFarPos {
         public boolean run() {
             switch (state) {
                 case 0:
-                    robot.follower.setMaxPower(0.7);
                     robot.follower.followPath(toShootPose);
                     setPathState(1);
                     break;
                 case 1:
                     if (!robot.follower.isBusy()) {
-                        robot.follower.setMaxPower(1);
-                        robot.doSmartShoot(true);
                         if (sort) {
+                            robot.doSmartShoot(true);
                             robot.indexer.setQueuedBalls(robot.getMotif());
                         } else {
-                            robot.indexer.setQueuedBalls(new BallColor[]{BallColor.Any, BallColor.Any, BallColor.Any});
+                            robot.indexer.shootAll();
                         }
                         setPathState(2);
                     }
                     break;
                 case 2:
+                    if (pathTimer.getElapsedTimeSeconds() > 1.5 && !sort) {
+                        robot.indexerUnjam();
+                    }
                     if (robot.indexer.isHasBallsEmpty() || (sort && robot.indexer.isQueuedBallsEmpty())) {
                         robot.doSmartShoot(false);
                         isFinished = true;

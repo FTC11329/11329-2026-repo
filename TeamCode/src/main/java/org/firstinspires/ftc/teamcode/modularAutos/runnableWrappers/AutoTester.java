@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.modularAutos.runnableWrappers;
 
+import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
@@ -8,9 +9,11 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.modularAutos.Common;
 import org.firstinspires.ftc.teamcode.modularAutos.PathPlanner;
 import org.firstinspires.ftc.teamcode.modularAutos.modules.Commands;
+import org.firstinspires.ftc.teamcode.modularAutos.modules.FromShootFarPos;
 import org.firstinspires.ftc.teamcode.modularAutos.modules.FromShootMidPos;
 import org.firstinspires.ftc.teamcode.modularAutos.modules.FromShootMidPosFast;
 import org.firstinspires.ftc.teamcode.modularAutos.modules.FromStartClosePos;
+import org.firstinspires.ftc.teamcode.modularAutos.modules.FromStartFarPos;
 import org.firstinspires.ftc.teamcode.pedroPathing.Drawing;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
@@ -35,6 +38,7 @@ public class AutoTester extends OpMode {
     Timer zeroVelocityTimer = new Timer(2000000);
     private int currentStep = 0;
     private boolean parkPathFollowed = false;
+    private double lastTime = 2000000000;
 
     @Override
     public void init() {
@@ -45,17 +49,17 @@ public class AutoTester extends OpMode {
                         BallColor.Purple,
                         BallColor.Purple
                 });
-        startPose = Common.StartPoses.closeOuter;
+        startPose = Common.StartPoses.far;
 
-        steps.add(new FromStartClosePos.ShootAndGoToMidShootPosFast(robot, lastPlanner()));
-        steps.add(new FromShootMidPosFast.ToIntakeSpike1  (robot, lastPlanner(), false, false));
-        steps.add(new FromShootMidPosFast.ToIntakeSpike2  (robot, lastPlanner(), false, false));
-        steps.add(new FromShootMidPosFast.ToIntakeFromRamp(robot, lastPlanner(), false, false, false));
-        steps.add(new FromShootMidPosFast.ToIntakeSpike3  (robot, lastPlanner(), false, false));
+        steps.add(new FromStartFarPos.ShootPreloads(robot, lastPlanner(), false));
+        steps.add(new FromShootFarPos.ToIntakeSpike3(robot, lastPlanner(), false));
+        steps.add(new FromShootFarPos.ToIntakeHuman(robot, lastPlanner(), false));
+        steps.add(new FromShootFarPos.ToIntakeHumanThenWait(robot, lastPlanner(), false));
 
         wComms(steps);
 
         robot.follower.setPose(startPose);
+        panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
     }
 
     @Override
@@ -80,6 +84,7 @@ public class AutoTester extends OpMode {
         robot.start();
         steps.get(currentStep).buildPaths();
         robot.spinIntake();
+        lastTime = System.nanoTime();
     }
 
     boolean firstDeInit = false;
@@ -103,9 +108,8 @@ public class AutoTester extends OpMode {
 
         robot.update();
         robot.prepareShooter();
-        Drawing.drawShapesDebug(robot.follower);
 
-        if (!parkPathFollowed && robot.getOpmodeTimeSeconds() > 28.75 && (
+        if (!parkPathFollowed && robot.getOpmodeTimeSeconds() > 29.5 && (
                 (   (
                         ShapeDetection.doesRobotCrossLine(FieldShapes.closeTriangle, robot.getCurrentPose()) ||
                                 ShapeDetection.doesRobotCrossLine(FieldShapes.farTriangle, robot.getCurrentPose())
@@ -118,7 +122,7 @@ public class AutoTester extends OpMode {
             if (robot.getCurrentPose().getX() > - 25) {
                 robot.follower.followPath(robot.follower.linearPathBuilder(Common.ShootPoses.parkShoot, Common.IntakeBallPoses.intakeSpike1Start));
             } else {
-                robot.follower.followPath(robot.follower.linearPathBuilder(Common.ShootPoses.farShoot, Common.IntakeBallPoses.intakeSpike3Start));
+                robot.follower.followPath(robot.follower.linearPathBuilder(Common.ShootPoses.farShoot, Common.StartPoses.farZoneAutoPark));
             }
             parkPathFollowed = true;
             return;
@@ -146,14 +150,12 @@ public class AutoTester extends OpMode {
         }
 
 //        Drawing.drawDebug(robot.follower);
+//        Drawing.drawShapesDebug(robot.follower);
 //        telemetry.addData("time", robot.getOpmodeTimeSeconds());
-//        telemetry.addData("name", step);
+        telemetry.addData("name", step);
 //        for (BallColor i : robot.indexer.getBallCells()) {
 //            telemetry.addData("hasBalls", i);
 //        }
-//        panelsTelemetry.addData("all", (System.nanoTime() - lastTime) * 1e-6);
-//        panelsTelemetry.update();
-//        lastTime = System.nanoTime();
 
     }
 

@@ -15,7 +15,7 @@ public class Turret {
     // declaring motor variables
     CRServo turretServo1;
     CRServo turretServo2;
-    public int encoderOffset;
+    public int encoderOffset = 12830;
 
     Pose goalPose;
 
@@ -37,7 +37,7 @@ public class Turret {
         encoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         encoder.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        encoderOffset = startTurretTicks;
+        encoderOffset += startTurretTicks;
 
         turretPID = new PIDFController(Constants.Turret.turretPID);
         turretPID.updateFeedForwardInput(Constants.Turret.CW_F);

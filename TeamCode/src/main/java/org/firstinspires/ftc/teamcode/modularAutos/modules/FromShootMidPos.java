@@ -77,7 +77,7 @@ public class FromShootMidPos {
                     setPathState(1);
                     break;
                 case 1:
-                    if (!robot.follower.isBusy()) {
+                    if (!robot.follower.isBusy() || robot.basicallyHas3() || robot.indexer.isHasBallsFull()) {
                         if (!lever) {
                             robot.follower.followPath(toShootPose);
                         }
@@ -205,7 +205,7 @@ public class FromShootMidPos {
                     setPathState(1);
                     break;
                 case 1:
-                    if (!robot.follower.isBusy()) {
+                    if (!robot.follower.isBusy() || robot.basicallyHas3() || robot.indexer.isHasBallsFull()) {
                         if (!lever) {
                             robot.follower.followPath(toShootPose);
                         }
@@ -323,7 +323,7 @@ public class FromShootMidPos {
                     setPathState(1);
                     break;
                 case 1:
-                    if (!robot.follower.isBusy()) {
+                    if (!robot.follower.isBusy() || robot.basicallyHas3() || robot.indexer.isHasBallsFull()) {
                         robot.follower.followPath(toShootPose);
                         setPathState(2);
                     }
@@ -358,6 +358,106 @@ public class FromShootMidPos {
                         if (!parkAfter) {
 //                            robot.setShootFromPose(null);
                         }
+                        robot.follower.setMaxPower(1);
+                        robot.doSmartShoot(false);
+                        isFinished = true;
+                    }
+            }
+            return isFinished;
+        }
+
+        private void setPathState(int state) {
+            this.state = state;
+            pathTimer.resetTimer();
+        }
+
+        @NonNull
+        @Override
+        public String toString() {
+            return "From shoot mid to intake spike 3, state: " + state;
+        }
+    }
+
+    public static class ToIntakeSpike3ToFar implements PathPlanner {
+        /// intakes 3 from the second spike mark
+        /// then goes to far and shoots them
+
+        Pose offset = new Pose();
+        // Variables
+        private Timer pathTimer;
+        private int state = 0;
+        private boolean isFinished = false;
+
+        // Pass-through Variables
+        private volatile Robot robot;
+        private Pose startPose;
+        private boolean sort;
+        Pose lastPose;
+        public ToIntakeSpike3ToFar(Robot robot, PathPlanner prevPlanner, boolean sort) {
+            pathTimer = new Timer();
+            this.robot = robot;
+            this.startPose = prevPlanner.getEndPoseEst();
+            this.sort = sort;
+            lastPose = ShootPoses.farShoot;
+        }
+
+        //Path initialization
+        PathChain pathChain;
+        Path toShootPose;
+        @Override
+        public void buildPaths() {
+            // Path creation
+            pathChain = robot.follower.pathBuilder()
+                    .addPath(new BezierCurve(startPose, IntakeBallPoses.intakeSpike3ControlPoint, IntakeBallPoses.intakeSpike3Start))
+                    .setConstantHeadingInterpolation(startPose)
+                    .addPath(robot.follower.linearPathBuilder(IntakeBallPoses.intakeSpike3Start, IntakeBallPoses.intakeSpike3End))
+                    .build();
+            toShootPose = robot.follower.linearPathBuilder(IntakeBallPoses.intakeSpike3End, lastPose);
+        }
+
+        @Override
+        public Pose getEndPoseEst() {
+            return lastPose;
+        }
+
+        @Override
+        public boolean run() {
+            switch (state) {
+                case 0:
+                    robot.follower.followPath(pathChain);
+                    setPathState(1);
+                    break;
+                case 1:
+                    if (!robot.follower.isBusy() || robot.basicallyHas3() || robot.indexer.isHasBallsFull()) {
+                        robot.follower.followPath(toShootPose);
+                        setPathState(2);
+                    }
+                    break;
+                case 2:
+                    if (robot.indexer.isHasBallsFull() || pathTimer.getElapsedTimeSeconds() > Timings.spikeIntakeTimeOut) {
+                        if (sort) {
+                            robot.doSmartShoot(true);
+                        }
+                        setPathState(3);
+                    }
+                    break;
+                case 3:
+//                    if ((robot.inShootingZone() || !robot.follower.isBusy()) && robot.follower.getVelocity().getMagnitude() < Timings.shootVelocity) {
+                    if (!robot.follower.isBusy()) {
+                        if (sort) {
+                            robot.doSmartShoot(true);
+                            robot.indexer.setQueuedBalls(robot.getMotif());
+                        } else {
+                            robot.indexer.shootAll();
+                        }
+                        setPathState(4);
+                    }
+                    break;
+                case 4:
+                    if (pathTimer.getElapsedTimeSeconds() > 1.5 && !sort) {
+                        robot.indexerUnjam();
+                    }
+                    if (robot.indexer.isHasBallsEmpty() || (sort && robot.indexer.isQueuedBallsEmpty())) {
                         robot.follower.setMaxPower(1);
                         robot.doSmartShoot(false);
                         isFinished = true;

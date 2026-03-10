@@ -129,7 +129,7 @@ public class Tuning extends SelectableOpMode {
 class LocalizationTest extends OpMode {
     @Override
     public void init() {
-        follower.setStartingPose(new Pose(72,72));
+        follower.setStartingPose(new Pose(0,0, 0));
     }
 
     /** This initializes the PoseUpdater, the mecanum drive motors, and the Panels telemetry. */
@@ -159,8 +159,10 @@ class LocalizationTest extends OpMode {
 
         telemetryM.debug("x:" + follower.getPose().getX());
         telemetryM.debug("y:" + follower.getPose().getY());
-        telemetryM.debug("heading:" + follower.getPose().getHeading());
+        telemetryM.debug("heading (Rad):" + follower.getPose().getHeading());
+        telemetryM.debug("heading (Deg):" + Math.toRadians(follower.getPose().getHeading()));
         telemetryM.debug("total heading:" + follower.getTotalHeading());
+        Drawing.drawDebug(follower);
         telemetryM.update(telemetry);
 
         draw();
