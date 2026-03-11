@@ -106,7 +106,7 @@ public class ExampleRunnableWrapper extends OpMode {
         robot.prepareShooter();
         Drawing.drawShapesDebug(robot.follower);
 
-        if (!parkPathFollowed && robot.getOpmodeTimeSeconds() > 29.5 && (
+        if (!parkPathFollowed && robot.getOpmodeTimeSeconds() > 29.25 && (
                 (   (
                         ShapeDetection.doesRobotCrossLine(FieldShapes.closeTriangle, robot.getCurrentPose()) ||
                                 ShapeDetection.doesRobotCrossLine(FieldShapes.farTriangle, robot.getCurrentPose())

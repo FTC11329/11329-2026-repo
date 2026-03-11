@@ -94,9 +94,8 @@ public class Common {
         public static Pose intakeSTunnelAfterHumanControl = new Pose(-56.4,55.8);
         public static Pose intakeSTunnelAfterHuman = new Pose(-49.6,62.9, Math.toRadians(0));
 
-        public static Pose intakeHumanDiagonal = new Pose(-57.5,58.8, Math.toRadians(141));
+        public static Pose intakeHumanDiagonal = new Pose(-56,57, Math.toRadians(141));
         public static Pose intakeHumanDiagonalToStrait = new Pose(-59.86,62.0, Math.toRadians(180));
-
 
         static void convert(boolean toRed) {
             intakeSpike1ControlPoint = convertToRed(intakeSpike1ControlPoint, toRed);
@@ -115,6 +114,8 @@ public class Common {
             intakeHuman = convertToRed(intakeHuman, toRed);
             intakeSTunnelAfterHumanControl = convertToRed(intakeSTunnelAfterHumanControl, toRed);
             intakeSTunnelAfterHuman = convertToRed(intakeSTunnelAfterHuman, toRed);
+            intakeHumanDiagonal = convertToRed(intakeHumanDiagonal, toRed);
+            intakeHumanDiagonalToStrait = convertToRed(intakeHumanDiagonalToStrait, toRed);
             intakeSpike1FastControlPoint = convertToRed(intakeSpike1FastControlPoint, toRed);
             intakeSpike1Fast = convertToRed(intakeSpike1Fast, toRed);
             intakeSpike2FastControlPoint = convertToRed(intakeSpike2FastControlPoint, toRed);
@@ -128,7 +129,7 @@ public class Common {
         public static Pose parkShoot = new Pose(50, 12, Math.toRadians(90));
         public static Pose closeShoot = new Pose(36, 36, Math.toRadians(90));
         public static Pose midShoot = new Pose(8.9,18.5, Math.toRadians(90));
-        public static Pose farShoot = new Pose(-54.7,9.9, Math.toRadians(90));
+        public static Pose farShoot = new Pose(-53.2, 11.4, Math.toRadians(90));
 
         public static Pose fromStartCloseToMidShootControl = new Pose(45.3,49.6);
 

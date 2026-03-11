@@ -36,11 +36,6 @@ public class FromStartFarPos {
             lastPose = ShootPoses.farShoot;
         }
 
-        @Override
-        public void setOptimalEndPose(Pose optimalEndPose) {
-            lastPose = optimalEndPose;
-        }
-
         //Path initialization
         PathChain toShootPose;
 

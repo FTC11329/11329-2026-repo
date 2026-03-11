@@ -112,7 +112,7 @@ public class AutoTester extends OpMode {
         robot.update();
         robot.prepareShooter();
 
-        if (!parkPathFollowed && robot.getOpmodeTimeSeconds() > 29.5 && (
+        if (!parkPathFollowed && robot.getOpmodeTimeSeconds() > 29.25 && (
                 (   (
                         ShapeDetection.doesRobotCrossLine(FieldShapes.closeTriangle, robot.getCurrentPose()) ||
                                 ShapeDetection.doesRobotCrossLine(FieldShapes.farTriangle, robot.getCurrentPose())

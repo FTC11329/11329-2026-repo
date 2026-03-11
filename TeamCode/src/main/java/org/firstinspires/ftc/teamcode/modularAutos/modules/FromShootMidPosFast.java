@@ -16,6 +16,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.paths.PathChain;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
 
+@Deprecated
 public class FromShootMidPosFast {
     public static class ToIntakeSpike1 implements PathPlanner {
         /// intakes 3 from the close spike mark
