@@ -26,13 +26,28 @@ public class FromStartClosePos {
         // Pass-through Variables
         private volatile Robot robot;
         private Pose startPose;
-        private boolean prevHasComms;
+        private Pose lastPose;
 
         public ShootAndGoToMidShootPos(Robot robot, PathPlanner prevPlanner) {
             pathTimer = new Timer();
             this.robot = robot;
             this.startPose = prevPlanner.getEndPoseEst();
-            prevHasComms = prevPlanner.hasComms();
+            this.lastPose = ShootPoses.midShoot;
+        }
+
+        @Override
+        public boolean hasComms() {
+            return true;
+        }
+
+        @Override
+        public void setOptimalEndPose(Pose optimalEndPose) {
+            lastPose = optimalEndPose;
+        }
+
+        @Override
+        public Pose getOptimalStartPose() {
+            return StartPoses.closeInner;
         }
 
         //Path initialization
@@ -41,12 +56,12 @@ public class FromStartClosePos {
         @Override
         public void buildPaths() {
             // Path creation
-            toShootPosition = robot.follower.linearPathChainBuilder(startPose, ShootPoses.midShoot, 0.7);
+            toShootPosition = robot.follower.fastPathChainBuilder(startPose, lastPose, TValues.fastInterpolationPreloadStart, TValues.fastInterpolationPreloadEnd, true);
         }
 
         @Override
         public Pose getEndPoseEst() {
-            return ShootPoses.midShoot;
+            return lastPose;
         }
 
         @Override
@@ -102,13 +117,11 @@ public class FromStartClosePos {
         // Pass-through Variables
         private volatile Robot robot;
         private Pose startPose;
-        private boolean prevHasComms;
 
         public ShootAndGoToMidShootPosFast(Robot robot, PathPlanner prevPlanner) {
             pathTimer = new Timer();
             this.robot = robot;
             this.startPose = prevPlanner.getEndPoseEst();
-            prevHasComms = prevPlanner.hasComms();
         }
 
         //Path initialization

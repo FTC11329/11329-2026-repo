@@ -316,6 +316,29 @@ public class PathBuilder {
         return this;
     }
 
+    /**
+     * This sets the heading interpolation to do what I say.
+     * Do tangential heading interpolation from 0 - tValue
+     * then linear heading interpolation from tValue to the second pose
+     */
+    public PathBuilder setFastHeadingInterpolation(double tValue) {
+        this.paths.get(paths.size() - 1).setFastHeadingInterpolation(tValue);
+        return this;
+    }
+    public PathBuilder setFastHeadingInterpolation(double tValue, double endTValue) {
+        this.paths.get(paths.size() - 1).setFastHeadingInterpolation(tValue, endTValue);
+        return this;
+    }
+    public PathBuilder setFastHeadingInterpolation(double tValue, boolean reversed) {
+        this.paths.get(paths.size() - 1).setFastHeadingInterpolation(tValue, reversed);
+        return this;
+    }
+    public PathBuilder setFastHeadingInterpolation(double tValue, double endTValue, boolean reversed) {
+        this.paths.get(paths.size() - 1).setFastHeadingInterpolation(tValue, endTValue, reversed);
+        return this;
+    }
+
+
 
     /**
      * This sets a reversed heading interpolation on the last Path added to the PathBuilder.

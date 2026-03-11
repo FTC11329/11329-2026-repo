@@ -11,6 +11,19 @@ public class Common {
 
     public static Pose toRedOffset = new Pose(-2.25,-0.75,0); // red offset remember y is reversed
     public static boolean wasLastRed = false;
+    public static class TValues {
+        public static double fastInterpolationIntakeStart = 0.75;
+
+        public static double fastInterpolationSpikeShootStart = 0.65;
+        public static double fastInterpolationSpikeShootEnd = 0.8;
+
+        public static double fastInterpolationLeverStart = 0.7;
+        public static double fastInterpolationLeverEnd = 0.85;
+
+        public static double fastInterpolationPreloadStart = 0.7;
+        public static double fastInterpolationPreloadEnd = 0.85;
+
+    }
     public static class Timings {
         public static int moveAwayRampAmount = 3; // balls
 
@@ -56,8 +69,8 @@ public class Common {
         public static Pose intakeSpike1End = new Pose(13.5, 53, Math.toRadians(90));
 
         public static Pose intakeSpike2ControlPoint = new Pose(-11.7,19.8, Math.toRadians(90));
-        public static Pose intakeSpike2Start = new Pose(-11.5, 32, Math.toRadians(90));
-        public static Pose intakeSpike2End = new Pose(-11.5, 60, Math.toRadians(90));
+        public static Pose intakeSpike2Start = new Pose(-11.75, 32, Math.toRadians(90));
+        public static Pose intakeSpike2End = new Pose(-11.75, 60, Math.toRadians(90));
 
         public static Pose intakeSpike3ControlPoint = new Pose(10.1, 14.9, Math.toRadians(90));
         public static Pose intakeSpike3Start = new Pose(-30.5, 32, Math.toRadians(90));
@@ -74,12 +87,16 @@ public class Common {
 
         public static Pose movingToPushLeverControlPoint = new Pose(-3.8, 25.3);
         public static Pose pushLeverAfterSpike = new Pose(-0.4,56.1, Math.toRadians(60));
-        public static Pose pushLever = new Pose(-11.1, 58, Math.toRadians(70));
+        public static Pose pushLever = new Pose(-11.75, 58.05, Math.toRadians(63));
         public static Pose intakeFromSTunnel = new Pose(-17, 58.25, Math.toRadians(45)); // pointing at ramp
 
         public static Pose intakeHuman = new Pose(-62,62, Math.toRadians(90));
         public static Pose intakeSTunnelAfterHumanControl = new Pose(-56.4,55.8);
         public static Pose intakeSTunnelAfterHuman = new Pose(-49.6,62.9, Math.toRadians(0));
+
+        public static Pose intakeHumanDiagonal = new Pose(-57.5,58.8, Math.toRadians(141));
+        public static Pose intakeHumanDiagonalToStrait = new Pose(-59.86,62.0, Math.toRadians(180));
+
 
         static void convert(boolean toRed) {
             intakeSpike1ControlPoint = convertToRed(intakeSpike1ControlPoint, toRed);
@@ -117,9 +134,11 @@ public class Common {
 
         public static Pose panicShoot = new Pose(24, 24, Math.toRadians(0));
 
-        public static Pose optimalSpike1Start = new Pose(32.4,38.4, Math.toRadians(123));
-        public static Pose optimalSpike2Start = new Pose(15,26.5, Math.toRadians(120));
-        public static Pose optimalSpike3Start = new Pose(14,24, Math.toRadians(133));
+        public static Pose optimalSpike1Start = new Pose(12.77,23.2, Math.toRadians(96));
+        public static Pose optimalSpike2Start = new Pose(3.03,14.4, Math.toRadians(116));
+        public static Pose optimalSpike3Start = new Pose(4.18,15.25, Math.toRadians(146));
+        public static Pose optimalRampStart = new Pose(4.4,16.88, Math.toRadians(106));
+        public static Pose optimalHumanPlayerStart = new Pose(6.24,15.25, Math.toRadians(139));
 
         public static Pose optimalLeverStart = new Pose(10.7, 21.6, Math.toRadians(122));
 
@@ -135,6 +154,8 @@ public class Common {
             optimalSpike2Start = convertToRed(optimalSpike2Start, toRed);
             optimalSpike3Start = convertToRed(optimalSpike3Start, toRed);
             optimalLeverStart = convertToRed(optimalLeverStart, toRed);
+            optimalRampStart = convertToRed(optimalRampStart, toRed);
+            optimalHumanPlayerStart = convertToRed(optimalHumanPlayerStart, toRed);
         }
     }
 

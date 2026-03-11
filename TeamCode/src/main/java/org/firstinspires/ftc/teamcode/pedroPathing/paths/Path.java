@@ -92,6 +92,9 @@ public class Path {
     public void setLinearHeadingInterpolation(double startHeading, double endHeading, double endTime) {
         this.headingInterpolator = HeadingInterpolator.linear(startHeading, endHeading, endTime);
     }
+    public void setLinearHeadingInterpolation() {
+        setLinearHeadingInterpolation(this.getPose(0).getHeading(), this.getPose(1).getHeading());
+    }
 
     /**
      * This sets the heading interpolation to linear with a specified start heading and end heading
@@ -120,6 +123,36 @@ public class Path {
      */
     public void setConstantHeadingInterpolation(double setHeading) {
         this.headingInterpolator = HeadingInterpolator.constant(setHeading);
+    }
+
+    /**
+     * This sets the heading interpolation to do what I say.
+     * Do tangential heading interpolation from 0 - tValue
+     * then linear heading interpolation from tValue to the second pose
+     */
+    public void setFastHeadingInterpolation(double tValue) {
+        setFastHeadingInterpolation(tValue, 1, false);
+    }
+    public void setFastHeadingInterpolation(double tValue, double endTValue) {
+        setFastHeadingInterpolation(tValue, endTValue, false);
+    }
+    public void setFastHeadingInterpolation(double tValue, boolean reversed) {
+        setFastHeadingInterpolation(tValue, 1, reversed);
+    }
+    public void setFastHeadingInterpolation(double tValue, double endTValue, boolean reversed) {
+        double dx = getPoint(1).getX() - getPoint(0).getX();
+        double dy = getPoint(1).getY() - getPoint(0).getY();
+        double tangentHeading = Math.atan2(dy, dx);
+
+        if (reversed) {
+            tangentHeading -= Math.PI;
+        }
+
+        HeadingInterpolator.PiecewiseNode node1, node2, node3;
+        node1 = new HeadingInterpolator.PiecewiseNode(0, tValue, reversed ? HeadingInterpolator.tangent.reverse() : HeadingInterpolator.tangent);
+        node2 = new HeadingInterpolator.PiecewiseNode(tValue, endTValue, HeadingInterpolator.linear(tangentHeading, curve.getLastControlPoint().getHeading()));
+        node3 = new HeadingInterpolator.PiecewiseNode(endTValue, 1, HeadingInterpolator.constant(curve.getLastControlPoint().getHeading()));
+        this.headingInterpolator = HeadingInterpolator.piecewise(node1, node2, node3);
     }
 
     /**

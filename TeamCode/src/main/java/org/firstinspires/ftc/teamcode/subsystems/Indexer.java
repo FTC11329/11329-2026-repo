@@ -500,7 +500,9 @@ public class Indexer {
             dumbShootState1 = false;
             dumbShootState2 = true;
             shotTimer.resetTimer();
-            clearBallCells();
+            if (!unjam) {
+                clearBallCells();
+            }
         }
         if (dumbShootState2 && !dumbShootState1 && shotTimer.getElapsedTimeSeconds() > .33) {
             spinTransferWheel(false);

@@ -49,12 +49,15 @@ public class AutoTester extends OpMode {
                         BallColor.Purple,
                         BallColor.Purple
                 });
-        startPose = Common.StartPoses.far;
+        startPose = Common.StartPoses.closeOuter;
 
-        steps.add(new FromStartFarPos.ShootPreloads(robot, lastPlanner(), false));
-        steps.add(new FromShootFarPos.ToIntakeSpike3(robot, lastPlanner(), false));
-        steps.add(new FromShootFarPos.ToIntakeHuman(robot, lastPlanner(), false));
-        steps.add(new FromShootFarPos.ToIntakeHumanThenWait(robot, lastPlanner(), false));
+        steps.add(new FromStartClosePos.ShootAndGoToMidShootPos(robot, lastPlanner()));
+        steps.add(new FromShootMidPos.ToIntakeSpike2  (robot, lastPlanner(), false, false, false));
+        steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPlanner(), false, false, true));
+        steps.add(new FromShootMidPos.ToIntakeSpike1  (robot, lastPlanner(), false, false, false));
+        steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPlanner(), false, false, true));
+        steps.add(new FromShootMidPos.ToIntakeSpike3  (robot, lastPlanner(), false, false));
+        steps.add(new FromShootMidPos.ToIntakeHuman   (robot, lastPlanner(), false, false));
 
         wComms(steps);
 

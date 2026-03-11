@@ -1179,11 +1179,10 @@ public class Follower {
     }
 
     public PathChain linearPathChainBuilder(Pose startPose, Pose endPose, double endTime) {
-        PathChain tempPath = pathBuilder()
+        return pathBuilder()
                 .addPath(new BezierLine(startPose, endPose))
                 .setLinearHeadingInterpolation(startPose.getHeading(), endPose.getHeading(), endTime)
                 .build();
-        return tempPath;
     }
     public PathChain linearPathChainBuilder(Pose startPose, Pose endPose) {
         return linearPathChainBuilder(startPose, endPose, 1);
@@ -1199,6 +1198,39 @@ public class Follower {
         }
         return tempPath.build();
     }
+
+    // Builds a pathchain that goes fast (SPEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEED)
+    public PathChain fastPathChainBuilder(Pose startPose, Pose endPose, double tValue) {
+        return pathBuilder()
+                .addPath(new BezierLine(startPose, endPose))
+                .setFastHeadingInterpolation(tValue)
+                .build();
+    }
+    public PathChain fastPathChainBuilder(Pose startPose, Pose endPose, double tValue, double endTValue) {
+        return pathBuilder()
+                .addPath(new BezierLine(startPose, endPose))
+                .setFastHeadingInterpolation(tValue, endTValue)
+                .build();
+    }
+    public PathChain fastPathChainBuilder(Pose startPose, Pose endPose, double tValue, boolean reversed) {
+        return pathBuilder()
+                .addPath(new BezierLine(startPose, endPose))
+                .setFastHeadingInterpolation(tValue, reversed)
+                .build();
+    }
+    public PathChain fastPathChainBuilder(Pose startPose, Pose endPose, double tValue, double endTValue, boolean reversed) {
+        return pathBuilder()
+                .addPath(new BezierLine(startPose, endPose))
+                .setFastHeadingInterpolation(tValue, endTValue, reversed)
+                .build();
+    }
+    public Path fastPathBuilder(Pose startPose, Pose endPose, double tValue) {
+        Path temp = new Path(new BezierLine(startPose, endPose));
+        temp.setFastHeadingInterpolation(tValue);
+        return temp;
+    }
+
+
 
     //returns the distance from targetPose
     public Pose getErrorCartesian(Pose targetPose) {
