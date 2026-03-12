@@ -97,7 +97,7 @@ public class FromShootMidPosFast {
                     }
                     break;
                 case 2:
-                    if (robot.indexer.isHasBallsFull() || pathTimer.getElapsedTimeSeconds() > Timings.spikeIntakeTimeOut) {
+                    if (robot.indexer.isHasBallsFull() || robot.basicallyHas3() || pathTimer.getElapsedTimeSeconds() > Timings.spikeIntakeTimeOut) {
                         setPathState(3);
                     }
                     break;

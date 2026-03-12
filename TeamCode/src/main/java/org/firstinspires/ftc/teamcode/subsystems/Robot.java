@@ -267,8 +267,6 @@ public class Robot {
     public void setShooterOffset(double rpmOffset, double hoodAngleOffset) {
         this.hoodAngleOffset = hoodAngleOffset;
         this.rpmOffset = rpmOffset;
-        panelsTelemetry.addData("hood angle offset", hoodAngleOffset);
-        panelsTelemetry.addData("rpm offset", rpmOffset);
     }
     double rpmRatio = 1;
     public void prepareShooter(ShotType shotType) {
@@ -279,7 +277,6 @@ public class Robot {
         } else {
             ctx.robotPose = shootFromPose;
         }
-        panelsTelemetry.addData("shootPose", ctx.robotPose);
         Pose goalPose;
         if (robotSide == RobotSide.Blue) {
             goalPose = shotType == ShotType.PHYSICAL ? Constants.Vision.blueGoalPhysics : Constants.Vision.blueGoal;
@@ -334,6 +331,9 @@ public class Robot {
 
     public void setIntakeOverride(boolean set) {
         intakeOverride = set;
+    }
+    public boolean isIntakeOverride() {
+        return intakeOverride;
     }
     public void doIntake() {
         spinIntake();
@@ -494,13 +494,13 @@ public class Robot {
 //        panelsTelemetry.addData("hood angle", shooter.getHoodPosDeg());
 //        panelsTelemetry.addData("Shooter Pos", shooter.getRPM());
 //        panelsTelemetry.addData("Shooter Tar", shooter.shooterPID.getTargetPosition() );
-//        panelsTelemetry.addData("Power", shooter.shooterPID.run() > 1.0 ? 1000 : 0);
+//        panelsTelemetry.addData("Power", shooter.shooterPID.run() * 1000);
 //        panelsTelemetry.addData("Turret Pos", turret.getAngle());
 //        panelsTelemetry.addData("Turret Tar", turret.turretPID.getTargetPosition());
 //        panelsTelemetry.addData("Turret Error", turret.turretPID.getError());
 //        panelsTelemetry.addData("distance", distanceToGoal());
 
-//        panelsTelemetry.update();
+        panelsTelemetry.update();
 //        lastTimeLoop = System.nanoTime();
     }
 

@@ -26,7 +26,7 @@ public class Constants {
 
     public static class Vision {
         public static int configTest = 0;
-        public static Pose redGoal = new Pose(65, -67.5);
+        public static Pose redGoal = new Pose(65, -64);
         public static Pose blueGoal = new Pose(67, 64);
 
         public static Pose redGoalPhysics = new Pose(64, -67);
@@ -54,7 +54,7 @@ public class Constants {
     }
     @Configurable
     public static class Shooter {
-        public static PIDFCoefficients shooterVelocityPID = new PIDFCoefficients(.005, 0, 0, .1143);
+        public static PIDFCoefficients shooterVelocityPID = new PIDFCoefficients(.0017, 0, 0, .1143);
 //        public static PIDFCoefficients shooterVelocityPID = new PIDFCoefficients(0, 0, 0, 0);
         public static double kV = 5060;
         public static double RPMoffset = 0;

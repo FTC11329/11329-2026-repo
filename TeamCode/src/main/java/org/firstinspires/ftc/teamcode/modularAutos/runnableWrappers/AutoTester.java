@@ -27,7 +27,7 @@ import org.firstinspires.ftc.teamcode.util.ShapeDetection;
 import java.util.ArrayList;
 import java.util.List;
 
-@Autonomous(name = "Auto Test", group = "Comp", preselectTeleOp = "Main Teleop Red")
+@Autonomous(name = "Auto Test", group = "5Test", preselectTeleOp = "Main Teleop Red")
 public class AutoTester extends OpMode {
     Pose startPose;
     RobotSide robotSide;
@@ -123,7 +123,7 @@ public class AutoTester extends OpMode {
         )
         ) {
             if (robot.getCurrentPose().getX() > - 25) {
-                robot.follower.followPath(robot.follower.linearPathBuilder(Common.ShootPoses.parkShoot, Common.IntakeBallPoses.intakeSpike1Start));
+                robot.follower.followPath(robot.follower.linearPathBuilder(Common.ShootPoses.parkShoot, Common.IntakeBallPoses.intakeSpike2Start));
             } else {
                 robot.follower.followPath(robot.follower.linearPathBuilder(Common.ShootPoses.farShoot, Common.StartPoses.farZoneAutoPark));
             }

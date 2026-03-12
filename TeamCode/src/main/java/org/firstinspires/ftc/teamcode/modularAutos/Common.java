@@ -9,16 +9,17 @@ public class Common {
     // Close is close to goal (so usually higher x)
     // Outer is closer to driver wall (so usually higher y)
 
-    public static Pose toRedOffset = new Pose(-2.25,-0.75,0); // red offset remember y is reversed
+//    public static Pose toRedOffset = new Pose(-2.25,-0.75,0); // red offset remember y is reversed
+    public static Pose toRedOffset = new Pose(0,-1,0); // red offset remember y is reversed
     public static boolean wasLastRed = false;
     public static class TValues {
-        public static double fastInterpolationIntakeStart = 0.75;
+        public static double fastInterpolationIntakeStart = 0.8;
 
-        public static double fastInterpolationSpikeShootStart = 0.65;
+        public static double fastInterpolationSpikeShootStart = 0.7;
         public static double fastInterpolationSpikeShootEnd = 0.8;
 
         public static double fastInterpolationLeverStart = 0.7;
-        public static double fastInterpolationLeverEnd = 0.85;
+        public static double fastInterpolationLeverEnd = 0.8;
 
         public static double fastInterpolationPreloadStart = 0.7;
         public static double fastInterpolationPreloadEnd = 0.85;
@@ -27,7 +28,9 @@ public class Common {
     public static class Timings {
         public static int moveAwayRampAmount = 3; // balls
 
-        public static double spikeIntakeTimeOut = 1.25;
+        public static double unjamTimeOut = 1.5;
+
+        public static double spikeIntakeTimeOut = 1;
         public static double fastSpikeIntakeTimeOut = 1.25;
 
         public static double shortLeverPressTime = 0.3;
@@ -41,7 +44,7 @@ public class Common {
         public static double shootTimeOut = 0.7;
         public static double sortShootTimeOut = 3.5;
 
-        public static double shootVelocity = 5; // in / s
+        public static double shootVelocity = 5.5; // in / s
     }
     public static class DrivePower {
         public static double intake = 1;
@@ -94,8 +97,8 @@ public class Common {
         public static Pose intakeSTunnelAfterHumanControl = new Pose(-56.4,55.8);
         public static Pose intakeSTunnelAfterHuman = new Pose(-49.6,62.9, Math.toRadians(0));
 
-        public static Pose intakeHumanDiagonal = new Pose(-56,57, Math.toRadians(141));
-        public static Pose intakeHumanDiagonalToStrait = new Pose(-59.86,62.0, Math.toRadians(180));
+        public static Pose intakeHumanDiagonal = new Pose(-22,57, Math.toRadians(154));
+        public static Pose intakeHumanDiagonalToStrait = new Pose(-59,60.5, Math.toRadians(180));
 
         static void convert(boolean toRed) {
             intakeSpike1ControlPoint = convertToRed(intakeSpike1ControlPoint, toRed);
@@ -136,12 +139,15 @@ public class Common {
         public static Pose panicShoot = new Pose(24, 24, Math.toRadians(0));
 
         public static Pose optimalSpike1Start = new Pose(12.77,23.2, Math.toRadians(96));
-        public static Pose optimalSpike2Start = new Pose(3.03,14.4, Math.toRadians(116));
-        public static Pose optimalSpike3Start = new Pose(4.18,15.25, Math.toRadians(146));
-        public static Pose optimalRampStart = new Pose(4.4,16.88, Math.toRadians(106));
-        public static Pose optimalHumanPlayerStart = new Pose(6.24,15.25, Math.toRadians(139));
+        public static Pose optimalSpike2Start = new Pose(3.03,13.4, Math.toRadians(116));
+        public static Pose optimalSpike3Start = new Pose(5.18,15.25, Math.toRadians(146));
+        public static Pose optimalRampStart = new Pose(5.4,16.88, Math.toRadians(106));
+        public static Pose optimalHumanPlayerStart = new Pose(8.24,15.25, Math.toRadians(155));
 
         public static Pose optimalLeverStart = new Pose(10.7, 21.6, Math.toRadians(122));
+
+        public static Pose optimalSpike2StartFar = new Pose(-54.76,16.81, Math.toRadians(14));
+        public static Pose optimalSpike3StartFar = new Pose(-51.5,16.55, Math.toRadians(65));
 
 
         static void convert(boolean toRed) {
@@ -157,6 +163,8 @@ public class Common {
             optimalLeverStart = convertToRed(optimalLeverStart, toRed);
             optimalRampStart = convertToRed(optimalRampStart, toRed);
             optimalHumanPlayerStart = convertToRed(optimalHumanPlayerStart, toRed);
+            optimalSpike2StartFar = convertToRed(optimalSpike2StartFar, toRed);
+            optimalSpike3StartFar = convertToRed(optimalSpike3StartFar, toRed);
         }
     }
 

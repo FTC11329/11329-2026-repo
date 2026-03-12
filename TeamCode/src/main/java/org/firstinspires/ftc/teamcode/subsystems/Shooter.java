@@ -58,6 +58,9 @@ public class Shooter {
 
     public void setPower(double power){
         lastPower = power;
+        if (power < -0.7) {
+            power = -0.7;
+        }
         flywheel1.setPower(power);
         flywheel2.setPower(power);
     }

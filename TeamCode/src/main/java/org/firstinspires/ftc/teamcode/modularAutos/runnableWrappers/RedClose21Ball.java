@@ -3,15 +3,13 @@ package org.firstinspires.ftc.teamcode.modularAutos.runnableWrappers;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.modularAutos.Common;
+import org.firstinspires.ftc.teamcode.modularAutos.PathPlanner;
 import org.firstinspires.ftc.teamcode.modularAutos.modules.Commands;
 import org.firstinspires.ftc.teamcode.modularAutos.modules.FromShootMidPos;
 import org.firstinspires.ftc.teamcode.modularAutos.modules.FromStartClosePos;
-import org.firstinspires.ftc.teamcode.modularAutos.PathPlanner;
-import org.firstinspires.ftc.teamcode.pedroPathing.Drawing;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
@@ -24,9 +22,8 @@ import org.firstinspires.ftc.teamcode.util.ShapeDetection;
 import java.util.ArrayList;
 import java.util.List;
 
-@Disabled
-@Autonomous(name = "Exaple", group = "Comp", preselectTeleOp = "Main Teleop Red")
-public class ExampleRunnableWrapper extends OpMode {
+@Autonomous(name = "Red Close 21", group = "0Comp", preselectTeleOp = "Main Teleop Red")
+public class RedClose21Ball extends OpMode {
     Pose startPose;
     RobotSide robotSide;
     Robot robot;
@@ -36,22 +33,26 @@ public class ExampleRunnableWrapper extends OpMode {
     Timer zeroVelocityTimer = new Timer(2000000);
     private int currentStep = 0;
     private boolean parkPathFollowed = false;
+    private double lastTime = 2000000000;
 
     @Override
     public void init() {
-        // todo Set These Before Creating
-        robotSide = null;
+        robotSide = RobotSide.Red;
         robot = new Robot(telemetry, hardwareMap, robotSide, 0,0,
                 new BallColor[]{
                         BallColor.Green,
                         BallColor.Purple,
                         BallColor.Purple
                 });
-        // todo Set These Before Creating
-        startPose = null;
+        startPose = Common.StartPoses.closeOuter;
 
         steps.add(new FromStartClosePos.ShootAndGoToMidShootPos(robot, lastPlanner()));
-        steps.add(new FromShootMidPos.ToIntakeSpike1(robot, lastPlanner(), true, false, false));
+        steps.add(new FromShootMidPos.ToIntakeSpike2  (robot, lastPlanner(), false, false, false));
+        steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPlanner(), false, false, true));
+        steps.add(new FromShootMidPos.ToIntakeSpike1  (robot, lastPlanner(), false, false, false));
+        steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPlanner(), false, false, true));
+        steps.add(new FromShootMidPos.ToIntakeSpike3  (robot, lastPlanner(), false, false));
+        steps.add(new FromShootMidPos.ToIntakeHuman   (robot, lastPlanner(), false, false));
 
         wComms(steps);
 
@@ -81,6 +82,7 @@ public class ExampleRunnableWrapper extends OpMode {
         robot.start();
         steps.get(currentStep).buildPaths();
         robot.spinIntake();
+        lastTime = System.nanoTime();
     }
 
     boolean firstDeInit = false;
@@ -104,7 +106,6 @@ public class ExampleRunnableWrapper extends OpMode {
 
         robot.update();
         robot.prepareShooter();
-        Drawing.drawShapesDebug(robot.follower);
 
         if (!parkPathFollowed && robot.getOpmodeTimeSeconds() > 29.25 && (
                 (   (
@@ -147,14 +148,12 @@ public class ExampleRunnableWrapper extends OpMode {
         }
 
 //        Drawing.drawDebug(robot.follower);
+//        Drawing.drawShapesDebug(robot.follower);
 //        telemetry.addData("time", robot.getOpmodeTimeSeconds());
-//        telemetry.addData("name", step);
+        telemetry.addData("name", step);
 //        for (BallColor i : robot.indexer.getBallCells()) {
 //            telemetry.addData("hasBalls", i);
 //        }
-//        panelsTelemetry.addData("all", (System.nanoTime() - lastTime) * 1e-6);
-//        panelsTelemetry.update();
-//        lastTime = System.nanoTime();
 
     }
 

@@ -43,6 +43,7 @@ public class TemporaryClassThatWeAreTotallyGoingToDelete extends OpMode {
     DcMotorEx leftFront;
     DcMotorEx leftBack;
     DcMotorEx rightFront;
+    DcMotorEx intakeMotor;
 
     CRServo turretServo1;
     CRServo turretServo2;
@@ -54,27 +55,11 @@ public class TemporaryClassThatWeAreTotallyGoingToDelete extends OpMode {
     public DcMotorEx flywheel2;
     @Override
     public void init() {
-        flywheel1 = hardwareMap.get(DcMotorEx.class, "flywheel1");
-
-        flywheel1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        flywheel1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        flywheel1.setDirection(DcMotorSimple.Direction.REVERSE);
-        flywheel1.setCurrentAlert(4, CurrentUnit.AMPS);
-
-        flywheel2 = hardwareMap.get(DcMotorEx.class, "flywheel2");
-
-        flywheel2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        flywheel2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        flywheel2.setDirection(DcMotorSimple.Direction.REVERSE);
-        flywheel2.setCurrentAlert(4, CurrentUnit.AMPS);
-
+        shooter = new Shooter(hardwareMap);
     }
 
     @Override
     public void loop() {
-        flywheel1.setPower(.12);
-        flywheel2.setPower(.12);
-//        telemetry.addData("ticks", turret.getTicks());
-
+        shooter.setPower(gamepad1.left_trigger);
     }
 }

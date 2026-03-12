@@ -7,8 +7,10 @@ import androidx.annotation.NonNull;
 import org.firstinspires.ftc.teamcode.modularAutos.Common;
 import org.firstinspires.ftc.teamcode.modularAutos.PathPlanner;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.BezierCurve;
+import org.firstinspires.ftc.teamcode.pedroPathing.geometry.BezierLine;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.paths.Path;
+import org.firstinspires.ftc.teamcode.pedroPathing.paths.PathBuilder;
 import org.firstinspires.ftc.teamcode.pedroPathing.paths.PathChain;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
@@ -120,10 +122,7 @@ public class FromShootFarPos {
                         setPathState(4);
                     }
                 case 4:
-                    if ((robot.inShootingZone() || !robot.follower.isBusy()) && (parkAfter || robot.follower.getVelocity().getMagnitude() < Timings.shootVelocity)) {
-                        if (parkAfter) {
-                            robot.follower.setMaxPower(DrivePower.shootOnThFly);
-                        }
+                    if (robot.inShootingZone() || !robot.follower.isBusy()){
                         if (sort) {
                             robot.doSmartShoot(true);
                             robot.indexer.setQueuedBalls(robot.getMotif());
@@ -134,7 +133,7 @@ public class FromShootFarPos {
                     }
                     break;
                 case 5:
-                    if (pathTimer.getElapsedTimeSeconds() > 1 && !sort) {
+                    if (pathTimer.getElapsedTimeSeconds() > Timings.unjamTimeOut && !sort) {
                         robot.indexerUnjam();
                     }
                     if (robot.indexer.isHasBallsEmpty() || (sort && robot.indexer.isQueuedBallsEmpty())) {
@@ -156,7 +155,7 @@ public class FromShootFarPos {
         @NonNull
         @Override
         public String toString() {
-            return "From shoot mid to intake spike 2, state: " + state;
+            return "From shoot far to intake spike 2, state: " + state;
         }
     }
     
@@ -174,6 +173,7 @@ public class FromShootFarPos {
         // Pass-through Variables
         private volatile Robot robot;
         private Pose startPose;
+        private Pose lastPose;
         private boolean sort;
         public ToIntakeSpike3(Robot robot, PathPlanner prevPlanner, boolean sort) {
             pathTimer = new Timer();
@@ -185,6 +185,7 @@ public class FromShootFarPos {
                 startPose = prevPlanner.getEndPoseEst();
             }
 
+            lastPose = ShootPoses.farShoot;
         }
 
         @Override
@@ -203,20 +204,20 @@ public class FromShootFarPos {
         }
 
         //Path initialization
-        Path toIntakeSpike3;
-        Path finishIntakeSpike3;
-        Path toShootPose;
+        PathChain toIntakeSpike3;
+        PathChain finishIntakeSpike3;
+        PathChain toShootPose;
         @Override
         public void buildPaths() {
             // Path creation
-            toIntakeSpike3 = robot.follower.linearPathBuilder(startPose, IntakeBallPoses.intakeSpike3Start);
-            finishIntakeSpike3 = robot.follower.linearPathBuilder(IntakeBallPoses.intakeSpike3Start, IntakeBallPoses.intakeSpike3End);
-            toShootPose = robot.follower.linearPathBuilder(IntakeBallPoses.intakeSpike3End, ShootPoses.farShoot, true);
+            toIntakeSpike3 = robot.follower.fastPathChainBuilder(startPose, IntakeBallPoses.intakeSpike3Start, TValues.fastInterpolationIntakeStart);
+            finishIntakeSpike3 = robot.follower.linearPathChainBuilder(IntakeBallPoses.intakeSpike3Start, IntakeBallPoses.intakeSpike3End);
+            toShootPose = robot.follower.fastPathChainBuilder(IntakeBallPoses.intakeSpike3End, lastPose, TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootStart, true);
         }
 
         @Override
         public Pose getEndPoseEst() {
-            return ShootPoses.farShoot;
+            return lastPose;
         }
 
         @Override
@@ -255,7 +256,7 @@ public class FromShootFarPos {
                     }
                     break;
                 case 5:
-                    if (pathTimer.getElapsedTimeSeconds() > 1.5 && !sort) {
+                    if (pathTimer.getElapsedTimeSeconds() > Timings.unjamTimeOut && !sort) {
                         robot.indexerUnjam();
                     }
                     if (robot.indexer.isHasBallsEmpty() || (sort && robot.indexer.isQueuedBallsEmpty())) {
@@ -326,7 +327,7 @@ public class FromShootFarPos {
 
         @Override
         public Pose getOptimalStartPose() {
-            return ShootPoses.optimalRampStartFar;
+            return ShootPoses.optimalSpike2StartFar;
         }
 
 
@@ -402,7 +403,7 @@ public class FromShootFarPos {
                     }
                     break;
                 case 5:
-                    if (pathTimer.getElapsedTimeSeconds() > 1 && !sort) {
+                    if (pathTimer.getElapsedTimeSeconds() > Timings.unjamTimeOut && !sort) {
                         robot.indexerUnjam();
                     }
                     if (robot.indexer.isHasBallsEmpty() || (sort && robot.indexer.isQueuedBallsEmpty())) {
@@ -423,7 +424,7 @@ public class FromShootFarPos {
         @NonNull
         @Override
         public String toString() {
-            return "From shoot mid to intake ramp, state: " + state;
+            return "From shoot far to intake ramp, state: " + state;
         }
     }
 
@@ -485,7 +486,7 @@ public class FromShootFarPos {
             switch (state) {
                 case 0:
                     intakeBallPose = robot.getIntakeBallPoseFromCam();
-                    if (pathTimer.getElapsedTimeSeconds() > 1) {
+                    if (pathTimer.getElapsedTimeSeconds() > Timings.unjamTimeOut) {
                         intakeBallPose = IntakeBallPoses.intakeHuman;
                     }
                     if (intakeBallPose != null) {
@@ -519,7 +520,7 @@ public class FromShootFarPos {
                     }
                     break;
                 case 3:
-                    if (pathTimer.getElapsedTimeSeconds() > 1.5 && !sort) {
+                    if (pathTimer.getElapsedTimeSeconds() > Timings.unjamTimeOut && !sort) {
                         robot.indexerUnjam();
                     }
                     if (robot.indexer.isHasBallsEmpty()) {
@@ -555,8 +556,9 @@ public class FromShootFarPos {
         // Pass-through Variables
         private volatile Robot robot;
         private Pose startPose;
+        private Pose lastPose;
         private boolean sort;
-        public ToIntakeHuman(Robot robot, PathPlanner lastPlanner, boolean sort) {
+        public ToIntakeHuman(Robot robot, PathPlanner prevPlanner, boolean sort) {
             pathTimer = new Timer();
             this.robot = robot;
             this.sort = sort;
@@ -565,6 +567,7 @@ public class FromShootFarPos {
             } else {
                 startPose = prevPlanner.getEndPoseEst();
             }
+            lastPose = ShootPoses.farShoot;
         }
 
         @Override
@@ -584,12 +587,12 @@ public class FromShootFarPos {
 
         //Path initialization
         Path toIntakeHuman;
-        Path toShootPose;
+        PathChain toShootPose;
         @Override
         public void buildPaths() {
             // Path creation
             toIntakeHuman = robot.follower.linearPathBuilder(startPose, IntakeBallPoses.intakeHuman);
-            toShootPose = robot.follower.linearPathBuilder(IntakeBallPoses.intakeHuman, ShootPoses.farShoot);
+            toShootPose = robot.follower.fastPathChainBuilder(IntakeBallPoses.intakeHuman, lastPose, TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootStart, true);
         }
 
         @Override
@@ -634,7 +637,7 @@ public class FromShootFarPos {
                     }
                     break;
                 case 5:
-                    if (pathTimer.getElapsedTimeSeconds() > 1.5 && !sort) {
+                    if (pathTimer.getElapsedTimeSeconds() > Timings.unjamTimeOut && !sort) {
                         robot.indexerUnjam();
                     }
                     if (robot.indexer.isHasBallsEmpty() || (sort && robot.indexer.isQueuedBallsEmpty())) {
@@ -654,7 +657,7 @@ public class FromShootFarPos {
         @NonNull
         @Override
         public String toString() {
-            return "From shoot mid to intake spike 3, state: " + state;
+            return "From shoot far to intake spike 3, state: " + state;
         }
     }
     public static class ToIntakeHumanThenWait implements PathPlanner {
@@ -670,8 +673,9 @@ public class FromShootFarPos {
         // Pass-through Variables
         private volatile Robot robot;
         private Pose startPose;
+        private Pose lastPose;
         private boolean sort;
-        public ToIntakeHumanThenWait(Robot robot, PathPlanner lastPlanner, boolean sort) {
+        public ToIntakeHumanThenWait(Robot robot, PathPlanner prevPlanner, boolean sort) {
             pathTimer = new Timer();
             this.robot = robot;
             this.sort = sort;
@@ -680,6 +684,7 @@ public class FromShootFarPos {
             } else {
                 startPose = prevPlanner.getEndPoseEst();
             }
+            lastPose = ShootPoses.farShoot;
         }
 
         @Override
@@ -709,7 +714,7 @@ public class FromShootFarPos {
                     .addPath(new BezierCurve(IntakeBallPoses.intakeHuman, IntakeBallPoses.intakeSTunnelAfterHumanControl, IntakeBallPoses.intakeSTunnelAfterHuman))
                     .setLinearHeadingInterpolation(IntakeBallPoses.intakeHuman, IntakeBallPoses.intakeSTunnelAfterHuman)
                     .build();
-            toShootPose = robot.follower.linearPathBuilder(IntakeBallPoses.intakeSpike3End, ShootPoses.farShoot);
+            toShootPose = robot.follower.linearPathBuilder(IntakeBallPoses.intakeSpike3End, lastPose);
             toShootPose.setBrakingStrength(0.3);
         }
 
@@ -766,7 +771,7 @@ public class FromShootFarPos {
         @NonNull
         @Override
         public String toString() {
-            return "From shoot mid to intake spike 3, state: " + state;
+            return "From shoot far to intake spike 3, state: " + state;
         }
     }
 }

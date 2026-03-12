@@ -16,7 +16,7 @@ public class ClearAutoValues extends OpMode {
 
     @Override
     public void start() {
-        endValuesStorer.saveEndValues(0,0,0,0,0);
+        endValuesStorer.saveEndValues(0,0,0,12830,0);
     }
 
     @Override

@@ -83,7 +83,7 @@ public class FromStartClosePos {
                     }
                     break;
                 case 3:
-                    if (pathTimer.getElapsedTimeSeconds() > 1.5) {
+                    if (pathTimer.getElapsedTimeSeconds() > Timings.unjamTimeOut) {
                         robot.indexerUnjam();
                     }
                     if (robot.indexer.isHasBallsEmpty()) {
@@ -153,7 +153,7 @@ public class FromStartClosePos {
                     }
                     break;
                 case 2:
-                    if (pathTimer.getElapsedTimeSeconds() > 1) {
+                    if (pathTimer.getElapsedTimeSeconds() > Timings.unjamTimeOut) {
                         robot.indexerUnjam();
                     }
                     if (robot.indexer.isHasBallsEmpty()) {
