@@ -15,14 +15,14 @@ public class ConfigureColorRangefinder extends LinearOpMode {
         /* Using this example configuration, you can detect both artifact colors based on which pin is reading true:
             pin0 --> green
             pin1 --> purple */
-        crf.setPin0Digital(ColorRangefinder.DigitalMode.HSV, 80, 92); // green
-        crf.setPin0DigitalMaxDistance(ColorRangefinder.DigitalMode.HSV, 11); // 10mm or closer
-        crf.setPin1Digital(ColorRangefinder.DigitalMode.HSV, 93, 255); // purple
-        crf.setPin1DigitalMaxDistance(ColorRangefinder.DigitalMode.HSV, 11); // 10mm or closer
-//        crf.setPin0Analog(ColorRangefinder.AnalogMode.HSV);
-//        crf.setPin1Digital(ColorRangefinder.DigitalMode.DISTANCE, 0, 11); // purple
-//        crf.setPin1DigitalMaxDistance(ColorRangefinder.DigitalMode.DISTANCE, 100); // 10mm or closer
-        telemetry.addLine("4");
+//        crf.setPin0Digital(ColorRangefinder.DigitalMode.HSV, 80, 92); // green
+//        crf.setPin0DigitalMaxDistance(ColorRangefinder.DigitalMode.HSV, 11); // 10mm or closer
+//        crf.setPin1Digital(ColorRangefinder.DigitalMode.HSV, 93, 255); // purple
+//        crf.setPin1DigitalMaxDistance(ColorRangefinder.DigitalMode.HSV, 11); // 10mm or closer
+        crf.setPin0Analog(ColorRangefinder.AnalogMode.HSV);
+        crf.setPin1Digital(ColorRangefinder.DigitalMode.DISTANCE, 0, 15); // purple
+        crf.setPin1DigitalMaxDistance(ColorRangefinder.DigitalMode.DISTANCE, 100);
+        telemetry.addLine("5");
         telemetry.update();
         Thread.sleep(300);
     }

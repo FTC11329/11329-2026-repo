@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.modularAutos.modules;
 
-import org.firstinspires.ftc.teamcode.modularAutos.Common;
 import org.firstinspires.ftc.teamcode.modularAutos.PathPlanner;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.BezierCurve;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.BezierLine;
@@ -14,8 +13,6 @@ import org.firstinspires.ftc.teamcode.subsystems.Robot;
 import static org.firstinspires.ftc.teamcode.modularAutos.Common.*;
 
 import androidx.annotation.NonNull;
-
-import java.security.PKCS12Attribute;
 
 public class FromShootMidPos {
     public static class ToIntakeSpike1 implements PathPlanner {
@@ -369,9 +366,9 @@ public class FromShootMidPos {
         public void buildPaths() {
             // Path creation
             pathChain = robot.follower.pathBuilder()
-                    .addPath(new BezierCurve(startPose, IntakeBallPoses.intakeSpike3ControlPoint, IntakeBallPoses.intakeSpike3Start))
+                    .addPath(new BezierCurve(startPose, IntakeBallPoses.intakeSpike3ControlPoint, IntakeBallPoses.intakeSpike3StartClose))
                     .setFastHeadingInterpolation(TValues.fastInterpolationIntakeStart)
-                    .addPath(robot.follower.linearPathBuilder(IntakeBallPoses.intakeSpike3Start, IntakeBallPoses.intakeSpike3End))
+                    .addPath(robot.follower.linearPathBuilder(IntakeBallPoses.intakeSpike3StartClose, IntakeBallPoses.intakeSpike3End))
                     .build();
             toShootPose = robot.follower.linearPathBuilder(IntakeBallPoses.intakeSpike3End, lastPose);
             if (parkAfter) {
@@ -487,9 +484,9 @@ public class FromShootMidPos {
         public void buildPaths() {
             // Path creation
             pathChain = robot.follower.pathBuilder()
-                    .addPath(new BezierCurve(startPose, IntakeBallPoses.intakeSpike3ControlPoint, IntakeBallPoses.intakeSpike3Start))
+                    .addPath(new BezierCurve(startPose, IntakeBallPoses.intakeSpike3ControlPoint, IntakeBallPoses.intakeSpike3StartClose))
                     .setFastHeadingInterpolation(TValues.fastInterpolationIntakeStart)
-                    .addPath(robot.follower.linearPathBuilder(IntakeBallPoses.intakeSpike3Start, IntakeBallPoses.intakeSpike3End))
+                    .addPath(robot.follower.linearPathBuilder(IntakeBallPoses.intakeSpike3StartClose, IntakeBallPoses.intakeSpike3End))
                     .build();
             toShootPose = robot.follower.linearPathBuilder(IntakeBallPoses.intakeSpike3End, lastPose);
             toShootPose.setFastHeadingInterpolation(TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootEnd, true);

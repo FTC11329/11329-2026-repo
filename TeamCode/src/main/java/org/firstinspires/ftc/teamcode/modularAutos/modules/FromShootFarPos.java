@@ -4,7 +4,6 @@ import static org.firstinspires.ftc.teamcode.modularAutos.Common.*;
 
 import androidx.annotation.NonNull;
 
-import org.firstinspires.ftc.teamcode.modularAutos.Common;
 import org.firstinspires.ftc.teamcode.modularAutos.PathPlanner;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.BezierCurve;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.BezierLine;
@@ -15,10 +14,10 @@ import org.firstinspires.ftc.teamcode.pedroPathing.paths.PathChain;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
 import org.firstinspires.ftc.teamcode.util.BallColor;
-import org.firstinspires.ftc.teamcode.util.MeanBallPoses;
 
 public class FromShootFarPos {
 
+    @Deprecated
     public static class ToIntakeSpike2 implements PathPlanner {
         /// intakes 3 from the second spike mark
         /// then goes back and shoots them
@@ -122,7 +121,7 @@ public class FromShootFarPos {
                         setPathState(4);
                     }
                 case 4:
-                    if (robot.inShootingZone() || !robot.follower.isBusy()){
+                    if ((robot.inShootingZone() || !robot.follower.isBusy()) && robot.follower.getVelocity().getMagnitude() < Timings.shootVelocityFar) {
                         if (sort) {
                             robot.doSmartShoot(true);
                             robot.indexer.setQueuedBalls(robot.getMotif());
@@ -210,8 +209,8 @@ public class FromShootFarPos {
         @Override
         public void buildPaths() {
             // Path creation
-            toIntakeSpike3 = robot.follower.fastPathChainBuilder(startPose, IntakeBallPoses.intakeSpike3Start, TValues.fastInterpolationIntakeStart);
-            finishIntakeSpike3 = robot.follower.linearPathChainBuilder(IntakeBallPoses.intakeSpike3Start, IntakeBallPoses.intakeSpike3End);
+            toIntakeSpike3 = robot.follower.fastPathChainBuilder(startPose, IntakeBallPoses.intakeSpike3StartFar, TValues.fastInterpolationIntakeStart);
+            finishIntakeSpike3 = robot.follower.linearPathChainBuilder(IntakeBallPoses.intakeSpike3StartFar, IntakeBallPoses.intakeSpike3End);
             toShootPose = robot.follower.fastPathChainBuilder(IntakeBallPoses.intakeSpike3End, lastPose, TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootStart, true);
         }
 
@@ -245,7 +244,7 @@ public class FromShootFarPos {
                     }
                     break;
                 case 4:
-                    if (robot.inShootingZone() || !robot.follower.isBusy()) {
+                    if ((robot.inShootingZone() || !robot.follower.isBusy()) && robot.follower.getVelocity().getMagnitude() < Timings.shootVelocityFar) {
                         if (sort) {
                             robot.doSmartShoot(true);
                             robot.indexer.setQueuedBalls(robot.getMotif());
@@ -280,6 +279,7 @@ public class FromShootFarPos {
         }
     }
 
+    @Deprecated
     public static class ToIntakeFromRamp implements PathPlanner {
         /// intakes 3 from the ramp
         /// then goes back and shoots them
@@ -392,7 +392,7 @@ public class FromShootFarPos {
                     }
                     break;
                 case 4:
-                    if ((robot.inShootingZone() || !robot.follower.isBusy()) && robot.follower.getVelocity().getMagnitude() < Timings.shootVelocity) {
+                    if ((robot.inShootingZone() || !robot.follower.isBusy()) && robot.follower.getVelocity().getMagnitude() < Timings.shootVelocityFar) {
                         if (sort) {
                             robot.doSmartShoot(true);
                             robot.indexer.setQueuedBalls(robot.getMotif());
@@ -465,7 +465,7 @@ public class FromShootFarPos {
 
         @Override
         public Pose getOptimalStartPose() {
-            return ShootPoses.optimalSpike2StartFar;
+            return ShootPoses.optimalSpike3StartFar;
         }
         //Path initialization
         PathChain toIntakeBalls;
@@ -486,16 +486,13 @@ public class FromShootFarPos {
             switch (state) {
                 case 0:
                     intakeBallPose = robot.getIntakeBallPoseFromCam();
-                    if (pathTimer.getElapsedTimeSeconds() > Timings.unjamTimeOut) {
-                        intakeBallPose = IntakeBallPoses.intakeHuman;
-                    }
                     if (intakeBallPose != null) {
                         double dx = intakeBallPose.getX() - startPose.getX();
                         double dy = intakeBallPose.getY() - startPose.getY();
                         double headingRadians = Math.atan2(dy, dx);
 
                         // intakeBallPose = intakeBallPose.setHeading(headingRadians); 
-                        intakeBallPose = intakeBallPose.setHeading(StartPoses.closeOuter.getHeading()); // 90 but mirrred if need-be
+                        intakeBallPose = intakeBallPose.setHeading(StartPoses.closeOuter.getHeading()); // 90 but mirrored if need-be
                         toIntakeBalls = robot.follower.fastPathChainBuilder(startPose, intakeBallPose, 0.4, 0.6);
                         robot.follower.followPath(toIntakeBalls);
                         setPathState(1);
@@ -506,17 +503,18 @@ public class FromShootFarPos {
                         toShootPose = robot.follower.fastPathChainBuilder(intakeBallPose, lastPose, TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootEnd, true);
 
                         robot.follower.followPath(toShootPose);
+                        setPathState(2);
                     }
                     break;
                 case 2:
-                    if (!robot.follower.isBusy()) {
+                    if ((robot.inShootingZone() || !robot.follower.isBusy()) && robot.follower.getVelocity().getMagnitude() < Timings.shootVelocityFar) {
                         if (sort) {
                             robot.doSmartShoot();
                             robot.indexer.setQueuedBalls(robot.getMotif());
                         } else {
                             robot.indexer.shootAll();
                         }
-                        setPathState(5);
+                        setPathState(3);
                     }
                     break;
                 case 3:
@@ -537,9 +535,8 @@ public class FromShootFarPos {
 
         @NonNull
         @Override
-        //todo
         public String toString() {
-            return "NAME, state: " + state;
+            return "To Intake With Vision, state: " + state;
         }
     }
 
@@ -582,7 +579,7 @@ public class FromShootFarPos {
 
         @Override
         public Pose getOptimalStartPose() {
-            return ShootPoses.optimalSpike2StartFar;
+            return ShootPoses.farShoot;
         }
 
         //Path initialization
@@ -699,7 +696,7 @@ public class FromShootFarPos {
 
         @Override
         public Pose getOptimalStartPose() {
-            return ShootPoses.optimalSpike2StartFar;
+            return ShootPoses.farShoot;
         }
 
         //Path initialization
@@ -743,7 +740,7 @@ public class FromShootFarPos {
                     }
                     break;
                 case 3:
-                    if (robot.inShootingZone() || !robot.follower.isBusy()) {
+                    if ((robot.inShootingZone() || !robot.follower.isBusy()) && robot.follower.getVelocity().getMagnitude() < Timings.shootVelocityFar) {
                         robot.doSmartShoot(true);
                         if (sort) {
                             robot.indexer.setQueuedBalls(robot.getMotif());

@@ -42,22 +42,21 @@ public class AutoTester extends OpMode {
 
     @Override
     public void init() {
-        robotSide = RobotSide.Blue;
+        //Todo
+        robotSide = RobotSide.Red;
         robot = new Robot(telemetry, hardwareMap, robotSide, 0,0,
                 new BallColor[]{
                         BallColor.Green,
                         BallColor.Purple,
                         BallColor.Purple
                 });
-        startPose = Common.StartPoses.closeOuter;
+        //Todo
+        startPose = Common.StartPoses.far;
 
-        steps.add(new FromStartClosePos.ShootAndGoToMidShootPos(robot, lastPlanner()));
-        steps.add(new FromShootMidPos.ToIntakeSpike2  (robot, lastPlanner(), false, false, false));
-        steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPlanner(), false, false, true));
-        steps.add(new FromShootMidPos.ToIntakeSpike1  (robot, lastPlanner(), false, false, false));
-        steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPlanner(), false, false, true));
-        steps.add(new FromShootMidPos.ToIntakeSpike3  (robot, lastPlanner(), false, false));
-        steps.add(new FromShootMidPos.ToIntakeHuman   (robot, lastPlanner(), false, false));
+        steps.add(new FromStartFarPos.ShootPreloads  (robot, lastPlanner(), false));
+        steps.add(new FromShootFarPos.ToIntakeSpike3 (robot, lastPlanner(), false));
+        steps.add(new FromShootFarPos.ToIntakeHuman  (robot, lastPlanner(), false));
+        steps.add(new FromShootFarPos.ToIntakeWVision(robot, lastPlanner(), false));
 
         wComms(steps);
 
@@ -88,6 +87,7 @@ public class AutoTester extends OpMode {
         steps.get(currentStep).buildPaths();
         robot.spinIntake();
         lastTime = System.nanoTime();
+        robot.setPipelineIndex(3);
     }
 
     boolean firstDeInit = false;
@@ -153,7 +153,7 @@ public class AutoTester extends OpMode {
         }
 
 //        Drawing.drawDebug(robot.follower);
-//        Drawing.drawShapesDebug(robot.follower);
+        Drawing.drawShapesDebug(robot.follower);
 //        telemetry.addData("time", robot.getOpmodeTimeSeconds());
         telemetry.addData("name", step);
 //        for (BallColor i : robot.indexer.getBallCells()) {

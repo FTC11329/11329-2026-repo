@@ -81,6 +81,7 @@ public class ExampleRunnableWrapper extends OpMode {
         robot.start();
         steps.get(currentStep).buildPaths();
         robot.spinIntake();
+        robot.setPipelineIndex(3);
     }
 
     boolean firstDeInit = false;

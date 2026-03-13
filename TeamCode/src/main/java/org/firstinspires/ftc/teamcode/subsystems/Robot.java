@@ -365,7 +365,9 @@ public class Robot {
             intake.setIntakePower(0);
             return;
         }
-        intake.update(spitIntake, isIntaking, indexer.shooting, indexer.doSpit(), indexer.allowIntaking(), indexer.isPlugged(), intakeOverride);
+
+        boolean dontAllowIntaking = indexer.shooting && intake.isBeamBroken();
+        intake.update(spitIntake || indexer.unjam, isIntaking, indexer.shooting, indexer.doSpit(), indexer.allowIntaking() && !dontAllowIntaking, indexer.isPlugged(), intakeOverride);
     }
 
 

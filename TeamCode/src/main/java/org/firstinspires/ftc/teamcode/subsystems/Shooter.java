@@ -162,8 +162,14 @@ public class Shooter {
 
     public void stop() {
         flywheel1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        flywheel2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
         flywheel1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        flywheel2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
         flywheel1.setPower(0);
+        flywheel2.setPower(0);
+
         setHood(0);
     }
 

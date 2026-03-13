@@ -109,7 +109,7 @@ public class MainTeleop {
             startPose = new Pose();
             robot.follower.setPose(startPose);
             robot.turret.encoderOffset = 0;
-            robot.indexer.encoderOffsetFromAuto = 0;
+            robot.indexer.encoderOffsetFromAuto = 12830;
             robot.indexer.setIndexerPos(0);
         }
 
@@ -137,7 +137,7 @@ public class MainTeleop {
         fastShootButton.checkStatus(gamepad2.b || gamepad1.b); // press to shoot 3
         smartShoot.checkStatus(gamepad2.back); // Toggle to turn on smart shoot
 
-        overrideIntake.checkStatus(gamepad2.left_bumper); // hold to turn on ignore allowintaking
+        overrideIntake.checkStatus(gamepad2.left_trigger > 0.5 || gamepad1.left_trigger > 0.5); // hold to turn on ignore allowintaking
         panicShoot.checkStatus(gamepad2.ps); // toggle to turn on panic shoot
 
         movePoseUp.checkStatus(gamepad2.dpad_up);

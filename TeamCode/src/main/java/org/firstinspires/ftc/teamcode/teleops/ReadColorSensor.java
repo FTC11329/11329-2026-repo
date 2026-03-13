@@ -40,30 +40,13 @@ public class ReadColorSensor extends OpMode {
 
     @Override
     public void loop() {
+
         boolean hue = color6.getState();
         boolean distance = color7.getState();
-        telemetry.addData("Digital Hue", hue);
-        telemetry.addData("Digital Distance", distance);
-        boolean green  = hue && distance;
-        boolean purple = !hue && distance;
-        telemetry.addData("Green", green);
-        telemetry.addData("Purple", purple);
-        telemetry.addLine();
-
-
-        telemetry.addData("Analog Hue T/F", analog2.getVoltage() > 2.0);
-        telemetry.addData("Analog Distance T/F", analog3.getVoltage() > 2.0);
-
-        telemetry.addData("Analog Hue", analog2.getVoltage());
-        telemetry.addData("Analog Hue Converted", analog2.getVoltage() / 3.3 * 255);
-        telemetry.addData("Analog Distance", analog3.getVoltage());
-
-        hue = color6.getState();
-        distance = color7.getState();
         panelsTelemetry.addData("Digital Hue", hue);
         panelsTelemetry.addData("Digital Distance", distance);
-        green  = hue && distance;
-        purple = !hue && distance;
+        boolean green  = hue && distance;
+        boolean purple = !hue && distance;
         panelsTelemetry.addData("Green", green);
         panelsTelemetry.addData("Purple", purple);
         panelsTelemetry.addLine("");
@@ -72,11 +55,16 @@ public class ReadColorSensor extends OpMode {
         panelsTelemetry.addData("Green T/F", analog2.getVoltage() > 2.0);
         panelsTelemetry.addData("Purple T/F", analog3.getVoltage() > 2.0);
 
-        panelsTelemetry.addData("Analog Hue", analog2.getVoltage());
-        panelsTelemetry.addData("Analog Hue Converted", analog2.getVoltage() / 3.3 * 360);
-        panelsTelemetry.addData("Analog Distance", analog3.getVoltage());
+        panelsTelemetry.addData("Analog 2", analog2.getVoltage());
+        panelsTelemetry.addData("Analog 2 Hue Converted", analog2.getVoltage() / 3.3 * 360);
+        panelsTelemetry.addData("Analog 2 Color Converted", analog2.getVoltage() / 3.3 * 255);
+        panelsTelemetry.addData("Analog 2 Distance Converted", analog2.getVoltage() / 3.3 * 100);
+        panelsTelemetry.addData("Analog 3", analog3.getVoltage());
+        panelsTelemetry.addData("Analog 3 Hue Converted", analog3.getVoltage() / 3.3 * 360);
+        panelsTelemetry.addData("Analog 3 Color Converted", analog3.getVoltage() / 3.3 * 255);
+        panelsTelemetry.addData("Analog 3 Distance Converted", analog3.getVoltage() / 3.3 * 100);
 
-        double act = 0;
+        double act;
         if (analog3.getVoltage() < 2.0) {
             act = 0;
         } else {
@@ -90,7 +78,7 @@ public class ReadColorSensor extends OpMode {
         } else {
             ball = BallColor.Purple;
         }
-        telemetry.addData("Tune me", act);
+        panelsTelemetry.addData("Tune me", act);
         telemetry.addData("Ball", ball);
         panelsTelemetry.update();
 

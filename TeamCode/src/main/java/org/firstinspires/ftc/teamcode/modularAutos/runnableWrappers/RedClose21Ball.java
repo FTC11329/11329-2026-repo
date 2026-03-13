@@ -83,6 +83,7 @@ public class RedClose21Ball extends OpMode {
         steps.get(currentStep).buildPaths();
         robot.spinIntake();
         lastTime = System.nanoTime();
+        robot.setPipelineIndex(3);
     }
 
     boolean firstDeInit = false;

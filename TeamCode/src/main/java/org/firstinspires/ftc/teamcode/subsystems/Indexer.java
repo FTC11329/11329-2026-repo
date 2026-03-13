@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.hardware.AnalogInput;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -9,10 +11,12 @@ import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.util.BallColor;
+import org.firstinspires.ftc.teamcode.util.ColorFunctions;
 import org.firstinspires.ftc.teamcode.util.FieldShapes;
 import org.firstinspires.ftc.teamcode.util.IndexerEnums;
 import org.firstinspires.ftc.teamcode.util.ShapeDetection;
@@ -27,6 +31,7 @@ public class Indexer {
     DcMotorEx encoder;
     AnalogInput analog2;
     AnalogInput analog3;
+    RevColorSensorV3 colorSensor;
 
 
     BallColor[] ballCells = new BallColor[3];
@@ -81,6 +86,8 @@ public class Indexer {
 
         analog2 = hardwareMap.get(AnalogInput.class, "spindexerAnalog2");
         analog3 = hardwareMap.get(AnalogInput.class, "spindexerAnalog3");
+
+        colorSensor = hardwareMap.get(RevColorSensorV3.class, "Color");
 
         setHasBalls(ballCells);
     }
@@ -154,14 +161,27 @@ public class Indexer {
         return analog3.getVoltage() > 2.9;
     }
 
+//    public BallColor getColor(){
+//        if (isGreen()) {
+//            return BallColor.Green;
+//        } else if (isPurple()) {
+//            return BallColor.Purple;
+//        } else {
+//            return BallColor.None;
+//        }
+//    }
+
+    BallColor lastColor = BallColor.None;
     public BallColor getColor(){
-        if (isGreen()) {
-            return BallColor.Green;
-        } else if (isPurple()) {
-            return BallColor.Purple;
+        BallColor thisColor = ColorFunctions.toColor(colorSensor.getNormalizedColors(), colorSensor.getDistance(DistanceUnit.INCH));
+        BallColor returnColor;
+        if (thisColor == lastColor) {
+            returnColor = thisColor;
         } else {
-            return BallColor.None;
+            returnColor = BallColor.None;
         }
+        lastColor = thisColor;
+        return returnColor;
     }
     public boolean isHasBallsFull() {
         for (BallColor color : ballCells) {
@@ -224,6 +244,10 @@ public class Indexer {
 
     public BallColor[] getQueuedBalls() {
         return queuedBalls;
+    }
+
+    public void updateEncoder() {
+        updatingEncoderPos = -encoder.getCurrentPosition();
     }
 
     public double getEncoderPercentage() {
@@ -370,7 +394,7 @@ public class Indexer {
     public void update(boolean intaking, boolean readyToShoot, boolean doSmartShoot, boolean isFarShot, Pose currentPose) {
         stuckUpdate();
 
-        updatingEncoderPos = -encoder.getCurrentPosition(); //updates this variable on tick so we are not calling multiple times in one tick
+        updateEncoder(); //updates this variable on tick so we are not calling multiple times in one tick
         // Stops if unjamming
         if (unjam) {
             unjamUpdate();
@@ -426,12 +450,12 @@ public class Indexer {
     private int unjamCounter = 0;
     public void unjamUpdate() {
         spinTransferWheel(true);
-        if (shotTimer.getElapsedTimeSeconds() > .2){
+        if (shotTimer.getElapsedTimeSeconds() > .32){
             setIndexerPos(currentIndexerState == IndexerEnums.intake0 ? IndexerEnums.intake3: IndexerEnums.intake0);
             shotTimer.resetTimer();
             unjamCounter++;
         }
-        if (unjamCounter > 4) {
+        if (unjamCounter > 2) {
             unjam = false;
             spinTransferWheel(false);
             setIndexerPos(IndexerEnums.intake0);
