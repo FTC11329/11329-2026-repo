@@ -38,6 +38,7 @@ public class MainTeleop {
     FancyButton resetPose;
     FancyButton unjamSpindexer;
     FancyButton climb;
+    FancyButton reZeroIndexer;
 
     FancyButton deleteme;
 
@@ -85,6 +86,7 @@ public class MainTeleop {
         overrideShootPosition = new FancyButton(FancyButton.PressType.LongPress);
         overrideIntake = new FancyButton(FancyButton.PressType.LongPress);
         panicShoot = new FancyButton(FancyButton.PressType.Toggle);
+        reZeroIndexer = new FancyButton(FancyButton.PressType.Toggle);
 
         debug = new FancyButton(FancyButton.PressType.Toggle);
 
@@ -139,6 +141,7 @@ public class MainTeleop {
 
         overrideIntake.checkStatus(gamepad2.left_trigger > 0.5 || gamepad1.left_trigger > 0.5); // hold to turn on ignore allowintaking
         panicShoot.checkStatus(gamepad2.ps); // toggle to turn on panic shoot
+        reZeroIndexer.checkStatus(gamepad1.ps);
 
         movePoseUp.checkStatus(gamepad2.dpad_up);
         movePoseDown.checkStatus(gamepad2.dpad_down);  //Buttons to control where the robot aims
@@ -214,11 +217,19 @@ public class MainTeleop {
         if (movePoseRight.startPress) {
             turretOffset -= 1;
         }
-        robot.setOffset(distanceOffset, turretOffset);
-        robot.setPanicShoot(panicShoot.isOn, fastShootButton.isOn);
         if (resetPose.startPress) {
             robot.reZeroAtCorner();
+            distanceOffset = 0;
+            turretOffset = 0;
         }
+
+        robot.setOffset(distanceOffset, turretOffset);
+        robot.setPanicShoot(panicShoot.isOn, fastShootButton.isOn);
+
+        if (reZeroIndexer.startPress) {
+            robot.reZeroIndexer();
+        }
+
         if (climb.isOn) {
             robot.climb();
         } else {

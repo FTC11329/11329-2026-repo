@@ -36,7 +36,7 @@ public final class MotorEffencicyLogger extends LinearOpMode {
     double previousAngularVelocity;
 
     // 1/2 * mass * radius^2
-    public static double MOMENT_OF_INERTIA = 1; //todo
+    public static double MOMENT_OF_INERTIA = 1.7; //todo
     TelemetryManager panelsTelemetry;
 
     @Override

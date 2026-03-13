@@ -169,19 +169,10 @@ public class Robot {
             setPipelineIndex(0);
         }
         if (set) {
-            Pose newPose = vision.averageRobotPose();
+            Pose newPose = vision.getRobotPose();
             if (newPose != null) {
                 lights.printBigRed();
-                Pose addPose = new Pose();
-                switch (robotSide) {
-                    case Red:
-                        addPose = new Pose(-5, 3);
-                        break;
-                    case Blue:
-                        addPose = new Pose(-5, -3);
-                        break;
-                }
-                follower.setPose(lastCamPose.plus(addPose));
+                follower.setPose(newPose);
             }
         }
     }
@@ -225,8 +216,9 @@ public class Robot {
     // TURRET**************************************************************************************~
 
     double angleToGoalVelocity;
+    public boolean usePID = true;
     public void turretUpdate() {
-        turret.update(angleToGoalVelocity + follower.getAngularVelocity(), follower.getAngularAcceleration(), getVoltageCompensation());
+        turret.update(angleToGoalVelocity + follower.getAngularVelocity(), follower.getAngularAcceleration(), getVoltageCompensation(), usePID);
     }
 
     // SHOOTER*************************************************************************************~
@@ -244,9 +236,13 @@ public class Robot {
         indexer.addToQueue(qdColor);
         shootAll();
     }
+    public void reZeroIndexer() {
+        indexer.reZeroIndexer();
+    }
 
     public void casualShooterModeOn() {
         shooter.casualModeOn();
+        usePID = false;
     }
 
     public void setShootFromPose(boolean shootFromPose) {
@@ -261,6 +257,7 @@ public class Robot {
 
     public void prepareShooter() {
         prepareShooter(ShotType.TABLE);
+        usePID = true;
     }
     double rpmOffset;
     double hoodAngleOffset;
@@ -489,6 +486,11 @@ public class Robot {
         if (debug) {
             debug();
         }
+        panelsTelemetry.addData("turret pos", turret.getAngle());
+        panelsTelemetry.addData("turret target", turret.turretPID.getTargetPosition());
+        panelsTelemetry.addData("turret error", turret.turretPID.getError());
+
+        panelsTelemetry.update();
     }
 
     public void debug() {
@@ -600,7 +602,7 @@ public class Robot {
         telemetry.addData("Ready to shoot", readyToShootMotors());
         telemetry.addLine("=== VISION ===");
         telemetry.addData("Motif", motif);
-
+        telemetry.addData("indexer pos", indexer.getEncoderPercentage());
 
         double rateOfChangeOfHoodAngle = (shooter.getHoodPosDeg() - previousHoodAngle) / (System.currentTimeMillis() - previousTime);
         previousTime = System.currentTimeMillis();

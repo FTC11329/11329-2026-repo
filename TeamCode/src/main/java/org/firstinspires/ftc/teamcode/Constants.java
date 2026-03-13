@@ -12,7 +12,7 @@ public class Constants {
         public static double indexerTolerance = 0.07;
         public static double wideIndexerTolerance = 0.14;
         public static double transferPower = 1;
-        public static double smartShootSpacingSec = 0.4;
+        public static double smartShootSpacingSec = 0.45;
 
         public static double indexerPlugDistance = 8; //inches
     }

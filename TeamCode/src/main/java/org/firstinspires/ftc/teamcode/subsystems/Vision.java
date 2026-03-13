@@ -78,7 +78,7 @@ public class Vision {
     public Pose averageRobotPose() {
         //Creating a 3d array to store the distances of each block for comparison
         LLResult result = limelight.getLatestResult();
-        Pose pose = null;
+        Pose pose;
         if (result != null && result.isValid()) {
             List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
             for (LLResultTypes.FiducialResult fr : fiducialResults) {
@@ -189,44 +189,6 @@ public class Vision {
         return detectedBalls;
     }
 
-//    public List<DetectedBall> searchForBallsWithVelocity(List<DetectedBall> lastBalls, Pose curPose) {
-//        if (lastBalls.isEmpty()) {
-//            return searchForBalls(curPose);
-//        }
-//        List<DetectedBall> detectedBalls = new ArrayList<>();
-//        LLResult result = limelight.getLatestResult();
-//        if (result.isValid()) {
-//            List<LLResultTypes.DetectorResult> detections = result.getDetectorResults();
-//            for (LLResultTypes.DetectorResult detection : detections) {
-//                String className = detection.getClassName(); // What was detected
-//                BallColor ballColor;
-//                if (className.equals("green")){
-//                    ballColor = BallColor.Green;
-//                } else if (className.equals("purple")) {
-//                    ballColor = BallColor.Purple;
-//                } else {
-//                    ballColor = BallColor.Any;
-//                }
-//                double tx = detection.getTargetXDegrees(); // Where it is (left-right)
-//                double ty = detection.getTargetYDegrees(); // Where it is (up-down)
-//                Pose ballPose = poseEstimation(tx, ty, curPose);
-//                long timePhotoWasTaken = result.getControlHubTimeStamp();
-//                detectedBalls.add(new DetectedBall(ballPose, ballColor, timePhotoWasTaken));
-//            }
-//        }
-//        for (DetectedBall lastBall : lastBalls) {
-//            for (DetectedBall thisBall : detectedBalls) {
-//                if (lastBall.ballColor == thisBall.ballColor && thisBall.ballPose.distanceFrom(lastBall.ballPose) < 2.5) {
-//                    thisBall.setLastPose(lastBall.lastPose);
-//                    thisBall.setLastTimePhotoWasTaken(lastBall.timePhotoWasTaken);
-//                    thisBall.calcVelocity();
-//                }
-//            }
-//        }
-//        return detectedBalls;
-//    }
-
-
     public Pose poseEstimation(double targetX,double targetY, Pose curpose) {
         return poseEstimation(targetX, targetY, curpose, new Vector(), 0, 0);
     }
@@ -254,31 +216,13 @@ public class Vision {
     }
     public static class DetectedBall {
         public Pose ballPose;
-        public Pose lastPose;
         public BallColor ballColor;
         public long timePhotoWasTaken;
-        public long lastTimePhotoWasTaken;
         public Vector velocity;
         DetectedBall(Pose ballPose, BallColor ballColor, long timePhotoWasTaken){
             this.ballColor = ballColor;
             this.ballPose = ballPose;
             this.timePhotoWasTaken = timePhotoWasTaken;
-        }
-
-        public void setLastPose(Pose lastPose) {
-            this.lastPose = lastPose;
-        }
-
-        public void setLastTimePhotoWasTaken(long lastTimePhotoWasTaken) {
-            this.lastTimePhotoWasTaken = lastTimePhotoWasTaken;
-        }
-
-        public void calcVelocity() {
-            long deltaTime = timePhotoWasTaken - lastTimePhotoWasTaken;
-            double velocityX = (ballPose.getX() - lastPose.getX()) / deltaTime;
-            double velocityY = (ballPose.getY() - lastPose.getY()) / deltaTime;
-
-            velocity = new Vector(new Pose(velocityX, velocityY));
         }
     }
 

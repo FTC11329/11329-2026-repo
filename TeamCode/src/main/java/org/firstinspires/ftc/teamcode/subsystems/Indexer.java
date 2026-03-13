@@ -144,6 +144,11 @@ public class Indexer {
         lastGreen = analog2.getVoltage() > 2.9;
         return temp && lastGreen;
     }
+    public void reZeroIndexer() {
+        encoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        encoder.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        encoderOffsetFromAuto = .833;
+    }
 
     // DO NOT RUN IN TELEMETRY
     boolean lastPurple = false;
@@ -568,8 +573,7 @@ public class Indexer {
                 }
                 break;
             case WAIT_TO_SETTLE:
-                if (queuedBalls[0] == queuedBalls[1]
-                        || feedTimer.getElapsedTimeSeconds() > Constants.Indexer.smartShootSpacingSec) {
+                if (feedTimer.getElapsedTimeSeconds() > Constants.Indexer.smartShootSpacingSec) {
                     smartShootState = SmartShootState.GO_TO_INDEX;
                 }
                 break;
