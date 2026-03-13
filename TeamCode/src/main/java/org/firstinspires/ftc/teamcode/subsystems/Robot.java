@@ -162,7 +162,7 @@ public class Robot {
     }
     public void reZeroAtCorner() {
         offsetPose = new Pose();
-        follower.setPose(Common.StartPoses.reZeroAtCorner);
+        follower.setPose(Common.StartPoses.closeOuter);
     }
     public void setAveragePose() {
         if (pipelineIndex != 0) {
@@ -388,7 +388,8 @@ public class Robot {
         indexer.shootAll();
     }
     public void spindexerUpdate() {
-        indexer.update(isIntaking, readyToShootMotors(), smartShoot, farBack(), follower.getPose());
+        boolean readyToShoot = panicShoot ? true : readyToShootMotors();
+        indexer.update(isIntaking, readyToShoot, smartShoot, farBack(), follower.getPose());
     }
     public void indexerUnjam() {
         indexer.unjam();
@@ -461,8 +462,7 @@ public class Robot {
         lastTimeLoop = System.nanoTime();
         resetTimers();
         indexer.start();
-//        vision.start();
-        setPipelineIndex(2);
+        setPipelineIndex(1);
     }
     public void update() {
         update(false);
@@ -471,6 +471,7 @@ public class Robot {
     double previousTime;
     double maxHoodAngleChange;
     public void update(boolean debug) {
+
         for (LynxModule hub : hubs) {
             hub.clearBulkCache();
         }
@@ -482,26 +483,10 @@ public class Robot {
         follower.update();
         visionUpdate();
         lightsUpdate();
-//        panelsTelemetry.addData("all", (System.nanoTime() - lastTimeLoop) * 1e-6);
-
-
-//        Drawing.drawShapesDebug(this.follower);
-
 
         if (debug) {
             debug();
         }
-//        panelsTelemetry.addData("hood angle", shooter.getHoodPosDeg());
-//        panelsTelemetry.addData("Shooter Pos", shooter.getRPM());
-//        panelsTelemetry.addData("Shooter Tar", shooter.shooterPID.getTargetPosition() );
-//        panelsTelemetry.addData("Power", shooter.shooterPID.run() * 1000);
-//        panelsTelemetry.addData("Turret Pos", turret.getAngle());
-//        panelsTelemetry.addData("Turret Tar", turret.turretPID.getTargetPosition());
-//        panelsTelemetry.addData("Turret Error", turret.turretPID.getError());
-//        panelsTelemetry.addData("distance", distanceToGoal());
-
-        panelsTelemetry.update();
-//        lastTimeLoop = System.nanoTime();
     }
 
     public void debug() {

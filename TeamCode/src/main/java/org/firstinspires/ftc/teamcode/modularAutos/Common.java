@@ -44,17 +44,17 @@ public class Common {
         public static double shootTimeOut = 0.7;
         public static double sortShootTimeOut = 3.5;
 
-        public static double shootVelocity = 5.5; // in / s
+        public static double shootVelocity = 5; // in / s
     }
     public static class DrivePower {
         public static double intake = 1;
         public static double shootOnThFly = 0.5;
     }
     public static class StartPoses {
-        public static Pose closeInner = new Pose(62.5, 39, Math.toRadians(-90));
-        public static Pose closeOuter = new Pose(40.55, 53.5, Math.toRadians(90));
+        public static Pose closeInner = new Pose(62.5, 39, Math.toRadians(-90)); // this is against the goal and wall, facing the obelisk
+        public static Pose closeOuter = new Pose(40.55, 53.5, Math.toRadians(90)); // this is up against the goal and secret tunnel
         public static Pose far = new Pose(-63.5, 15.75, Math.toRadians(0));
-        public static Pose reZeroAtCorner = new Pose(-65, -61, Math.toRadians(-90));
+        public static Pose reZeroAtCorner = new Pose(-57, -61, Math.toRadians(-90));
         public static Pose farZoneAutoPark = new Pose(-48, 12, Math.toRadians(90));
 
         static void convert(boolean toRed) {
@@ -136,7 +136,7 @@ public class Common {
 
         public static Pose fromStartCloseToMidShootControl = new Pose(45.3,49.6);
 
-        public static Pose panicShoot = new Pose(24, 24, Math.toRadians(0));
+        public static Pose panicShoot = new Pose();
 
         public static Pose optimalSpike1Start = new Pose(12.77,23.2, Math.toRadians(96));
         public static Pose optimalSpike2Start = new Pose(3.03,13.4, Math.toRadians(116));

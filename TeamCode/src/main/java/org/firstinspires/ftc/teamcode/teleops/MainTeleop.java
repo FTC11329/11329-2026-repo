@@ -224,6 +224,9 @@ public class MainTeleop {
         } else {
             robot.storeClimber();
         }
+        if (climb.startPress) {
+            robot.casualShooterModeOn();
+        }
 
 
         robot.setShooterOffset(rpmOffset, hoodAngleOffset);
