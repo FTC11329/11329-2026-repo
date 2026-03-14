@@ -1,9 +1,9 @@
 package org.firstinspires.ftc.teamcode.modularAutos.modules;
 
-import static org.firstinspires.ftc.teamcode.modularAutos.Common.ShootPoses;
 
 import androidx.annotation.NonNull;
 
+import org.firstinspires.ftc.teamcode.modularAutos.Common.*;
 import org.firstinspires.ftc.teamcode.modularAutos.PathPlanner;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.paths.PathChain;
@@ -58,7 +58,7 @@ public class FromStartFarPos {
                     setPathState(1);
                     break;
                 case 1:
-                    if (!robot.follower.isBusy()) {
+                    if ((robot.inShootingZone() || !robot.follower.isBusy()) && robot.movingSlowEnoughToShoot(false)) {
                         if (sort) {
                             robot.doSmartShoot(true);
                             robot.indexer.setQueuedBalls(robot.getMotif());
@@ -69,10 +69,10 @@ public class FromStartFarPos {
                     }
                     break;
                 case 2:
-                    if (pathTimer.getElapsedTimeSeconds() > 1.5 && !sort) {
-                        robot.indexerUnjam();
-                    }
-                    if (robot.indexer.isHasBallsEmpty() || (sort && robot.indexer.isQueuedBallsEmpty())) {
+//                    if (pathTimer.getElapsedTimeSeconds() > Timings.unjamTimeOutFar && !sort) {
+//                        robot.indexerUnjam();
+//                    }
+                    if (!robot.isIndexerUnjamming() && robot.indexer.isHasBallsEmpty() || (sort && robot.indexer.isQueuedBallsEmpty())) {
                         robot.doSmartShoot(false);
                         isFinished = true;
                     }

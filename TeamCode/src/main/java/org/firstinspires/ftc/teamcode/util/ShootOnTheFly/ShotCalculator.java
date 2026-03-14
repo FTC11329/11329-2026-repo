@@ -14,9 +14,12 @@ import org.locationtech.jts.math.Vector3D;
 
 public class ShotCalculator {
     public ShotSolution solveShot(ShotContext ctx, ShotType mode) {
+        return solveShot(ctx, mode, true);
+    }
+    public ShotSolution solveShot(ShotContext ctx, ShotType mode, boolean useSOTF) {
         switch (mode) {
             case TABLE:
-                return solveTableShot(ctx);
+                return solveTableShot(ctx, useSOTF);
             case PHYSICAL:
                 return solveIdealShot(ctx);
         }
@@ -29,7 +32,7 @@ public class ShotCalculator {
     double lastTOFtime;
     ShooterTestValues shooterTestValues;
     double previousTOF;
-    private ShotSolution solveTableShot(ShotContext ctx) {
+    private ShotSolution solveTableShot(ShotContext ctx, boolean useSOTF) {
 
         ShooterValuesParent stv = shooterTestValues;
         //todo: calculate RPM ratio in here
@@ -40,7 +43,12 @@ public class ShotCalculator {
 
 //        Vector velocity = ctx.velocity.plus(ctx.acceleration.times(.01)); // accounts for lag in reacting to sotf
         Vector velocity = ctx.velocity;
-        Pose futrGoal = ctx.goalPose.plusVector(velocity, -timeInFlight);
+        Pose futrGoal;
+        if (useSOTF) {
+            futrGoal = ctx.goalPose.plusVector(velocity, -timeInFlight);
+        } else {
+            futrGoal = ctx.goalPose;
+        }
 
         timeInFlight =
                 (1 / ctx.rpmRatio) *

@@ -189,7 +189,7 @@ public class MainTeleop {
         }
 
         if (autoShoot.isOn) {
-            robot.prepareShooter();
+            robot.prepareShooter(true);
         } else if (autoShoot.endPress) {
             robot.casualShooterModeOn();
         }

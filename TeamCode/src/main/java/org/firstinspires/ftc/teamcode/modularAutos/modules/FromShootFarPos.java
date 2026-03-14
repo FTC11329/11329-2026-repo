@@ -8,6 +8,7 @@ import org.firstinspires.ftc.teamcode.modularAutos.PathPlanner;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.BezierCurve;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.BezierLine;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
+import org.firstinspires.ftc.teamcode.pedroPathing.paths.HeadingInterpolator;
 import org.firstinspires.ftc.teamcode.pedroPathing.paths.Path;
 import org.firstinspires.ftc.teamcode.pedroPathing.paths.PathBuilder;
 import org.firstinspires.ftc.teamcode.pedroPathing.paths.PathChain;
@@ -72,7 +73,7 @@ public class FromShootFarPos {
             // Path creation
             pathChainBuilder = robot.follower.pathBuilder()
                     .addPath(new BezierCurve(startPose, IntakeBallPoses.intakeSpike2Start))
-                    .setConstantHeadingInterpolation(startPose);
+                    .setFastHeadingInterpolation(TValues.fastInterpolationIntakeStartFar, TValues.fastInterpolationIntakeEndFar);
             if (lever) {
                 pathChainBuilder.addPath(robot.follower.linearPathBuilder(IntakeBallPoses.intakeSpike2Start, IntakeBallPoses.pushLever));
                 toShootPose = new Path(new BezierLine(IntakeBallPoses.pushLever, lastPose));
@@ -121,7 +122,7 @@ public class FromShootFarPos {
                         setPathState(4);
                     }
                 case 4:
-                    if ((robot.inShootingZone() || !robot.follower.isBusy()) && robot.follower.getVelocity().getMagnitude() < Timings.shootVelocityFar) {
+                    if ((robot.inShootingZone() || !robot.follower.isBusy()) && robot.movingSlowEnoughToShoot(false)) {
                         if (sort) {
                             robot.doSmartShoot(true);
                             robot.indexer.setQueuedBalls(robot.getMotif());
@@ -132,10 +133,10 @@ public class FromShootFarPos {
                     }
                     break;
                 case 5:
-                    if (pathTimer.getElapsedTimeSeconds() > Timings.unjamTimeOut && !sort) {
+                    if (pathTimer.getElapsedTimeSeconds() > Timings.unjamTimeOutFar && !sort) {
                         robot.indexerUnjam();
                     }
-                    if (robot.indexer.isHasBallsEmpty() || (sort && robot.indexer.isQueuedBallsEmpty())) {
+                    if (! robot.isIndexerUnjamming() && robot.indexer.isHasBallsEmpty() || (sort && robot.indexer.isQueuedBallsEmpty())) {
 //                        robot.setShootFromPose(null);
                         robot.follower.setMaxPower(1);
                         robot.doSmartShoot(false);
@@ -209,7 +210,7 @@ public class FromShootFarPos {
         @Override
         public void buildPaths() {
             // Path creation
-            toIntakeSpike3 = robot.follower.fastPathChainBuilder(startPose, IntakeBallPoses.intakeSpike3StartFar, TValues.fastInterpolationIntakeStart);
+            toIntakeSpike3 = robot.follower.linearPathChainBuilder(startPose, IntakeBallPoses.intakeSpike3StartFar);
             finishIntakeSpike3 = robot.follower.linearPathChainBuilder(IntakeBallPoses.intakeSpike3StartFar, IntakeBallPoses.intakeSpike3End);
             toShootPose = robot.follower.fastPathChainBuilder(IntakeBallPoses.intakeSpike3End, lastPose, TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootStart, true);
         }
@@ -244,7 +245,7 @@ public class FromShootFarPos {
                     }
                     break;
                 case 4:
-                    if ((robot.inShootingZone() || !robot.follower.isBusy()) && robot.follower.getVelocity().getMagnitude() < Timings.shootVelocityFar) {
+                    if ((robot.inShootingZone() || !robot.follower.isBusy()) && robot.movingSlowEnoughToShoot(false)) {
                         if (sort) {
                             robot.doSmartShoot(true);
                             robot.indexer.setQueuedBalls(robot.getMotif());
@@ -255,10 +256,10 @@ public class FromShootFarPos {
                     }
                     break;
                 case 5:
-                    if (pathTimer.getElapsedTimeSeconds() > Timings.unjamTimeOut && !sort) {
+                    if (pathTimer.getElapsedTimeSeconds() > Timings.unjamTimeOutFar && !sort) {
                         robot.indexerUnjam();
                     }
-                    if (robot.indexer.isHasBallsEmpty() || (sort && robot.indexer.isQueuedBallsEmpty())) {
+                    if (!robot.isIndexerUnjamming() && robot.indexer.isHasBallsEmpty() || (sort && robot.indexer.isQueuedBallsEmpty())) {
                         robot.follower.setMaxPower(1);
                         robot.doSmartShoot(false);
                         isFinished = true;
@@ -392,7 +393,7 @@ public class FromShootFarPos {
                     }
                     break;
                 case 4:
-                    if ((robot.inShootingZone() || !robot.follower.isBusy()) && robot.follower.getVelocity().getMagnitude() < Timings.shootVelocityFar) {
+                    if ((robot.inShootingZone() || !robot.follower.isBusy()) && robot.movingSlowEnoughToShoot(false)) {
                         if (sort) {
                             robot.doSmartShoot(true);
                             robot.indexer.setQueuedBalls(robot.getMotif());
@@ -403,10 +404,10 @@ public class FromShootFarPos {
                     }
                     break;
                 case 5:
-                    if (pathTimer.getElapsedTimeSeconds() > Timings.unjamTimeOut && !sort) {
+                    if (pathTimer.getElapsedTimeSeconds() > Timings.unjamTimeOutFar && !sort) {
                         robot.indexerUnjam();
                     }
-                    if (robot.indexer.isHasBallsEmpty() || (sort && robot.indexer.isQueuedBallsEmpty())) {
+                    if (!robot.isIndexerUnjamming() && robot.indexer.isHasBallsEmpty() || (sort && robot.indexer.isQueuedBallsEmpty())) {
                         robot.follower.setMaxPower(1);
                         robot.doSmartShoot(false);
                         isFinished = true;
@@ -433,7 +434,7 @@ public class FromShootFarPos {
         // Variables
         Pose offset = new Pose();
         private Timer pathTimer;
-        private int state = 0;
+        private int state = -1;
         private boolean isFinished = false;
 
         // Pass-through Variables
@@ -441,6 +442,8 @@ public class FromShootFarPos {
         private Pose startPose;
         private Pose lastPose;
         private boolean sort;
+        private boolean visionFail = false;
+        PathPlanner failSafePath;
         public ToIntakeWVision(Robot robot, PathPlanner prevPlanner, boolean sort) {
             pathTimer = new Timer();
             this.robot = robot;
@@ -451,6 +454,8 @@ public class FromShootFarPos {
             } else {
                 startPose = prevPlanner.getEndPoseEst();
             }
+            failSafePath = new ToIntakeHuman(robot, prevPlanner, sort);
+            failSafePath.buildPaths();
         }
 
         @Override
@@ -465,7 +470,7 @@ public class FromShootFarPos {
 
         @Override
         public Pose getOptimalStartPose() {
-            return ShootPoses.optimalSpike3StartFar;
+            return ShootPoses.optimalVisionStartFar;
         }
         //Path initialization
         PathChain toIntakeBalls;
@@ -483,23 +488,34 @@ public class FromShootFarPos {
         Pose intakeBallPose;
         @Override
         public boolean run() {
+            if (visionFail) {
+                return failSafePath.run();
+            }
             switch (state) {
+                case -1:
+                    setPathState(0);
+                    break;
                 case 0:
+                    if (pathTimer.getElapsedTimeSeconds() > 0.5) {
+                        visionFail = true;
+                        robot.follower.breakFollowing();
+                        return false;
+                    }
                     intakeBallPose = robot.getIntakeBallPoseFromCam();
                     if (intakeBallPose != null) {
-                        double dx = intakeBallPose.getX() - startPose.getX();
-                        double dy = intakeBallPose.getY() - startPose.getY();
-                        double headingRadians = Math.atan2(dy, dx);
+//                        double dx = intakeBallPose.getX() - startPose.getX();
+//                        double dy = intakeBallPose.getY() - startPose.getY();
+//                        double headingRadians = Math.atan2(dy, dx);
 
-                        // intakeBallPose = intakeBallPose.setHeading(headingRadians); 
+                        // intakeBallPose = intakeBallPose.setHeading(headingRadians);
                         intakeBallPose = intakeBallPose.setHeading(StartPoses.closeOuter.getHeading()); // 90 but mirrored if need-be
-                        toIntakeBalls = robot.follower.fastPathChainBuilder(startPose, intakeBallPose, 0.4, 0.6);
+                        toIntakeBalls = robot.follower.fastPathChainBuilder(startPose, intakeBallPose, TValues.fastInterpolationIntakeStartFar, TValues.fastInterpolationIntakeEndFar);
                         robot.follower.followPath(toIntakeBalls);
                         setPathState(1);
                     }
                     break;
                 case 1:
-                    if (!robot.follower.isBusy() || pathTimer.getElapsedTimeSeconds() > 3 || robot.indexer.isHasBallsFull() || robot.basicallyHas3()) {
+                    if (!robot.follower.isBusy() || pathTimer.getElapsedTimeSeconds() > 2.5 || robot.indexer.isHasBallsFull() || robot.basicallyHas3() || (robot.follower.getVelocity().getMagnitude() < 2) && pathTimer.getElapsedTimeSeconds() > 0.75) {
                         toShootPose = robot.follower.fastPathChainBuilder(intakeBallPose, lastPose, TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootEnd, true);
 
                         robot.follower.followPath(toShootPose);
@@ -507,7 +523,7 @@ public class FromShootFarPos {
                     }
                     break;
                 case 2:
-                    if ((robot.inShootingZone() || !robot.follower.isBusy()) && robot.follower.getVelocity().getMagnitude() < Timings.shootVelocityFar) {
+                    if ((robot.inShootingZone() || !robot.follower.isBusy()) && robot.movingSlowEnoughToShoot(false)) {
                         if (sort) {
                             robot.doSmartShoot();
                             robot.indexer.setQueuedBalls(robot.getMotif());
@@ -518,7 +534,7 @@ public class FromShootFarPos {
                     }
                     break;
                 case 3:
-                    if (pathTimer.getElapsedTimeSeconds() > Timings.unjamTimeOut && !sort) {
+                    if (pathTimer.getElapsedTimeSeconds() > Timings.unjamTimeOutFar && !sort) {
                         robot.indexerUnjam();
                     }
                     if (robot.indexer.isHasBallsEmpty()) {
@@ -587,8 +603,13 @@ public class FromShootFarPos {
         PathChain toShootPose;
         @Override
         public void buildPaths() {
+            HeadingInterpolator.PiecewiseNode node1, node2;
+            node1 = new HeadingInterpolator.PiecewiseNode(0, 0.95, HeadingInterpolator.constant(IntakeBallPoses.intakeHuman.getHeading()));
+            node2 = new HeadingInterpolator.PiecewiseNode(0.95, 1, HeadingInterpolator.linear(IntakeBallPoses.intakeHuman.getHeading(), ShootPoses.farShoot.getHeading()));
+            HeadingInterpolator hInterp = HeadingInterpolator.piecewise(node1, node2);
             // Path creation
             toIntakeHuman = robot.follower.linearPathBuilder(startPose, IntakeBallPoses.intakeHuman);
+            toIntakeHuman.setHeadingInterpolation(hInterp);
             toShootPose = robot.follower.fastPathChainBuilder(IntakeBallPoses.intakeHuman, lastPose, TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootStart, true);
         }
 
@@ -610,7 +631,7 @@ public class FromShootFarPos {
                     }
                     break;
                 case 2:
-                    if (robot.indexer.isHasBallsFull() || robot.basicallyHas3() || pathTimer.getElapsedTimeSeconds() > Timings.humanIntakeTime) {
+                    if (robot.indexer.isHasBallsFull() || robot.basicallyHas3() || pathTimer.getElapsedTimeSeconds() > Timings.humanIntakeTime || robot.follower.getVelocity().getMagnitude() < 2 && pathTimer.getElapsedTimeSeconds() > 0.75) {
                         robot.follower.followPath(toShootPose);
                         setPathState(3);
                     }
@@ -634,10 +655,10 @@ public class FromShootFarPos {
                     }
                     break;
                 case 5:
-                    if (pathTimer.getElapsedTimeSeconds() > Timings.unjamTimeOut && !sort) {
+                    if (pathTimer.getElapsedTimeSeconds() > Timings.unjamTimeOutFar && !sort) {
                         robot.indexerUnjam();
                     }
-                    if (robot.indexer.isHasBallsEmpty() || (sort && robot.indexer.isQueuedBallsEmpty())) {
+                    if (!robot.isIndexerUnjamming() && robot.indexer.isHasBallsEmpty() || (sort && robot.indexer.isQueuedBallsEmpty())) {
                         robot.follower.setMaxPower(1);
                         robot.doSmartShoot(false);
                         isFinished = true;
@@ -740,7 +761,7 @@ public class FromShootFarPos {
                     }
                     break;
                 case 3:
-                    if ((robot.inShootingZone() || !robot.follower.isBusy()) && robot.follower.getVelocity().getMagnitude() < Timings.shootVelocityFar) {
+                    if ((robot.inShootingZone() || !robot.follower.isBusy()) && robot.movingSlowEnoughToShoot(false)) {
                         robot.doSmartShoot(true);
                         if (sort) {
                             robot.indexer.setQueuedBalls(robot.getMotif());
@@ -751,7 +772,7 @@ public class FromShootFarPos {
                     }
                     break;
                 case 4:
-                    if (robot.indexer.isHasBallsEmpty() || (sort && robot.indexer.isQueuedBallsEmpty())) {
+                    if (!robot.isIndexerUnjamming() && robot.indexer.isHasBallsEmpty() || (sort && robot.indexer.isQueuedBallsEmpty())) {
                         robot.follower.setMaxPower(1);
                         robot.doSmartShoot(false);
                         isFinished = true;

@@ -8,6 +8,9 @@ public interface PathPlanner {
     default boolean hasComms() {
         return false;
     }
+    default boolean useSOTF() {
+        return false;
+    }
     default void setOptimalEndPose(Pose optimalEndPose) {}
     default Pose getOptimalStartPose() {
         return null;

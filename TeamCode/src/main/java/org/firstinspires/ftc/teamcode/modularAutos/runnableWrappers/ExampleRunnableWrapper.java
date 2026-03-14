@@ -81,7 +81,7 @@ public class ExampleRunnableWrapper extends OpMode {
         robot.start();
         steps.get(currentStep).buildPaths();
         robot.spinIntake();
-        robot.setPipelineIndex(3);
+        robot.setPipelineIndex(2);
     }
 
     boolean firstDeInit = false;
@@ -90,6 +90,7 @@ public class ExampleRunnableWrapper extends OpMode {
         // to stop the auto
         if (robot.getOpmodeTimeSeconds() > 30) {
             telemetry.addData("Done", true);
+            telemetry.addData("Time ", 2 - zeroVelocityTimer.getElapsedTimeSeconds());
             telemetry.update();
 
             robot.stopAllSubsystems();
@@ -104,15 +105,13 @@ public class ExampleRunnableWrapper extends OpMode {
         }
 
         robot.update();
-        robot.prepareShooter();
-        Drawing.drawShapesDebug(robot.follower);
 
         if (!parkPathFollowed && robot.getOpmodeTimeSeconds() > 29.25 && (
                 (   (
                         ShapeDetection.doesRobotCrossLine(FieldShapes.closeTriangle, robot.getCurrentPose()) ||
                                 ShapeDetection.doesRobotCrossLine(FieldShapes.farTriangle, robot.getCurrentPose())
                 ) &&
-                        robot.follower.getVelocity().getMagnitude() < Common.Timings.shootVelocity
+                        robot.follower.getVelocity().getMagnitude() < Common.Timings.shootVelocityClose
                 ) ||
                         !ShapeDetection.isRobotInside(FieldShapes.closeTriangle, robot.getCurrentPose())
         )
@@ -120,7 +119,7 @@ public class ExampleRunnableWrapper extends OpMode {
             if (robot.getCurrentPose().getX() > - 25) {
                 robot.follower.followPath(robot.follower.linearPathBuilder(Common.ShootPoses.parkShoot, Common.IntakeBallPoses.intakeSpike2Start));
             } else {
-                robot.follower.followPath(robot.follower.linearPathBuilder(Common.ShootPoses.farShoot, Common.StartPoses.farZoneAutoPark));
+                robot.follower.followPath(robot.follower.linearPathBuilder(Common.ShootPoses.farShoot, Common.IntakeBallPoses.intakeSpike3StartFar));
             }
             parkPathFollowed = true;
             return;
@@ -135,6 +134,8 @@ public class ExampleRunnableWrapper extends OpMode {
             telemetry.update();
             return;
         }
+
+        robot.prepareShooter(steps.get(currentStep).useSOTF());
 
         PathPlanner step = steps.get(currentStep);
         boolean done = step.run();

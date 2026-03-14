@@ -10,7 +10,6 @@ import androidx.annotation.NonNull;
 import org.firstinspires.ftc.teamcode.modularAutos.PathPlanner;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.BezierCurve;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
-import org.firstinspires.ftc.teamcode.pedroPathing.paths.Path;
 import org.firstinspires.ftc.teamcode.pedroPathing.paths.PathBuilder;
 import org.firstinspires.ftc.teamcode.pedroPathing.paths.PathChain;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
@@ -102,7 +101,7 @@ public class FromShootMidPosFast {
                     }
                     break;
                 case 3:
-                    if ((robot.inShootingZone() || !robot.follower.isBusy()) && (parkAfter || robot.follower.getVelocity().getMagnitude() < Timings.shootVelocity)) {
+                    if ((robot.inShootingZone() || !robot.follower.isBusy()) && (parkAfter || robot.follower.getVelocity().getMagnitude() < Timings.shootVelocityClose)) {
                         if (parkAfter) {
                             robot.follower.setMaxPower(DrivePower.shootOnThFly);
                         }
@@ -222,7 +221,7 @@ public class FromShootMidPosFast {
                     }
                     break;
                 case 3:
-                    if ((robot.inShootingZone() || !robot.follower.isBusy()) && (parkAfter || robot.follower.getVelocity().getMagnitude() < Timings.shootVelocity)) {
+                    if ((robot.inShootingZone() || !robot.follower.isBusy()) && (parkAfter || robot.follower.getVelocity().getMagnitude() < Timings.shootVelocityClose)) {
                         if (parkAfter) {
                             robot.follower.setMaxPower(DrivePower.shootOnThFly);
                         }
@@ -344,7 +343,7 @@ public class FromShootMidPosFast {
                     }
                     break;
                 case 3:
-                    if ((robot.inShootingZone() || !robot.follower.isBusy()) && (parkAfter || robot.follower.getVelocity().getMagnitude() < Timings.shootVelocity)) {
+                    if ((robot.inShootingZone() || !robot.follower.isBusy()) && (parkAfter || robot.follower.getVelocity().getMagnitude() < Timings.shootVelocityClose)) {
                         if (parkAfter) {
                             robot.follower.setMaxPower(DrivePower.shootOnThFly);
                         }
@@ -492,7 +491,7 @@ public class FromShootMidPosFast {
                     }
                     break;
                 case 4:
-                    if ((robot.inShootingZone() || !robot.follower.isBusy()) && robot.follower.getVelocity().getMagnitude() < Timings.shootVelocity) {
+                    if ((robot.inShootingZone() || !robot.follower.isBusy()) && robot.follower.getVelocity().getMagnitude() < Timings.shootVelocityClose) {
                         if (parkAfter) {
                             robot.follower.setMaxPower(DrivePower.shootOnThFly);
                         }

@@ -3,16 +3,12 @@ package org.firstinspires.ftc.teamcode.modularAutos.runnableWrappers;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.modularAutos.Common;
 import org.firstinspires.ftc.teamcode.modularAutos.PathPlanner;
 import org.firstinspires.ftc.teamcode.modularAutos.modules.Commands;
 import org.firstinspires.ftc.teamcode.modularAutos.modules.FromShootFarPos;
-import org.firstinspires.ftc.teamcode.modularAutos.modules.FromShootMidPos;
-import org.firstinspires.ftc.teamcode.modularAutos.modules.FromShootMidPosFast;
-import org.firstinspires.ftc.teamcode.modularAutos.modules.FromStartClosePos;
 import org.firstinspires.ftc.teamcode.modularAutos.modules.FromStartFarPos;
 import org.firstinspires.ftc.teamcode.pedroPathing.Drawing;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
@@ -57,6 +53,8 @@ public class AutoTester extends OpMode {
         steps.add(new FromShootFarPos.ToIntakeSpike3 (robot, lastPlanner(), false));
         steps.add(new FromShootFarPos.ToIntakeHuman  (robot, lastPlanner(), false));
         steps.add(new FromShootFarPos.ToIntakeWVision(robot, lastPlanner(), false));
+        steps.add(new FromShootFarPos.ToIntakeWVision(robot, lastPlanner(), false));
+        steps.add(new FromShootFarPos.ToIntakeWVision(robot, lastPlanner(), false));
 
         wComms(steps);
 
@@ -87,7 +85,7 @@ public class AutoTester extends OpMode {
         steps.get(currentStep).buildPaths();
         robot.spinIntake();
         lastTime = System.nanoTime();
-        robot.setPipelineIndex(3);
+        robot.setPipelineIndex(2);
     }
 
     boolean firstDeInit = false;
@@ -96,6 +94,7 @@ public class AutoTester extends OpMode {
         // to stop the auto
         if (robot.getOpmodeTimeSeconds() > 30) {
             telemetry.addData("Done", true);
+            telemetry.addData("Time ", 2 - zeroVelocityTimer.getElapsedTimeSeconds());
             telemetry.update();
 
             robot.stopAllSubsystems();
@@ -110,14 +109,13 @@ public class AutoTester extends OpMode {
         }
 
         robot.update();
-        robot.prepareShooter();
 
         if (!parkPathFollowed && robot.getOpmodeTimeSeconds() > 29.25 && (
                 (   (
                         ShapeDetection.doesRobotCrossLine(FieldShapes.closeTriangle, robot.getCurrentPose()) ||
                                 ShapeDetection.doesRobotCrossLine(FieldShapes.farTriangle, robot.getCurrentPose())
                 ) &&
-                        robot.follower.getVelocity().getMagnitude() < Common.Timings.shootVelocity
+                        robot.follower.getVelocity().getMagnitude() < Common.Timings.shootVelocityClose
                 ) ||
                         !ShapeDetection.isRobotInside(FieldShapes.closeTriangle, robot.getCurrentPose())
         )
@@ -125,7 +123,7 @@ public class AutoTester extends OpMode {
             if (robot.getCurrentPose().getX() > - 25) {
                 robot.follower.followPath(robot.follower.linearPathBuilder(Common.ShootPoses.parkShoot, Common.IntakeBallPoses.intakeSpike2Start));
             } else {
-                robot.follower.followPath(robot.follower.linearPathBuilder(Common.ShootPoses.farShoot, Common.StartPoses.farZoneAutoPark));
+                robot.follower.followPath(robot.follower.linearPathBuilder(Common.ShootPoses.farShoot, Common.IntakeBallPoses.intakeSpike3StartFar));
             }
             parkPathFollowed = true;
             return;
@@ -141,6 +139,8 @@ public class AutoTester extends OpMode {
             return;
         }
 
+        robot.prepareShooter(steps.get(currentStep).useSOTF());
+
         PathPlanner step = steps.get(currentStep);
         boolean done = step.run();
 
@@ -153,7 +153,7 @@ public class AutoTester extends OpMode {
         }
 
 //        Drawing.drawDebug(robot.follower);
-        Drawing.drawShapesDebug(robot.follower);
+//        Drawing.drawShapesDebug(robot.follower);
 //        telemetry.addData("time", robot.getOpmodeTimeSeconds());
         telemetry.addData("name", step);
 //        for (BallColor i : robot.indexer.getBallCells()) {

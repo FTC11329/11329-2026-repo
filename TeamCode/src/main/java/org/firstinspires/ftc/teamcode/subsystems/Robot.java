@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import static org.firstinspires.ftc.teamcode.pedroPathing.Tuning.follower;
+
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.hardware.lynx.LynxModule;
@@ -14,6 +16,7 @@ import org.firstinspires.ftc.teamcode.modularAutos.Common;
 import org.firstinspires.ftc.teamcode.pedroPathing.Drawing;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
+import org.firstinspires.ftc.teamcode.pedroPathing.math.Vector;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.FieldShapes;
@@ -201,11 +204,13 @@ public class Robot {
         if (set){
             List<Vision.DetectedBall> detectedBalls = vision.searchForBalls(getCurrentPose());
             if (!detectedBalls.isEmpty()) {
-                setPipelineIndex(0);
+//                setPipelineIndex(0);
+                for (Vision.DetectedBall ball: detectedBalls) {
+                    telemetry.addData("detected balls", ball);
+                }
                 return meanBallPoses.getIntakeTarget(detectedBalls);
             }
         }
-        setPipelineIndex(0);
         return null;
     }
     public void setOffset(double distanceOffset, double turretOffset){
@@ -257,7 +262,12 @@ public class Robot {
 
     public void prepareShooter() {
         prepareShooter(ShotType.TABLE);
-        usePID = true;
+    }
+    public void prepareShooter(boolean doSOTF) {
+        prepareShooter(ShotType.TABLE, doSOTF);
+    }
+    public void prepareShooter(ShotType shotType) {
+        prepareShooter(shotType, true);
     }
     double rpmOffset;
     double hoodAngleOffset;
@@ -266,7 +276,8 @@ public class Robot {
         this.rpmOffset = rpmOffset;
     }
     double rpmRatio = 1;
-    public void prepareShooter(ShotType shotType) {
+    public void prepareShooter(ShotType shotType, boolean useSOTF) {
+        usePID = true;
         ShotContext ctx = new ShotContext();
 
         if (shootFromPose == null) {
@@ -287,8 +298,7 @@ public class Robot {
         ctx.rpmRatio = rpmRatio;
         ctx.distanceOffset = distanceOffset;
 
-
-        ShotSolution s = shotCalculator.solveShot(ctx, shotType);
+        ShotSolution s = shotCalculator.solveShot(ctx, shotType, useSOTF);
 
         // expose turret feedforward
         angleToGoalVelocity = s.turretVel;
@@ -364,7 +374,7 @@ public class Robot {
         }
 
         boolean dontAllowIntaking = indexer.shooting && intake.isBeamBroken();
-        intake.update(spitIntake || indexer.unjam, isIntaking, indexer.shooting, indexer.doSpit(), indexer.allowIntaking() && !dontAllowIntaking, indexer.isPlugged(), intakeOverride);
+        intake.update(spitIntake || isIndexerUnjamming(), isIntaking, indexer.shooting, indexer.doSpit(), indexer.allowIntaking() && !dontAllowIntaking, indexer.isPlugged(), intakeOverride);
     }
 
 
@@ -393,6 +403,10 @@ public class Robot {
     public void indexerUnjam() {
         indexer.unjam();
     }
+    public boolean isIndexerUnjamming() {
+        return indexer.unjam;
+    }
+
     public boolean basicallyHas3() {
         return indexer.isPlugged() && intake.isBeamBroken();
     }
@@ -455,8 +469,18 @@ public class Robot {
         return opmodeTimer.getElapsedTimeSeconds();
     }
 
-    double lastTimeLoop;
+    public boolean movingSlowEnoughToShoot(boolean close) {
+        if (close) {
+            return follower.getVelocity().getMagnitude() < Common.Timings.shootVelocityClose;
+        } else {
+            return follower.getVelocity().getMagnitude() < Common.Timings.shootVelocityFar && follower.getAcceleration().getMagnitude() < Common.Timings.shootAccelerationFar;
+        }
+    }
+
+
+
     // SYSTEM**************************************************************************************~
+    double lastTimeLoop;
     public void start() {
         lastTimeLoop = System.nanoTime();
         resetTimers();
@@ -486,9 +510,10 @@ public class Robot {
         if (debug) {
             debug();
         }
-        panelsTelemetry.addData("turret pos", turret.getAngle());
-        panelsTelemetry.addData("turret target", turret.turretPID.getTargetPosition());
-        panelsTelemetry.addData("turret error", turret.turretPID.getError());
+        panelsTelemetry.addData("Velocity" , follower.getVelocity().getMagnitude());
+        panelsTelemetry.addData("Acceleration" , follower.getAcceleration().getMagnitude());
+        panelsTelemetry.addData("Acceleration" , follower.getAcceleration().getMagnitude());
+
 
         panelsTelemetry.update();
     }

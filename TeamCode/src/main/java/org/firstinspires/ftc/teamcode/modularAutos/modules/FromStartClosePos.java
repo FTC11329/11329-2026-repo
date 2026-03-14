@@ -73,16 +73,11 @@ public class FromStartClosePos {
                     break;
                 case 1:
                     if (!robot.follower.isBusy()) {
+                        robot.indexer.shootAll();
                         setPathState(2);
                     }
                     break;
                 case 2:
-                    if (pathTimer.getElapsedTimeSeconds() > 0.1) {
-                        robot.indexer.shootAll();
-                        setPathState(3);
-                    }
-                    break;
-                case 3:
                     if (pathTimer.getElapsedTimeSeconds() > Timings.unjamTimeOut) {
                         robot.indexerUnjam();
                     }

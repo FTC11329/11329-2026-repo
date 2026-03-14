@@ -83,7 +83,7 @@ public class RedClose21Ball extends OpMode {
         steps.get(currentStep).buildPaths();
         robot.spinIntake();
         lastTime = System.nanoTime();
-        robot.setPipelineIndex(3);
+        robot.setPipelineIndex(2);
     }
 
     boolean firstDeInit = false;
@@ -92,6 +92,7 @@ public class RedClose21Ball extends OpMode {
         // to stop the auto
         if (robot.getOpmodeTimeSeconds() > 30) {
             telemetry.addData("Done", true);
+            telemetry.addData("Time ", 2 - zeroVelocityTimer.getElapsedTimeSeconds());
             telemetry.update();
 
             robot.stopAllSubsystems();
@@ -106,14 +107,13 @@ public class RedClose21Ball extends OpMode {
         }
 
         robot.update();
-        robot.prepareShooter();
 
         if (!parkPathFollowed && robot.getOpmodeTimeSeconds() > 29.25 && (
                 (   (
                         ShapeDetection.doesRobotCrossLine(FieldShapes.closeTriangle, robot.getCurrentPose()) ||
                                 ShapeDetection.doesRobotCrossLine(FieldShapes.farTriangle, robot.getCurrentPose())
                 ) &&
-                        robot.follower.getVelocity().getMagnitude() < Common.Timings.shootVelocity
+                        robot.follower.getVelocity().getMagnitude() < Common.Timings.shootVelocityClose
                 ) ||
                         !ShapeDetection.isRobotInside(FieldShapes.closeTriangle, robot.getCurrentPose())
         )
@@ -121,7 +121,7 @@ public class RedClose21Ball extends OpMode {
             if (robot.getCurrentPose().getX() > - 25) {
                 robot.follower.followPath(robot.follower.linearPathBuilder(Common.ShootPoses.parkShoot, Common.IntakeBallPoses.intakeSpike2Start));
             } else {
-                robot.follower.followPath(robot.follower.linearPathBuilder(Common.ShootPoses.farShoot, Common.StartPoses.farZoneAutoPark));
+                robot.follower.followPath(robot.follower.linearPathBuilder(Common.ShootPoses.farShoot, Common.IntakeBallPoses.intakeSpike3StartFar));
             }
             parkPathFollowed = true;
             return;
@@ -136,6 +136,7 @@ public class RedClose21Ball extends OpMode {
             telemetry.update();
             return;
         }
+        robot.prepareShooter(steps.get(currentStep).useSOTF());
 
         PathPlanner step = steps.get(currentStep);
         boolean done = step.run();
@@ -151,7 +152,7 @@ public class RedClose21Ball extends OpMode {
 //        Drawing.drawDebug(robot.follower);
 //        Drawing.drawShapesDebug(robot.follower);
 //        telemetry.addData("time", robot.getOpmodeTimeSeconds());
-        telemetry.addData("name", step);
+//        telemetry.addData("name", step);
 //        for (BallColor i : robot.indexer.getBallCells()) {
 //            telemetry.addData("hasBalls", i);
 //        }

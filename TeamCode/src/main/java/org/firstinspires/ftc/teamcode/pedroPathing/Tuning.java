@@ -161,6 +161,8 @@ class LocalizationTest extends OpMode {
         telemetryM.debug("y:" + follower.getPose().getY());
         telemetryM.debug("heading (Rad):" + follower.getPose().getHeading());
         telemetryM.debug("heading (Deg):" + Math.toDegrees(follower.getPose().getHeading()));
+        telemetryM.debug("Velocity" + Math.round(follower.getVelocity().getMagnitude()));
+        telemetryM.debug("Acceleration" + Math.round(follower.getAcceleration().getMagnitude()));
 //        telemetryM.debug("total heading:" + follower.getTotalHeading());
         Drawing.drawDebug(follower);
         telemetryM.update(telemetry);
