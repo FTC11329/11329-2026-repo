@@ -133,7 +133,7 @@ public class FromShootFarPos {
                     }
                     break;
                 case 5:
-                    if (pathTimer.getElapsedTimeSeconds() > Timings.unjamTimeOutFar && !sort) {
+                    if (pathTimer.getElapsedTimeSeconds() > Timings.unjamTimeOutFar && pathTimer.getElapsedTimeSeconds() < Timings.unjamTimeOutFar + 0.5 && !sort) {
                         robot.indexerUnjam();
                     }
                     if (! robot.isIndexerUnjamming() && robot.indexer.isHasBallsEmpty() || (sort && robot.indexer.isQueuedBallsEmpty())) {
@@ -256,7 +256,7 @@ public class FromShootFarPos {
                     }
                     break;
                 case 5:
-                    if (pathTimer.getElapsedTimeSeconds() > Timings.unjamTimeOutFar && !sort) {
+                    if (pathTimer.getElapsedTimeSeconds() > Timings.unjamTimeOutFar && pathTimer.getElapsedTimeSeconds() < Timings.unjamTimeOutFar + 0.5 && !sort) {
                         robot.indexerUnjam();
                     }
                     if (!robot.isIndexerUnjamming() && robot.indexer.isHasBallsEmpty() || (sort && robot.indexer.isQueuedBallsEmpty())) {
@@ -404,7 +404,7 @@ public class FromShootFarPos {
                     }
                     break;
                 case 5:
-                    if (pathTimer.getElapsedTimeSeconds() > Timings.unjamTimeOutFar && !sort) {
+                    if (pathTimer.getElapsedTimeSeconds() > Timings.unjamTimeOutFar && pathTimer.getElapsedTimeSeconds() < Timings.unjamTimeOutFar + 0.5 && !sort) {
                         robot.indexerUnjam();
                     }
                     if (!robot.isIndexerUnjamming() && robot.indexer.isHasBallsEmpty() || (sort && robot.indexer.isQueuedBallsEmpty())) {
@@ -534,7 +534,7 @@ public class FromShootFarPos {
                     }
                     break;
                 case 3:
-                    if (pathTimer.getElapsedTimeSeconds() > Timings.unjamTimeOutFar && !sort) {
+                    if (pathTimer.getElapsedTimeSeconds() > Timings.unjamTimeOutFar && pathTimer.getElapsedTimeSeconds() < Timings.unjamTimeOutFar + 0.5 && !sort) {
                         robot.indexerUnjam();
                     }
                     if (robot.indexer.isHasBallsEmpty()) {
@@ -655,7 +655,7 @@ public class FromShootFarPos {
                     }
                     break;
                 case 5:
-                    if (pathTimer.getElapsedTimeSeconds() > Timings.unjamTimeOutFar && !sort) {
+                    if (pathTimer.getElapsedTimeSeconds() > Timings.unjamTimeOutFar && pathTimer.getElapsedTimeSeconds() < Timings.unjamTimeOutFar + 0.5 && !sort) {
                         robot.indexerUnjam();
                     }
                     if (!robot.isIndexerUnjamming() && robot.indexer.isHasBallsEmpty() || (sort && robot.indexer.isQueuedBallsEmpty())) {

@@ -69,9 +69,9 @@ public class FromStartFarPos {
                     }
                     break;
                 case 2:
-//                    if (pathTimer.getElapsedTimeSeconds() > Timings.unjamTimeOutFar && !sort) {
-//                        robot.indexerUnjam();
-//                    }
+                    if (pathTimer.getElapsedTimeSeconds() > Timings.unjamTimeOutFar && pathTimer.getElapsedTimeSeconds() < Timings.unjamTimeOutFar + 0.5 && !sort) {
+                        robot.indexerUnjam();
+                    }
                     if (!robot.isIndexerUnjamming() && robot.indexer.isHasBallsEmpty() || (sort && robot.indexer.isQueuedBallsEmpty())) {
                         robot.doSmartShoot(false);
                         isFinished = true;

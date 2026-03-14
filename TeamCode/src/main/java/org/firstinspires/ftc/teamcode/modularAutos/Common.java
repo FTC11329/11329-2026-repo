@@ -18,8 +18,8 @@ public class Common {
         public static double fastInterpolationIntakeStartFar = 0.5;
         public static double fastInterpolationIntakeEndFar = 0.65;
 
-        public static double fastInterpolationSpikeShootStart = 0.65;
-        public static double fastInterpolationSpikeShootEnd = 0.8;
+        public static double fastInterpolationSpikeShootStart = 0.8;
+        public static double fastInterpolationSpikeShootEnd = 0.9;
 
         public static double fastInterpolationLeverStart = 0.7;
         public static double fastInterpolationLeverEnd = 0.8;
@@ -97,7 +97,7 @@ public class Common {
 
         public static Pose movingToPushLeverControlPoint = new Pose(-3.8, 25.3);
         public static Pose pushLeverAfterSpike = new Pose(-0.4,56.1, Math.toRadians(60));
-        public static Pose pushLever = new Pose(-11.75, 58.05, Math.toRadians(63));
+        public static Pose pushLever = new Pose(-11.75, 58.55, Math.toRadians(63));
         public static Pose intakeFromSTunnel = new Pose(-17, 58.25, Math.toRadians(45)); // pointing at ramp
 
         public static Pose intakeHuman = new Pose(-62.5,62, Math.toRadians(120));
@@ -153,7 +153,7 @@ public class Common {
         public static Pose optimalHumanPlayerStart = new Pose(8.24,15.25, Math.toRadians(155));
         public static Pose optimalVisionStart = new Pose(8.24,15.25, Math.toRadians(155));
 
-        public static Pose optimalLeverStart = new Pose(10.7, 21.6, Math.toRadians(122));
+        public static Pose optimalLeverStart = new Pose(14.7, 25.6, Math.toRadians(135));
 
         public static Pose optimalSpike2StartFar = new Pose(-52.5,20.2, Math.toRadians(20));
         public static Pose optimalSpike3StartFar = new Pose(-51.13,18.9, Math.toRadians(76));

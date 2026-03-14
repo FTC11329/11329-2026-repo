@@ -246,6 +246,7 @@ public class Robot {
     }
 
     public void casualShooterModeOn() {
+        turret.setTargetDeg(180);
         shooter.casualModeOn();
         usePID = false;
     }

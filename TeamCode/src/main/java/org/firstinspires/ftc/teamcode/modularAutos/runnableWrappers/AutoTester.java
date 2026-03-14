@@ -49,6 +49,7 @@ public class AutoTester extends OpMode {
         //Todo
         startPose = Common.StartPoses.far;
 
+
         steps.add(new FromStartFarPos.ShootPreloads  (robot, lastPlanner(), false));
         steps.add(new FromShootFarPos.ToIntakeSpike3 (robot, lastPlanner(), false));
         steps.add(new FromShootFarPos.ToIntakeHuman  (robot, lastPlanner(), false));
@@ -58,6 +59,10 @@ public class AutoTester extends OpMode {
 
         wComms(steps);
 
+        if (startPose.getX() < 0) {
+            robot.follower.getConstraints().setBrakingStart(1.25);
+            robot.follower.getConstraints().setBrakingStrength(0.75);
+        }
         robot.follower.setPose(startPose);
         panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
     }

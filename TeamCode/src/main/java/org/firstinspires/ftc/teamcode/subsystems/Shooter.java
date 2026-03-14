@@ -206,8 +206,8 @@ public class Shooter {
             if (!isGettingUpToSpeed) {
                 isGettingUpToSpeed = true;
             }
-//            setPower(0.5);
-        } else/* if (panicShoot)*/ {
+            setPower(0);
+        } else /* if (panicShoot)*/ {
             if (panicShootButton) {
                 setPower(1);
             } else {

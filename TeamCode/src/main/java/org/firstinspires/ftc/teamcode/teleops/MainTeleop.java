@@ -110,8 +110,8 @@ public class MainTeleop {
         if (gamepad2.bWasPressed() || gamepad1.bWasPressed()) {
             startPose = new Pose();
             robot.follower.setPose(startPose);
-            robot.turret.encoderOffset = 0;
-            robot.indexer.encoderOffsetFromAuto = 12830;
+            robot.turret.encoderOffset = 12830;
+            robot.indexer.encoderOffsetFromAuto = 0;
             robot.indexer.setIndexerPos(0);
         }
 
@@ -168,7 +168,7 @@ public class MainTeleop {
         if (spitIntake.endPress) {
             robot.spitIntake(false);
         }
-        if (intake.isOn){
+        if (intake.isOn && !climb.isOn){
             robot.doIntake();
         } else {
             robot.stopIntake();
@@ -188,10 +188,13 @@ public class MainTeleop {
             robot.shootAll();
         }
 
-        if (autoShoot.isOn) {
+        if (autoShoot.isOn && !climb.isOn) {
             robot.prepareShooter(true);
-        } else if (autoShoot.endPress) {
+        } else if (autoShoot.endPress || climb.endPress) {
             robot.casualShooterModeOn();
+        }
+        if (climb.isOn) {
+            robot.turret.update(0);
         }
 
         if (unjamSpindexer.startPress) {

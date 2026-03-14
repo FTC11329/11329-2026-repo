@@ -52,10 +52,14 @@ public class RedClose21Ball extends OpMode {
         steps.add(new FromShootMidPos.ToIntakeSpike1  (robot, lastPlanner(), false, false, false));
         steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPlanner(), false, false, true));
         steps.add(new FromShootMidPos.ToIntakeSpike3  (robot, lastPlanner(), false, false));
-        steps.add(new FromShootMidPos.ToIntakeHuman   (robot, lastPlanner(), false, false));
+        steps.add(new FromShootMidPos.ToIntakeHumanWVision(robot, lastPlanner(), false, false));
 
         wComms(steps);
 
+        if (startPose.getX() < 0) {
+            robot.follower.getConstraints().setBrakingStart(1.25);
+            robot.follower.getConstraints().setBrakingStrength(0.75);
+        }
         robot.follower.setPose(startPose);
         panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
     }

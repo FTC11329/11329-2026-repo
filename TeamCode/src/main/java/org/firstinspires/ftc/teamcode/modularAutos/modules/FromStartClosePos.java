@@ -41,6 +41,11 @@ public class FromStartClosePos {
         }
 
         @Override
+        public boolean useSOTF() {
+            return true;
+        }
+
+        @Override
         public void setOptimalEndPose(Pose optimalEndPose) {
             lastPose = optimalEndPose;
         }
@@ -78,7 +83,7 @@ public class FromStartClosePos {
                     }
                     break;
                 case 2:
-                    if (pathTimer.getElapsedTimeSeconds() > Timings.unjamTimeOut) {
+                    if (pathTimer.getElapsedTimeSeconds() > Timings.unjamTimeOutFar && pathTimer.getElapsedTimeSeconds() < Timings.unjamTimeOutFar + 0.5) {
                         robot.indexerUnjam();
                     }
                     if (robot.indexer.isHasBallsEmpty()) {
