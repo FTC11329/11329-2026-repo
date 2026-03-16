@@ -977,7 +977,7 @@ public class FromShootMidPos {
                     }
                     break;
                 case 2:
-                    if (!robot.follower.isBusy()) {
+                    if ((robot.inShootingZone() || !robot.follower.isBusy()) && (parkAfter || robot.movingSlowEnoughToShoot(true))) {
                         if (sort) {
                             robot.doSmartShoot();
                             robot.indexer.setQueuedBalls(robot.getMotif());

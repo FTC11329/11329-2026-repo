@@ -18,14 +18,14 @@ public class Common {
         public static double fastInterpolationIntakeStartFar = 0.5;
         public static double fastInterpolationIntakeEndFar = 0.65;
 
-        public static double fastInterpolationSpikeShootStart = 0.8;
-        public static double fastInterpolationSpikeShootEnd = 0.9;
+        public static double fastInterpolationSpikeShootStart = 0.65;
+        public static double fastInterpolationSpikeShootEnd = 0.8;
 
         public static double fastInterpolationLeverStart = 0.7;
         public static double fastInterpolationLeverEnd = 0.8;
 
-        public static double fastInterpolationPreloadStart = 0.7;
-        public static double fastInterpolationPreloadEnd = 0.85;
+        public static double fastInterpolationPreloadStart = 0.65;
+        public static double fastInterpolationPreloadEnd = 0.8;
 
     }
     public static class Timings {
@@ -38,7 +38,7 @@ public class Common {
         public static double fastSpikeIntakeTimeOut = 1.25;
 
         public static double shortLeverPressTime = 0.3;
-        public static double longLeverPressTime = 1.5;
+        public static double longLeverPressTime = 2.5;
         public static double shortSTunnelIntakeTimeOut = 1.2;
         public static double longSTunnelIntakeTimeOut = 0;
 
@@ -97,7 +97,7 @@ public class Common {
 
         public static Pose movingToPushLeverControlPoint = new Pose(-3.8, 25.3);
         public static Pose pushLeverAfterSpike = new Pose(-0.4,56.1, Math.toRadians(60));
-        public static Pose pushLever = new Pose(-11.75, 58.55, Math.toRadians(63));
+        public static Pose pushLever = new Pose(-11.75, 58.9, Math.toRadians(63));
         public static Pose intakeFromSTunnel = new Pose(-17, 58.25, Math.toRadians(45)); // pointing at ramp
 
         public static Pose intakeHuman = new Pose(-62.5,62, Math.toRadians(120));

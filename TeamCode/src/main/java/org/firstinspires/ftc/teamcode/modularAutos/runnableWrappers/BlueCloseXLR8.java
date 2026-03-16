@@ -22,8 +22,8 @@ import org.firstinspires.ftc.teamcode.util.ShapeDetection;
 import java.util.ArrayList;
 import java.util.List;
 
-@Autonomous(name = "Red Close 21", group = "0Comp", preselectTeleOp = "Main Teleop Red")
-public class RedClose21Ball extends OpMode {
+@Autonomous(name = "Blue Close XLR8", group = "2Specific", preselectTeleOp = "Main Teleop Blue")
+public class BlueCloseXLR8 extends OpMode {
     Pose startPose;
     RobotSide robotSide;
     Robot robot;
@@ -37,7 +37,7 @@ public class RedClose21Ball extends OpMode {
 
     @Override
     public void init() {
-        robotSide = RobotSide.Red;
+        robotSide = RobotSide.Blue;
         robot = new Robot(telemetry, hardwareMap, robotSide, 0,0,
                 new BallColor[]{
                         BallColor.Green,
@@ -49,10 +49,9 @@ public class RedClose21Ball extends OpMode {
         steps.add(new FromStartClosePos.ShootAndGoToMidShootPos(robot, lastPlanner()));
         steps.add(new FromShootMidPos.ToIntakeSpike2  (robot, lastPlanner(), false, false, false));
         steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPlanner(), false, false, true));
-        steps.add(new FromShootMidPos.ToIntakeSpike1  (robot, lastPlanner(), false, false, false));
         steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPlanner(), false, false, true));
-        steps.add(new FromShootMidPos.ToIntakeSpike3  (robot, lastPlanner(), false, false));
-        steps.add(new FromShootMidPos.ToIntakeHuman   (robot, lastPlanner(), false, false));
+        steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPlanner(), false, false, true));
+        steps.add(new FromShootMidPos.ToIntakeSpike1  (robot, lastPlanner(), false, false, false));
 
         wComms(steps);
 
@@ -122,11 +121,7 @@ public class RedClose21Ball extends OpMode {
                         !ShapeDetection.isRobotInside(FieldShapes.closeTriangle, robot.getCurrentPose())
         )
         ) {
-            if (robot.getCurrentPose().getX() > - 25) {
-                robot.follower.followPath(robot.follower.linearPathBuilder(Common.ShootPoses.parkShoot, Common.IntakeBallPoses.intakeSpike2Start));
-            } else {
-                robot.follower.followPath(robot.follower.linearPathBuilder(Common.ShootPoses.farShoot, Common.IntakeBallPoses.intakeSpike3StartFar));
-            }
+            robot.follower.followPath(robot.follower.linearPathBuilder(Common.ShootPoses.parkShoot, Common.IntakeBallPoses.intakeSpike2Start));
             parkPathFollowed = true;
             return;
         } else if (parkPathFollowed) {
