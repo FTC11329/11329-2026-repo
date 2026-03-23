@@ -19,6 +19,9 @@ public class MainTeleop {
     FancyButton intake;
     FancyButton spitIntake;
 
+    FancyButton turnSOTFOn;
+    FancyButton turnSOTFOff;
+
     FancyButton autoShoot;
     FancyButton smartShoot;
     FancyButton fastShootButton;
@@ -48,6 +51,7 @@ public class MainTeleop {
     RobotSide robotSide;
     HardwareMap hardwareMap;
     double RPMoffset;
+    boolean sotfIsOn = true;
     double distanceOffset;
     double turretOffset;
 
@@ -76,6 +80,9 @@ public class MainTeleop {
 
         intake = new FancyButton(FancyButton.PressType.Toggle);
         spitIntake = new FancyButton(FancyButton.PressType.LongPress);
+
+        turnSOTFOn = new FancyButton(FancyButton.PressType.LongPress);
+        turnSOTFOff = new FancyButton(FancyButton.PressType.LongPress);
 
         queueGreen = new FancyButton(FancyButton.PressType.LongPress);
         queuePurple = new FancyButton(FancyButton.PressType.LongPress);
@@ -133,6 +140,9 @@ public class MainTeleop {
         intake.checkStatus(gamepad2.left_bumper); // Toggle on to intake
         spitIntake.checkStatus(gamepad2.right_bumper || gamepad1.left_bumper); // Hold to spit
 
+        turnSOTFOn.checkStatus(gamepad1.left_stick_button); // Toggle on SOTF
+        turnSOTFOff.checkStatus(gamepad1.right_stick_button); // Toggle off SOTF
+
         queueGreen.checkStatus(gamepad2.y); // Press to queue green
         queuePurple.checkStatus(gamepad2.x); // Press to queue purple
         autoShoot.checkStatus(gamepad2.a); // Toggle to turn on auto shoot
@@ -153,7 +163,14 @@ public class MainTeleop {
         resetPose.checkStatus(gamepad1.x);
         climb.checkStatus(gamepad1.back);
 
-        robot.drivetrain.teleopMovement(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, gamepad1.right_bumper);
+        robot.drivetrain.teleopMovement(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, true);
+
+        if (turnSOTFOn.startPress) {
+            sotfIsOn = true;
+        }
+        if (turnSOTFOff.startPress) {
+            sotfIsOn = false;
+        }
 
         if (intake.startPress) {
             robot.spinIntake(true);
@@ -189,7 +206,7 @@ public class MainTeleop {
         }
 
         if (autoShoot.isOn && !climb.isOn) {
-            robot.prepareShooter(true);
+            robot.prepareShooter(sotfIsOn);
         } else if (autoShoot.endPress || climb.endPress) {
             robot.casualShooterModeOn();
         }

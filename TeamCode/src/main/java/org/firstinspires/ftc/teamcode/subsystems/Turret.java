@@ -24,6 +24,7 @@ public class Turret {
     private static final double GEAR_RATIO = 6.25;
 
     public PIDFController turretPID;
+    public PIDFController secondaryTurretPIDF;
 
     public Turret(HardwareMap hardwareMap, int startTurretTicks, RobotSide robotSide){
 
@@ -108,8 +109,9 @@ public class Turret {
         turretPID.updatePosition(curAngle);  // degrees
         if (usePid) {
             double velocityFF = angVel * Constants.Turret.kV;
-            double accelerationFF = angAccel * Constants.Turret.kA;
-            setPower((turretPID.run() + (velocityFF * voltageCompensation) + accelerationFF));
+            setPower(turretPID.run() + velocityFF);
+//            double accelerationFF = angAccel * Constants.Turret.kA;
+//            setPower((turretPID.run() + (velocityFF * voltageCompensation) + accelerationFF));
         }
     }
 
