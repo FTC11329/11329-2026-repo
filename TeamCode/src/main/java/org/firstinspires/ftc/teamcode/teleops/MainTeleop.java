@@ -129,7 +129,7 @@ public class MainTeleop {
     }
 
     public void loop() {
-        unjamSpindexer.checkStatus(gamepad1.right_trigger > .5 || gamepad2.right_trigger > .5);
+        unjamSpindexer.checkStatus(gamepad1.right_trigger_pressed || gamepad2.right_trigger_pressed);
         intake.checkStatus(gamepad2.left_bumper); // Toggle on to intake
         spitIntake.checkStatus(gamepad2.right_bumper || gamepad1.left_bumper); // Hold to spit
 
@@ -139,7 +139,7 @@ public class MainTeleop {
         fastShootButton.checkStatus(gamepad2.b || gamepad1.b); // press to shoot 3
         smartShoot.checkStatus(gamepad2.back); // Toggle to turn on smart shoot
 
-        overrideIntake.checkStatus(gamepad2.left_trigger > 0.5 || gamepad1.left_trigger > 0.5); // hold to turn on ignore allowintaking
+        overrideIntake.checkStatus(gamepad2.left_trigger_pressed || gamepad1.left_trigger_pressed); // hold to turn on ignore allowintaking
         panicShoot.checkStatus(gamepad2.ps); // toggle to turn on panic shoot
         reZeroIndexer.checkStatus(gamepad1.ps);
 
