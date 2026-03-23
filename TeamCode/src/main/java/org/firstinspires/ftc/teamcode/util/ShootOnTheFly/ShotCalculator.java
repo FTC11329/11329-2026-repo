@@ -54,7 +54,6 @@ public class ShotCalculator {
                 (1 / ctx.rpmRatio) *
                         stv.get(ctx.robotPose.distanceFrom(futrGoal)).timeInFlight;
 
-        futrGoal = ctx.goalPose.plusVector(ctx.velocity, -timeInFlight);
 
         double dt = (System.nanoTime() - lastTOFtime) / 1e9;
         double rateOfChangeOfTOF = (timeInFlight - previousTOF) / dt;
@@ -82,16 +81,22 @@ public class ShotCalculator {
 
         shotSolution.turretAngleRad = angleToGoalRad - ctx.robotPose.getHeading();
 
-        shotSolution.turretVel =
-                (dX * correctedVelocity.getYComponent()
-                        - dY * correctedVelocity.getXComponent()) / r2;
+        if (useSOTF){
+            shotSolution.turretVel =
+                    (dX * correctedVelocity.getYComponent()
+                            - dY * correctedVelocity.getXComponent()) / r2;
+            shotSolution.turretAccel =
+                    (dX * ctx.acceleration.getYComponent()
+                            - dY * ctx.acceleration.getXComponent()) / r2
+                            - 2 * shotSolution.turretVel *
+                            ((dX * correctedVelocity.getXComponent()
+                                    + dY * correctedVelocity.getYComponent()) / r2);
+        } else {
+            shotSolution.turretVel =
+                    (dX * velocity.getYComponent()
+                            - dY * velocity.getXComponent()) / r2;
+        }
 
-        shotSolution.turretAccel =
-                (dX * ctx.acceleration.getYComponent()
-                        - dY * ctx.acceleration.getXComponent()) / r2
-                        - 2 * shotSolution.turretVel *
-                        ((dX * correctedVelocity.getXComponent()
-                                + dY * correctedVelocity.getYComponent()) / r2);
 
         ShooterState params = stv.get(ctx.robotPose.distanceFrom(futrGoal) + ctx.distanceOffset);
 

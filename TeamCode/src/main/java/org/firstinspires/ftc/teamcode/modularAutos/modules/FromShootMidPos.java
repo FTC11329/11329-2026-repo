@@ -831,7 +831,7 @@ public class FromShootMidPos {
                     }
                     break;
                 case 2:
-                    if (pathTimer.getElapsedTimeSeconds() > 0.4) {
+                    if (pathTimer.getElapsedTimeSeconds() > 0) {
                         robot.follower.followPath(toShootPose);
                         setPathState(3);
                     }

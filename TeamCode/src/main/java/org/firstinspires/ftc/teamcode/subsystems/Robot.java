@@ -511,12 +511,14 @@ public class Robot {
         if (debug) {
             debug();
         }
-        panelsTelemetry.addData("Velocity" , follower.getVelocity().getMagnitude());
-        panelsTelemetry.addData("Acceleration" , follower.getAcceleration().getMagnitude());
-        panelsTelemetry.addData("Acceleration" , follower.getAcceleration().getMagnitude());
-
-
-        panelsTelemetry.update();
+//        panelsTelemetry.addData("Velocity" , follower.getVelocity().getMagnitude());
+//        panelsTelemetry.addData("Acceleration" , follower.getAcceleration().getMagnitude());
+//        panelsTelemetry.addData("Acceleration" , follower.getAcceleration().getMagnitude());
+//        panelsTelemetry.addData("turret error", turret.turretPID.getError());
+//        panelsTelemetry.addData("turret tar", turret.turretPID.getTargetPosition());
+//        panelsTelemetry.addData("turret pos", turret.getAngle());
+//
+//        panelsTelemetry.update();
     }
 
     public void debug() {

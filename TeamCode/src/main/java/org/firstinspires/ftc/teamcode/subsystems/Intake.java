@@ -61,7 +61,7 @@ public class Intake {
         } else if ((isIntaking && allowIntaking) || intakeOverride) {
             intake(true);
         } else if (isShooting){
-            setIntakePower(.5);
+            setIntakePower(Constants.Intake.shootPower);
         } else {
             intake(false);
         }

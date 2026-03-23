@@ -74,7 +74,10 @@ public final class MotorEffencicyLogger extends LinearOpMode {
 
 
         while (opModeIsActive() && !isStopRequested()) {
-
+            if (gamepad1.aWasPressed()) {
+                flywheel1.setPower(1);
+                flywheel2.setPower(1);
+            }
             panelsTelemetry.addData("Motor Efficiency", motorEfficiency());
             panelsTelemetry.addData("Velocity", getAngularVelocity());
             panelsTelemetry.addData("Acceleration", getAngularAcceleration());

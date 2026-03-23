@@ -22,6 +22,7 @@ public class Constants {
         public static double spitPower = -0.67; //67 67 67 67 67 67 67 67 67 67
         public static double intakeOffPower = 0.08;
         public static double spitTime = 0.3;
+        public static double shootPower = .6;
     }
 
     public static class Vision {
@@ -46,11 +47,12 @@ public class Constants {
 
         public static double CCW_F = -0.045;
         public static double CW_F = 0.1;
-        public static double kV = .105;
+        public static double kV = .05;
         public static double kA = .00;
 
 
-        public static PIDFCoefficients turretPID = new PIDFCoefficients(P, I, D, 1);
+//        public static PIDFCoefficients turretPID = new PIDFCoefficients(P, I, D, 1);
+        public static PIDFCoefficients turretPID = new PIDFCoefficients(.018, 0, 0.001, 1);
     }
     @Configurable
     public static class Shooter {

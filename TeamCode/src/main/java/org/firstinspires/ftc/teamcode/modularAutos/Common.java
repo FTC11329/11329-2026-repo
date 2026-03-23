@@ -104,8 +104,8 @@ public class Common {
         public static Pose intakeSTunnelAfterHumanControl = new Pose(-56.4,55.8);
         public static Pose intakeSTunnelAfterHuman = new Pose(-49.6,62.9, Math.toRadians(0));
 
-        public static Pose intakeHumanDiagonal = new Pose(-22,57, Math.toRadians(154));
-        public static Pose intakeHumanDiagonalToStrait = new Pose(-59,60.5, Math.toRadians(180));
+        public static Pose intakeHumanDiagonal = new Pose(-22,56, Math.toRadians(154));
+        public static Pose intakeHumanDiagonalToStrait = new Pose(-58,60.5, Math.toRadians(180));
 
         static void convert(boolean toRed) {
             intakeSpike1ControlPoint = convertToRed(intakeSpike1ControlPoint, toRed);
