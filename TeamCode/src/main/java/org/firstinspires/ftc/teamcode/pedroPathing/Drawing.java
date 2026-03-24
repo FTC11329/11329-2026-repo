@@ -57,7 +57,7 @@ public class Drawing {
     );
 
     /**
-     * This prepares Panels Field for using RoadRunner (I think its right)
+     * This prepares Panels Field for using RoadRunner
      */
     public static void init() {
         panelsField.setOffsets(new FieldPresetParams("MYNE", 0, 0, CanvasRotation.DEG_90, true, true, true));

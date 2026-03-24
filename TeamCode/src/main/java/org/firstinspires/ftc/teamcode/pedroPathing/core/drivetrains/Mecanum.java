@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.pedroPathing.core.drivetrains;
 
 import static org.firstinspires.ftc.teamcode.pedroPathing.math.MathFunctions.findNormalizingScaling;
 
-import org.firstinspires.ftc.teamcode.pedroPathing.Drivetrain;
+import org.firstinspires.ftc.teamcode.pedroPathing.drivetrain.Drivetrain;
 import org.firstinspires.ftc.teamcode.pedroPathing.math.Vector;
 
 import com.qualcomm.hardware.lynx.LynxModule;
@@ -31,6 +31,7 @@ public class Mecanum extends Drivetrain {
     private final DcMotorEx rightFront;
     private final DcMotorEx rightRear;
     private final List<DcMotorEx> motors;
+    private final double[] lastMotorPowers;
     private final VoltageSensor voltageSensor;
     private double motorCachingThreshold;
     private boolean useBrakeModeInTeleOp;
@@ -59,6 +60,7 @@ public class Mecanum extends Drivetrain {
         rightFront = hardwareMap.get(DcMotorEx.class, mecanumConstants.rightFrontMotorName);
 
         motors = Arrays.asList(leftFront, leftRear, rightFront, rightRear);
+        lastMotorPowers = new double[] {0,0,0,0};
 
         for (DcMotorEx motor : motors) {
             MotorConfigurationType motorConfigurationType = motor.getMotorType().clone();
@@ -77,6 +79,7 @@ public class Mecanum extends Drivetrain {
                 new Vector(copiedFrontLeftVector.getMagnitude(), copiedFrontLeftVector.getTheta())};
     }
 
+    @Override
     public void updateConstants() {
         leftFront.setDirection(constants.leftFrontMotorDirection);
         leftRear.setDirection(constants.leftRearMotorDirection);
@@ -107,6 +110,7 @@ public class Mecanum extends Drivetrain {
      *                        much power to allocate to each wheel.
      * @return this returns an Array of doubles with a length of 4, which contains the wheel powers.
      */
+    @Override
     public double[] calculateDrive(Vector correctivePower, Vector headingPower, Vector pathingPower, double robotHeading) {
         // clamps down the magnitudes of the input vectors
         if (correctivePower.getMagnitude() > maxPowerScaling)
@@ -209,16 +213,21 @@ public class Mecanum extends Drivetrain {
         }
     }
 
+    @Override
     public void breakFollowing() {
-        for (DcMotorEx motor : motors) {
-            motor.setPower(0);
+        for (int i = 0; i < motors.size(); i++) {
+            lastMotorPowers[i] = 0;
+            motors.get(i).setPower(0);
         }
         setMotorsToFloat();
     }
 
+    @Override
     public void runDrive(double[] drivePowers) {
         for (int i = 0; i < motors.size(); i++) {
-            if (Math.abs(motors.get(i).getPower() - drivePowers[i]) > motorCachingThreshold) {
+            if (Math.abs(lastMotorPowers[i] - drivePowers[i]) > motorCachingThreshold ||
+                    (drivePowers[i] == 0 && lastMotorPowers[i] != 0)) {
+                lastMotorPowers[i] = drivePowers[i];
                 motors.get(i).setPower(drivePowers[i]);
             }
         }
@@ -244,15 +253,19 @@ public class Mecanum extends Drivetrain {
         runDrive(calculateDrive(correctivePower, headingPower, pathingPower, robotHeading));
     }
 
+    @Override
     public double xVelocity() {
         return constants.xVelocity;
     }
 
+    @Override
     public double yVelocity() {
         return constants.yVelocity;
     }
 
+    @Override
     public void setXVelocity(double xMovement) { constants.setXVelocity(xMovement); }
+    @Override
     public void setYVelocity(double yMovement) { constants.setYVelocity(yMovement); }
 
     public double getStaticFrictionCoefficient() {
@@ -269,6 +282,7 @@ public class Mecanum extends Drivetrain {
         return (nominalVoltage - (nominalVoltage * staticFrictionCoefficient)) / (voltage - ((nominalVoltage * nominalVoltage / voltage) * staticFrictionCoefficient));
     }
 
+    @Override
     public String debugString() {
         return "Mecanum{" +
                 "\nleftFront=" + leftFront +

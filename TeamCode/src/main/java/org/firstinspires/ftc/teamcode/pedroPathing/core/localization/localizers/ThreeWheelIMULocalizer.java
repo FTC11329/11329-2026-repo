@@ -249,6 +249,7 @@ public class ThreeWheelIMULocalizer implements Localizer {
      *
      * @return returns how far the robot has turned in total, in radians.
      */
+    @Override
     public double getTotalHeading() {
         return totalHeading;
     }
@@ -259,6 +260,7 @@ public class ThreeWheelIMULocalizer implements Localizer {
      *
      * @return returns the forward ticks to inches multiplier
      */
+    @Override
     public double getForwardMultiplier() {
         return FORWARD_TICKS_TO_INCHES;
     }
@@ -269,6 +271,7 @@ public class ThreeWheelIMULocalizer implements Localizer {
      *
      * @return returns the lateral/strafe ticks to inches multiplier
      */
+    @Override
     public double getLateralMultiplier() {
         return STRAFE_TICKS_TO_INCHES;
     }
@@ -279,6 +282,7 @@ public class ThreeWheelIMULocalizer implements Localizer {
      *
      * @return returns the turning ticks to radians multiplier
      */
+    @Override
     public double getTurningMultiplier() {
         return TURN_TICKS_TO_RADIANS;
     }
@@ -286,6 +290,7 @@ public class ThreeWheelIMULocalizer implements Localizer {
     /**
      * This resets the IMU.
      */
+    @Override
     public void resetIMU() {
         imu.resetYaw();
     }
@@ -305,6 +310,7 @@ public class ThreeWheelIMULocalizer implements Localizer {
      *
      * @return returns whether the robot's position is NaN
      */
+    @Override
     public boolean isNAN() {
         return Double.isNaN(getPose().getX()) || Double.isNaN(getPose().getY()) || Double.isNaN(getPose().getHeading());
     }

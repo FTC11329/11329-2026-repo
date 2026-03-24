@@ -12,7 +12,7 @@ package org.firstinspires.ftc.teamcode.pedroPathing.control;
  * @author Harrison Womack - 10158 Scott's Bots
  * @version 1.0, 3/5/2024
  */
-public class MovingPIDFController implements Controller {
+public class MovingPIDFController {
     private PIDFCoefficients coefficients;
 
     private double previousError;

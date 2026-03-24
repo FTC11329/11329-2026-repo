@@ -1,5 +1,9 @@
 package org.firstinspires.ftc.teamcode.pedroPathing.core;
-import org.firstinspires.ftc.teamcode.pedroPathing.Drivetrain;
+import org.firstinspires.ftc.teamcode.pedroPathing.core.drivetrains.MecanumEx;
+import org.firstinspires.ftc.teamcode.pedroPathing.core.drivetrains.Swerve;
+import org.firstinspires.ftc.teamcode.pedroPathing.core.drivetrains.SwerveConstants;
+import org.firstinspires.ftc.teamcode.pedroPathing.core.drivetrains.SwervePod;
+import org.firstinspires.ftc.teamcode.pedroPathing.drivetrain.Drivetrain;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.FollowerConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.core.drivetrains.Mecanum;
@@ -76,6 +80,14 @@ public class FollowerBuilder {
 
     public FollowerBuilder mecanumDrivetrain(MecanumConstants mecanumConstants) {
         return setDrivetrain(new Mecanum(hardwareMap, mecanumConstants));
+    }
+
+    public FollowerBuilder mecanumExDrivetrain(MecanumConstants mecanumConstants) {
+        return setDrivetrain(new MecanumEx(hardwareMap, mecanumConstants));
+    }
+
+    public FollowerBuilder swerveDrivetrain(SwerveConstants swerveConstants, SwervePod... pods) {
+        return setDrivetrain(new Swerve(hardwareMap, swerveConstants, pods));
     }
 
     public FollowerBuilder pathConstraints(PathConstraints pathConstraints) {
