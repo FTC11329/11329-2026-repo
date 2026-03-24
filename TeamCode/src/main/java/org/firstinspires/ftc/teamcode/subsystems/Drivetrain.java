@@ -36,6 +36,22 @@ public class Drivetrain {
 
     }
 
+    public void setLeftBackPower(double power) {
+        leftBack.setPower(power);
+    }
+
+    public void setLeftFrontPower(double power) {
+        leftFront.setPower(power);
+    }
+
+    public void setRightBackPower(double power) {
+        rightBack.setPower(power);
+    }
+
+    public void setRightFrontPower(double power) {
+        rightFront.setPower(power);
+    }
+
     // sets power of each motor
     public void setPower(double set) {
         leftFront.setPower(set);
@@ -46,10 +62,10 @@ public class Drivetrain {
     }
 
     public void teleopMovement(double forwardBackPower, double strafePower, double turning, boolean TURBO) {
-        double speed = 0.6;
+        double speed = Constants.Drivetrain.notTurboPower;
         // TURBO MODE
         if (TURBO) {
-            speed = 1;
+            speed = Constants.Drivetrain.turboPower;
         }
         //MATH
         leftFront.setPower((forwardBackPower + strafePower + turning) * speed);

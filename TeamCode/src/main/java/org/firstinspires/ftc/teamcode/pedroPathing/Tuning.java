@@ -982,6 +982,8 @@ class DriveTuner extends OpMode {
 class Line extends OpMode {
     public static double DISTANCE = 40;
     private boolean forward = true;
+    private Timer timer = new Timer();
+    private double lastTime = 0;
 
     private Path forwards;
     private Path backwards;
@@ -1010,6 +1012,7 @@ class Line extends OpMode {
         backwards = new Path(new BezierLine(new Pose(DISTANCE + 72,72), new Pose(72,72)));
         backwards.setConstantHeadingInterpolation(0);
         follower.followPath(forwards);
+        timer.resetTimer();
     }
 
     /** This runs the OpMode, updating the Follower as well as printing out the debug statements to the Telemetry */
@@ -1026,9 +1029,17 @@ class Line extends OpMode {
                 forward = true;
                 follower.followPath(forwards);
             }
+            lastTime = timer.getElapsedTimeSeconds();
+            timer.resetTimer();
         }
 
+        try {
+            Thread.sleep(60);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         telemetryM.debug("Driving Forward?: " + forward);
+        telemetryM.addData("Time Sec", lastTime);
         telemetryM.update(telemetry);
     }
 }

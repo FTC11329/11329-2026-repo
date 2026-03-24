@@ -826,12 +826,12 @@ public class FromShootMidPos {
                     setPathState(1);
                     break;
                 case 1:
-                    if (!robot.follower.isBusy() || robot.basicallyHas3() || robot.indexer.isHasBallsFull() || robot.follower.getVelocity().getMagnitude() < 5 && pathTimer.getElapsedTimeSeconds() > 0.75) {
+                    if (!robot.follower.isBusy() || robot.basicallyHas3() || robot.indexer.isHasBallsFull() || robot.follower.getVelocity().getMagnitude() < 5 && pathTimer.getElapsedTimeSeconds() > 1) {
                         setPathState(2);
                     }
                     break;
                 case 2:
-                    if (pathTimer.getElapsedTimeSeconds() > 0) {
+                    if (pathTimer.getElapsedTimeSeconds() > 0.25) {
                         robot.follower.followPath(toShootPose);
                         setPathState(3);
                     }

@@ -3,9 +3,23 @@ package org.firstinspires.ftc.teamcode;
 import com.bylazar.configurables.annotations.Configurable;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.control.PIDFCoefficients;
+import org.firstinspires.ftc.teamcode.pedroPathing.control.PIDFController;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 
 public class Constants {
+
+    @Configurable
+    public static class Drivetrain {
+
+        public static double notTurboPower = 0.6;
+        public static double turboPower = 1;
+
+        public static PIDFController stopPID = new PIDFController(new PIDFCoefficients(
+                0.035,   // P (strong push against motion)
+                0.0,   // I (DON’T use I for stopping)
+                0.0,   // D (damping, prevents oscillation)
+                0.0    // F
+        ));    }
 
     public static class Indexer {
 
@@ -48,7 +62,8 @@ public class Constants {
 
         public static double CCW_F = -0.045;
         public static double CW_F = 0.1;
-        public static double kV = .05;
+//        public static double kV = .05;
+        public static double kV = .02;
         public static double kA = .00;
 
 

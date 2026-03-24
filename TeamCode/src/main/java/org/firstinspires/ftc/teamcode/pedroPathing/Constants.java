@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.pedroPathing;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.control.PIDFCoefficients;
+import org.firstinspires.ftc.teamcode.pedroPathing.control.PredictiveBrakingCoefficients;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.FollowerConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.core.FollowerBuilder;
@@ -16,6 +17,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
+@Configurable
 public class Constants {
     public static FollowerConstants followerConstants = new FollowerConstants()
             .mass(13.5)
@@ -32,10 +34,14 @@ public class Constants {
             .useSecondaryTranslationalPIDF(true)
             .translationalPIDFSwitch(1)
             .centripetalScaling(0.0005)
+            .predictiveBrakingCoefficients(new PredictiveBrakingCoefficients(0.09, 0.137855, 0.00137685)) // (kP, kLinear, kQuadratic)
+            .setUsePredictiveBraking(true)
             ;
     public static PinpointConstants localizerConstants = new PinpointConstants()
-            .forwardPodY(-5.866)
-            .strafePodX(-2.3622)
+            .strafePodX(-3.431)
+            .forwardPodY(-6.191)
+//            .strafePodX(-2.3622) prev
+//            .forwardPodY(-5.866) prev
             .distanceUnit(DistanceUnit.INCH)
             .hardwareMapName("pinpoint")
             .yawScalar(1.00022675)

@@ -4,8 +4,11 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcontroller.external.samples.ConceptAprilTag;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
+import org.firstinspires.ftc.teamcode.pedroPathing.math.Vector;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
 import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.EndValuesStorer;
@@ -16,6 +19,7 @@ public class MainTeleop {
     //This is where we introduce the tele-operated controls
     Robot robot;
     // PressHolds
+    FancyButton brake;
     FancyButton intake;
     FancyButton spitIntake;
 
@@ -78,6 +82,7 @@ public class MainTeleop {
 
         robot = new Robot(telemetry, hardwareMap, robotSide, startTurretTicks, startIndexerTicks);
 
+        brake = new FancyButton(FancyButton.PressType.LongPress);
         intake = new FancyButton(FancyButton.PressType.Toggle);
         spitIntake = new FancyButton(FancyButton.PressType.LongPress);
 
@@ -136,6 +141,7 @@ public class MainTeleop {
     }
 
     public void loop() {
+        brake.checkStatus(gamepad1.right_bumper); // hold to turn on brake
         unjamSpindexer.checkStatus(gamepad1.right_trigger_pressed || gamepad2.right_trigger_pressed);
         intake.checkStatus(gamepad2.left_bumper); // Toggle on to intake
         spitIntake.checkStatus(gamepad2.right_bumper || gamepad1.left_bumper); // Hold to spit
@@ -163,8 +169,32 @@ public class MainTeleop {
         resetPose.checkStatus(gamepad1.x);
         climb.checkStatus(gamepad1.back);
 
-        robot.drivetrain.teleopMovement(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, true);
+        if (!brake.isOn) {
+            robot.drivetrain.teleopMovement(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, true);
+        } else {
+            Vector velocity = robot.follower.getVelocity().copy();
+            double heading = robot.getCurrentPose().getHeading() + Math.toRadians(90);
 
+            // convert to robot frame
+            velocity.rotateVector(-heading);
+
+            double speed = velocity.getMagnitude();
+
+            Constants.Drivetrain.stopPID.updateError(-speed);
+            double output = Constants.Drivetrain.stopPID.run();
+
+            Vector brake;
+            if (speed < 0.01) {
+                brake = new Vector(0, 0);
+            } else {
+                brake = velocity.normalize().times(output);
+            }
+
+            double strafe = -brake.getXComponent();
+            double forward = -brake.getYComponent();
+
+            robot.drivetrain.teleopMovement(forward, strafe, 0, true);
+        }
         if (turnSOTFOn.startPress) {
             sotfIsOn = true;
         }
@@ -206,7 +236,7 @@ public class MainTeleop {
         }
 
         if (autoShoot.isOn && !climb.isOn) {
-            robot.prepareShooter(sotfIsOn);
+            robot.prepareShooter(!brake.isOn && sotfIsOn);
         } else if (autoShoot.endPress || climb.endPress) {
             robot.casualShooterModeOn();
         }

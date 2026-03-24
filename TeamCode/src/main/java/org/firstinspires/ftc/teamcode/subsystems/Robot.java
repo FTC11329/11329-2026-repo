@@ -511,18 +511,21 @@ public class Robot {
         if (debug) {
             debug();
         }
-        panelsTelemetry.addData("test" , ConfigTest.test);
+        panelsTelemetry.addData("all", (System.nanoTime() - lastTimeLoop) * 1e-9);
+        panelsTelemetry.addData("vel" , follower.getVelocity().getMagnitude());
+//        panelsTelemetry.addData("test" , ConfigTest.test);
 //        panelsTelemetry.addData("p" , Constants.Turret.P);
 //        panelsTelemetry.addData("kV" , Constants.Turret.kV);
 //        panelsTelemetry.addData("kA" , Constants.Turret.kA);
 
-        panelsTelemetry.addData("turret pos", turret.getAngle());
-        panelsTelemetry.addData("turret target", turret.turretPID.getTargetPosition());
-        panelsTelemetry.addData("turret error", turret.turretPID.getError());
-        panelsTelemetry.addData("turret velocity", turret.getVelocity());
-        panelsTelemetry.addData("turret power", clamp(turret.turretPID.run(), -1, 1) * 360);
-        panelsTelemetry.addData("turret Acceleration", follower.getAngularAcceleration());
+//        panelsTelemetry.addData("turret pos", turret.getAngle());
+//        panelsTelemetry.addData("turret target", turret.turretPID.getTargetPosition());
+//        panelsTelemetry.addData("turret error", turret.turretPID.getError());
+//        panelsTelemetry.addData("turret velocity", turret.getVelocity());
+//        panelsTelemetry.addData("turret power", clamp(turret.turretPID.run(), -1, 1) * 360);
+//        panelsTelemetry.addData("turret Acceleration", follower.getAngularAcceleration());
         panelsTelemetry.update();
+        lastTimeLoop = System.nanoTime();
     }
 
     public void debug() {

@@ -299,10 +299,14 @@ public class FollowerConstants {
     
     public FollowerConstants predictiveBrakingCoefficients(PredictiveBrakingCoefficients predictiveBrakingCoefficients) {
         this.predictiveBrakingCoefficients = predictiveBrakingCoefficients;
-        usePredictiveBraking = true;
         return this;
     }
-    
+
+    public FollowerConstants setUsePredictiveBraking(boolean use) {
+        usePredictiveBraking = use;
+        return this;
+    }
+
     public FollowerConstants holdPointTranslationalScaling(double holdPointTranslationalScaling) {
         this.holdPointTranslationalScaling = holdPointTranslationalScaling;
         return this;
