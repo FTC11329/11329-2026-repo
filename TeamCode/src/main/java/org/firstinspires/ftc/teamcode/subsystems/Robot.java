@@ -19,6 +19,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.math.Vector;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.util.BallColor;
+import org.firstinspires.ftc.teamcode.util.ConfigTest;
 import org.firstinspires.ftc.teamcode.util.FieldShapes;
 import org.firstinspires.ftc.teamcode.util.MeanBallPoses;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
@@ -30,7 +31,6 @@ import org.firstinspires.ftc.teamcode.util.ShootOnTheFly.ShotSolution;
 import org.firstinspires.ftc.teamcode.util.ShootOnTheFly.ShotType;
 
 import java.util.List;
-//todo import java.awt.Shape to make the inShootingZone() better
 
 
 public class Robot {
@@ -511,14 +511,18 @@ public class Robot {
         if (debug) {
             debug();
         }
-//        panelsTelemetry.addData("Velocity" , follower.getVelocity().getMagnitude());
-//        panelsTelemetry.addData("Acceleration" , follower.getAcceleration().getMagnitude());
-//        panelsTelemetry.addData("Acceleration" , follower.getAcceleration().getMagnitude());
-//        panelsTelemetry.addData("turret error", turret.turretPID.getError());
-//        panelsTelemetry.addData("turret tar", turret.turretPID.getTargetPosition());
-//        panelsTelemetry.addData("turret pos", turret.getAngle());
-//
-//        panelsTelemetry.update();
+        panelsTelemetry.addData("test" , ConfigTest.test);
+//        panelsTelemetry.addData("p" , Constants.Turret.P);
+//        panelsTelemetry.addData("kV" , Constants.Turret.kV);
+//        panelsTelemetry.addData("kA" , Constants.Turret.kA);
+
+        panelsTelemetry.addData("turret pos", turret.getAngle());
+        panelsTelemetry.addData("turret target", turret.turretPID.getTargetPosition());
+        panelsTelemetry.addData("turret error", turret.turretPID.getError());
+        panelsTelemetry.addData("turret velocity", turret.getVelocity());
+        panelsTelemetry.addData("turret power", clamp(turret.turretPID.run(), -1, 1) * 360);
+        panelsTelemetry.addData("turret Acceleration", follower.getAngularAcceleration());
+        panelsTelemetry.update();
     }
 
     public void debug() {
