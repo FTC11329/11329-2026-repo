@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.hardware.I2cDeviceSynchSimple;
 public class ConfigureColorRangefinder extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
-        ColorRangefinder crf = new ColorRangefinder(hardwareMap.get(RevColorSensorV3.class, "Color"));
+        ColorRangefinder crf = new ColorRangefinder(hardwareMap.get(RevColorSensorV3.class, "ColorBrush"));
         waitForStart();
         /* Using this example configuration, you can detect both artifact colors based on which pin is reading true:
             pin0 --> green
@@ -19,10 +19,9 @@ public class ConfigureColorRangefinder extends LinearOpMode {
 //        crf.setPin0DigitalMaxDistance(ColorRangefinder.DigitalMode.HSV, 11); // 10mm or closer
 //        crf.setPin1Digital(ColorRangefinder.DigitalMode.HSV, 93, 255); // purple
 //        crf.setPin1DigitalMaxDistance(ColorRangefinder.DigitalMode.HSV, 11); // 10mm or closer
-        crf.setPin0Analog(ColorRangefinder.AnalogMode.HSV);
-        crf.setPin1Digital(ColorRangefinder.DigitalMode.DISTANCE, 0, 15); // purple
-        crf.setPin1DigitalMaxDistance(ColorRangefinder.DigitalMode.DISTANCE, 100);
-        telemetry.addLine("5");
+        crf.setPin0Analog(ColorRangefinder.AnalogMode.DISTANCE);
+        crf.setPin1Digital(ColorRangefinder.DigitalMode.DISTANCE, 0, 15);
+        telemetry.addLine("6");
         telemetry.update();
         Thread.sleep(300);
     }

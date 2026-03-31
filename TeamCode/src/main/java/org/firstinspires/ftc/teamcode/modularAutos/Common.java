@@ -137,10 +137,10 @@ public class Common {
     }
 
     public static class ShootPoses {
-        public static Pose parkShoot = new Pose(50, 12, Math.toRadians(90));
+        public static Pose parkShoot =  new Pose(50, 12, Math.toRadians(90));
         public static Pose closeShoot = new Pose(36, 36, Math.toRadians(90));
-        public static Pose midShoot = new Pose(8.9,18.5, Math.toRadians(90));
-        public static Pose farShoot = new Pose(-56.4, 20.7, Math.toRadians(85));
+        public static Pose midShoot =   new Pose(8.9,18.5, Math.toRadians(90));
+        public static Pose farShoot =   new Pose(-56.4, 20.7, Math.toRadians(85));
 
         public static Pose fromStartCloseToMidShootControl = new Pose(45.3,49.6);
 

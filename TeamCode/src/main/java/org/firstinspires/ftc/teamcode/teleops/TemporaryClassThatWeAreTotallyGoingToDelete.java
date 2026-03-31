@@ -55,11 +55,13 @@ public class TemporaryClassThatWeAreTotallyGoingToDelete extends OpMode {
     public DcMotorEx flywheel2;
     @Override
     public void init() {
-        shooter = new Shooter(hardwareMap);
+        turret = new Turret(hardwareMap, 0, RobotSide.Blue);
     }
 
     @Override
     public void loop() {
-        shooter.setPower(gamepad1.left_trigger);
+        turret.setPower(-gamepad1.left_stick_y);
+        telemetry.addData("deleteMe", gamepad1.left_stick_y);
+
     }
 }

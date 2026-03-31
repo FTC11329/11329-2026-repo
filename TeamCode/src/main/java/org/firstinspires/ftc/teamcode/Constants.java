@@ -5,6 +5,7 @@ import com.bylazar.configurables.annotations.Configurable;
 import org.firstinspires.ftc.teamcode.pedroPathing.control.PIDFCoefficients;
 import org.firstinspires.ftc.teamcode.pedroPathing.control.PIDFController;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
+import org.firstinspires.ftc.teamcode.util.RGBColors;
 
 public class Constants {
 
@@ -89,6 +90,14 @@ public class Constants {
         public static double storedPosition = 0;
     }
     public static class Color {
+        // High to low
+        public static RGBColors[] greenColorOrder  = {RGBColors.Green, RGBColors.Blue, RGBColors.Red};
+        public static RGBColors[] purpleColorOrder = {RGBColors.Blue, RGBColors.Green, RGBColors.Red};
+
+        public static double brushLandsDist = 20;
+        public static double i2cDist = 1.9;
+
+//        Prev Method (Dont use)
         public static double[] green = {0.0269, 0.0792, 0.06, 0.9551}; //0.743
         public static double[] greenFar = {0.0147, 0.0361, 0.0274, 0.978}; //1.95
         public static double[] greenWeird = {0.0157, 0.0414, 0.0313, 0.9828}; //4.7

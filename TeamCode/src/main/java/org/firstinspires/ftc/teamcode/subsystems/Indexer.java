@@ -2,11 +2,11 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.hardware.AnalogInput;
-import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
@@ -19,8 +19,11 @@ import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.ColorFunctions;
 import org.firstinspires.ftc.teamcode.util.FieldShapes;
 import org.firstinspires.ftc.teamcode.util.IndexerEnums;
+import org.firstinspires.ftc.teamcode.util.RGBColors;
 import org.firstinspires.ftc.teamcode.util.ShapeDetection;
 import org.firstinspires.ftc.teamcode.util.SmartShootState;
+
+import java.util.Arrays;
 
 
 public class Indexer {
@@ -29,9 +32,9 @@ public class Indexer {
     public ServoImplEx spindexer2;
     DcMotorEx feeder;
     DcMotorEx encoder;
-    AnalogInput analog2;
-    AnalogInput analog3;
-    RevColorSensorV3 colorSensor;
+    AnalogInput distanceDigital;
+    AnalogInput distanceAnalog;
+    RevColorSensorV3 colorSensorI2C;
 
 
     BallColor[] ballCells = new BallColor[3];
@@ -84,10 +87,10 @@ public class Indexer {
         feeder.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         feeder.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        analog2 = hardwareMap.get(AnalogInput.class, "spindexerAnalog2");
-        analog3 = hardwareMap.get(AnalogInput.class, "spindexerAnalog3");
+        distanceDigital = hardwareMap.get(AnalogInput.class, "spindexerAnalog2");
+        distanceAnalog = hardwareMap.get(AnalogInput.class, "spindexerAnalog3");
 
-        colorSensor = hardwareMap.get(RevColorSensorV3.class, "Color");
+        colorSensorI2C = hardwareMap.get(RevColorSensorV3.class, "ColorI2C");
 
         setHasBalls(ballCells);
     }
@@ -137,57 +140,39 @@ public class Indexer {
         return doSpit;
     }
 
-    // DO NOT RUN IN TELEMETRY
-    boolean lastGreen = false;
-    public boolean isGreen() {
-        boolean temp = lastGreen;
-        lastGreen = analog2.getVoltage() > 2.9;
-        return temp && lastGreen;
-    }
     public void reZeroIndexer() {
         encoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         encoder.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         encoderOffsetFromAuto = .833;
     }
 
-    // DO NOT RUN IN TELEMETRY
-    boolean lastPurple = false;
-    public boolean isPurple() {
-        boolean temp = lastPurple;
-        lastPurple = analog3.getVoltage() > 2.9;
-        return temp && lastPurple;
-    }
-    public boolean isGreenTelem() {
-        return analog2.getVoltage() > 2.9;
+    public boolean hasDistanceFast() {
+        return distanceAnalog.getVoltage() / 3.3 * 100 < Constants.Color.brushLandsDist;
     }
 
-    // DO NOT RUN IN TELEMETRY
-    public boolean isPurpTelem() {
-        return analog3.getVoltage() > 2.9;
+    public boolean hasDistanceSlow() {
+        return colorSensorI2C.getDistance(DistanceUnit.INCH) < Constants.Color.i2cDist;
     }
 
-//    public BallColor getColor(){
-//        if (isGreen()) {
-//            return BallColor.Green;
-//        } else if (isPurple()) {
-//            return BallColor.Purple;
-//        } else {
-//            return BallColor.None;
-//        }
-//    }
+    public BallColor getColorSlow(){
+        return ColorFunctions.toColor(colorSensorI2C.getNormalizedColors(), colorSensorI2C.getDistance(DistanceUnit.INCH));
+    }
 
-    BallColor lastColor = BallColor.None;
-    public BallColor getColor(){
-        BallColor thisColor = ColorFunctions.toColor(colorSensor.getNormalizedColors(), colorSensor.getDistance(DistanceUnit.INCH));
-        BallColor returnColor;
-        if (thisColor == lastColor) {
-            returnColor = thisColor;
-        } else {
-            returnColor = BallColor.None;
+    public BallColor getColorOptimized() {
+        if (hasDistanceFast()) {
+            if (hasDistanceSlow()) {
+                NormalizedRGBA rgba = colorSensorI2C.getNormalizedColors();
+                RGBColors[] colorOrder = RGBColors.sortByMagnitude(rgba);
+                if (Arrays.equals(colorOrder, Constants.Color.greenColorOrder)) {
+                    return BallColor.Green;
+                } else if (Arrays.equals(colorOrder, Constants.Color.purpleColorOrder)) {
+                    return BallColor.Purple;
+                }
+            }
         }
-        lastColor = thisColor;
-        return returnColor;
+        return BallColor.None;
     }
+
     public boolean isHasBallsFull() {
         for (BallColor color : ballCells) {
             if (color == BallColor.None) {
@@ -474,7 +459,7 @@ public class Indexer {
     }
     public void intakeLogicUpdate(boolean intaking, boolean readyToShoot) {
         if (intaking && !isHasBallsFull() && isAtPosition() && !shooting && !indexerPlug) {
-            BallColor curColor = getColor();
+            BallColor curColor = getColorOptimized();
 
             if (curColor != BallColor.None) {
                 // moves and sets ball cells if it sees a color

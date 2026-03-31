@@ -52,7 +52,7 @@ public class FromStartClosePos {
 
         @Override
         public Pose getOptimalStartPose() {
-            return StartPoses.closeInner;
+            return StartPoses.closeOuter;
         }
 
         //Path initialization

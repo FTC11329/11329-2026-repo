@@ -656,7 +656,7 @@ public class Robot {
         telemetry.addData("Turret power", turret.turretPID.run());
 
         telemetry.addLine("=== COLOR ===");
-        telemetry.addData("indexer col", indexer.getColor());
+        telemetry.addData("indexer col", indexer.getColorSlow());
 
         telemetry.addLine("=== POSITION ===");
         telemetry.addData("is at position", indexer.isAtPosition());
