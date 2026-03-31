@@ -415,9 +415,11 @@ public class Robot {
     // CLIMB***************************************************************************************~
     public void climb() {
         climber.enableClimb();
+        lights.setClimbLights(true);
     }
     public void storeClimber() {
         climber.disableClimb();
+        lights.setClimbLights(false);
     }
     // LIGHTS**************************************************************************************~
     public void lightsUpdate() {

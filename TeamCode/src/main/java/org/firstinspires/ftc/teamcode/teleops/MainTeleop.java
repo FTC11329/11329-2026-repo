@@ -4,7 +4,6 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcontroller.external.samples.ConceptAprilTag;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
@@ -47,7 +46,7 @@ public class MainTeleop {
     FancyButton climb;
     FancyButton reZeroIndexer;
 
-    FancyButton deleteme;
+    FancyButton manualTurretStart;
 
     Gamepad gamepad1;
     Gamepad gamepad2;
@@ -111,15 +110,18 @@ public class MainTeleop {
         movePoseLeft = new FancyButton(FancyButton.PressType.LongPress);
         movePoseRight = new FancyButton(FancyButton.PressType.LongPress);
 
-        deleteme = new FancyButton(FancyButton.PressType.Toggle);
+        manualTurretStart = new FancyButton(FancyButton.PressType.Toggle);
 
         robot.follower.setPose(startPose);
         time = new ElapsedTime();
     }
 
+
+
     public void init_loop() {
-        resetPose.checkStatus(gamepad2.y);
-        if (gamepad2.bWasPressed() || gamepad1.bWasPressed()) {
+        resetPose.checkStatus(gamepad2.b || gamepad1.b);
+        manualTurretStart.checkStatus(gamepad2.a || gamepad1.a);
+        if (resetPose.startPress) {
             startPose = new Pose();
             robot.follower.setPose(startPose);
             robot.turret.encoderOffset = 12830;
@@ -127,8 +129,17 @@ public class MainTeleop {
             robot.indexer.setIndexerPos(0);
         }
 
+        if (manualTurretStart.isOn) {
+            robot.turret.setPower(gamepad2.right_stick_x + gamepad1.right_stick_x);
+        }
+        if (manualTurretStart.endPress) {
+            robot.turret.encoderOffset = 12830;
+            robot.turret.reZero();
+        }
+
         telemetry.addData("Start Pose", startPose);
         telemetry.addData("Turret Encoder Offset", robot.turret.encoderOffset);
+        telemetry.addData("Turret pos", robot.turret.getAngle());
         telemetry.addData("Indexer Encoder Offset", robot.indexer.encoderOffsetFromAuto);
         telemetry.update();
         robot.follower.update();
@@ -280,13 +291,12 @@ public class MainTeleop {
             robot.reZeroIndexer();
         }
 
-        if (climb.isOn) {
-            robot.climb();
-        } else {
-            robot.storeClimber();
-        }
         if (climb.startPress) {
+            robot.climb();
             robot.casualShooterModeOn();
+        } else if (climb.endPress) {
+            robot.storeClimber();
+
         }
 
 

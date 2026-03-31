@@ -19,6 +19,9 @@ public class Lights {
     PrismAnimations.Pulse queueCell0 = new PrismAnimations.Pulse();
     PrismAnimations.Pulse queueCell1 = new PrismAnimations.Pulse();
     PrismAnimations.Pulse queueCell2 = new PrismAnimations.Pulse();
+
+    PrismAnimations.Pulse climbCell = new PrismAnimations.Pulse();
+
     PrismAnimations.Solid bigRed = new PrismAnimations.Solid();
 
     Color teamColor = new Color(52, 153, 255);
@@ -34,6 +37,7 @@ public class Lights {
     };
     GoBildaPrismDriver prism;
     boolean debounce = false;
+    boolean climbLights = false;
     boolean lastSmartShoot = false;
     boolean lastBasicallyHas3 = false;
     boolean bigRedBoolean = false;
@@ -109,6 +113,8 @@ public class Lights {
             cell2.setIndexes(12, 17);
         }
 
+        climbCell.setIndexes(18, 23);
+
         ballCellsAnimation = updateBallCellsAnimation(ballColor, ballCellsAnimation);
 
         printColors(isInSmartShoot);
@@ -134,6 +140,9 @@ public class Lights {
         return true;
     }
 
+    public void printColors() {
+        printColors(lastSmartShoot);
+    }
     public void printColors(boolean isInSmartShoot) {
         prism.clearAllAnimations();
         for (int i = 0; i < 3; i++) {
@@ -144,6 +153,15 @@ public class Lights {
                 prism.insertAndUpdateAnimation(i + 3, queueCellsAnimation[i]);
             }
         }
+        if (climbLights) {
+            climbCell.setPrimaryColor(teamColor);
+            climbCell.setSecondaryColor(Color.dimColor(teamColor));
+        } else {
+            climbCell.setPrimaryColor(Color.TRANSPARENT);
+            climbCell.setSecondaryColor(Color.dimColor(Color.TRANSPARENT));
+        }
+        prism.insertAndUpdateAnimation(7, climbCell);
+
     }
 
     public PrismAnimations.Pulse[] updateBallCellsAnimation(BallColor[] ballColorsToUse, PrismAnimations.Pulse[] listToChange) {
@@ -167,6 +185,10 @@ public class Lights {
             }
         }
         return listToChange;
+    }
+    public void setClimbLights(boolean set) {
+        climbLights = set;
+        printColors();
     }
     public void setColororsmthidk() {
         if (!debounce) {

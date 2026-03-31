@@ -35,8 +35,7 @@ public class Turret {
         turretServo2.setDirection(CRServo.Direction.FORWARD);
 
         encoder = hardwareMap.get(DcMotorEx.class, "transfer");
-        encoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        encoder.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        reZero();
 
         encoderOffset += startTurretTicks;
 
@@ -48,6 +47,11 @@ public class Turret {
         } else {
             goalPose = new Pose(72, -72);
         }
+    }
+
+    public void reZero() {
+        encoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        encoder.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
     public void setTargetDeg(double deg) {
@@ -132,6 +136,7 @@ public class Turret {
         return turretRevs * 360.0;
     }
 
+    // Degrees
     public double getAngle() {
         return ticksToDegrees(getTicks());
     }

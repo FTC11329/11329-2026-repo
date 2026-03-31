@@ -18,7 +18,6 @@ public class Climber {
         leftClimbServo.setPosition(0);
         rightClimbServo.setPosition(0);
     }
-    public boolean climb;
     public void enableClimb() {
         setPosition(Constants.Climber.climbedPosition);
     }
