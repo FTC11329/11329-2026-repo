@@ -89,6 +89,7 @@ public class Shooter {
         return RPM * Constants.Shooter.ticksPerRevolution / 60;
     }
     public double getVelocity(){
+        flywheelVelocity = flywheel1.getVelocity();
         return flywheelVelocity;
     }
 

@@ -130,7 +130,7 @@ public class MainTeleop {
         }
 
         if (manualTurretStart.isOn) {
-            robot.turret.setPower(gamepad2.right_stick_x + gamepad1.right_stick_x);
+            robot.turret.setPower((gamepad2.right_stick_x + gamepad1.right_stick_x) * 0.3);
         }
         if (manualTurretStart.endPress) {
             robot.turret.encoderOffset = 12830;
@@ -139,7 +139,6 @@ public class MainTeleop {
 
         telemetry.addData("Start Pose", startPose);
         telemetry.addData("Turret Encoder Offset", robot.turret.encoderOffset);
-        telemetry.addData("Turret pos", robot.turret.getAngle());
         telemetry.addData("Indexer Encoder Offset", robot.indexer.encoderOffsetFromAuto);
         telemetry.update();
         robot.follower.update();
@@ -299,13 +298,12 @@ public class MainTeleop {
 
         }
 
-
         robot.setShooterOffset(rpmOffset, hoodAngleOffset);
         robot.update(debug.isOn);
 
-//        double deltaTime = time.milliseconds() - lastTime;
-//        telemetry.addData("loopTimes", deltaTime);
-//        lastTime = time.milliseconds();
+        double deltaTime = time.milliseconds() - lastTime;
+        telemetry.addData("loopTimes", deltaTime);
+        lastTime = time.milliseconds();
 
     }
 

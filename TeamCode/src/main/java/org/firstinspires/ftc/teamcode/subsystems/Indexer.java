@@ -146,8 +146,12 @@ public class Indexer {
         encoderOffsetFromAuto = .833;
     }
 
+    public double distanceFast() {
+        return distanceAnalog.getVoltage() / 3.3 * 100;
+    }
+
     public boolean hasDistanceFast() {
-        return distanceAnalog.getVoltage() / 3.3 * 100 < Constants.Color.brushLandsDist;
+        return distanceAnalog.getVoltage() / 3.3 * 100 > Constants.Color.brushLandsDist;
     }
 
     public boolean hasDistanceSlow() {

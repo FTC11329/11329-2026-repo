@@ -6,11 +6,13 @@ import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.modularAutos.Common;
 import org.firstinspires.ftc.teamcode.pedroPathing.Drawing;
@@ -22,6 +24,7 @@ import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.ConfigTest;
 import org.firstinspires.ftc.teamcode.util.FieldShapes;
 import org.firstinspires.ftc.teamcode.util.MeanBallPoses;
+import org.firstinspires.ftc.teamcode.util.RGBColors;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
 import org.firstinspires.ftc.teamcode.util.ShapeDetection;
 import org.firstinspires.ftc.teamcode.util.ShootOnTheFly.HoodAngleCompensation;
@@ -414,10 +417,12 @@ public class Robot {
 
     // CLIMB***************************************************************************************~
     public void climb() {
+        usePID = false;
         climber.enableClimb();
         lights.setClimbLights(true);
     }
     public void storeClimber() {
+        usePID = true;
         climber.disableClimb();
         lights.setClimbLights(false);
     }
@@ -513,8 +518,8 @@ public class Robot {
         if (debug) {
             debug();
         }
-        panelsTelemetry.addData("all", (System.nanoTime() - lastTimeLoop) * 1e-9);
-        panelsTelemetry.addData("vel" , follower.getVelocity().getMagnitude());
+        panelsTelemetry.addData("all", (System.nanoTime() - lastTimeLoop) * 1e-6);
+//        panelsTelemetry.addData("vel" , follower.getVelocity().getMagnitude());
 //        panelsTelemetry.addData("test" , ConfigTest.test);
 //        panelsTelemetry.addData("p" , Constants.Turret.P);
 //        panelsTelemetry.addData("kV" , Constants.Turret.kV);

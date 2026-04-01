@@ -107,7 +107,11 @@ public class Turret {
         } else if (curAngle > turretPID.getTargetPosition()) {
             turretPID.updateFeedForwardInput(Constants.Turret.CCW_F);
         } else {
-            turretPID.updateFeedForwardInput(Constants.Turret.CW_F);
+            if (curAngle < 280) {
+                turretPID.updateFeedForwardInput(Constants.Turret.CW_F);
+            } else {
+                turretPID.updateFeedForwardInput(Constants.Turret.CableCW_F);
+            }
         }
 
         turretPID.updatePosition(curAngle);  // degrees
@@ -116,6 +120,8 @@ public class Turret {
             double velocityFF = angVel * Constants.Turret.kV;
             double accelerationFF = angAccel * Constants.Turret.kA;
             setPower((turretPID.run() + (velocityFF * voltageCompensation) + accelerationFF));
+        } else {
+            setPower(0);
         }
     }
 

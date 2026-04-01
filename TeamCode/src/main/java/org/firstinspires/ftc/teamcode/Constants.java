@@ -9,7 +9,6 @@ import org.firstinspires.ftc.teamcode.util.RGBColors;
 
 public class Constants {
 
-    @Configurable
     public static class Drivetrain {
 
         public static double notTurboPower = 0.6;
@@ -56,26 +55,26 @@ public class Constants {
     public static class Turret {
         public static double closeEnough = 8; //Inches
         public static double turretOffset = 0;
-        public static double P = 0.015;
+
+        public static double P = .008;
         public static double I = 0;
-        public static double D = 0;
+        public static double D = 0.0005;
+
+        public static double CCW_F = -0.035;
+        public static double CW_F = 0.087;
+        public static double CableCW_F = 0.13;
+        public static double kV = .045;
+        public static double kA = -.07;
 
 
-        public static double CCW_F = -0.045;
-        public static double CW_F = 0.1;
-//        public static double kV = .05;
-        public static double kV = .02;
-        public static double kA = .00;
-
-
-//        public static PIDFCoefficients turretPID = new PIDFCoefficients(P, I, D, 1);
-        public static PIDFCoefficients turretPID = new PIDFCoefficients(.018, 0, 0.001, 1);
+        public static PIDFCoefficients turretPID = new PIDFCoefficients(P, I, D, 1);
+//        public static PIDFCoefficients turretPID = new PIDFCoefficients(.018, 0, 0.001, 1);
     }
-    @Configurable
+
     public static class Shooter {
         public static PIDFCoefficients shooterVelocityPID = new PIDFCoefficients(.0017, 0, 0, .1143);
 //        public static PIDFCoefficients shooterVelocityPID = new PIDFCoefficients(0, 0, 0, 0);
-        public static double kV = 5060;
+        public static double kV = 4671;
         public static double RPMoffset = 0;
         public static double closeEnoughRPM = 50;
         public static double ticksPerRevolution = 28;
@@ -95,7 +94,7 @@ public class Constants {
         public static RGBColors[] purpleColorOrder = {RGBColors.Blue, RGBColors.Green, RGBColors.Red};
 
         public static double brushLandsDist = 20;
-        public static double i2cDist = 1.9;
+        public static double i2cDist = 1.2;
 
 //        Prev Method (Dont use)
         public static double[] green = {0.0269, 0.0792, 0.06, 0.9551}; //0.743

@@ -29,7 +29,6 @@ public final class MotorEffencicyLogger extends LinearOpMode {
     public DcMotorEx flywheel1; // todo: ensure that this has the encoder plugged into it
     public DcMotorEx flywheel2;
 
-
     long startingTimeStamp;
     long previousTimeStamp;
 
