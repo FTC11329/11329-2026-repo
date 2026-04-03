@@ -61,7 +61,12 @@ public class TemporaryClassThatWeAreTotallyGoingToDelete extends OpMode {
     @Override
     public void loop() {
         if (gamepad1.a) {
-            pow = 1;
+            //12.8
+            pow = .2;
+            // 1992 -> .5
+            // 3600 -> .8
+            //428 -> .2
+
         } else {
             pow = 0;
         }

@@ -250,6 +250,7 @@ public class MainTeleop {
         } else if (autoShoot.endPress || climb.endPress) {
             robot.casualShooterModeOn();
         }
+
         if (climb.isOn) {
             robot.turret.update(0);
         }

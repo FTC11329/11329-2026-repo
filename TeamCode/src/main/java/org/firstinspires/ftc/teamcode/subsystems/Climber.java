@@ -12,11 +12,11 @@ public class Climber {
     double currentPosition = 0;
     public Climber(HardwareMap hardwareMap) {
         leftClimbServo = hardwareMap.get(Servo.class, "leftClimbServo");
-        leftClimbServo.setDirection(Servo.Direction.FORWARD);
+        leftClimbServo.setDirection(Servo.Direction.REVERSE);
         rightClimbServo = hardwareMap.get(Servo.class, "rightClimbServo");
-        rightClimbServo.setDirection(Servo.Direction.REVERSE);
-        leftClimbServo.setPosition(0);
-        rightClimbServo.setPosition(0);
+        rightClimbServo.setDirection(Servo.Direction.FORWARD);
+        leftClimbServo.setPosition(Constants.Climber.storedPosition);
+        rightClimbServo.setPosition(Constants.Climber.storedPosition);
     }
     public void enableClimb() {
         setPosition(Constants.Climber.climbedPosition);

@@ -223,7 +223,7 @@ public class Robot {
 
     // TURRET**************************************************************************************~
 
-    double angleToGoalVelocity;
+    public double angleToGoalVelocity;
     public boolean usePID = true;
     public void turretUpdate() {
         turret.update(angleToGoalVelocity + follower.getAngularVelocity(), follower.getAngularAcceleration(), getVoltageCompensation(), usePID);
@@ -518,21 +518,14 @@ public class Robot {
         if (debug) {
             debug();
         }
-        panelsTelemetry.addData("all", (System.nanoTime() - lastTimeLoop) * 1e-6);
-//        panelsTelemetry.addData("vel" , follower.getVelocity().getMagnitude());
-//        panelsTelemetry.addData("test" , ConfigTest.test);
-//        panelsTelemetry.addData("p" , Constants.Turret.P);
-//        panelsTelemetry.addData("kV" , Constants.Turret.kV);
-//        panelsTelemetry.addData("kA" , Constants.Turret.kA);
 
-//        panelsTelemetry.addData("turret pos", turret.getAngle());
-//        panelsTelemetry.addData("turret target", turret.turretPID.getTargetPosition());
-//        panelsTelemetry.addData("turret error", turret.turretPID.getError());
-//        panelsTelemetry.addData("turret velocity", turret.getVelocity());
-//        panelsTelemetry.addData("turret power", clamp(turret.turretPID.run(), -1, 1) * 360);
-//        panelsTelemetry.addData("turret Acceleration", follower.getAngularAcceleration());
+        panelsTelemetry.addData("RPM", shooter.getRPM());
+        panelsTelemetry.addData("RPM target", shooter.shooterPID.getTargetPosition());
+        panelsTelemetry.addData("Hood angle", shooter.getHoodPosDeg());
+        panelsTelemetry.addData("distance to goal", distanceToGoal());
+        panelsTelemetry.addData("RPM error", shooter.shooterPID.getError());
+
         panelsTelemetry.update();
-        lastTimeLoop = System.nanoTime();
     }
 
     public void debug() {

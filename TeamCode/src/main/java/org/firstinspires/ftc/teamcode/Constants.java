@@ -71,10 +71,11 @@ public class Constants {
 //        public static PIDFCoefficients turretPID = new PIDFCoefficients(.018, 0, 0.001, 1);
     }
 
+    @Configurable
     public static class Shooter {
-        public static PIDFCoefficients shooterVelocityPID = new PIDFCoefficients(.0017, 0, 0, .1143);
+        public static PIDFCoefficients shooterVelocityPID = new PIDFCoefficients(.0015, 0, 0, .118599876923);
 //        public static PIDFCoefficients shooterVelocityPID = new PIDFCoefficients(0, 0, 0, 0);
-        public static double kV = 4671;
+        public static double kV = 5368.59375;
         public static double RPMoffset = 0;
         public static double closeEnoughRPM = 50;
         public static double ticksPerRevolution = 28;
@@ -83,10 +84,12 @@ public class Constants {
 
         public static double entryAngle = Math.toRadians(-30);
         public static double entryHeight = 34;
+        public static double setRPM = 0;
+        public static double setHood = 0;
     }
     public static class Climber {
-        public static double climbedPosition = 0.5;
-        public static double storedPosition = 0;
+        public static double climbedPosition = 0.466;
+        public static double storedPosition = 0.1;
     }
     public static class Color {
         // High to low
