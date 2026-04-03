@@ -37,7 +37,7 @@ public class ksTurretTuner extends OpMode {
     double lastTime = System.nanoTime();
     boolean stopped = false;
     boolean usePid = false;
-    double power = -0.02;
+    double power = 0;
     int state = 2;
     Timer stateTimer = new Timer();
     @Override
@@ -57,7 +57,7 @@ public class ksTurretTuner extends OpMode {
         switch (state) {
             case 0:
                 if (stateTimer.getElapsedTime() > 90) {
-                    power -= 0.001;
+                    power += 0.001;
                     stateTimer.resetTimer();
                 }
                 if ((Math.abs(turret.getVelocity()) > 1)) {
@@ -66,21 +66,21 @@ public class ksTurretTuner extends OpMode {
                 break;
             case 1:
                 posVsPowList.add(new Tuple(Math.round(turret.getAngle() * 10) / 10.0, Math.round(power * 1000) / 1000.0));
-                power += 0.2;
+                power += 0.4;
                 state = 2;
                 stateTimer.resetTimer();
                 break;
             case 2:
-                if (stateTimer.getElapsedTimeSeconds() > 0.05) {
+                if (stateTimer.getElapsedTimeSeconds() > 0.15) {
                     stateTimer.resetTimer();
                     power = 0;
                     state = 3;
                 }
                 break;
             case 3:
-                if (stateTimer.getElapsedTimeSeconds() > 0.6) {
+                if (stateTimer.getElapsedTimeSeconds() > 0.7) {
                     stateTimer.resetTimer();
-                    power = 0.02;
+                    power = 0.06;
                     state = 0;
                 }
                 break;

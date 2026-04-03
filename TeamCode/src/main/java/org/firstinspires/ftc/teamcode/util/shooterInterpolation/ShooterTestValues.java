@@ -11,7 +11,7 @@ public class ShooterTestValues implements ShooterValuesParent {
     private final double CLOSE_ADDITION = 0; // - shooter farther
     private final double ADDITION = 0; // - shooter farther
     private final double FAR_ADDITION = 0; // - shooter farther
-    private final double RPM_MULTIPLYER = 0.855; // + shooter farther
+    private final double RPM_MULTIPLYER = 0.87; // + shooter farther
     private final double FAR_ANGLE_ADDITION = 0; // + shooter farther
     public ShooterTestValues() {
         // Distance units must have a consistent unit

@@ -34,7 +34,7 @@ public class Constants {
             .useSecondaryTranslationalPIDF(true)
             .translationalPIDFSwitch(1)
             .centripetalScaling(0.0005)
-            .predictiveBrakingCoefficients(new PredictiveBrakingCoefficients(0.09, 0.137855, 0.00137685)) // (kP, kLinear, kQuadratic)
+            .predictiveBrakingCoefficients(new PredictiveBrakingCoefficients(0.115, 0.1492112333, 0.001217005667)) // (kP, kLinear, kQuadratic)
             .setUsePredictiveBraking(true)
             ;
     public static PinpointConstants localizerConstants = new PinpointConstants()
@@ -50,7 +50,7 @@ public class Constants {
             .strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.REVERSED);
 
     public static PathConstraints pathConstraints = new PathConstraints(
-            0.95,
+            0.925,
             100,
             1,
             1);
