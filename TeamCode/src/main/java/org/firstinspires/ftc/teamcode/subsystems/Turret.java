@@ -119,7 +119,7 @@ public class Turret {
             turretPID.setCoefficients(Constants.Turret.turretPID);
             double velocityFF = angVel * Constants.Turret.kV;
             double accelerationFF = angAccel * Constants.Turret.kA;
-            setPower((turretPID.run() + (velocityFF * voltageCompensation) + accelerationFF));
+            setPower((( turretPID.run() + velocityFF * voltageCompensation) + accelerationFF));
         } else {
             setPower(0);
         }
