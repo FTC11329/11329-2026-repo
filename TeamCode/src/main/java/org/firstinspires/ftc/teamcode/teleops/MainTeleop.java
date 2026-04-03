@@ -296,15 +296,14 @@ public class MainTeleop {
             robot.casualShooterModeOn();
         } else if (climb.endPress) {
             robot.storeClimber();
-
         }
 
         robot.setShooterOffset(rpmOffset, hoodAngleOffset);
         robot.update(debug.isOn);
 
-        double deltaTime = time.milliseconds() - lastTime;
-        telemetry.addData("loopTimes", deltaTime);
-        lastTime = time.milliseconds();
+//        double deltaTime = time.milliseconds() - lastTime;
+//        telemetry.addData("loopTimes", deltaTime);
+//        lastTime = time.milliseconds();
 
     }
 

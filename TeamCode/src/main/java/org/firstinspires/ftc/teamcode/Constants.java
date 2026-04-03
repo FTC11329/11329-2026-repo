@@ -26,7 +26,7 @@ public class Constants {
         public static double indexerTolerance = 0.07;
         public static double wideIndexerTolerance = 0.14;
         public static double transferPower = 1;
-        public static double smartShootSpacingSec = 0.45;
+        public static double smartShootSpacingSec = 0.07;
 
         public static double indexerPlugDistance = 8; //inches
     }
@@ -43,6 +43,8 @@ public class Constants {
         public static int configTest = 0;
         public static Pose redGoal = new Pose(65, -64);
         public static Pose blueGoal = new Pose(67, 64);
+        public static Pose redGoalSort = new Pose(65, -58);
+        public static Pose blueGoalSort = new Pose(67, 58);
 
         public static Pose redGoalPhysics = new Pose(64, -67);
         public static Pose blueGoalPhysics = new Pose(67, 67);
@@ -68,7 +70,7 @@ public class Constants {
 
 
         public static PIDFCoefficients turretPID = new PIDFCoefficients(P, I, D, 1);
-//        public static PIDFCoefficients turretPID = new PIDFCoefficients(.018, 0, 0.001, 1);
+//        public static PIDFCoefficients turretPID = new PIDFCoefficients(0, 0, 0, 1);
     }
 
     @Configurable

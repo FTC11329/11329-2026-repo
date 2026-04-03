@@ -290,10 +290,18 @@ public class Robot {
             ctx.robotPose = shootFromPose;
         }
         Pose goalPose;
-        if (robotSide == RobotSide.Blue) {
-            goalPose = shotType == ShotType.PHYSICAL ? Constants.Vision.blueGoalPhysics : Constants.Vision.blueGoal;
+        if (smartShoot) {
+            if (robotSide == RobotSide.Blue) {
+                goalPose = Constants.Vision.blueGoalSort;
+            } else {
+                goalPose = Constants.Vision.redGoalSort;
+            }
         } else {
-            goalPose = shotType == ShotType.PHYSICAL ? Constants.Vision.redGoalPhysics : Constants.Vision.redGoal;
+            if (robotSide == RobotSide.Blue) {
+                goalPose = shotType == ShotType.PHYSICAL ? Constants.Vision.blueGoalPhysics : Constants.Vision.blueGoal;
+            } else {
+                goalPose = shotType == ShotType.PHYSICAL ? Constants.Vision.redGoalPhysics : Constants.Vision.redGoal;
+            }
         }
         ctx.goalPose = goalPose.plus(offsetPose);
         ctx.velocity = follower.getVelocity();
@@ -519,11 +527,13 @@ public class Robot {
             debug();
         }
 
-        panelsTelemetry.addData("RPM", shooter.getRPM());
-        panelsTelemetry.addData("RPM target", shooter.shooterPID.getTargetPosition());
-        panelsTelemetry.addData("Hood angle", shooter.getHoodPosDeg());
-        panelsTelemetry.addData("distance to goal", distanceToGoal());
-        panelsTelemetry.addData("RPM error", shooter.shooterPID.getError());
+//        panelsTelemetry.addData("RPM", shooter.getRPM());
+//        panelsTelemetry.addData("RPM target", shooter.shooterPID.getTargetPosition());
+//        panelsTelemetry.addData("Hood angle", shooter.getHoodPosDeg());
+//        panelsTelemetry.addData("distance to goal", distanceToGoal());
+//        panelsTelemetry.addData("RPM error", shooter.shooterPID.getError());
+        panelsTelemetry.addData("actual", turret.getAngle());
+        panelsTelemetry.addData("target", turret.turretPID.getTargetPosition());
 
         panelsTelemetry.update();
     }
