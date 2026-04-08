@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -13,6 +14,7 @@ public class Intake {
     // declaring motor variables
 
     DcMotorEx intakeMotor;
+    CRServo intakeServo;
     DigitalChannel beamBreak;
     double lastPower = 0;
 
@@ -25,6 +27,8 @@ public class Intake {
 
         beamBreak = hardwareMap.get(DigitalChannel.class, "intakeSensor");
         beamBreak.setMode(DigitalChannel.Mode.INPUT);
+
+        intakeServo = hardwareMap.get(CRServo.class, "intakeServo");
     }
 
     public void intake(boolean set) {
@@ -50,6 +54,7 @@ public class Intake {
         if (lastPower != set) {
             lastPower = set;
             intakeMotor.setPower(set);
+            intakeServo.setPower(set);
         }
     }
 

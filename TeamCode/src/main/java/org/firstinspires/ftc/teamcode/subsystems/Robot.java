@@ -527,13 +527,13 @@ public class Robot {
             debug();
         }
 
-//        panelsTelemetry.addData("RPM", shooter.getRPM());
-//        panelsTelemetry.addData("RPM target", shooter.shooterPID.getTargetPosition());
+        panelsTelemetry.addData("RPM", shooter.getRPM());
+        panelsTelemetry.addData("RPM target", shooter.shooterPID.getTargetPosition());
 //        panelsTelemetry.addData("Hood angle", shooter.getHoodPosDeg());
 //        panelsTelemetry.addData("distance to goal", distanceToGoal());
 //        panelsTelemetry.addData("RPM error", shooter.shooterPID.getError());
-        panelsTelemetry.addData("actual", turret.getAngle());
-        panelsTelemetry.addData("target", turret.turretPID.getTargetPosition());
+//        panelsTelemetry.addData("actual", turret.getAngle());
+//        panelsTelemetry.addData("target", turret.turretPID.getTargetPosition());
 
         panelsTelemetry.update();
     }
