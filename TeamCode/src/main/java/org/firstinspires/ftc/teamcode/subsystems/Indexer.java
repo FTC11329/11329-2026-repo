@@ -154,8 +154,11 @@ public class Indexer {
         return distanceAnalog.getVoltage() / 3.3 * 100 > Constants.Color.brushLandsDist;
     }
 
+    public double distanceSlow() {
+        return colorSensorI2C.getDistance(DistanceUnit.INCH);
+    }
     public boolean hasDistanceSlow() {
-        return colorSensorI2C.getDistance(DistanceUnit.INCH) < Constants.Color.i2cDist;
+        return distanceSlow() < Constants.Color.i2cDist;
     }
 
     public BallColor getColorSlow(){
@@ -535,8 +538,8 @@ public class Indexer {
 
         switch (smartShootState) {
             case IDLE:
-                if (startShooting && readyToShoot) {
-                    startShooting = false;
+                if (!isQueuedBallsEmpty() && readyToShoot) {
+                    shooting = true;
                     smartShootState = SmartShootState.GO_TO_INDEX;
                 }
                 break;

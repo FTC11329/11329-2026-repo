@@ -28,15 +28,20 @@ public class Constants {
         public static double transferPower = 1;
         public static double smartShootSpacingSec = 0.07;
 
-        public static double indexerPlugDistance = 8; //inches
+        public static double indexerPlugDistance = 5; //inches
     }
 
     public static class Intake {
-        public static double intakePower = 1;
-        public static double spitPower = -0.67; //67 67 67 67 67 67 67 67 67 67
-        public static double intakeOffPower = 0.08;
+        public static double intakeMotorPower = 1;
+        public static double intakeMotorOffPower = -0.16;
+        public static double intakeMotorPluggedPower = 0.04;
+        public static double spitMotorPower = -0.67; //67 67 67 67 67 67 67 67 67 67
+
+        public static double intakeServoPower = 1;
+        public static double intakeServoOffPower = 0.2;
+        public static double spitServoPower = -1;
+
         public static double spitTime = 0.3;
-        public static double shootPower = .6;
     }
 
     public static class Vision {
@@ -75,7 +80,7 @@ public class Constants {
 
     @Configurable
     public static class Shooter {
-        public static PIDFCoefficients shooterVelocityPID = new PIDFCoefficients(.0015, 0, 0, .118599876923);
+        public static PIDFCoefficients shooterVelocityPID = new PIDFCoefficients(.0025, 0, 0, .118599876923);
 //        public static PIDFCoefficients shooterVelocityPID = new PIDFCoefficients(0, 0, 0, 0);
         public static double kV = 5368.59375;
         public static double RPMoffset = 0;
@@ -98,8 +103,8 @@ public class Constants {
         public static RGBColors[] greenColorOrder  = {RGBColors.Green, RGBColors.Blue, RGBColors.Red};
         public static RGBColors[] purpleColorOrder = {RGBColors.Blue, RGBColors.Green, RGBColors.Red};
 
-        public static double brushLandsDist = 20;
-        public static double i2cDist = 1.2;
+        public static double brushLandsDist = 80;
+        public static double i2cDist = 1.07;
 
 //        Prev Method (Dont use)
         public static double[] green = {0.0269, 0.0792, 0.06, 0.9551}; //0.743

@@ -54,10 +54,10 @@ public class Common {
     }
     public static class DrivePower {
         public static double intake = 1;
-        public static double shootOnThFly = 0.5;
+        public static double shootOnThFly = 0.3;
     }
     public static class StartPoses {
-        public static Pose closeInner = new Pose(62.5, 39, Math.toRadians(-90)); // this is against the goal and wall, facing the obelisk
+        public static Pose closeInner = new Pose(64.5, 35.8, Math.toRadians(-90)); // this is against the goal and wall, facing the obelisk
         public static Pose closeOuter = new Pose(40.55, 53.5, Math.toRadians(90)); // this is up against the goal and secret tunnel
         public static Pose far = new Pose(-63.5, 15.75, Math.toRadians(0));
         public static Pose reZeroAtCorner = new Pose(-57, -61, Math.toRadians(-90));
@@ -75,16 +75,16 @@ public class Common {
     public static class IntakeBallPoses {
         public static Pose intakeSpike1ControlPoint = new Pose(12.2, 20.9, Math.toRadians(90));
         public static Pose intakeSpike1Start = new Pose(13.5, 32, Math.toRadians(90));
-        public static Pose intakeSpike1End = new Pose(13.5, 53, Math.toRadians(90));
+        public static Pose intakeSpike1End = new Pose(13.5, 55, Math.toRadians(90));
 
         public static Pose intakeSpike2ControlPoint = new Pose(-11.7,19.8, Math.toRadians(90));
         public static Pose intakeSpike2Start = new Pose(-11.75, 32, Math.toRadians(90));
-        public static Pose intakeSpike2End = new Pose(-11.75, 60, Math.toRadians(90));
+        public static Pose intakeSpike2End = new Pose(-11.75, 63, Math.toRadians(90));
 
         public static Pose intakeSpike3ControlPoint = new Pose(10.1, 14.9, Math.toRadians(90));
         public static Pose intakeSpike3StartClose = new Pose(-30.5, 32, Math.toRadians(90));
         public static Pose intakeSpike3StartFar = new Pose(-39, 32, Math.toRadians(90));
-        public static Pose intakeSpike3End = new Pose(-36, 60, Math.toRadians(90));
+        public static Pose intakeSpike3End = new Pose(-36, 63, Math.toRadians(90));
 
         public static Pose intakeSpike1FastControlPoint = new Pose(26.7,47.5);
         public static Pose intakeSpike1Fast = new Pose(16.8,47.5, Math.toRadians(180));
@@ -97,7 +97,7 @@ public class Common {
 
         public static Pose movingToPushLeverControlPoint = new Pose(-3.8, 25.3);
         public static Pose pushLeverAfterSpike = new Pose(-0.4,56.1, Math.toRadians(60));
-        public static Pose pushLever = new Pose(-11.75, 58.9, Math.toRadians(63));
+        public static Pose pushLever = new Pose(-11.75, 59.3, Math.toRadians(63));
         public static Pose intakeFromSTunnel = new Pose(-17, 58.25, Math.toRadians(45)); // pointing at ramp
 
         public static Pose intakeHuman = new Pose(-62.5,62, Math.toRadians(120));
@@ -137,7 +137,7 @@ public class Common {
     }
 
     public static class ShootPoses {
-        public static Pose parkShoot =  new Pose(50, 12, Math.toRadians(90));
+        public static Pose parkShoot =  new Pose(48, 24, Math.toRadians(90));
         public static Pose closeShoot = new Pose(36, 36, Math.toRadians(90));
         public static Pose midShoot =   new Pose(8.9,18.5, Math.toRadians(90));
         public static Pose farShoot =   new Pose(-56.4, 20.7, Math.toRadians(85));
@@ -146,12 +146,12 @@ public class Common {
 
         public static Pose panicShoot = new Pose();
 
-        public static Pose optimalSpike1Start = new Pose(12.77,23.2, Math.toRadians(96));
-        public static Pose optimalSpike2Start = new Pose(3.03,13.4, Math.toRadians(116));
-        public static Pose optimalSpike3Start = new Pose(5.18,15.25, Math.toRadians(146));
-        public static Pose optimalRampStart = new Pose(5.4,16.88, Math.toRadians(106));
-        public static Pose optimalHumanPlayerStart = new Pose(8.24,15.25, Math.toRadians(155));
-        public static Pose optimalVisionStart = new Pose(8.24,15.25, Math.toRadians(155));
+        public static Pose optimalSpike1Start = new Pose(13.77,22.2, Math.toRadians(96));
+        public static Pose optimalSpike2Start = new Pose(4.03,12.4, Math.toRadians(116));
+        public static Pose optimalSpike3Start = new Pose(6.18,14.25, Math.toRadians(146));
+        public static Pose optimalRampStart = new Pose(6.4,15.88, Math.toRadians(106));
+        public static Pose optimalHumanPlayerStart = new Pose(9.24,13.25, Math.toRadians(155));
+        public static Pose optimalVisionStart = new Pose(9.24,14.25, Math.toRadians(155));
 
         public static Pose optimalLeverStart = new Pose(14.7, 25.6, Math.toRadians(135));
 

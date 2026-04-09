@@ -1,8 +1,9 @@
-package org.firstinspires.ftc.teamcode.modularAutos.runnableWrappers;
+package org.firstinspires.ftc.teamcode.modularAutos.archivedAutos;
 
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.modularAutos.Common;
@@ -22,8 +23,9 @@ import org.firstinspires.ftc.teamcode.util.ShapeDetection;
 import java.util.ArrayList;
 import java.util.List;
 
-@Autonomous(name = "Blue Close XLR8", group = "2Specific", preselectTeleOp = "Main Teleop Blue")
-public class BlueCloseXLR8 extends OpMode {
+@Disabled
+@Autonomous(name = "Red Close XLR8", group = "2Specific", preselectTeleOp = "Main Teleop Red")
+public class RedCloseXLR8 extends OpMode {
     Pose startPose;
     RobotSide robotSide;
     Robot robot;
@@ -37,7 +39,7 @@ public class BlueCloseXLR8 extends OpMode {
 
     @Override
     public void init() {
-        robotSide = RobotSide.Blue;
+        robotSide = RobotSide.Red;
         robot = new Robot(telemetry, hardwareMap, robotSide, 0,0,
                 new BallColor[]{
                         BallColor.Green,

@@ -16,7 +16,8 @@ public class Intake {
     DcMotorEx intakeMotor;
     CRServo intakeServo;
     DigitalChannel beamBreak;
-    double lastPower = 0;
+    double lastMotorPower = 0;
+    double lastServoPower = 0;
 
     public Intake(HardwareMap hardwareMap) {
         intakeMotor = hardwareMap.get(DcMotorEx.class, "intake");
@@ -31,19 +32,25 @@ public class Intake {
         intakeServo = hardwareMap.get(CRServo.class, "intakeServo");
     }
 
-    public void intake(boolean set) {
-        setIntakePower(set ? Constants.Intake.intakePower : Constants.Intake.intakeOffPower);
+    public void intakeMotor(boolean set) {
+        setIntakeMotorPower(set ? Constants.Intake.intakeMotorPower : Constants.Intake.intakeMotorOffPower);
     }
-    public void spit(boolean set) {
-        setIntakePower(set ? Constants.Intake.spitPower : Constants.Intake.intakeOffPower);
+    public void spitMotor() {
+        setIntakeMotorPower(Constants.Intake.spitMotorPower);
+    }
+    public void intakeServo(boolean set) {
+        setIntakeServoPower(set ? Constants.Intake.intakeServoPower : Constants.Intake.intakeServoOffPower);
+    }
+    public void spitServo() {
+        setIntakeServoPower(Constants.Intake.spitServoPower);
     }
     public boolean isBeamBroken() {
         return !beamBreak.getState();
     }
 
     boolean superSlowOnce = true;
-    public void setIntakePower(double set) {
-        if (0.15 > set && set > Constants.Intake.intakeOffPower/2.0) {
+    public void setIntakeMotorPower(double set) {
+        if (0.15 > set && set > Constants.Intake.intakeMotorOffPower /2.0) {
             if (!superSlowOnce) {
                 superSlowOnce = true;
                 set = 0;
@@ -51,24 +58,36 @@ public class Intake {
         } else {
             superSlowOnce = false;
         }
-        if (lastPower != set) {
-            lastPower = set;
+        if (lastMotorPower != set) {
+            lastMotorPower = set;
             intakeMotor.setPower(set);
+        }
+    }
+
+    public void setIntakeServoPower(double set) {
+        if (lastServoPower != set) {
+            lastServoPower = set;
             intakeServo.setPower(set);
         }
     }
 
-    public void update(boolean spitIntake, boolean isIntaking, boolean isShooting, boolean forceSpit, boolean allowIntaking, boolean isPlugged, boolean intakeOverride) {
+
+        public void update(boolean spitIntake, boolean isIntaking, boolean isShooting, boolean forceSpit, boolean allowIntaking, boolean isPlugged, boolean intakeOverride) {
         if (isPlugged && isBeamBroken()) {
-            setIntakePower(Constants.Intake.intakeOffPower/2.0);
+            setIntakeMotorPower(Constants.Intake.intakeMotorPluggedPower);
+            setIntakeServoPower(0);
         } else if (spitIntake || forceSpit) {
-            spit(true);
+            spitMotor();
+            spitServo();
         } else if ((isIntaking && allowIntaking) || intakeOverride) {
-            intake(true);
+            intakeMotor(true);
+            intakeServo(true);
         } else if (isShooting){
-            setIntakePower(Constants.Intake.shootPower);
+            setIntakeMotorPower(Constants.Intake.intakeMotorOffPower);
+            intakeServo(true);
         } else {
-            intake(false);
+            intakeMotor(false);
+            intakeServo(false);
         }
     }
 

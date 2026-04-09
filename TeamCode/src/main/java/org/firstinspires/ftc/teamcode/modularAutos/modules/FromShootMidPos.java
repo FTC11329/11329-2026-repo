@@ -52,11 +52,6 @@ public class FromShootMidPos {
         }
 
         @Override
-        public boolean useSOTF() {
-                return true;
-        }
-
-        @Override
         public void setOptimalEndPose(Pose optimalEndPose) {
             lastPose = optimalEndPose;
         }
@@ -90,6 +85,15 @@ public class FromShootMidPos {
                 toShootPose.reverseHeadingInterpolation();
             } else {
                 toShootPose.setFastHeadingInterpolation(TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootEnd, true);
+            }
+        }
+
+        @Override
+        public boolean useSOTF() {
+            if (parkAfter) {
+                return !sort;
+            } else {
+                return false;
             }
         }
 
@@ -131,15 +135,16 @@ public class FromShootMidPos {
                     }
                 case 4:
                     if ((robot.inShootingZone() || !robot.follower.isBusy()) && (parkAfter || robot.movingSlowEnoughToShoot(true))) {
-                        if (parkAfter) {
+                        if (parkAfter && !sort) {
                             robot.follower.setMaxPower(DrivePower.shootOnThFly);
                         }
-                        if (sort) {
+                        if (sort && !robot.follower.isBusy()) {
                             robot.indexer.setQueuedBalls(robot.getMotif());
-                        } else {
+                            setPathState(5);
+                        } else if (!sort) {
                             robot.indexer.shootAll();
+                            setPathState(5);
                         }
-                        setPathState(5);
                     }
                     break;
                 case 5:
@@ -201,11 +206,6 @@ public class FromShootMidPos {
         }
 
         @Override
-        public boolean useSOTF() {
-            return true;
-        }
-
-        @Override
         public boolean hasComms() {
             return true;
         }
@@ -247,6 +247,15 @@ public class FromShootMidPos {
         }
 
         @Override
+        public boolean useSOTF() {
+            if (parkAfter) {
+                return !sort;
+            } else {
+                return false;
+            }
+        }
+
+        @Override
         public Pose getEndPoseEst() {
             return lastPose;
         }
@@ -255,9 +264,6 @@ public class FromShootMidPos {
         public boolean run() {
             switch (state) {
                 case 0:
-                    if (!parkAfter) {
-//                        robot.setShootFromPose(lastPose);
-                    }
                     robot.follower.followPath(pathChain);
                     setPathState(1);
                     break;
@@ -287,16 +293,16 @@ public class FromShootMidPos {
                     }
                 case 4:
                     if ((robot.inShootingZone() || !robot.follower.isBusy()) && (parkAfter || robot.movingSlowEnoughToShoot(true))) {
-                        if (parkAfter) {
+                        if (parkAfter && !sort) {
                             robot.follower.setMaxPower(DrivePower.shootOnThFly);
                         }
-                        if (sort) {
-                            robot.doSmartShoot(true);
+                        if (sort && !robot.follower.isBusy()) {
                             robot.indexer.setQueuedBalls(robot.getMotif());
-                        } else {
+                            setPathState(5);
+                        } else if (!sort) {
                             robot.indexer.shootAll();
+                            setPathState(5);
                         }
-                        setPathState(5);
                     }
                     break;
                 case 5:
@@ -355,11 +361,6 @@ public class FromShootMidPos {
         }
 
         @Override
-        public boolean useSOTF() {
-            return true;
-        }
-
-        @Override
         public boolean hasComms() {
             return true;
         }
@@ -395,6 +396,15 @@ public class FromShootMidPos {
         }
 
         @Override
+        public boolean useSOTF() {
+            if (parkAfter) {
+                return !sort;
+            } else {
+                return false;
+            }
+        }
+
+        @Override
         public Pose getEndPoseEst() {
             return lastPose;
         }
@@ -425,16 +435,16 @@ public class FromShootMidPos {
                     break;
                 case 3:
                     if ((robot.inShootingZone() || !robot.follower.isBusy()) && (parkAfter || robot.movingSlowEnoughToShoot(true))) {
-                        if (parkAfter) {
+                        if (parkAfter && !sort) {
                             robot.follower.setMaxPower(DrivePower.shootOnThFly);
                         }
-                        if (sort) {
-                            robot.doSmartShoot(true);
+                        if (sort && !robot.follower.isBusy()) {
                             robot.indexer.setQueuedBalls(robot.getMotif());
-                        } else {
+                            setPathState(4);
+                        } else if (!sort) {
                             robot.indexer.shootAll();
+                            setPathState(4);
                         }
-                        setPathState(4);
                     }
                     break;
                 case 4:
@@ -622,6 +632,15 @@ public class FromShootMidPos {
         }
 
         @Override
+        public boolean useSOTF() {
+            if (parkAfter) {
+                return !sort;
+            } else {
+                return false;
+            }
+        }
+
+        @Override
         public boolean hasComms() {
             return true;
         }
@@ -670,11 +689,6 @@ public class FromShootMidPos {
         }
 
         @Override
-        public boolean useSOTF() {
-            return true;
-        }
-
-        @Override
         public Pose getEndPoseEst() {
             return lastPose;
         }
@@ -711,13 +725,17 @@ public class FromShootMidPos {
                     break;
                 case 4:
                     if ((robot.inShootingZone() || !robot.follower.isBusy()) && (parkAfter || robot.movingSlowEnoughToShoot(true))) {
-                        if (sort) {
+                        if (parkAfter && !sort) {
+                            robot.follower.setMaxPower(DrivePower.shootOnThFly);
+                        }
+                        if (sort && !robot.follower.isBusy()) {
                             robot.doSmartShoot(true);
                             robot.indexer.setQueuedBalls(robot.getMotif());
-                        } else {
+                            setPathState(5);
+                        } else if (!sort) {
                             robot.indexer.shootAll();
+                            setPathState(5);
                         }
-                        setPathState(5);
                     }
                     break;
                 case 5://       if robot shoot all balls v                                                                                                              if timeout v
@@ -771,11 +789,6 @@ public class FromShootMidPos {
             } else {
                 startPose = prevPlanner.getEndPoseEst();
             }
-        }
-
-        @Override
-        public boolean useSOTF() {
-            return true;
         }
 
         @Override
@@ -907,11 +920,6 @@ public class FromShootMidPos {
 
         @Override
         public boolean hasComms() {
-            return true;
-        }
-
-        @Override
-        public boolean useSOTF() {
             return true;
         }
 

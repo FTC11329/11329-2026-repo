@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.paths.PathChain;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
+import org.opencv.core.Mat;
 
 public class FromStartClosePos {
     // allows for either close inner or outer startPositions
@@ -42,7 +43,7 @@ public class FromStartClosePos {
 
         @Override
         public boolean useSOTF() {
-            return true;
+            return false;
         }
 
         @Override
@@ -117,12 +118,35 @@ public class FromStartClosePos {
         // Pass-through Variables
         private volatile Robot robot;
         private Pose startPose;
+        private Pose lastPose;
 
         public ShootAndGoToMidShootPosFast(Robot robot, PathPlanner prevPlanner) {
             pathTimer = new Timer();
             this.robot = robot;
             this.startPose = prevPlanner.getEndPoseEst();
+            this.lastPose = ShootPoses.midShoot;
         }
+
+        @Override
+        public boolean hasComms() {
+            return true;
+        }
+
+        @Override
+        public boolean useSOTF() {
+            return true;
+        }
+
+        @Override
+        public void setOptimalEndPose(Pose optimalEndPose) {
+            lastPose = optimalEndPose;
+        }
+
+        @Override
+        public Pose getOptimalStartPose() {
+            return StartPoses.closeOuter;
+        }
+
 
         //Path initialization
         PathChain toShootPosition;
@@ -130,7 +154,7 @@ public class FromStartClosePos {
         @Override
         public void buildPaths() {
             // Path creation
-            toShootPosition = robot.follower.linearPathChainBuilder(startPose, ShootPoses.midShoot, 0.7);
+            toShootPosition = robot.follower.fastPathChainBuilder(startPose, lastPose, TValues.fastInterpolationPreloadStart, TValues.fastInterpolationPreloadEnd, true);
         }
 
         @Override
@@ -146,18 +170,28 @@ public class FromStartClosePos {
                     setPathState(1);
                     break;
                 case 1:
-                    if (robot.readyToShootMotors()) {
-                        robot.indexer.shootAll();
+                    if (robot.follower.getCurrentTValue() > 0.15) {
                         robot.follower.setMaxPower(DrivePower.shootOnThFly);
                         setPathState(2);
                     }
                     break;
                 case 2:
+                    if (robot.readyToShootMotors()) {
+                        robot.indexer.shootAll();
+                        setPathState(3);
+                    }
+                    break;
+                case 3:
+                    if (!robot.follower.isBusy() || robot.indexer.isHasBallsEmpty()) {
+                        robot.follower.setMaxPower(1);
+                        setPathState(4);
+                    }
+                    break;
+                case 4:
                     if (pathTimer.getElapsedTimeSeconds() > Timings.unjamTimeOut) {
                         robot.indexerUnjam();
                     }
-                    if (robot.indexer.isHasBallsEmpty()) {
-                        robot.follower.setMaxPower(1);
+                    if (robot.indexer.isHasBallsEmpty() && robot.follower.getErrorDistance(lastPose) < 7) {
                         isFinished = true;
                     }
                     break;

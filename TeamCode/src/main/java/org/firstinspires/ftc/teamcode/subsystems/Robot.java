@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import static org.firstinspires.ftc.teamcode.pedroPathing.Tuning.follower;
-
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.hardware.lynx.LynxModule;
@@ -12,16 +10,13 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.modularAutos.Common;
 import org.firstinspires.ftc.teamcode.pedroPathing.Drawing;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
-import org.firstinspires.ftc.teamcode.pedroPathing.math.Vector;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.util.BallColor;
-import org.firstinspires.ftc.teamcode.util.ConfigTest;
 import org.firstinspires.ftc.teamcode.util.FieldShapes;
 import org.firstinspires.ftc.teamcode.util.MeanBallPoses;
 import org.firstinspires.ftc.teamcode.util.RGBColors;
@@ -125,6 +120,8 @@ public class Robot {
     // sets the motif if we havent seen it yet
     // always return the motif
     public BallColor[] getMotif() {
+        //todo REMOVE ME IF WE ARE AT COMP
+        motif = new BallColor[]{BallColor.Purple, BallColor.Green, BallColor.Purple};
         return getMotif(false);
     }
     public BallColor[] getMotif(boolean force) {
@@ -242,7 +239,6 @@ public class Robot {
     // Adds a ball of color ball color to queuedBalls list
     public void qBall(BallColor qdColor) {
         indexer.addToQueue(qdColor);
-        shootAll();
     }
     public void reZeroIndexer() {
         indexer.reZeroIndexer();
@@ -381,7 +377,7 @@ public class Robot {
         if (!intakeInit && isIntaking) {
             intakeInit = true;
         } else if (!intakeInit) {
-            intake.setIntakePower(0);
+            intake.setIntakeMotorPower(0);
             return;
         }
 
@@ -527,8 +523,8 @@ public class Robot {
             debug();
         }
 
-        panelsTelemetry.addData("RPM", shooter.getRPM());
-        panelsTelemetry.addData("RPM target", shooter.shooterPID.getTargetPosition());
+        telemetry.addData("pos", indexer.currentIndexerState);
+        telemetry.addData("atPos", indexer.isAtPosition());
 //        panelsTelemetry.addData("Hood angle", shooter.getHoodPosDeg());
 //        panelsTelemetry.addData("distance to goal", distanceToGoal());
 //        panelsTelemetry.addData("RPM error", shooter.shooterPID.getError());

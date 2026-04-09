@@ -44,15 +44,14 @@ public class RedClose21Ball extends OpMode {
                         BallColor.Purple,
                         BallColor.Purple
                 });
-        startPose = Common.StartPoses.closeOuter;
+        startPose = Common.StartPoses.closeInner;
 
-        steps.add(new FromStartClosePos.ShootAndGoToMidShootPos(robot, lastPlanner()));
+        steps.add(new FromStartClosePos.ShootAndGoToMidShootPosFast(robot, lastPlanner()));
         steps.add(new FromShootMidPos.ToIntakeSpike2  (robot, lastPlanner(), false, false, false));
         steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPlanner(), false, false, true));
-        steps.add(new FromShootMidPos.ToIntakeSpike1  (robot, lastPlanner(), false, false, false));
-        steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPlanner(), false, false, true));
-        steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPlanner(), false, false, true));
-        steps.add(new FromShootMidPos.ToIntakeSpike3  (robot, lastPlanner(), false, true));
+        steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPlanner(), true,  false, true));
+        steps.add(new FromShootMidPos.ToIntakeSpike3  (robot, lastPlanner(), true,  false));
+        steps.add(new FromShootMidPos.ToIntakeSpike1  (robot, lastPlanner(), true,  true, false));
 
         wComms(steps);
 
