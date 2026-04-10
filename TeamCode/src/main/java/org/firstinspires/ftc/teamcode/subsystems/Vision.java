@@ -209,6 +209,89 @@ public class Vision {
         robotToBallVector.rotateVector(curpose.getHeading());
         return curpose.plusVector(robotToBallVector);
     }
+
+    public Pose rampPoseEstimation(double targetX,double targetY, Pose curpose) {
+        //todo: double check these numbers
+        double cameraPitch = 0; // zero facing straight forward 90 facing straight up
+        double ballRadius = 2.5; // radius of the ball in inches
+        double cameraHeight = 10.375; // distance from the camera to the ground in inches
+        double cameraOffsetY = 5; // distance Y to center of the chassis
+        double cameraOffsetX = 0; // distance X to center of the chassis
+        //This basically reflects the robot to the Red Side so we only need to calculate it assuming its red.
+        curpose = (robotSide == RobotSide.Red ? curpose : new Pose(- curpose.getX(), curpose.getY(), Math.PI - curpose.getHeading()));
+
+        double cameraYAngle = Math.toRadians(cameraPitch + targetY);
+        double cameraXAngle = curpose.getHeading() + Math.toRadians(targetX);
+        //The following computes the Camera distance from a plane spanned by the Z and Y axis on x=72, so its the Ramp plane.
+        double robotDstToRamp = 72 - (new Pose(0, cameraOffsetY).rotate(curpose.getHeading(), false).plus(curpose).getY());
+
+        double rightDistance = robotDstToRamp * Math.tan(cameraXAngle); // Y is forward backward
+        double upDistance = robotDstToRamp * Math.tan(cameraYAngle);
+
+        return new Pose(rightDistance, upDistance);
+    }
+
+    public boolean rampPoseCondition(double targetX,double targetY){
+        //todo: double check these numbers
+        double cameraPitch = 0; // zero facing straight forward 90 facing straight up
+        double ballRadius = 2.5; // radius of the ball in inches
+        double cameraHeight = 10.375; // distance from the camera to the ground in inches
+        double cameraOffsetY = 5; // distance Y to center of the chassis
+        double cameraOffsetX = 0; // distance X to center of the chassis
+        double minRampAngle = 0;
+
+        double cameraToBallAngle = Math.toRadians(cameraPitch + targetY);
+        return cameraToBallAngle >= minRampAngle;
+    }
+
+    public List<BallColor> GetBallsOnRamp(Pose curPose){
+        //Get the Balls, copied from the SearchForBalls function
+        List<DetectedBall> detectedBalls = new ArrayList<>();
+        LLResult result = limelight.getLatestResult();
+        if (result.isValid()) {
+            List<LLResultTypes.DetectorResult> detections = result.getDetectorResults();
+            for (LLResultTypes.DetectorResult detection : detections) {
+                double tx = detection.getTargetXDegrees(); // Where it is (left-right)
+                double ty = detection.getTargetYDegrees(); // Where it is (up-down)
+                String className = detection.getClassName(); // What was detected
+                BallColor ballColor;
+                if (className.equals("green")){
+                    ballColor = BallColor.Green;
+                } else if (className.equals("purple")) {
+                    ballColor = BallColor.Purple;
+                } else {
+                    ballColor = BallColor.Any;
+                }
+                long timePhotoWasTaken = result.getControlHubTimeStampNanos();
+                //Here we pick only the balls that are on the Ramp
+                if (rampPoseCondition(tx,ty)){
+                    //Here we calculate their pose based on the fact that their on Ramp.
+                    Pose ballPose = rampPoseEstimation(tx, ty, curPose);
+                    detectedBalls.add(new DetectedBall(ballPose, ballColor, timePhotoWasTaken));
+                }
+            }
+        }
+        //We sort balls according to their x Position, to make sure the colors are ordered
+        detectedBalls.sort((a, b) -> {
+            double aOrder = a.ballPose.getX();
+            double bOrder = b.ballPose.getX();
+            // Sorts: Smallest Y to Largest Y
+            return Double.compare(aOrder, bOrder);
+        });
+        //Here we convert the List<DetectedBall> to List<BallColor>
+        List<BallColor> ballsOnRamp = new ArrayList<>();
+        for (DetectedBall ball : detectedBalls){
+            ballsOnRamp.add(ball.ballColor);
+        }
+        return ballsOnRamp;
+    }
+
+    public boolean isInField(Pose pose){
+        boolean inX = pose.getX() < 72 && pose.getX() > -72;
+        boolean inY = pose.getY() < 72 && pose.getY() > -72;
+        return inX && inY;
+    }
+
     public static class DetectedBall {
         public Pose ballPose;
         public BallColor ballColor;

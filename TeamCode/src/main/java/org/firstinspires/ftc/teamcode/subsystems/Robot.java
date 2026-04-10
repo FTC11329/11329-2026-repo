@@ -217,6 +217,22 @@ public class Robot {
         this.distanceOffset = distanceOffset;
         this.turretOffset = turretOffset;
     }
+/// Returns whether succeeded to Queue te right ball
+    public boolean ImmediatelyQueueNextBallOnRampToMatchMotif(){
+        List<BallColor> rampBalls = vision.GetBallsOnRamp(getCurrentPose());
+        int num = rampBalls.size();
+        if (num >= 9){
+            return  false;
+        }
+        int nextIndex = num % 3; //No need to add 1 because num is size while nextIndex is index.
+        getMotif(false);
+        if (motif != null) {
+            qBall(motif[nextIndex]);
+            return true;
+        }else {
+            return false;
+        }
+    }
 
     // TURRET**************************************************************************************~
 
