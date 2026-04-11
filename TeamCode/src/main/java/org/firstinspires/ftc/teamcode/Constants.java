@@ -35,6 +35,7 @@ public class Constants {
         public static double intakeMotorPower = 1;
         public static double intakeMotorOffPower = -0.16;
         public static double intakeMotorPluggedPower = 0.04;
+        public static double intakeMotorLightSpit = -0.3;
         public static double spitMotorPower = -0.67; //67 67 67 67 67 67 67 67 67 67
 
         public static double intakeServoPower = 1;
@@ -95,7 +96,7 @@ public class Constants {
         public static double setHood = 0;
     }
     public static class Climber {
-        public static double climbedPosition = 0.466;
+        public static double climbedPosition = 0.445;
         public static double storedPosition = 0.1;
     }
     public static class Color {

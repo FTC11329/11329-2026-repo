@@ -67,11 +67,31 @@ public class Drivetrain {
         if (TURBO) {
             speed = Constants.Drivetrain.turboPower;
         }
+
+        turning *= 1;
+
+        double leftFrontPower = (forwardBackPower + strafePower + turning);
+        double leftBackPower = (forwardBackPower - strafePower + turning);
+        double rightFrontPower = (forwardBackPower - strafePower - turning);
+        double rightBackPower = (forwardBackPower + strafePower - turning);
+
+        double maxPower = Math.max(1,
+                Math.max(
+                    Math.max(Math.abs(leftFrontPower), Math.abs(leftBackPower)),
+                    Math.max(Math.abs(rightFrontPower), Math.abs(rightBackPower))
+                )
+        );
+
+        leftFrontPower /= maxPower;
+        leftBackPower /= maxPower;
+        rightFrontPower /= maxPower;
+        rightBackPower /= maxPower;
+
         //MATH
-        leftFront.setPower((forwardBackPower + strafePower + turning) * speed);
-        leftBack.setPower((forwardBackPower - strafePower + turning) * speed);
-        rightFront.setPower((forwardBackPower - strafePower - turning) * speed);
-        rightBack.setPower((forwardBackPower + strafePower - turning) * speed);
+        leftFront.setPower(leftFrontPower * speed);
+        leftBack.setPower(leftBackPower * speed);
+        rightFront.setPower(rightFrontPower * speed);
+        rightBack.setPower(rightBackPower * speed);
     }
 
     public void stop() {

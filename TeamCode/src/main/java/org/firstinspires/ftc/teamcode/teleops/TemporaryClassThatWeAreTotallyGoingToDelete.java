@@ -15,6 +15,7 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
+import org.firstinspires.ftc.teamcode.subsystems.Climber;
 import org.firstinspires.ftc.teamcode.subsystems.Indexer;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
@@ -31,6 +32,7 @@ public class TemporaryClassThatWeAreTotallyGoingToDelete extends OpMode {
     Turret turret;
     TelemetryManager panelsTelemetry;
     Robot robot;
+    Climber climber;
     List<LynxModule> hubs;
     Indexer indexer;
     Intake intake;
@@ -55,23 +57,13 @@ public class TemporaryClassThatWeAreTotallyGoingToDelete extends OpMode {
     public DcMotorEx flywheel2;
     @Override
     public void init() {
-        shooter = new Shooter(hardwareMap);
+        climber = new Climber(hardwareMap);
     }
     double pow = 0;
     @Override
     public void loop() {
-        if (gamepad1.a) {
-            //12.8
-            pow = .2;
-            // 1992 -> .5
-            // 3600 -> .8
-            //428 -> .2
-
-        } else {
-            pow = 0;
-        }
-        shooter.setPower(pow);
-        telemetry.addData("rpm", shooter.getRPM());
+        pow += gamepad1.right_stick_y * 0.002;
+        climber.setPosition(pow);
         telemetry.addData("pow", pow);
 
     }

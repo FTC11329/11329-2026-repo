@@ -31,10 +31,12 @@ public class ShapeDetection {
     private static final Polygon farTriangle = createPolygon(farTriangleCorners);
     private static final Polygon seesObeliskFrontTag = createPolygon(seesObeliskFrontTagCorners);
 
-    private static final double forwardFromCenter = 10;
-    private static final double leftFromCenter = 7.5;
-    private static final double rightFromCenter = 7.5;
-    private static final double backFromCenter = 6.8;
+    private static final double robotSizeMult = 2.25;
+
+    private static final double forwardFromCenter = 10 * robotSizeMult;
+    private static final double leftFromCenter = 7.5 * robotSizeMult;
+    private static final double rightFromCenter = 7.5 * robotSizeMult;
+    private static final double backFromCenter = 6.8 * robotSizeMult;
 
 
     private static final Pose[] localCorners = new Pose[] {

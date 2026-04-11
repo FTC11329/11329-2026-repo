@@ -54,8 +54,10 @@ public class Indexer {
     private boolean allowIntaking = true;
     private boolean forceEndPlug = false;
     private boolean doSpit = false;
+    Timer seesDistance = new Timer();
     Timer spitTimer = new Timer();
     Timer feedTimer = new Timer();
+    public boolean doSmartShoot = false;
     public boolean startIndexerPlug = false;
     public boolean indexerPlug = false;
     private Pose lastPosition = new Pose(0,0,0);
@@ -167,15 +169,17 @@ public class Indexer {
 
     public BallColor getColorOptimized() {
         if (hasDistanceFast()) {
-            if (hasDistanceSlow()) {
+            if (hasDistanceSlow() || seesDistance.getElapsedTimeSeconds() > 0.3 || !doSmartShoot) {
                 NormalizedRGBA rgba = colorSensorI2C.getNormalizedColors();
                 RGBColors[] colorOrder = RGBColors.sortByMagnitude(rgba);
                 if (Arrays.equals(colorOrder, Constants.Color.greenColorOrder)) {
                     return BallColor.Green;
-                } else if (Arrays.equals(colorOrder, Constants.Color.purpleColorOrder)) {
+                } else {
                     return BallColor.Purple;
                 }
             }
+        } else {
+            seesDistance.resetTimer();
         }
         return BallColor.None;
     }
@@ -389,6 +393,7 @@ public class Indexer {
     }
 
     public void update(boolean intaking, boolean readyToShoot, boolean doSmartShoot, boolean isFarShot, Pose currentPose) {
+        this.doSmartShoot = doSmartShoot;
         stuckUpdate();
 
         updateEncoder(); //updates this variable on tick so we are not calling multiple times in one tick

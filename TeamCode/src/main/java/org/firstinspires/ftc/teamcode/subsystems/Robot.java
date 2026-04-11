@@ -64,8 +64,10 @@ public class Robot {
     Pose lastCamPose = new Pose(0,0,0);
     // Offset pose to aim for
     public Pose offsetPose = new Pose(0,0,0);
-    double distanceOffset;
-    double turretOffset;
+    double closeDistanceOffset = 0;
+    double closeTurretOffset = 0;
+    double farDistanceOffset = 0;
+    double farTurretOffset = 0;
     //This is an array of the 3 special colors of the games MOTIF
     public BallColor[] motif = null;
     int thingies = 0;
@@ -213,10 +215,6 @@ public class Robot {
         }
         return null;
     }
-    public void setOffset(double distanceOffset, double turretOffset){
-        this.distanceOffset = distanceOffset;
-        this.turretOffset = turretOffset;
-    }
 /// Returns whether succeeded to Queue te right ball
     public boolean ImmediatelyQueueNextBallOnRampToMatchMotif(){
         List<BallColor> rampBalls = vision.GetBallsOnRamp(getCurrentPose());
@@ -263,7 +261,6 @@ public class Robot {
     public void casualShooterModeOn() {
         turret.setTargetDeg(180);
         shooter.casualModeOn();
-        usePID = false;
     }
 
     public void setShootFromPose(boolean shootFromPose) {
@@ -293,6 +290,10 @@ public class Robot {
     }
     double rpmRatio = 1;
     public void prepareShooter(ShotType shotType, boolean useSOTF) {
+        prepareShooter(shotType, useSOTF, false);
+    }
+
+    public void prepareShooter(ShotType shotType, boolean useSOTF, boolean swapGoal) {
         usePID = true;
         ShotContext ctx = new ShotContext();
 
@@ -303,16 +304,32 @@ public class Robot {
         }
         Pose goalPose;
         if (smartShoot) {
-            if (robotSide == RobotSide.Blue) {
-                goalPose = Constants.Vision.blueGoalSort;
+            if (!swapGoal) {
+                if (robotSide == RobotSide.Blue) {
+                    goalPose = Constants.Vision.blueGoalSort;
+                } else {
+                    goalPose = Constants.Vision.redGoalSort;
+                }
             } else {
-                goalPose = Constants.Vision.redGoalSort;
+                if (robotSide == RobotSide.Blue) {
+                    goalPose = Constants.Vision.redGoalSort;
+                } else {
+                    goalPose = Constants.Vision.blueGoalSort;
+                }
             }
         } else {
-            if (robotSide == RobotSide.Blue) {
-                goalPose = shotType == ShotType.PHYSICAL ? Constants.Vision.blueGoalPhysics : Constants.Vision.blueGoal;
+            if (!swapGoal) {
+                if (robotSide == RobotSide.Blue) {
+                    goalPose = shotType == ShotType.PHYSICAL ? Constants.Vision.blueGoalPhysics : Constants.Vision.blueGoal;
+                } else {
+                    goalPose = shotType == ShotType.PHYSICAL ? Constants.Vision.redGoalPhysics : Constants.Vision.redGoal;
+                }
             } else {
-                goalPose = shotType == ShotType.PHYSICAL ? Constants.Vision.redGoalPhysics : Constants.Vision.redGoal;
+                if (robotSide == RobotSide.Blue) {
+                    goalPose = shotType == ShotType.PHYSICAL ? Constants.Vision.redGoalPhysics : Constants.Vision.redGoal;
+                } else {
+                    goalPose = shotType == ShotType.PHYSICAL ? Constants.Vision.blueGoalPhysics : Constants.Vision.blueGoal;
+                }
             }
         }
         ctx.goalPose = goalPose.plus(offsetPose);
@@ -320,21 +337,84 @@ public class Robot {
         ctx.acceleration = follower.getAcceleration();
         ctx.side = robotSide;
         ctx.rpmRatio = rpmRatio;
-        ctx.distanceOffset = distanceOffset;
+        if (lastShape == FieldShapes.closeTriangle) {
+            ctx.distanceOffset = closeDistanceOffset;
+        } else {
+            ctx.distanceOffset = farDistanceOffset;
+        }
 
         ShotSolution s = shotCalculator.solveShot(ctx, shotType, useSOTF);
 
         // expose turret feedforward
         angleToGoalVelocity = s.turretVel;
 
-        turret.setTargetRad(s.turretAngleRad + Math.toRadians(turretOffset));
+        if (lastShape == FieldShapes.closeTriangle) {
+            turret.setTargetRad(s.turretAngleRad + Math.toRadians(closeTurretOffset));
+        } else {
+            turret.setTargetRad(s.turretAngleRad + Math.toRadians(farTurretOffset));
+        }
+
 
         shooter.setTargetRPM(s.rpm + rpmOffset);
 
         shooter.setHoodDeg(s.hoodDeg + hoodAngleOffset);
     }
-    double pictureTime = 0;
+
+    double OTHER_ZONE_MULT = 0.5;
+
+    public void shooterTrim(boolean up, boolean down, boolean left, boolean right, boolean reset) {
+        if (up) {
+            if (lastShape == FieldShapes.closeTriangle) {
+                closeDistanceOffset += 1.4;
+                farDistanceOffset += 1.4 * OTHER_ZONE_MULT;
+            } else {
+                farDistanceOffset += 1.4;
+                closeDistanceOffset += 1.4 * OTHER_ZONE_MULT;
+            }
+        }
+        if (down) {
+            if (lastShape == FieldShapes.closeTriangle) {
+                closeDistanceOffset -= 1.4;
+                farDistanceOffset -= 1.4 * OTHER_ZONE_MULT;
+            } else {
+                farDistanceOffset -= 1.4;
+                closeDistanceOffset -= 1.4 * OTHER_ZONE_MULT;
+            }
+        }
+        if (left) {
+            if (lastShape == FieldShapes.closeTriangle) {
+                closeTurretOffset += 1;
+                farTurretOffset += 1 * OTHER_ZONE_MULT;
+            } else {
+                farTurretOffset += 1;
+                closeTurretOffset += 1 * OTHER_ZONE_MULT;
+            }
+        }
+        if (right) {
+            if (lastShape == FieldShapes.closeTriangle) {
+                closeTurretOffset -= 1;
+                farTurretOffset -= 1 * OTHER_ZONE_MULT;
+            } else {
+                farTurretOffset -= 1;
+                closeTurretOffset -= 1 * OTHER_ZONE_MULT;
+            }
+        }
+        if (reset) {
+            reZeroAtCorner();
+            closeDistanceOffset = 0;
+            closeTurretOffset = 0;
+            farDistanceOffset = 0;
+            farTurretOffset = 0;
+        }
+    }
+
+    FieldShapes lastShape = FieldShapes.closeTriangle;
     public void shooterUpdate() {
+        if (ShapeDetection.isRobotInside(FieldShapes.closeTriangle, getCurrentPose())) {
+            lastShape = FieldShapes.closeTriangle;
+        } else if (ShapeDetection.isRobotInside(FieldShapes.farTriangle, getCurrentPose())) {
+            lastShape = FieldShapes.farTriangle;
+        }
         shooter.update(getVoltageCompensation(), panicShoot, panicShootingButton);
     }
 
@@ -410,6 +490,7 @@ public class Robot {
     public void doSmartShoot(boolean set) {
         if (smartShoot != set) {
             smartShoot = set;
+            indexer.setHasBalls(new BallColor[]{BallColor.None, BallColor.None, BallColor.None});
             indexer.emptyQueue();
         }
     }
@@ -437,14 +518,14 @@ public class Robot {
 
     // CLIMB***************************************************************************************~
     public void climb() {
-        usePID = false;
         climber.enableClimb();
         lights.setClimbLights(true);
+        intake.climb(true);
     }
     public void storeClimber() {
-        usePID = true;
         climber.disableClimb();
         lights.setClimbLights(false);
+        intake.climb(false);
     }
     // LIGHTS**************************************************************************************~
     public void lightsUpdate() {
@@ -538,9 +619,8 @@ public class Robot {
         if (debug) {
             debug();
         }
-
-        telemetry.addData("pos", indexer.currentIndexerState);
-        telemetry.addData("atPos", indexer.isAtPosition());
+        telemetry.addData("shape", lastShape);
+        Drawing.drawShapesDebug(follower);
 //        panelsTelemetry.addData("Hood angle", shooter.getHoodPosDeg());
 //        panelsTelemetry.addData("distance to goal", distanceToGoal());
 //        panelsTelemetry.addData("RPM error", shooter.shooterPID.getError());
