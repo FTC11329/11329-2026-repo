@@ -78,8 +78,8 @@ public class Intake {
 
     public void update(boolean spitIntake, boolean isIntaking, boolean isShooting, boolean forceSpit, boolean allowIntaking, boolean isPlugged, boolean intakeOverride) {
         if (climbed) {
-            setIntakeMotorPower(0);
             setIntakeServoPower(0);
+            setIntakeMotorPower(0);
             return;
         }
         if (isPlugged && isBeamBroken()) {

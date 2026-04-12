@@ -142,13 +142,33 @@ public class Vision {
                 List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
                 for (LLResultTypes.FiducialResult fr : fiducialResults) {
                     if (fr.getFiducialId() == 21){
-                        motif = new BallColor[]{BallColor.Green, BallColor.Purple, BallColor.Purple};
+                        // index 0 is touching lever
+                        return new BallColor[] {BallColor.Green, BallColor.Purple, BallColor.Purple,
+                                                BallColor.Green, BallColor.Purple, BallColor.Purple,
+                                                BallColor.Green, BallColor.Purple, BallColor.Purple};
+
+
                     } else if (fr.getFiducialId() == 22){
-                        motif = new BallColor[]{BallColor.Purple, BallColor.Green, BallColor.Purple};
+                        // index 0 is touching lever
+                        return new BallColor[] {BallColor.Purple, BallColor.Green, BallColor.Purple,
+                                                BallColor.Purple, BallColor.Green, BallColor.Purple,
+                                                BallColor.Purple, BallColor.Green, BallColor.Purple};
+
+
                     } else if (fr.getFiducialId() == 23){
-                        motif = new BallColor[]{BallColor.Purple, BallColor.Purple, BallColor.Green};
+                        // index 0 is touching lever
+                        return new BallColor[] {BallColor.Purple, BallColor.Purple, BallColor.Green,
+                                                BallColor.Purple, BallColor.Purple, BallColor.Green,
+                                                BallColor.Purple, BallColor.Purple, BallColor.Green};
+
+
                     } else {
-                        motif = new BallColor[]{BallColor.Purple, BallColor.Green, BallColor.Purple};
+                        // index 0 is touching lever
+                        return new BallColor[] {BallColor.Purple, BallColor.Green, BallColor.Purple,
+                                                BallColor.Purple, BallColor.Green, BallColor.Purple,
+                                                BallColor.Purple, BallColor.Green, BallColor.Purple};
+
+
                     }
                 }
             }

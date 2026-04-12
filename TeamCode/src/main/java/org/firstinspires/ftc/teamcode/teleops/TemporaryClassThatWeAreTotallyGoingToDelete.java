@@ -57,14 +57,20 @@ public class TemporaryClassThatWeAreTotallyGoingToDelete extends OpMode {
     public DcMotorEx flywheel2;
     @Override
     public void init() {
-        climber = new Climber(hardwareMap);
+        panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
+        shooter = new Shooter(hardwareMap);
     }
     double pow = 0;
     @Override
     public void loop() {
-        pow += gamepad1.right_stick_y * 0.002;
-        climber.setPosition(pow);
-        telemetry.addData("pow", pow);
-
+        if (gamepad1.a) {
+            pow = 1;
+        } else {
+            pow = 0;
+        }
+        shooter.setPower(pow);
+        panelsTelemetry.addData("rpm", shooter.getRPM());
+        panelsTelemetry.update();
     }
+
 }

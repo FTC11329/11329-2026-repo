@@ -22,6 +22,10 @@ import org.firstinspires.ftc.teamcode.util.ShapeDetection;
 import java.util.ArrayList;
 import java.util.List;
 
+//todo delete
+// G P P  G P P  G P P
+// G G
+
 @Autonomous(name = "Red Close 21", group = "0Comp", preselectTeleOp = "Main Teleop Red")
 public class RedClose21Ball extends OpMode {
     Pose startPose;
@@ -56,8 +60,8 @@ public class RedClose21Ball extends OpMode {
         wComms(steps);
 
         if (startPose.getX() < 0) {
-            robot.follower.getConstraints().setBrakingStart(1.25);
-            robot.follower.getConstraints().setBrakingStrength(0.75);
+//            robot.follower.getConstraints().setBrakingStart(1.25);
+//            robot.follower.getConstraints().setBrakingStrength(0.75);
         }
         robot.follower.setPose(startPose);
         panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
@@ -121,6 +125,8 @@ public class RedClose21Ball extends OpMode {
                         !ShapeDetection.isRobotInside(FieldShapes.closeTriangle, robot.getCurrentPose())
         )
         ) {
+            robot.indexer.shootAll();
+            robot.doSmartShoot(false);
             if (robot.getCurrentPose().getX() > - 25) {
                 robot.follower.followPath(robot.follower.linearPathBuilder(Common.ShootPoses.parkShoot, Common.IntakeBallPoses.intakeSpike2Start));
             } else {

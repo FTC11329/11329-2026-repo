@@ -33,8 +33,10 @@ public class Common {
 
         public static double unjamTimeOut = 1.5;
         public static double unjamTimeOutFar = 2;
+        public static double unjamTimeOutSort = 2.5;
+        public static double unjamTimeOutFarSort = 3;
 
-        public static double spikeIntakeTimeOut = 1;
+        public static double spikeIntakeTimeOut = 1.3;
         public static double fastSpikeIntakeTimeOut = 1.25;
 
         public static double shortLeverPressTime = 0.3;
@@ -48,7 +50,7 @@ public class Common {
         public static double shootTimeOut = 0.7;
         public static double sortShootTimeOut = 3.5;
 
-        public static double shootVelocityClose = 6.5; // in / s
+        public static double shootVelocityClose = 10; // in / s
         public static double shootVelocityFar = 1; // in / s
         public static double shootAccelerationFar = 3; // in / s^2
     }
@@ -97,7 +99,7 @@ public class Common {
 
         public static Pose movingToPushLeverControlPoint = new Pose(-3.8, 25.3);
         public static Pose pushLeverAfterSpike = new Pose(-0.4,56.1, Math.toRadians(60));
-        public static Pose pushLever = new Pose(-11.75, 59.3, Math.toRadians(63));
+        public static Pose pushLever = new Pose(-11.85, 61.5, Math.toRadians(63));
         public static Pose intakeFromSTunnel = new Pose(-17, 58.25, Math.toRadians(45)); // pointing at ramp
 
         public static Pose intakeHuman = new Pose(-62.5,62, Math.toRadians(120));
@@ -137,7 +139,7 @@ public class Common {
     }
 
     public static class ShootPoses {
-        public static Pose parkShoot =  new Pose(48, 24, Math.toRadians(90));
+        public static Pose parkShoot =  new Pose(48, 24, Math.toRadians(45));
         public static Pose closeShoot = new Pose(36, 36, Math.toRadians(90));
         public static Pose midShoot =   new Pose(8.9,18.5, Math.toRadians(90));
         public static Pose farShoot =   new Pose(-56.4, 20.7, Math.toRadians(85));

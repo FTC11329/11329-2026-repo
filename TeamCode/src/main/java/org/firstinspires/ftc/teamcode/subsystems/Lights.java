@@ -20,7 +20,7 @@ public class Lights {
     PrismAnimations.Pulse queueCell1 = new PrismAnimations.Pulse();
     PrismAnimations.Pulse queueCell2 = new PrismAnimations.Pulse();
 
-    PrismAnimations.Pulse climbCell = new PrismAnimations.Pulse();
+    PrismAnimations.Rainbow climbCell = new PrismAnimations.Rainbow();
 
     PrismAnimations.Solid bigRed = new PrismAnimations.Solid();
 
@@ -72,6 +72,9 @@ public class Lights {
             queueCell.setPrimaryColor(teamColor);
             queueCell.setSecondaryColor(Color.dimColor(teamColor));
         }
+        climbCell.setIndexes(0, 23);
+//        climbCell.setHues(150, 190);
+//        climbCell.setRepeatAfter(60);
         printColors(false);
         bigRed.setBrightness(brightness);
         bigRed.setIndexes(0, 17);
@@ -113,8 +116,6 @@ public class Lights {
             cell2.setIndexes(12, 17);
         }
 
-        climbCell.setIndexes(18, 23);
-
         ballCellsAnimation = updateBallCellsAnimation(ballColor, ballCellsAnimation);
 
         printColors(isInSmartShoot);
@@ -145,22 +146,18 @@ public class Lights {
     }
     public void printColors(boolean isInSmartShoot) {
         prism.clearAllAnimations();
-        for (int i = 0; i < 3; i++) {
-            prism.insertAndUpdateAnimation(i, ballCellsAnimation[i]);
-        }
-        if (isInSmartShoot) {
+        if (!climbLights) {
             for (int i = 0; i < 3; i++) {
-                prism.insertAndUpdateAnimation(i + 3, queueCellsAnimation[i]);
+                prism.insertAndUpdateAnimation(i, ballCellsAnimation[i]);
             }
-        }
-        if (climbLights) {
-            climbCell.setPrimaryColor(teamColor);
-            climbCell.setSecondaryColor(Color.dimColor(teamColor));
+            if (isInSmartShoot) {
+                for (int i = 0; i < 3; i++) {
+                    prism.insertAndUpdateAnimation(i + 3, queueCellsAnimation[i]);
+                }
+            }
         } else {
-            climbCell.setPrimaryColor(Color.TRANSPARENT);
-            climbCell.setSecondaryColor(Color.dimColor(Color.TRANSPARENT));
+            prism.insertAndUpdateAnimation(7, climbCell);
         }
-        prism.insertAndUpdateAnimation(7, climbCell);
 
     }
 

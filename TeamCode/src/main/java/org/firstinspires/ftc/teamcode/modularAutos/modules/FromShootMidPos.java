@@ -90,11 +90,7 @@ public class FromShootMidPos {
 
         @Override
         public boolean useSOTF() {
-            if (parkAfter) {
-                return !sort;
-            } else {
-                return false;
-            }
+            return parkAfter && !sort;
         }
 
         @Override
@@ -139,7 +135,7 @@ public class FromShootMidPos {
                             robot.follower.setMaxPower(DrivePower.shootOnThFly);
                         }
                         if (sort && !robot.follower.isBusy()) {
-                            robot.indexer.setQueuedBalls(robot.getMotif());
+                            robot.indexer.setQueueGivenAttemptedRampOrder(robot.getMotif());
                             setPathState(5);
                         } else if (!sort) {
                             robot.indexer.shootAll();
@@ -148,10 +144,10 @@ public class FromShootMidPos {
                     }
                     break;
                 case 5:
-                    if (pathTimer.getElapsedTimeSeconds() > Timings.unjamTimeOutFar && pathTimer.getElapsedTimeSeconds() < Timings.unjamTimeOutFar + 0.5 && !sort) {
+                    if (pathTimer.getElapsedTimeSeconds() > (!sort ? Timings.unjamTimeOut : Timings.unjamTimeOutSort)) {
                         robot.indexerUnjam();
                     }
-                    if (!robot.isIndexerUnjamming() && robot.indexer.isHasBallsEmpty() || (sort && robot.indexer.isQueuedBallsEmpty())) {
+                    if (!robot.isIndexerUnjamming() && (robot.indexer.isHasBallsEmpty() || robot.indexer.autoFastEnd())  || (sort && robot.indexer.isQueuedBallsEmpty())) {
 //                        robot.setShootFromPose(null);
                         robot.follower.setMaxPower(1);
                         robot.doSmartShoot(false);
@@ -248,11 +244,7 @@ public class FromShootMidPos {
 
         @Override
         public boolean useSOTF() {
-            if (parkAfter) {
-                return !sort;
-            } else {
-                return false;
-            }
+            return parkAfter && !sort;
         }
 
         @Override
@@ -297,7 +289,7 @@ public class FromShootMidPos {
                             robot.follower.setMaxPower(DrivePower.shootOnThFly);
                         }
                         if (sort && !robot.follower.isBusy()) {
-                            robot.indexer.setQueuedBalls(robot.getMotif());
+                            robot.indexer.setQueueGivenAttemptedRampOrder(robot.getMotif());
                             setPathState(5);
                         } else if (!sort) {
                             robot.indexer.shootAll();
@@ -306,10 +298,10 @@ public class FromShootMidPos {
                     }
                     break;
                 case 5:
-                    if (pathTimer.getElapsedTimeSeconds() > Timings.unjamTimeOutFar && pathTimer.getElapsedTimeSeconds() < Timings.unjamTimeOutFar + 0.5 && !sort) {
+                    if (pathTimer.getElapsedTimeSeconds() > (!sort ? Timings.unjamTimeOut : Timings.unjamTimeOutSort)) {
                         robot.indexerUnjam();
                     }
-                    if (!robot.isIndexerUnjamming() && robot.indexer.isHasBallsEmpty() || (sort && robot.indexer.isQueuedBallsEmpty())) {
+                    if (!robot.isIndexerUnjamming() && (robot.indexer.isHasBallsEmpty() || robot.indexer.autoFastEnd())  || (sort && robot.indexer.isQueuedBallsEmpty())) {
 //                        robot.setShootFromPose(null);
                         robot.follower.setMaxPower(1);
                         robot.doSmartShoot(false);
@@ -397,11 +389,7 @@ public class FromShootMidPos {
 
         @Override
         public boolean useSOTF() {
-            if (parkAfter) {
-                return !sort;
-            } else {
-                return false;
-            }
+            return parkAfter && !sort;
         }
 
         @Override
@@ -439,7 +427,7 @@ public class FromShootMidPos {
                             robot.follower.setMaxPower(DrivePower.shootOnThFly);
                         }
                         if (sort && !robot.follower.isBusy()) {
-                            robot.indexer.setQueuedBalls(robot.getMotif());
+                            robot.indexer.setQueueGivenAttemptedRampOrder(robot.getMotif());
                             setPathState(4);
                         } else if (!sort) {
                             robot.indexer.shootAll();
@@ -448,10 +436,10 @@ public class FromShootMidPos {
                     }
                     break;
                 case 4:
-                    if (pathTimer.getElapsedTimeSeconds() > Timings.unjamTimeOutFar && pathTimer.getElapsedTimeSeconds() < Timings.unjamTimeOutFar + 0.5 && !sort) {
+                    if (pathTimer.getElapsedTimeSeconds() > (!sort ? Timings.unjamTimeOut : Timings.unjamTimeOutSort)) {
                         robot.indexerUnjam();
                     }
-                    if (!robot.isIndexerUnjamming() && robot.indexer.isHasBallsEmpty() || (sort && robot.indexer.isQueuedBallsEmpty())) {
+                    if (!robot.isIndexerUnjamming() && (robot.indexer.isHasBallsEmpty() || robot.indexer.autoFastEnd())  || (sort && robot.indexer.isQueuedBallsEmpty())) {
                         if (!parkAfter) {
 //                            robot.setShootFromPose(null);
                         }
@@ -562,7 +550,7 @@ public class FromShootMidPos {
                     if ((robot.inShootingZone() || !robot.follower.isBusy()) && robot.movingSlowEnoughToShoot(false)) {
                         if (sort) {
                             robot.doSmartShoot(true);
-                            robot.indexer.setQueuedBalls(robot.getMotif());
+                            robot.indexer.setQueueGivenAttemptedRampOrder(robot.getMotif());
                         } else {
                             robot.indexer.shootAll();
                         }
@@ -570,10 +558,10 @@ public class FromShootMidPos {
                     }
                     break;
                 case 4:
-                    if (pathTimer.getElapsedTimeSeconds() > Timings.unjamTimeOutFar && pathTimer.getElapsedTimeSeconds() < Timings.unjamTimeOutFar + 0.5 && !sort) {
+                    if (pathTimer.getElapsedTimeSeconds() > (!sort ? Timings.unjamTimeOut : Timings.unjamTimeOutSort)) {
                         robot.indexerUnjam();
                     }
-                    if (!robot.isIndexerUnjamming() && robot.indexer.isHasBallsEmpty() || (sort && robot.indexer.isQueuedBallsEmpty())) {
+                    if (!robot.isIndexerUnjamming() && (robot.indexer.isHasBallsEmpty() || robot.indexer.autoFastEnd())  || (sort && robot.indexer.isQueuedBallsEmpty())) {
                         robot.follower.setMaxPower(1);
                         robot.doSmartShoot(false);
                         isFinished = true;
@@ -633,11 +621,7 @@ public class FromShootMidPos {
 
         @Override
         public boolean useSOTF() {
-            if (parkAfter) {
-                return !sort;
-            } else {
-                return false;
-            }
+            return parkAfter && !sort;
         }
 
         @Override
@@ -730,7 +714,7 @@ public class FromShootMidPos {
                         }
                         if (sort && !robot.follower.isBusy()) {
                             robot.doSmartShoot(true);
-                            robot.indexer.setQueuedBalls(robot.getMotif());
+                            robot.indexer.setQueueGivenAttemptedRampOrder(robot.getMotif());
                             setPathState(5);
                         } else if (!sort) {
                             robot.indexer.shootAll();
@@ -739,10 +723,10 @@ public class FromShootMidPos {
                     }
                     break;
                 case 5://       if robot shoot all balls v                                                                                                              if timeout v
-                    if (pathTimer.getElapsedTimeSeconds() > Timings.unjamTimeOutFar && pathTimer.getElapsedTimeSeconds() < Timings.unjamTimeOutFar + 0.5 && !sort) {
+                    if (pathTimer.getElapsedTimeSeconds() > (!sort ? Timings.unjamTimeOut : Timings.unjamTimeOutSort)) {
                         robot.indexerUnjam();
                     }
-                    if (!robot.isIndexerUnjamming() && robot.indexer.isHasBallsEmpty() || (sort && robot.indexer.isQueuedBallsEmpty())) {
+                    if (!robot.isIndexerUnjamming() && (robot.indexer.isHasBallsEmpty() || robot.indexer.autoFastEnd())  || (sort && robot.indexer.isQueuedBallsEmpty())) {
                         robot.follower.setMaxPower(1);
                         robot.doSmartShoot(false);
 //                        robot.setShootFromPose(null);
@@ -853,7 +837,7 @@ public class FromShootMidPos {
                     if ((robot.inShootingZone() || !robot.follower.isBusy()) && (parkAfter || robot.movingSlowEnoughToShoot(true))) {
                         if (sort) {
                             robot.doSmartShoot(true);
-                            robot.indexer.setQueuedBalls(robot.getMotif());
+                            robot.indexer.setQueueGivenAttemptedRampOrder(robot.getMotif());
                         } else {
                             robot.indexer.shootAll();
                         }
@@ -861,10 +845,10 @@ public class FromShootMidPos {
                     }
                     break;
                 case 4:
-                    if (pathTimer.getElapsedTimeSeconds() > Timings.unjamTimeOutFar && pathTimer.getElapsedTimeSeconds() < Timings.unjamTimeOutFar + 0.5 && !sort) {
+                    if (pathTimer.getElapsedTimeSeconds() > (!sort ? Timings.unjamTimeOut : Timings.unjamTimeOutSort)) {
                         robot.indexerUnjam();
                     }
-                    if (robot.indexer.isHasBallsEmpty() || (sort && robot.indexer.isQueuedBallsEmpty())) {
+                    if ((robot.indexer.isHasBallsEmpty() || robot.indexer.autoFastEnd())     || (sort && robot.indexer.isQueuedBallsEmpty())) {
                         robot.follower.setMaxPower(1);
                         robot.doSmartShoot(false);
                         isFinished = true;
@@ -988,7 +972,7 @@ public class FromShootMidPos {
                     if ((robot.inShootingZone() || !robot.follower.isBusy()) && (parkAfter || robot.movingSlowEnoughToShoot(true))) {
                         if (sort) {
                             robot.doSmartShoot();
-                            robot.indexer.setQueuedBalls(robot.getMotif());
+                            robot.indexer.setQueueGivenAttemptedRampOrder(robot.getMotif());
                         } else {
                             robot.indexer.shootAll();
                         }
@@ -996,10 +980,10 @@ public class FromShootMidPos {
                     }
                     break;
                 case 3:
-                    if (pathTimer.getElapsedTimeSeconds() > Timings.unjamTimeOutFar && pathTimer.getElapsedTimeSeconds() < Timings.unjamTimeOutFar + 0.5 && !sort) {
+                    if (pathTimer.getElapsedTimeSeconds() > (!sort ? Timings.unjamTimeOut : Timings.unjamTimeOutSort)) {
                         robot.indexerUnjam();
                     }
-                    if (!robot.isIndexerUnjamming() && robot.indexer.isHasBallsEmpty() || (sort && robot.indexer.isQueuedBallsEmpty())) {
+                    if (!robot.isIndexerUnjamming() && (robot.indexer.isHasBallsEmpty() || robot.indexer.autoFastEnd())  || (sort && robot.indexer.isQueuedBallsEmpty())) {
                         isFinished = true;
                     }
             }

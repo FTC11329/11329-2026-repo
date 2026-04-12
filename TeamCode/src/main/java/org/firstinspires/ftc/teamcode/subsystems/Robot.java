@@ -15,6 +15,7 @@ import org.firstinspires.ftc.teamcode.modularAutos.Common;
 import org.firstinspires.ftc.teamcode.pedroPathing.Drawing;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
+import org.firstinspires.ftc.teamcode.pedroPathing.math.Vector;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.FieldShapes;
@@ -60,7 +61,6 @@ public class Robot {
     boolean intakeOverride = false;
     boolean panicShoot = false;
     boolean panicShootingButton = false;
-
     Pose lastCamPose = new Pose(0,0,0);
     // Offset pose to aim for
     public Pose offsetPose = new Pose(0,0,0);
@@ -122,8 +122,6 @@ public class Robot {
     // sets the motif if we havent seen it yet
     // always return the motif
     public BallColor[] getMotif() {
-        //todo REMOVE ME IF WE ARE AT COMP
-        motif = new BallColor[]{BallColor.Purple, BallColor.Green, BallColor.Purple};
         return getMotif(false);
     }
     public BallColor[] getMotif(boolean force) {
@@ -490,7 +488,6 @@ public class Robot {
     public void doSmartShoot(boolean set) {
         if (smartShoot != set) {
             smartShoot = set;
-            indexer.setHasBalls(new BallColor[]{BallColor.None, BallColor.None, BallColor.None});
             indexer.emptyQueue();
         }
     }
@@ -556,6 +553,68 @@ public class Robot {
     }
     // TELE-OP*************************************************************************************~
 
+    public void breakDrivetrain() {
+        Vector velocity = follower.getVelocity().copy();
+        double heading = getCurrentPose().getHeading() + Math.toRadians(90);
+
+        velocity.rotateVector(-heading);
+
+        double speed = velocity.getMagnitude();
+
+        // ----- TRANSLATIONAL PID -----
+        Constants.Drivetrain.stopPID.updateError(-speed);
+        double output = Constants.Drivetrain.stopPID.run();
+
+        Vector brake;
+        if (speed < 0.01) {
+            brake = new Vector(0, 0);
+        } else {
+            brake = velocity.normalize().times(output);
+        }
+
+        double strafe = -brake.getXComponent();
+        double forward = -brake.getYComponent();
+
+        // ----- TURN PID -----
+        double headingVel = follower.getAngularVelocity();
+        Constants.Drivetrain.turnPID.updateError(-headingVel);
+        double turn = -Constants.Drivetrain.turnPID.run();
+
+        // ----- SCALING -----
+        double minVel = 20;
+        double maxVel = 50;
+
+        double minVelPow = 1;
+        double maxVelPow = 0.17;
+
+        double t = (speed - minVel) / (maxVel - minVel);
+        t = Math.max(0.0, Math.min(1.0, t));
+
+        double scale = 1.0 - t * (minVelPow - maxVelPow);
+
+        double scaleFront = 1.0;
+        double scaleBack = 1.0;
+
+        if (Math.abs(velocity.getYComponent()) > Math.abs(velocity.getXComponent())) {
+            if (velocity.getYComponent() > 0) {
+                scaleBack = scale;
+            } else {
+                scaleFront = scale;
+            }
+        }
+
+        // ----- APPLY POWERS -----
+        double leftFrontPower  = scaleFront * (forward + strafe + turn);
+        double leftBackPower   = scaleBack  * (forward - strafe + turn);
+        double rightFrontPower = scaleFront * (forward - strafe - turn);
+        double rightBackPower  = scaleBack  * (forward + strafe - turn);
+
+        drivetrain.setLeftFrontPower(leftFrontPower);
+        drivetrain.setLeftBackPower(leftBackPower);
+        drivetrain.setRightFrontPower(rightFrontPower);
+        drivetrain.setRightBackPower(rightBackPower);
+    }
+
     // Does not set panicShootingButton if panic shoot is false
     public void setPanicShoot(boolean panicShoot, boolean panicShootingButton) {
         this.panicShoot = panicShoot;
@@ -619,14 +678,10 @@ public class Robot {
         if (debug) {
             debug();
         }
-        telemetry.addData("shape", lastShape);
-        Drawing.drawShapesDebug(follower);
-//        panelsTelemetry.addData("Hood angle", shooter.getHoodPosDeg());
-//        panelsTelemetry.addData("distance to goal", distanceToGoal());
-//        panelsTelemetry.addData("RPM error", shooter.shooterPID.getError());
-//        panelsTelemetry.addData("actual", turret.getAngle());
-//        panelsTelemetry.addData("target", turret.turretPID.getTargetPosition());
 
+        panelsTelemetry.addData("rpm", shooter.getRPM());
+        panelsTelemetry.addData("tar", shooter.getTargetRpm());
+        panelsTelemetry.addData("Pow", Math.min(1, shooter.shooterPID.run()));
         panelsTelemetry.update();
     }
 

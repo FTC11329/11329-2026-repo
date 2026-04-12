@@ -107,7 +107,7 @@ public class FromShootMidPosFast {
                         }
                         if (sort) {
                             robot.doSmartShoot(true);
-                            robot.indexer.setQueuedBalls(robot.getMotif());
+                            robot.indexer.setQueueGivenAttemptedRampOrder(robot.getMotif());
                         } else {
                             robot.indexer.shootAll();
                         }
@@ -118,7 +118,7 @@ public class FromShootMidPosFast {
                     if (pathTimer.getElapsedTimeSeconds() > 1.5 && !sort) {
                         robot.indexerUnjam();
                     }
-                    if (robot.indexer.isHasBallsEmpty() || (sort && robot.indexer.isQueuedBallsEmpty())) {
+                    if ((robot.indexer.isHasBallsEmpty() || robot.indexer.autoFastEnd()) || (sort && robot.indexer.isQueuedBallsEmpty())) {
                         robot.follower.setMaxPower(1);
                         robot.doSmartShoot(false);
                         isFinished = true;
@@ -227,7 +227,7 @@ public class FromShootMidPosFast {
                         }
                         if (sort) {
                             robot.doSmartShoot(true);
-                            robot.indexer.setQueuedBalls(robot.getMotif());
+                            robot.indexer.setQueueGivenAttemptedRampOrder(robot.getMotif());
                         } else {
                             robot.indexer.shootAll();
                         }
@@ -238,7 +238,7 @@ public class FromShootMidPosFast {
                     if (pathTimer.getElapsedTimeSeconds() > 1.5 && !sort) {
                         robot.indexerUnjam();
                     }
-                    if (robot.indexer.isHasBallsEmpty() || (sort && robot.indexer.isQueuedBallsEmpty())) {
+                    if ((robot.indexer.isHasBallsEmpty() || robot.indexer.autoFastEnd()) || (sort && robot.indexer.isQueuedBallsEmpty())) {
                         robot.follower.setMaxPower(1);
                         robot.doSmartShoot(false);
                         isFinished = true;
@@ -349,7 +349,7 @@ public class FromShootMidPosFast {
                         }
                         if (sort) {
                             robot.doSmartShoot(true);
-                            robot.indexer.setQueuedBalls(robot.getMotif());
+                            robot.indexer.setQueueGivenAttemptedRampOrder(robot.getMotif());
                         } else {
                             robot.indexer.shootAll();
                         }
@@ -360,7 +360,7 @@ public class FromShootMidPosFast {
                     if (pathTimer.getElapsedTimeSeconds() > 1.5 && !sort) {
                         robot.indexerUnjam();
                     }
-                    if (robot.indexer.isHasBallsEmpty() || (sort && robot.indexer.isQueuedBallsEmpty())) {
+                    if ((robot.indexer.isHasBallsEmpty() || robot.indexer.autoFastEnd()) || (sort && robot.indexer.isQueuedBallsEmpty())) {
                         robot.follower.setMaxPower(1);
                         robot.doSmartShoot(false);
                         isFinished = true;
@@ -497,7 +497,7 @@ public class FromShootMidPosFast {
                         }
                         if (sort) {
                             robot.doSmartShoot(true);
-                            robot.indexer.setQueuedBalls(robot.getMotif());
+                            robot.indexer.setQueueGivenAttemptedRampOrder(robot.getMotif());
                         } else {
                             robot.indexer.shootAll();
                         }
@@ -508,7 +508,7 @@ public class FromShootMidPosFast {
                     if (pathTimer.getElapsedTimeSeconds() > 1.5 && !sort) {
                         robot.indexerUnjam();
                     }
-                    if (robot.indexer.isHasBallsEmpty() || (sort && robot.indexer.isQueuedBallsEmpty())) {
+                    if ((robot.indexer.isHasBallsEmpty() || robot.indexer.autoFastEnd()) || (sort && robot.indexer.isQueuedBallsEmpty())) {
                         robot.follower.setMaxPower(1);
                         robot.doSmartShoot(false);
 //                        robot.setShootFromPose(null);

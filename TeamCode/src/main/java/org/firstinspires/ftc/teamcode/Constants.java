@@ -15,12 +15,18 @@ public class Constants {
         public static double turboPower = 1;
 
         public static PIDFController stopPID = new PIDFController(new PIDFCoefficients(
-                0.035,   // P (strong push against motion)
-                0.0,   // I (DON’T use I for stopping)
-                0.0,   // D (damping, prevents oscillation)
-                0.0    // F
-        ));    }
-
+                0.035,
+                0.0,
+                0.0,
+                0.0
+        ));
+        public static PIDFController turnPID = new PIDFController(error -> new PIDFCoefficients(
+                0.15,
+                0.0,
+                0.0,
+                0.0
+        ));
+    }
     public static class Indexer {
 
         public static double indexerTolerance = 0.07;
@@ -49,8 +55,8 @@ public class Constants {
         public static int configTest = 0;
         public static Pose redGoal = new Pose(65, -64);
         public static Pose blueGoal = new Pose(67, 64);
-        public static Pose redGoalSort = new Pose(65, -58);
-        public static Pose blueGoalSort = new Pose(67, 58);
+        public static Pose redGoalSort = new Pose(64, -58);
+        public static Pose blueGoalSort = new Pose(66, 58);
 
         public static Pose redGoalPhysics = new Pose(64, -67);
         public static Pose blueGoalPhysics = new Pose(67, 67);

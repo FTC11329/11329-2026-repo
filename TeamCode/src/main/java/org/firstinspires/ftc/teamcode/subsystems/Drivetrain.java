@@ -58,7 +58,6 @@ public class Drivetrain {
         leftBack.setPower(set);
         rightFront.setPower(set);
         rightBack.setPower(set);
-
     }
 
     public void teleopMovement(double forwardBackPower, double strafePower, double turning, boolean TURBO) {
@@ -68,12 +67,10 @@ public class Drivetrain {
             speed = Constants.Drivetrain.turboPower;
         }
 
-        turning *= 1;
-
-        double leftFrontPower = (forwardBackPower + strafePower + turning);
-        double leftBackPower = (forwardBackPower - strafePower + turning);
+        double leftFrontPower  = (forwardBackPower + strafePower + turning);
+        double leftBackPower   = (forwardBackPower - strafePower + turning);
         double rightFrontPower = (forwardBackPower - strafePower - turning);
-        double rightBackPower = (forwardBackPower + strafePower - turning);
+        double rightBackPower  = (forwardBackPower + strafePower - turning);
 
         double maxPower = Math.max(1,
                 Math.max(

@@ -8,6 +8,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.math.Vector;
+import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
 import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.EndValuesStorer;
@@ -183,29 +184,9 @@ public class MainTeleop {
         if (!brake.isOn) {
             robot.drivetrain.teleopMovement(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, true);
         } else {
-            Vector velocity = robot.follower.getVelocity().copy();
-            double heading = robot.getCurrentPose().getHeading() + Math.toRadians(90);
-
-            // convert to robot frame
-            velocity.rotateVector(-heading);
-
-            double speed = velocity.getMagnitude();
-
-            Constants.Drivetrain.stopPID.updateError(-speed);
-            double output = Constants.Drivetrain.stopPID.run();
-
-            Vector brake;
-            if (speed < 0.01) {
-                brake = new Vector(0, 0);
-            } else {
-                brake = velocity.normalize().times(output);
-            }
-
-            double strafe = -brake.getXComponent();
-            double forward = -brake.getYComponent();
-
-            robot.drivetrain.teleopMovement(forward, strafe, 0, true);
+            robot.breakDrivetrain();
         }
+
         if (turnSOTFOn.startPress) {
             sotfIsOn = true;
         }

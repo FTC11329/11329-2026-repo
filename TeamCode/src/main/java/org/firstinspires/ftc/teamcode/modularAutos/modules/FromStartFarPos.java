@@ -9,7 +9,6 @@ import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.paths.PathChain;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
-import org.firstinspires.ftc.teamcode.util.BallColor;
 
 public class FromStartFarPos {
 
@@ -61,7 +60,7 @@ public class FromStartFarPos {
                     if ((robot.inShootingZone() || !robot.follower.isBusy()) && robot.movingSlowEnoughToShoot(false)) {
                         if (sort) {
                             robot.doSmartShoot(true);
-                            robot.indexer.setQueuedBalls(robot.getMotif());
+                            robot.indexer.setQueueGivenAttemptedRampOrder(robot.getMotif());
                         } else {
                             robot.indexer.shootAll();
                         }
@@ -69,10 +68,10 @@ public class FromStartFarPos {
                     }
                     break;
                 case 2:
-                    if (pathTimer.getElapsedTimeSeconds() > Timings.unjamTimeOutFar && pathTimer.getElapsedTimeSeconds() < Timings.unjamTimeOutFar + 0.5 && !sort) {
+                    if (pathTimer.getElapsedTimeSeconds() > (!sort ? Timings.unjamTimeOutFar : Timings.unjamTimeOutFarSort)) {
                         robot.indexerUnjam();
                     }
-                    if (!robot.isIndexerUnjamming() && robot.indexer.isHasBallsEmpty() || (sort && robot.indexer.isQueuedBallsEmpty())) {
+                    if (!robot.isIndexerUnjamming() && (robot.indexer.isHasBallsEmpty() || robot.indexer.autoFastEnd()) || (sort && robot.indexer.isQueuedBallsEmpty())) {
                         robot.doSmartShoot(false);
                         isFinished = true;
                     }
