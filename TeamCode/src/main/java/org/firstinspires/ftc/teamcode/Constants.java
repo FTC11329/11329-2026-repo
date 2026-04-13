@@ -84,6 +84,7 @@ public class Constants {
 //        public static PIDFCoefficients shooterVelocityPID = new PIDFCoefficients(0, 0, 0, 0);
         public static double kV = 5368.59375;
         public static double RPMoffset = 0;
+        public static double hoodAngleOffset = 0;
         public static double closeEnoughRPM = 50;
         public static double ticksPerRevolution = 28;
         public static double minHoodAngle = 14.3;

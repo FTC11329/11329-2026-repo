@@ -113,7 +113,7 @@ public class Shooter {
 
     // get the degrees of the hood
     public double getHoodPosDeg() {
-        return hoodPos;
+        return (hoodPos * 44.83) + 13.92;
     }
 
     public void resetShooter(){

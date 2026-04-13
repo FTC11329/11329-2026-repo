@@ -313,9 +313,9 @@ public class Robot {
 
         turret.setTargetRad(s.turretAngleRad + Math.toRadians(turretOffset));
 
-        shooter.setTargetRPM(s.rpm + rpmOffset);
+        shooter.setTargetRPM(s.rpm + Constants.Shooter.RPMoffset);
 
-        shooter.setHoodDeg(s.hoodDeg + hoodAngleOffset);
+        shooter.setHoodDeg(s.hoodDeg + Constants.Shooter.hoodAngleOffset);
     }
     double pictureTime = 0;
     public void shooterUpdate() {
@@ -523,10 +523,12 @@ public class Robot {
             debug();
         }
 
-        telemetry.addData("pos", indexer.currentIndexerState);
-        telemetry.addData("atPos", indexer.isAtPosition());
-//        panelsTelemetry.addData("Hood angle", shooter.getHoodPosDeg());
-//        panelsTelemetry.addData("distance to goal", distanceToGoal());
+//        telemetry.addData("pos", indexer.currentIndexerState);
+//        telemetry.addData("atPos", indexer.isAtPosition());
+        panelsTelemetry.addData("Hood angle", shooter.getHoodPosDeg());
+        panelsTelemetry.addData("distance to goal", distanceToGoal());
+        panelsTelemetry.addData("RPM target", shooter.getRPM());
+        panelsTelemetry.addData("RPM actual", shooter.shooterPID.getTargetPosition());
 //        panelsTelemetry.addData("RPM error", shooter.shooterPID.getError());
 //        panelsTelemetry.addData("actual", turret.getAngle());
 //        panelsTelemetry.addData("target", turret.turretPID.getTargetPosition());
