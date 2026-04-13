@@ -108,7 +108,7 @@ public class Turret {
         } else if (curAngle > turretPID.getTargetPosition()) {
             turretPID.updateFeedForwardInput(Constants.Turret.CCW_F);
         } else {
-            if (curAngle < 280) {
+            if (curAngle < 300) {
                 turretPID.updateFeedForwardInput(Constants.Turret.CW_F);
             } else {
                 turretPID.updateFeedForwardInput(Constants.Turret.CableCW_F);

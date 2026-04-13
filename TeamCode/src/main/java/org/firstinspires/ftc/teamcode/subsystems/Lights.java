@@ -10,9 +10,8 @@ import org.firstinspires.ftc.teamcode.util.BallColor;
 
 import java.util.Arrays;
 
-// todo add queue, photo, debug flashes
 public class Lights {
-    PrismAnimations.Pulse teamColorAnimation = new PrismAnimations.Pulse();
+    PrismAnimations.Sparkle teamColorAnimation = new PrismAnimations.Sparkle();
     PrismAnimations.Pulse cell0 = new PrismAnimations.Pulse();
     PrismAnimations.Pulse cell1 = new PrismAnimations.Pulse();
     PrismAnimations.Pulse cell2 = new PrismAnimations.Pulse();
@@ -47,8 +46,7 @@ public class Lights {
 
     public Lights(HardwareMap hardwareMap) {
         prism = hardwareMap.get(GoBildaPrismDriver.class, "prism");
-        prism.clearAllAnimations();
-        int brightness = 60;
+        int brightness = 50;
         int start = 0;
         int end = 18;
 
@@ -61,28 +59,30 @@ public class Lights {
             cell.setBrightness(brightness);
             cell.setPrimaryColor(teamColor);
             cell.setSecondaryColor(Color.dimColor(teamColor));
-            prism.insertAndUpdateAnimation(i, cell);
             i++;
         }
         queueCell0.setIndexes(10, 11);
         queueCell1.setIndexes(12, 13);
         queueCell2.setIndexes(16, 17);
         for (PrismAnimations.Pulse queueCell : queueCellsAnimation) {
-            queueCell.setBrightness(30);
+            queueCell.setBrightness(brightness);
             queueCell.setPrimaryColor(teamColor);
             queueCell.setSecondaryColor(Color.dimColor(teamColor));
         }
         climbCell.setIndexes(0, 23);
-//        climbCell.setHues(150, 190);
-//        climbCell.setRepeatAfter(60);
-        printColors(false);
+        climbCell.setSpeed(0.18f);
+//        printColors(false);
         bigRed.setBrightness(brightness);
         bigRed.setIndexes(0, 17);
         bigRed.setPrimaryColor(Color.RED);
         teamColorAnimation.setPrimaryColor(teamColor);
-        teamColorAnimation.setSecondaryColor(Color.dimColor(teamColor));
+        teamColorAnimation.setSecondaryColor(Color.dimColor(teamColor, 9));
+        teamColorAnimation.setSparkleProbability(3);
+        teamColorAnimation.setPeriod(100);
         teamColorAnimation.setBrightness(brightness);
-        teamColorAnimation.setIndexes(0, 17);
+        teamColorAnimation.setIndexes(0, 23);
+        prism.clearAllAnimations();
+        prism.insertAndUpdateAnimation(1, teamColorAnimation);
     }
 
     public void setBallColors(BallColor[] ballColor, BallColor[] queuedBalls, boolean basicallyHas3, boolean isInSmartShoot) {

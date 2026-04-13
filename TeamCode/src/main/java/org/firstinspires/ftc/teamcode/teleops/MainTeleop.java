@@ -228,7 +228,7 @@ public class MainTeleop {
         }
 
         if (autoShoot.isOn && !climb.isOn) {
-            robot.prepareShooter(!brake.isOn && sotfIsOn);
+            robot.prepareShooter(ShotType.TABLE, !brake.isOn && sotfIsOn, gamepad1.dpad_left);
         } else if (autoShoot.endPress || climb.startPress) {
             robot.casualShooterModeOn();
         }
