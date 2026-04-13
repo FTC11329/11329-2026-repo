@@ -8,11 +8,13 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.math.Vector;
+import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
 import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.EndValuesStorer;
 import org.firstinspires.ftc.teamcode.util.FancyButton;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
+import org.firstinspires.ftc.teamcode.util.ShootOnTheFly.ShotType;
 
 public class MainTeleop {
     //This is where we introduce the tele-operated controls
@@ -55,8 +57,6 @@ public class MainTeleop {
     HardwareMap hardwareMap;
     double RPMoffset;
     boolean sotfIsOn = true;
-    double distanceOffset;
-    double turretOffset;
 
     public MainTeleop(Gamepad gamepad1, Gamepad gamepad2, Telemetry telemetry, HardwareMap hardwareMap, RobotSide robotSide) {
         this.gamepad1 = gamepad1;
@@ -156,8 +156,10 @@ public class MainTeleop {
         intake.checkStatus(gamepad2.left_bumper); // Toggle on to intake
         spitIntake.checkStatus(gamepad2.right_bumper || gamepad1.left_bumper); // Hold to spit
 
-        turnSOTFOn.checkStatus(gamepad1.left_stick_button); // Toggle on SOTF
-        turnSOTFOff.checkStatus(gamepad1.right_stick_button); // Toggle off SOTF
+//        turnSOTFOn.checkStatus(gamepad1.left_stick_button); // Toggle on SOTF
+//        turnSOTFOff.checkStatus(gamepad1.right_stick_button); // Toggle off SOTF
+        turnSOTFOn.checkStatus(false); // Toggle on SOTF
+        turnSOTFOff.checkStatus(false); // Toggle off SOTF
 
         queueGreen.checkStatus(gamepad2.y); // Press to queue green
         queuePurple.checkStatus(gamepad2.x); // Press to queue purple
@@ -182,29 +184,9 @@ public class MainTeleop {
         if (!brake.isOn) {
             robot.drivetrain.teleopMovement(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, true);
         } else {
-            Vector velocity = robot.follower.getVelocity().copy();
-            double heading = robot.getCurrentPose().getHeading() + Math.toRadians(90);
-
-            // convert to robot frame
-            velocity.rotateVector(-heading);
-
-            double speed = velocity.getMagnitude();
-
-            Constants.Drivetrain.stopPID.updateError(-speed);
-            double output = Constants.Drivetrain.stopPID.run();
-
-            Vector brake;
-            if (speed < 0.01) {
-                brake = new Vector(0, 0);
-            } else {
-                brake = velocity.normalize().times(output);
-            }
-
-            double strafe = -brake.getXComponent();
-            double forward = -brake.getYComponent();
-
-            robot.drivetrain.teleopMovement(forward, strafe, 0, true);
+            robot.breakDrivetrain();
         }
+
         if (turnSOTFOn.startPress) {
             sotfIsOn = true;
         }
@@ -225,7 +207,7 @@ public class MainTeleop {
         if (spitIntake.endPress) {
             robot.spitIntake(false);
         }
-        if (intake.isOn && !climb.isOn){
+        if (intake.isOn){
             robot.doIntake();
         } else {
             robot.stopIntake();
@@ -246,13 +228,9 @@ public class MainTeleop {
         }
 
         if (autoShoot.isOn && !climb.isOn) {
-            robot.prepareShooter(!brake.isOn && sotfIsOn);
-        } else if (autoShoot.endPress || climb.endPress) {
+            robot.prepareShooter(ShotType.TABLE, !brake.isOn && sotfIsOn, gamepad1.dpad_left);
+        } else if (autoShoot.endPress || climb.startPress) {
             robot.casualShooterModeOn();
-        }
-
-        if (climb.isOn) {
-            robot.turret.update(0);
         }
 
         if (unjamSpindexer.startPress) {
@@ -266,25 +244,9 @@ public class MainTeleop {
         }
 
          // Changing our aim
-        if (movePoseUp.startPress) {
-            distanceOffset += 1.4;
-        }
-        if (movePoseDown.startPress) {
-            distanceOffset -= 1.4;
-        }
-        if (movePoseLeft.startPress) {
-            turretOffset += 1;
-        }
-        if (movePoseRight.startPress) {
-            turretOffset -= 1;
-        }
-        if (resetPose.startPress) {
-            robot.reZeroAtCorner();
-            distanceOffset = 0;
-            turretOffset = 0;
-        }
+        robot.shooterTrim(movePoseUp.startPress, movePoseDown.startPress, movePoseLeft.startPress, movePoseRight.startPress, resetPose.startPress);
 
-        robot.setOffset(distanceOffset, turretOffset);
+
         robot.setPanicShoot(panicShoot.isOn, fastShootButton.isOn);
 
         if (reZeroIndexer.startPress) {
@@ -293,7 +255,6 @@ public class MainTeleop {
 
         if (climb.startPress) {
             robot.climb();
-            robot.casualShooterModeOn();
         } else if (climb.endPress) {
             robot.storeClimber();
         }

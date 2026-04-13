@@ -18,6 +18,7 @@ public class Intake {
     DigitalChannel beamBreak;
     double lastMotorPower = 0;
     double lastServoPower = 0;
+    boolean climbed = false;
 
     public Intake(HardwareMap hardwareMap) {
         intakeMotor = hardwareMap.get(DcMotorEx.class, "intake");
@@ -71,8 +72,16 @@ public class Intake {
         }
     }
 
+    public void climb(boolean climbed) {
+        this.climbed = climbed;
+    }
 
-        public void update(boolean spitIntake, boolean isIntaking, boolean isShooting, boolean forceSpit, boolean allowIntaking, boolean isPlugged, boolean intakeOverride) {
+    public void update(boolean spitIntake, boolean isIntaking, boolean isShooting, boolean forceSpit, boolean allowIntaking, boolean isPlugged, boolean intakeOverride) {
+        if (climbed) {
+            setIntakeServoPower(0);
+            setIntakeMotorPower(0);
+            return;
+        }
         if (isPlugged && isBeamBroken()) {
             setIntakeMotorPower(Constants.Intake.intakeMotorPluggedPower);
             setIntakeServoPower(0);
@@ -86,7 +95,7 @@ public class Intake {
             setIntakeMotorPower(Constants.Intake.intakeMotorOffPower);
             intakeServo(true);
         } else {
-            intakeMotor(false);
+            setIntakeMotorPower(Constants.Intake.intakeMotorLightSpit);
             intakeServo(false);
         }
     }

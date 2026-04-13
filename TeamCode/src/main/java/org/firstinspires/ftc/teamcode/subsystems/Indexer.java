@@ -37,6 +37,10 @@ public class Indexer {
     RevColorSensorV3 colorSensorI2C;
 
 
+    // index 0 is touching lever
+    public BallColor[] autoRampOrder = {BallColor.None, BallColor.None, BallColor.None,
+            BallColor.None, BallColor.None, BallColor.None,
+            BallColor.None, BallColor.None, BallColor.None};
     BallColor[] ballCells = new BallColor[3];
     private BallColor transferColor = BallColor.None;
 
@@ -54,10 +58,13 @@ public class Indexer {
     private boolean allowIntaking = true;
     private boolean forceEndPlug = false;
     private boolean doSpit = false;
+    Timer seesDistance = new Timer();
     Timer spitTimer = new Timer();
     Timer feedTimer = new Timer();
+    public boolean doSmartShoot = false;
     public boolean startIndexerPlug = false;
     public boolean indexerPlug = false;
+    public boolean autoFastShootEnd = false;
     private Pose lastPosition = new Pose(0,0,0);
 
     BallColor[] queuedBalls = new BallColor[]{BallColor.None, BallColor.None, BallColor.None};
@@ -167,15 +174,17 @@ public class Indexer {
 
     public BallColor getColorOptimized() {
         if (hasDistanceFast()) {
-            if (hasDistanceSlow()) {
+            if (hasDistanceSlow() || seesDistance.getElapsedTimeSeconds() > 0.25) {
                 NormalizedRGBA rgba = colorSensorI2C.getNormalizedColors();
                 RGBColors[] colorOrder = RGBColors.sortByMagnitude(rgba);
                 if (Arrays.equals(colorOrder, Constants.Color.greenColorOrder)) {
                     return BallColor.Green;
-                } else if (Arrays.equals(colorOrder, Constants.Color.purpleColorOrder)) {
+                } else {
                     return BallColor.Purple;
                 }
             }
+        } else {
+            seesDistance.resetTimer();
         }
         return BallColor.None;
     }
@@ -196,6 +205,10 @@ public class Indexer {
             }
         }
         return true;
+    }
+
+    public boolean autoFastEnd() {
+        return autoFastShootEnd && !doSmartShoot;
     }
 
     public int numberOfBallsInBallCells() {
@@ -298,10 +311,6 @@ public class Indexer {
         return 3;
     }
 
-    public void setQueuedBalls(BallColor[] queuedBalls) {
-        this.queuedBalls = queuedBalls;
-    }
-
     public void addToQueue(BallColor queueBall) {
         if (!isQueuedBallsFull()) {
             queuedBalls[highestEmptyQueueIndex()] = queueBall;
@@ -383,12 +392,38 @@ public class Indexer {
             isStuck = false;
         }
     }
+    //Ramp ordering********************************************************************************~
+    public int getNextEmptyRampIndex() {
+        for (int i = 0; i < autoRampOrder.length; i++) {
+            if (autoRampOrder[i] == BallColor.None) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public void setQueueGivenAttemptedRampOrder(BallColor[] motifOrder) {
+        int firstEmptyRamp = getNextEmptyRampIndex();
+        BallColor[] ballsToQueue = {BallColor.Any, BallColor.Any, BallColor.Any};
+        int queueI = 0;
+        for (int rampI = firstEmptyRamp; rampI < motifOrder.length && queueI < 3; rampI++) {
+            ballsToQueue[queueI] = motifOrder[rampI];
+            queueI++;
+        }
+        queuedBalls = ballsToQueue.clone();
+    }
+
+    public void shotBallIntoRamp(BallColor color) {
+        autoRampOrder[getNextEmptyRampIndex() == -1 ? 8 : getNextEmptyRampIndex()] = color;
+    }
+
     //Update **************************************************************************************~
     public void update(boolean intaking, boolean readyToShoot, Pose currentPose) {
         update(intaking, readyToShoot, false, false, currentPose);
     }
 
     public void update(boolean intaking, boolean readyToShoot, boolean doSmartShoot, boolean isFarShot, Pose currentPose) {
+        this.doSmartShoot = doSmartShoot;
         stuckUpdate();
 
         updateEncoder(); //updates this variable on tick so we are not calling multiple times in one tick
@@ -424,6 +459,10 @@ public class Indexer {
             }
         } else if (forceEndPlug) {
             forceEndPlug = false;
+        }
+
+        if (getEncoderPercentage() > 1.0 / 3.0) {
+            autoFastShootEnd = false;
         }
 
         // Bulk Runs
@@ -516,6 +555,11 @@ public class Indexer {
             dumbShootState1 = true;
         }
 
+        // Update autoEndShootFast
+        if (dumbShootState1 && !dumbShootState2 && getEncoderPercentage() < 1.0 / 3.0) {
+            autoFastShootEnd = true;
+        }
+
         // once back at intake, stop shooting
         if (dumbShootState1 && !dumbShootState2 && isAtPosition()) {
             dumbShootState1 = false;
@@ -539,7 +583,6 @@ public class Indexer {
         switch (smartShootState) {
             case IDLE:
                 if (!isQueuedBallsEmpty() && readyToShoot) {
-                    shooting = true;
                     smartShootState = SmartShootState.GO_TO_INDEX;
                 }
                 break;
@@ -556,9 +599,11 @@ public class Indexer {
                 }
                 break;
             case SHOOT:
-                if (shooting && isAtPosition()) {
+                if (isAtPosition()) {
+                    shooting = true;
                     spinTransferWheel(true);
                     feedTimer.resetTimer();
+                    shotBallIntoRamp((getBallCells()[findIndexWithColor(queuedBalls[0])]));
                     ballCells[findIndexWithColor(queuedBalls[0])] = BallColor.None;
                     removeFrontQueue();
                     smartShootState = SmartShootState.WAIT_TO_SETTLE;

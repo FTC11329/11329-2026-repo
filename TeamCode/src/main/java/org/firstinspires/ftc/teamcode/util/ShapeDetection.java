@@ -31,6 +31,8 @@ public class ShapeDetection {
     private static final Polygon farTriangle = createPolygon(farTriangleCorners);
     private static final Polygon seesObeliskFrontTag = createPolygon(seesObeliskFrontTagCorners);
 
+    private static final double robotSizeMult = 2.25;
+
     private static final double forwardFromCenter = 10;
     private static final double leftFromCenter = 7.5;
     private static final double rightFromCenter = 7.5;
@@ -50,8 +52,11 @@ public class ShapeDetection {
             new Pose(4.1, 3.3),
             new Pose(-2.2,0)
     };
-
     public static boolean isRobotInside(FieldShapes shape, Pose robotPose) {
+        return isRobotInside(shape, robotPose, false);
+    }
+
+    public static boolean isRobotInside(FieldShapes shape, Pose robotPose, boolean largeRobot) {
         Polygon polyA = null;
         switch (shape) {
             case closeTriangle:
@@ -64,7 +69,7 @@ public class ShapeDetection {
                 polyA = seesObeliskFrontTag;
                 break;
         }
-        return polyA.intersects(createPolygon(createRobotCorners(robotPose)));
+        return polyA.intersects(createPolygon(createRobotCorners(robotPose, largeRobot)));
     }
 
     public static boolean doesRobotCrossLine(FieldShapes shape, Pose robotPose) {
@@ -84,11 +89,22 @@ public class ShapeDetection {
     }
 
     public static Pose[] createRobotCorners(Pose robotPose) {
+        return createRobotCorners(robotPose, false);
+    }
+    public static Pose[] createRobotCorners(Pose robotPose, boolean large) {
         Pose[] worldCorners = new Pose[4];
+
+        Pose[] actualCorners = localCorners.clone();
+
+        if (large) {
+            for (Pose actualCorner : actualCorners) {
+                actualCorner.scale(robotSizeMult);
+            }
+        }
 
         for (int i = 0; i < 4; i++) {
             // rotate around 0,0
-            Pose rotated = localCorners[i].rotate(robotPose.getHeading(), false);
+            Pose rotated = actualCorners[i].rotate(robotPose.getHeading(), false);
 
             // translate into world space
             worldCorners[i] = new Pose(

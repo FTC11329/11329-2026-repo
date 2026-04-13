@@ -22,8 +22,8 @@ import org.firstinspires.ftc.teamcode.util.ShapeDetection;
 import java.util.ArrayList;
 import java.util.List;
 
-@Autonomous(name = "Red Close 21", group = "0Comp", preselectTeleOp = "Main Teleop Red")
-public class RedClose21Ball extends OpMode {
+@Autonomous(name = "Blue Close 21", group = "0Comp", preselectTeleOp = "Main Teleop Blue")
+public class BlueClose21Ball extends OpMode {
     Pose startPose;
     RobotSide robotSide;
     Robot robot;
@@ -37,7 +37,7 @@ public class RedClose21Ball extends OpMode {
 
     @Override
     public void init() {
-        robotSide = RobotSide.Red;
+        robotSide = RobotSide.Blue;
         robot = new Robot(telemetry, hardwareMap, robotSide, 0,0,
                 new BallColor[]{
                         BallColor.Green,
@@ -47,11 +47,11 @@ public class RedClose21Ball extends OpMode {
         startPose = Common.StartPoses.closeInner;
 
         steps.add(new FromStartClosePos.ShootAndGoToMidShootPosFast(robot, lastPlanner()));
+        steps.add(new FromShootMidPos.ToIntakeSpike1  (robot, lastPlanner(), true,  true, false));
         steps.add(new FromShootMidPos.ToIntakeSpike2  (robot, lastPlanner(), false, false, false));
+        steps.add(new FromShootMidPos.ToIntakeSpike3  (robot, lastPlanner(), true,  false));
         steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPlanner(), false, false, true));
         steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPlanner(), true,  false, true));
-        steps.add(new FromShootMidPos.ToIntakeSpike3  (robot, lastPlanner(), true,  false));
-        steps.add(new FromShootMidPos.ToIntakeSpike1  (robot, lastPlanner(), true,  true, false));
 
         wComms(steps);
 

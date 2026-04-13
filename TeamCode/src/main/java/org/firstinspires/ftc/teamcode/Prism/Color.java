@@ -55,6 +55,9 @@ public class Color {
     public static final Color TRANSPARENT = new Color(0,   0,   0);
 
     public static Color dimColor(Color color) {
-        return new Color(color.red/5, color.green/5, color.blue/5);
+        return dimColor(color, 5.0);
+    }
+    public static Color dimColor(Color color, double dimFactor) {
+        return new Color((int)(color.red/dimFactor), (int)(color.green/dimFactor), (int)(color.blue/dimFactor));
     }
 }

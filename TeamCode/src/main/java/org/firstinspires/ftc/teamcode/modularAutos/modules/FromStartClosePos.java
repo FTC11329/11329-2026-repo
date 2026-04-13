@@ -87,7 +87,7 @@ public class FromStartClosePos {
                     if (pathTimer.getElapsedTimeSeconds() > Timings.unjamTimeOutFar && pathTimer.getElapsedTimeSeconds() < Timings.unjamTimeOutFar + 0.5) {
                         robot.indexerUnjam();
                     }
-                    if (robot.indexer.isHasBallsEmpty()) {
+                    if ((robot.indexer.isHasBallsEmpty() || robot.indexer.autoFastEnd())) {
                         isFinished = true;
                     }
                     break;
@@ -182,7 +182,7 @@ public class FromStartClosePos {
                     }
                     break;
                 case 3:
-                    if (!robot.follower.isBusy() || robot.indexer.isHasBallsEmpty()) {
+                    if (!robot.follower.isBusy() || (robot.indexer.isHasBallsEmpty() || robot.indexer.autoFastEnd())) {
                         robot.follower.setMaxPower(1);
                         setPathState(4);
                     }
@@ -191,7 +191,7 @@ public class FromStartClosePos {
                     if (pathTimer.getElapsedTimeSeconds() > Timings.unjamTimeOut) {
                         robot.indexerUnjam();
                     }
-                    if (robot.indexer.isHasBallsEmpty() && robot.follower.getErrorDistance(lastPose) < 7) {
+                    if ((robot.indexer.isHasBallsEmpty() || robot.indexer.autoFastEnd()) && robot.follower.getErrorDistance(lastPose) < 7) {
                         isFinished = true;
                     }
                     break;

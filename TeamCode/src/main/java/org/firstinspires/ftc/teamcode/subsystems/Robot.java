@@ -15,6 +15,7 @@ import org.firstinspires.ftc.teamcode.modularAutos.Common;
 import org.firstinspires.ftc.teamcode.pedroPathing.Drawing;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
+import org.firstinspires.ftc.teamcode.pedroPathing.math.Vector;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.FieldShapes;
@@ -60,12 +61,13 @@ public class Robot {
     boolean intakeOverride = false;
     boolean panicShoot = false;
     boolean panicShootingButton = false;
-
     Pose lastCamPose = new Pose(0,0,0);
     // Offset pose to aim for
     public Pose offsetPose = new Pose(0,0,0);
-    double distanceOffset;
-    double turretOffset;
+    double closeDistanceOffset = 0;
+    double closeTurretOffset = 0;
+    double farDistanceOffset = 0;
+    double farTurretOffset = 0;
     //This is an array of the 3 special colors of the games MOTIF
     public BallColor[] motif = null;
     int thingies = 0;
@@ -120,8 +122,6 @@ public class Robot {
     // sets the motif if we havent seen it yet
     // always return the motif
     public BallColor[] getMotif() {
-        //todo REMOVE ME IF WE ARE AT COMP
-        motif = new BallColor[]{BallColor.Purple, BallColor.Green, BallColor.Purple};
         return getMotif(false);
     }
     public BallColor[] getMotif(boolean force) {
@@ -213,9 +213,21 @@ public class Robot {
         }
         return null;
     }
-    public void setOffset(double distanceOffset, double turretOffset){
-        this.distanceOffset = distanceOffset;
-        this.turretOffset = turretOffset;
+/// Returns whether succeeded to Queue te right ball
+    public boolean ImmediatelyQueueNextBallOnRampToMatchMotif(){
+        List<BallColor> rampBalls = vision.GetBallsOnRamp(getCurrentPose());
+        int num = rampBalls.size();
+        if (num >= 9){
+            return  false;
+        }
+        int nextIndex = num % 3; //No need to add 1 because num is size while nextIndex is index.
+        getMotif(false);
+        if (motif != null) {
+            qBall(motif[nextIndex]);
+            return true;
+        }else {
+            return false;
+        }
     }
 
     // TURRET**************************************************************************************~
@@ -247,7 +259,6 @@ public class Robot {
     public void casualShooterModeOn() {
         turret.setTargetDeg(180);
         shooter.casualModeOn();
-        usePID = false;
     }
 
     public void setShootFromPose(boolean shootFromPose) {
@@ -277,6 +288,10 @@ public class Robot {
     }
     double rpmRatio = 1;
     public void prepareShooter(ShotType shotType, boolean useSOTF) {
+        prepareShooter(shotType, useSOTF, false);
+    }
+
+    public void prepareShooter(ShotType shotType, boolean useSOTF, boolean swapGoal) {
         usePID = true;
         ShotContext ctx = new ShotContext();
 
@@ -287,16 +302,32 @@ public class Robot {
         }
         Pose goalPose;
         if (smartShoot) {
-            if (robotSide == RobotSide.Blue) {
-                goalPose = Constants.Vision.blueGoalSort;
+            if (!swapGoal) {
+                if (robotSide == RobotSide.Blue) {
+                    goalPose = Constants.Vision.blueGoalSort;
+                } else {
+                    goalPose = Constants.Vision.redGoalSort;
+                }
             } else {
-                goalPose = Constants.Vision.redGoalSort;
+                if (robotSide == RobotSide.Blue) {
+                    goalPose = Constants.Vision.redGoalSort;
+                } else {
+                    goalPose = Constants.Vision.blueGoalSort;
+                }
             }
         } else {
-            if (robotSide == RobotSide.Blue) {
-                goalPose = shotType == ShotType.PHYSICAL ? Constants.Vision.blueGoalPhysics : Constants.Vision.blueGoal;
+            if (!swapGoal) {
+                if (robotSide == RobotSide.Blue) {
+                    goalPose = shotType == ShotType.PHYSICAL ? Constants.Vision.blueGoalPhysics : Constants.Vision.blueGoal;
+                } else {
+                    goalPose = shotType == ShotType.PHYSICAL ? Constants.Vision.redGoalPhysics : Constants.Vision.redGoal;
+                }
             } else {
-                goalPose = shotType == ShotType.PHYSICAL ? Constants.Vision.redGoalPhysics : Constants.Vision.redGoal;
+                if (robotSide == RobotSide.Blue) {
+                    goalPose = shotType == ShotType.PHYSICAL ? Constants.Vision.redGoalPhysics : Constants.Vision.redGoal;
+                } else {
+                    goalPose = shotType == ShotType.PHYSICAL ? Constants.Vision.blueGoalPhysics : Constants.Vision.blueGoal;
+                }
             }
         }
         ctx.goalPose = goalPose.plus(offsetPose);
@@ -304,21 +335,84 @@ public class Robot {
         ctx.acceleration = follower.getAcceleration();
         ctx.side = robotSide;
         ctx.rpmRatio = rpmRatio;
-        ctx.distanceOffset = distanceOffset;
+        if (lastShape == FieldShapes.closeTriangle) {
+            ctx.distanceOffset = closeDistanceOffset;
+        } else {
+            ctx.distanceOffset = farDistanceOffset;
+        }
 
         ShotSolution s = shotCalculator.solveShot(ctx, shotType, useSOTF);
 
         // expose turret feedforward
         angleToGoalVelocity = s.turretVel;
 
-        turret.setTargetRad(s.turretAngleRad + Math.toRadians(turretOffset));
+        if (lastShape == FieldShapes.closeTriangle) {
+            turret.setTargetRad(s.turretAngleRad + Math.toRadians(closeTurretOffset));
+        } else {
+            turret.setTargetRad(s.turretAngleRad + Math.toRadians(farTurretOffset));
+        }
 
-        shooter.setTargetRPM(s.rpm + Constants.Shooter.RPMoffset);
 
-        shooter.setHoodDeg(s.hoodDeg + Constants.Shooter.hoodAngleOffset);
+        shooter.setTargetRPM(s.rpm + rpmOffset);
+
+        shooter.setHoodDeg(s.hoodDeg + hoodAngleOffset);
     }
-    double pictureTime = 0;
+
+    double OTHER_ZONE_MULT = 0.5;
+
+    public void shooterTrim(boolean up, boolean down, boolean left, boolean right, boolean reset) {
+        if (up) {
+            if (lastShape == FieldShapes.closeTriangle) {
+                closeDistanceOffset += 1.4;
+                farDistanceOffset += 1.4 * OTHER_ZONE_MULT;
+            } else {
+                farDistanceOffset += 1.4;
+                closeDistanceOffset += 1.4 * OTHER_ZONE_MULT;
+            }
+        }
+        if (down) {
+            if (lastShape == FieldShapes.closeTriangle) {
+                closeDistanceOffset -= 1.4;
+                farDistanceOffset -= 1.4 * OTHER_ZONE_MULT;
+            } else {
+                farDistanceOffset -= 1.4;
+                closeDistanceOffset -= 1.4 * OTHER_ZONE_MULT;
+            }
+        }
+        if (left) {
+            if (lastShape == FieldShapes.closeTriangle) {
+                closeTurretOffset += 1;
+                farTurretOffset += 1 * OTHER_ZONE_MULT;
+            } else {
+                farTurretOffset += 1;
+                closeTurretOffset += 1 * OTHER_ZONE_MULT;
+            }
+        }
+        if (right) {
+            if (lastShape == FieldShapes.closeTriangle) {
+                closeTurretOffset -= 1;
+                farTurretOffset -= 1 * OTHER_ZONE_MULT;
+            } else {
+                farTurretOffset -= 1;
+                closeTurretOffset -= 1 * OTHER_ZONE_MULT;
+            }
+        }
+        if (reset) {
+            reZeroAtCorner();
+            closeDistanceOffset = 0;
+            closeTurretOffset = 0;
+            farDistanceOffset = 0;
+            farTurretOffset = 0;
+        }
+    }
+
+    FieldShapes lastShape = FieldShapes.closeTriangle;
     public void shooterUpdate() {
+        if (ShapeDetection.isRobotInside(FieldShapes.closeTriangle, getCurrentPose())) {
+            lastShape = FieldShapes.closeTriangle;
+        } else if (ShapeDetection.isRobotInside(FieldShapes.farTriangle, getCurrentPose())) {
+            lastShape = FieldShapes.farTriangle;
+        }
         shooter.update(getVoltageCompensation(), panicShoot, panicShootingButton);
     }
 
@@ -421,14 +515,14 @@ public class Robot {
 
     // CLIMB***************************************************************************************~
     public void climb() {
-        usePID = false;
         climber.enableClimb();
         lights.setClimbLights(true);
+        intake.climb(true);
     }
     public void storeClimber() {
-        usePID = true;
         climber.disableClimb();
         lights.setClimbLights(false);
+        intake.climb(false);
     }
     // LIGHTS**************************************************************************************~
     public void lightsUpdate() {
@@ -458,6 +552,68 @@ public class Robot {
         return result;
     }
     // TELE-OP*************************************************************************************~
+
+    public void breakDrivetrain() {
+        Vector velocity = follower.getVelocity().copy();
+        double heading = getCurrentPose().getHeading() + Math.toRadians(90);
+
+        velocity.rotateVector(-heading);
+
+        double speed = velocity.getMagnitude();
+
+        // ----- TRANSLATIONAL PID -----
+        Constants.Drivetrain.stopPID.updateError(-speed);
+        double output = Constants.Drivetrain.stopPID.run();
+
+        Vector brake;
+        if (speed < 0.01) {
+            brake = new Vector(0, 0);
+        } else {
+            brake = velocity.normalize().times(output);
+        }
+
+        double strafe = -brake.getXComponent();
+        double forward = -brake.getYComponent();
+
+        // ----- TURN PID -----
+        double headingVel = follower.getAngularVelocity();
+        Constants.Drivetrain.turnPID.updateError(-headingVel);
+        double turn = -Constants.Drivetrain.turnPID.run();
+
+        // ----- SCALING -----
+        double minVel = 20;
+        double maxVel = 50;
+
+        double minVelPow = 1;
+        double maxVelPow = 0.17;
+
+        double t = (speed - minVel) / (maxVel - minVel);
+        t = Math.max(0.0, Math.min(1.0, t));
+
+        double scale = 1.0 - t * (minVelPow - maxVelPow);
+
+        double scaleFront = 1.0;
+        double scaleBack = 1.0;
+
+        if (Math.abs(velocity.getYComponent()) > Math.abs(velocity.getXComponent())) {
+            if (velocity.getYComponent() > 0) {
+                scaleBack = scale;
+            } else {
+                scaleFront = scale;
+            }
+        }
+
+        // ----- APPLY POWERS -----
+        double leftFrontPower  = scaleFront * (forward + strafe + turn);
+        double leftBackPower   = scaleBack  * (forward - strafe + turn);
+        double rightFrontPower = scaleFront * (forward - strafe - turn);
+        double rightBackPower  = scaleBack  * (forward + strafe - turn);
+
+        drivetrain.setLeftFrontPower(leftFrontPower);
+        drivetrain.setLeftBackPower(leftBackPower);
+        drivetrain.setRightFrontPower(rightFrontPower);
+        drivetrain.setRightBackPower(rightBackPower);
+    }
 
     // Does not set panicShootingButton if panic shoot is false
     public void setPanicShoot(boolean panicShoot, boolean panicShootingButton) {
@@ -523,16 +679,9 @@ public class Robot {
             debug();
         }
 
-//        telemetry.addData("pos", indexer.currentIndexerState);
-//        telemetry.addData("atPos", indexer.isAtPosition());
-        panelsTelemetry.addData("Hood angle", shooter.getHoodPosDeg());
-        panelsTelemetry.addData("distance to goal", distanceToGoal());
-        panelsTelemetry.addData("RPM target", shooter.getRPM());
-        panelsTelemetry.addData("RPM actual", shooter.shooterPID.getTargetPosition());
-//        panelsTelemetry.addData("RPM error", shooter.shooterPID.getError());
-//        panelsTelemetry.addData("actual", turret.getAngle());
-//        panelsTelemetry.addData("target", turret.turretPID.getTargetPosition());
-
+        panelsTelemetry.addData("rpm", shooter.getRPM());
+        panelsTelemetry.addData("tar", shooter.getTargetRpm());
+        panelsTelemetry.addData("Pow", Math.min(1, shooter.shooterPID.run()));
         panelsTelemetry.update();
     }
 

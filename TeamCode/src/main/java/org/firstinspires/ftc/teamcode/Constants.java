@@ -15,12 +15,18 @@ public class Constants {
         public static double turboPower = 1;
 
         public static PIDFController stopPID = new PIDFController(new PIDFCoefficients(
-                0.035,   // P (strong push against motion)
-                0.0,   // I (DON’T use I for stopping)
-                0.0,   // D (damping, prevents oscillation)
-                0.0    // F
-        ));    }
-
+                0.035,
+                0.0,
+                0.0,
+                0.0
+        ));
+        public static PIDFController turnPID = new PIDFController(error -> new PIDFCoefficients(
+                0.15,
+                0.0,
+                0.0,
+                0.0
+        ));
+    }
     public static class Indexer {
 
         public static double indexerTolerance = 0.07;
@@ -35,6 +41,7 @@ public class Constants {
         public static double intakeMotorPower = 1;
         public static double intakeMotorOffPower = -0.16;
         public static double intakeMotorPluggedPower = 0.04;
+        public static double intakeMotorLightSpit = -0.3;
         public static double spitMotorPower = -0.67; //67 67 67 67 67 67 67 67 67 67
 
         public static double intakeServoPower = 1;
@@ -47,9 +54,9 @@ public class Constants {
     public static class Vision {
         public static int configTest = 0;
         public static Pose redGoal = new Pose(65, -64);
-        public static Pose blueGoal = new Pose(67, 64);
-        public static Pose redGoalSort = new Pose(65, -58);
-        public static Pose blueGoalSort = new Pose(67, 58);
+        public static Pose blueGoal = new Pose(68, 62.5);
+        public static Pose redGoalSort = new Pose(64, -58);
+        public static Pose blueGoalSort = new Pose(67, 56.5);
 
         public static Pose redGoalPhysics = new Pose(64, -67);
         public static Pose blueGoalPhysics = new Pose(67, 67);
@@ -69,7 +76,7 @@ public class Constants {
 
         public static double CCW_F = -0.035;
         public static double CW_F = 0.087;
-        public static double CableCW_F = 0.13;
+        public static double CableCW_F = 0.115;
         public static double kV = .045;
         public static double kA = -.07;
 
@@ -96,7 +103,7 @@ public class Constants {
         public static double setHood = 0;
     }
     public static class Climber {
-        public static double climbedPosition = 0.466;
+        public static double climbedPosition = 0.445;
         public static double storedPosition = 0.1;
     }
     public static class Color {
