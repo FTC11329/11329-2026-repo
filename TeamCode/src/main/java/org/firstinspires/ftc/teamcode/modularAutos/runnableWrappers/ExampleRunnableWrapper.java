@@ -54,11 +54,6 @@ public class ExampleRunnableWrapper extends OpMode {
         steps.add(new FromShootMidPos.ToIntakeSpike1(robot, lastPlanner(), true, false, false));
 
         wComms(steps);
-
-        if (startPose.getX() < 0) {
-            robot.follower.getConstraints().setBrakingStart(1.25);
-            robot.follower.getConstraints().setBrakingStrength(0.75);
-        }
         robot.follower.setPose(startPose);
         panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
     }

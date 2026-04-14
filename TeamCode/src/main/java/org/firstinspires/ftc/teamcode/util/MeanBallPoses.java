@@ -14,7 +14,7 @@ public class MeanBallPoses {
     public MeanBallPoses() {
     }
 
-    public Pose getIntakeTarget(List<Vision.DetectedBall> detectedBalls) {
+    static public Pose getIntakeTarget(List<Vision.DetectedBall> detectedBalls) {
         List<Pose> ballPoses = new ArrayList<>();
         for (Vision.DetectedBall ball : detectedBalls) {
             if (Math.abs(ball.ballPose.getX()) < 75 && Math.abs(ball.ballPose.getY()) < 75) {

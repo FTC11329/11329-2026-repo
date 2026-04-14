@@ -14,6 +14,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.paths.PathBuilder;
 import org.firstinspires.ftc.teamcode.pedroPathing.paths.PathChain;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
+import org.firstinspires.ftc.teamcode.util.VisionTypes;
 
 public class FromShootFarPos {
 
@@ -500,14 +501,9 @@ public class FromShootFarPos {
                         robot.follower.breakFollowing();
                         return false;
                     }
-                    intakeBallPose = robot.getIntakeBallPoseFromCam();
+                    intakeBallPose = robot.getIntakeBallPoseFromCam(VisionTypes.DBScan);
                     if (intakeBallPose != null) {
-//                        double dx = intakeBallPose.getX() - startPose.getX();
-//                        double dy = intakeBallPose.getY() - startPose.getY();
-//                        double headingRadians = Math.atan2(dy, dx);
-
-                        // intakeBallPose = intakeBallPose.setHeading(headingRadians);
-                        intakeBallPose = intakeBallPose.setHeading(StartPoses.closeOuter.getHeading()); // 90 but mirrored if need-be
+                        intakeBallPose = intakeBallPose.setHeading(StartPoses.closeOuter.getHeading());
                         toIntakeBalls = robot.follower.fastPathChainBuilder(startPose, intakeBallPose, TValues.fastInterpolationIntakeStartFar, TValues.fastInterpolationIntakeEndFar);
                         robot.follower.followPath(toIntakeBalls);
                         setPathState(1);
@@ -533,11 +529,131 @@ public class FromShootFarPos {
                     }
                     break;
                 case 3:
+                    if ((robot.indexer.isHasBallsEmpty() || robot.indexer.autoFastEnd())) {
+                        isFinished = true;
+                    }
                     if (pathTimer.getElapsedTimeSeconds() > (!sort ? Timings.unjamTimeOutFar : Timings.unjamTimeOutFarSort)) {
                         robot.indexerUnjam();
                     }
+            }
+            return isFinished;
+        }
+
+        private void setPathState(int state) {
+            this.state = state;
+            pathTimer.resetTimer();
+        }
+
+        @NonNull
+        @Override
+        public String toString() {
+            return "To Intake With Vision, state: " + state;
+        }
+    }
+
+    public static class ToIntakeWVisionDBScan implements PathPlanner {
+        /// Intakes from around the secret Tunnel with vision
+        // Variables
+        Pose offset = new Pose();
+        private Timer pathTimer;
+        private int state = -1;
+        private boolean isFinished = false;
+
+        // Pass-through Variables
+        private volatile Robot robot;
+        private Pose startPose;
+        private Pose lastPose;
+        private boolean sort;
+        private boolean visionFail = false;
+        PathPlanner failSafePath;
+        public ToIntakeWVisionDBScan(Robot robot, PathPlanner prevPlanner, boolean sort) {
+            pathTimer = new Timer();
+            this.robot = robot;
+            this.lastPose = ShootPoses.farShoot;
+            this.sort = sort;
+            if (!prevPlanner.hasComms()) {
+                startPose = getOptimalStartPose();
+            } else {
+                startPose = prevPlanner.getEndPoseEst();
+            }
+            failSafePath = new ToIntakeHuman(robot, prevPlanner, sort);
+            failSafePath.buildPaths();
+        }
+
+        @Override
+        public boolean hasComms() {
+            return true;
+        }
+
+        @Override
+        public void setOptimalEndPose(Pose optimalEndPose) {
+            lastPose = optimalEndPose;
+        }
+
+        @Override
+        public Pose getOptimalStartPose() {
+            return ShootPoses.optimalVisionStartFar;
+        }
+        //Path initialization
+        PathChain toIntakeBalls;
+        PathChain toShootPose;
+        @Override
+        public void buildPaths() {
+            // We create these on the fly during runtime
+        }
+
+        @Override
+        public Pose getEndPoseEst() {
+            return lastPose;
+        }
+
+        PathChain intakeBallPath;
+        @Override
+        public boolean run() {
+            if (visionFail) {
+                return failSafePath.run();
+            }
+            switch (state) {
+                case -1:
+                    setPathState(0);
+                    break;
+                case 0:
+                    if (pathTimer.getElapsedTimeSeconds() > 0.5) {
+                        visionFail = true;
+                        robot.follower.breakFollowing();
+                        return false;
+                    }
+                    intakeBallPath = robot.getIntakeBallPathFromCam(VisionTypes.Spline);
+                    if (intakeBallPath != null) {
+                        robot.follower.followPath(intakeBallPath);
+                        setPathState(1);
+                    }
+                    break;
+                case 1:
+                    if (!robot.follower.isBusy() || pathTimer.getElapsedTimeSeconds() > 2.5 || robot.indexer.isHasBallsFull() || robot.basicallyHas3() || (robot.follower.getVelocity().getMagnitude() < 2 && pathTimer.getElapsedTimeSeconds() > 0.75)) {
+                        toShootPose = robot.follower.fastPathChainBuilder(intakeBallPath.lastPath().endPose(), lastPose, TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootEnd, true);
+
+                        robot.follower.followPath(toShootPose);
+                        setPathState(2);
+                    }
+                    break;
+                case 2:
+                    if ((robot.inShootingZone() || !robot.follower.isBusy()) && robot.movingSlowEnoughToShoot(false)) {
+                        if (sort) {
+                            robot.doSmartShoot();
+                            robot.indexer.setQueueGivenAttemptedRampOrder(robot.getMotif());
+                        } else {
+                            robot.indexer.shootAll();
+                        }
+                        setPathState(3);
+                    }
+                    break;
+                case 3:
                     if ((robot.indexer.isHasBallsEmpty() || robot.indexer.autoFastEnd())) {
                         isFinished = true;
+                    }
+                    if (pathTimer.getElapsedTimeSeconds() > (!sort ? Timings.unjamTimeOutFar : Timings.unjamTimeOutFarSort)) {
+                        robot.indexerUnjam();
                     }
             }
             return isFinished;

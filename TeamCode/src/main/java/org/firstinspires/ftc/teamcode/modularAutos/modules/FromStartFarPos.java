@@ -57,6 +57,11 @@ public class FromStartFarPos {
                     setPathState(1);
                     break;
                 case 1:
+                    if (robot.readyToShootMotors()) {
+                        setPathState(2);
+                    }
+                    break;
+                case 2:
                     if ((robot.inShootingZone() || !robot.follower.isBusy()) && robot.movingSlowEnoughToShoot(false)) {
                         if (sort) {
                             robot.doSmartShoot(true);
@@ -64,16 +69,16 @@ public class FromStartFarPos {
                         } else {
                             robot.indexer.shootAll();
                         }
-                        setPathState(2);
+                        setPathState(3);
                     }
                     break;
-                case 2:
-                    if (pathTimer.getElapsedTimeSeconds() > (!sort ? Timings.unjamTimeOutFar : Timings.unjamTimeOutFarSort)) {
-                        robot.indexerUnjam();
-                    }
+                case 3:
                     if (!robot.isIndexerUnjamming() && (robot.indexer.isHasBallsEmpty() || robot.indexer.autoFastEnd()) || (sort && robot.indexer.isQueuedBallsEmpty())) {
                         robot.doSmartShoot(false);
                         isFinished = true;
+                    }
+                    if (pathTimer.getElapsedTimeSeconds() > (!sort ? Timings.unjamTimeOutFar : Timings.unjamTimeOutFarSort)) {
+                        robot.indexerUnjam();
                     }
             }
             return isFinished;

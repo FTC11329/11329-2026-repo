@@ -39,7 +39,7 @@ public class AutoTester extends OpMode {
     @Override
     public void init() {
         //Todo
-        robotSide = RobotSide.Red;
+        robotSide = RobotSide.Blue;
         robot = new Robot(telemetry, hardwareMap, robotSide, 0,0,
                 new BallColor[]{
                         BallColor.Green,
@@ -51,18 +51,12 @@ public class AutoTester extends OpMode {
 
 
         steps.add(new FromStartFarPos.ShootPreloads  (robot, lastPlanner(), false));
-        steps.add(new FromShootFarPos.ToIntakeSpike3 (robot, lastPlanner(), false));
-        steps.add(new FromShootFarPos.ToIntakeHuman  (robot, lastPlanner(), false));
-        steps.add(new FromShootFarPos.ToIntakeWVision(robot, lastPlanner(), false));
-        steps.add(new FromShootFarPos.ToIntakeWVision(robot, lastPlanner(), false));
-        steps.add(new FromShootFarPos.ToIntakeWVision(robot, lastPlanner(), false));
+        steps.add(new FromShootFarPos.ToIntakeWVision (robot, lastPlanner(), false));
+        steps.add(new FromShootFarPos.ToIntakeWVision (robot, lastPlanner(), false));
+        steps.add(new FromShootFarPos.ToIntakeWVision (robot, lastPlanner(), false));
 
         wComms(steps);
 
-        if (startPose.getX() < 0) {
-            robot.follower.getConstraints().setBrakingStart(1.25);
-            robot.follower.getConstraints().setBrakingStrength(0.75);
-        }
         robot.follower.setPose(startPose);
         panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
     }
@@ -160,7 +154,8 @@ public class AutoTester extends OpMode {
 //        Drawing.drawDebug(robot.follower);
 //        Drawing.drawShapesDebug(robot.follower);
 //        telemetry.addData("time", robot.getOpmodeTimeSeconds());
-        telemetry.addData("name", step);
+//        telemetry.addData("name", step);
+//        telemetry.addData("unjamm", robot.isIndexerUnjamming());
 //        for (BallColor i : robot.indexer.getBallCells()) {
 //            telemetry.addData("hasBalls", i);
 //        }

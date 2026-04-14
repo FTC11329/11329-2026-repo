@@ -47,6 +47,8 @@ public class MainTeleop {
     FancyButton unjamSpindexer;
     FancyButton climb;
     FancyButton reZeroIndexer;
+    FancyButton cycleCycler;
+    FancyButton useCycleCycler;
 
     FancyButton manualTurretStart;
 
@@ -109,6 +111,8 @@ public class MainTeleop {
         movePoseDown = new FancyButton(FancyButton.PressType.LongPress);
         movePoseLeft = new FancyButton(FancyButton.PressType.LongPress);
         movePoseRight = new FancyButton(FancyButton.PressType.LongPress);
+        cycleCycler = new FancyButton(FancyButton.PressType.Toggle);
+        useCycleCycler = new FancyButton(FancyButton.PressType.Toggle);
 
         manualTurretStart = new FancyButton(FancyButton.PressType.Toggle);
 
@@ -180,6 +184,8 @@ public class MainTeleop {
         debug.checkStatus(gamepad1.start); // toggle to print telemetry
         resetPose.checkStatus(gamepad1.x);
         climb.checkStatus(gamepad1.back);
+        cycleCycler.checkStatus(robot.indexer.isHasBallsEmpty());
+        useCycleCycler.checkStatus(gamepad1.dpad_left);
 
         if (!brake.isOn) {
             robot.drivetrain.teleopMovement(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, true);
@@ -228,7 +234,7 @@ public class MainTeleop {
         }
 
         if (autoShoot.isOn && !climb.isOn) {
-            robot.prepareShooter(ShotType.TABLE, !brake.isOn && sotfIsOn, gamepad1.dpad_left);
+            robot.prepareShooter(ShotType.TABLE, !brake.isOn && sotfIsOn, cycleCycler.isOn && useCycleCycler.isOn);
         } else if (autoShoot.endPress || climb.startPress) {
             robot.casualShooterModeOn();
         }

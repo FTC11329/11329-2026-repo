@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.util;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
+import org.firstinspires.ftc.teamcode.subsystems.Vision;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,29 +9,34 @@ import java.util.List;
 public class DBSCANLiteClustering {
 
     // Radius to consider points part of the same cluster (tune this!)
-    public double radius = 5.0;
+    public static double radius = 9.0;
 
     // Minimum number of points to consider a valid cluster
-    public int minPoints = 2;
+//    public int minPoints = 3;
 
-    public Pose findLargestCluster(List<Pose> poseList) {
+    static public Pose findLargestCluster(List<Vision.DetectedBall> poseList, boolean sort) {
+        return findLargestCluster(poseList, sort, 3);
+    }
+    static public Pose findLargestCluster(List<Vision.DetectedBall> ballList, boolean sort, int minPoints) {
 
         // Handle empty input
-        if (poseList == null || poseList.isEmpty()) {
-            return null;
+        if (ballList == null || ballList.isEmpty()) {
+            throw new RuntimeException("wow");
+//            return null;
         }
 
         int bestCount = 0;
+        boolean bestVeriety = false;
         Pose bestCenter = null;
 
         // For each point, treat it as a potential cluster center
-        for (Pose seed : poseList) {
+        for (Vision.DetectedBall seed : ballList) {
 
-            List<Pose> neighbors = new ArrayList<>();
+            List<Vision.DetectedBall> neighbors = new ArrayList<>();
 
             // Find all neighbors within radius
-            for (Pose other : poseList) {
-                if (seed.distanceFrom(other) <= radius) {
+            for (Vision.DetectedBall other : ballList) {
+                if (seed.ballPose.distanceFrom(other.ballPose) <= radius) {
                     neighbors.add(other);
                 }
             }
@@ -42,20 +48,29 @@ public class DBSCANLiteClustering {
 
             // Compute centroid of this cluster
             Pose sum = new Pose();
-            for (Pose p : neighbors) {
-                sum = sum.plus(p);
+            for (Vision.DetectedBall p : neighbors) {
+                sum = sum.plus(p.ballPose);
             }
             Pose center = sum.times(1.0 / neighbors.size());
 
             // Use density (count + tightness)
             double mse = 0.0;
-            for (Pose p : neighbors) {
-                double d = center.distanceFrom(p);
+            for (Vision.DetectedBall p : neighbors) {
+                double d = center.distanceFrom(p.ballPose);
                 mse += d * d;
             }
             mse /= neighbors.size();
 
             double score = neighbors.size() / (mse + 1e-6);
+
+            // Define if there is variety
+            int numPurp = 0;
+            for (Vision.DetectedBall ball : ballList) {
+                if (ball.ballColor == BallColor.Purple) {
+                    numPurp ++;
+                }
+            }
+            boolean hasVariety = numPurp == 2;
 
             // Pick best cluster
             if (bestCenter == null || score > bestCount) {
@@ -66,7 +81,11 @@ public class DBSCANLiteClustering {
 
         // Fallback: if no cluster met minPoints, pick closest point to origin (or return null)
         if (bestCenter == null) {
-            return poseList.get(0);
+            if (minPoints > 1) {
+                return findLargestCluster(ballList, sort, minPoints - 1);
+            } else {
+                return ballList.get(0).ballPose;
+            }
         }
 
         return bestCenter;

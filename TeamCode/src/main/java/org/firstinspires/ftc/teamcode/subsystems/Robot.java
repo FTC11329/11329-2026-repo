@@ -14,10 +14,14 @@ import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.modularAutos.Common;
 import org.firstinspires.ftc.teamcode.pedroPathing.Drawing;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
+import org.firstinspires.ftc.teamcode.pedroPathing.geometry.BezierCurve;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.math.Vector;
+import org.firstinspires.ftc.teamcode.pedroPathing.paths.Path;
+import org.firstinspires.ftc.teamcode.pedroPathing.paths.PathChain;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.util.BallColor;
+import org.firstinspires.ftc.teamcode.util.DBSCANLiteClustering;
 import org.firstinspires.ftc.teamcode.util.FieldShapes;
 import org.firstinspires.ftc.teamcode.util.MeanBallPoses;
 import org.firstinspires.ftc.teamcode.util.RGBColors;
@@ -28,6 +32,8 @@ import org.firstinspires.ftc.teamcode.util.ShootOnTheFly.ShotCalculator;
 import org.firstinspires.ftc.teamcode.util.ShootOnTheFly.ShotContext;
 import org.firstinspires.ftc.teamcode.util.ShootOnTheFly.ShotSolution;
 import org.firstinspires.ftc.teamcode.util.ShootOnTheFly.ShotType;
+import org.firstinspires.ftc.teamcode.util.VisionSpline;
+import org.firstinspires.ftc.teamcode.util.VisionTypes;
 
 import java.util.List;
 
@@ -75,7 +81,6 @@ public class Robot {
     public double angleToGoalAcceleration;
     Pose goal;
     public Pose shootFromPose = null;
-    MeanBallPoses meanBallPoses;
     Telemetry telemetry;
     public Robot(Telemetry telemetry, HardwareMap hardwareMap, RobotSide robotSide, int startTurretTicks, double startIndexerTicks) {
         this(telemetry, hardwareMap, robotSide, startTurretTicks, startIndexerTicks, new BallColor[]{BallColor.None, BallColor.None, BallColor.None});
@@ -98,7 +103,6 @@ public class Robot {
         shotCalculator = new ShotCalculator();
         hoodAngleCompensation = new HoodAngleCompensation();
         voltageSensors = hardwareMap.voltageSensor;
-        meanBallPoses = new MeanBallPoses();
 
 
         follower.setStartingPose(new Pose(0,0,0));
@@ -198,21 +202,67 @@ public class Robot {
     }
 
     public Pose getIntakeBallPoseFromCam() {
+        return getIntakeBallPoseFromCam(VisionTypes.MeanPose);
+    }
+    public Pose getIntakeBallPoseFromCam(VisionTypes type) {
         if (pipelineIndex != 2) {
             setPipelineIndex(2);
         }
         if (set){
             List<Vision.DetectedBall> detectedBalls = vision.searchForBalls(getCurrentPose());
             if (!detectedBalls.isEmpty()) {
-//                setPipelineIndex(0);
                 for (Vision.DetectedBall ball: detectedBalls) {
                     telemetry.addData("detected balls", ball);
                 }
-                return meanBallPoses.getIntakeTarget(detectedBalls);
+                switch (type) {
+                    case Spline:
+                    case Predetermined:
+                        throw new RuntimeException("error alert");
+                    case DBScan:
+                        return DBSCANLiteClustering.findLargestCluster(detectedBalls, false);
+                    case MeanPose:
+                        return MeanBallPoses.getIntakeTarget(detectedBalls);
+                }
             }
         }
         return null;
     }
+
+    public PathChain getIntakeBallPathFromCam(VisionTypes type) {
+        if (pipelineIndex != 2) {
+            setPipelineIndex(2);
+        }
+        if (set){
+            List<Vision.DetectedBall> detectedBalls = vision.searchForBalls(getCurrentPose());
+            if (!detectedBalls.isEmpty()) {
+                for (Vision.DetectedBall ball: detectedBalls) {
+                    telemetry.addData("detected balls", ball);
+                }
+                switch (type) {
+                    case DBScan:
+                    case MeanPose:
+                        throw new RuntimeException("error alert");
+                    case Spline:
+                        Path tempPath = VisionSpline.getSplinePathForVision(detectedBalls, getCurrentPose());
+                        if (tempPath != null) {
+                            return follower.pathBuilder()
+                                    .addPath(tempPath)
+                                    .build();
+                        }
+                    case Predetermined:
+                        throw new RuntimeException("error alert");
+//                        return follower.pathBuilder()
+//                                .addPath(new BezierCurve(Common.IntakeBallPoses.intakeHuman, Common.IntakeBallPoses.intakeSTunnelAfterHumanControl, Common.IntakeBallPoses.intakeSTunnelAfterHuman))
+//                                .setLinearHeadingInterpolation(Common.IntakeBallPoses.intakeHuman, Common.IntakeBallPoses.intakeSTunnelAfterHuman)
+//                                .addPath(new BezierCurve(Common.IntakeBallPoses.intakeSTunnelAfterHuman, Common.IntakeBallPoses.intakeFromSTunnel))
+//                                .build();
+
+                }
+            }
+        }
+        return null;
+    }
+
 /// Returns whether succeeded to Queue te right ball
     public boolean ImmediatelyQueueNextBallOnRampToMatchMotif(){
         List<BallColor> rampBalls = vision.GetBallsOnRamp(getCurrentPose());
