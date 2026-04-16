@@ -4,7 +4,6 @@ import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -14,7 +13,6 @@ import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.modularAutos.Common;
 import org.firstinspires.ftc.teamcode.pedroPathing.Drawing;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
-import org.firstinspires.ftc.teamcode.pedroPathing.geometry.BezierCurve;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.math.Vector;
 import org.firstinspires.ftc.teamcode.pedroPathing.paths.Path;
@@ -24,7 +22,6 @@ import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.DBSCANLiteClustering;
 import org.firstinspires.ftc.teamcode.util.FieldShapes;
 import org.firstinspires.ftc.teamcode.util.MeanBallPoses;
-import org.firstinspires.ftc.teamcode.util.RGBColors;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
 import org.firstinspires.ftc.teamcode.util.ShapeDetection;
 import org.firstinspires.ftc.teamcode.util.ShootOnTheFly.HoodAngleCompensation;
@@ -432,10 +429,10 @@ public class Robot {
         if (left) {
             if (lastShape == FieldShapes.closeTriangle) {
                 closeTurretOffset += 1;
-                farTurretOffset += 1 * OTHER_ZONE_MULT;
+                farTurretOffset += 1 * OTHER_ZONE_MULT * 2;
             } else {
                 farTurretOffset += 1;
-                closeTurretOffset += 1 * OTHER_ZONE_MULT;
+                closeTurretOffset += 1 * OTHER_ZONE_MULT * 2;
             }
         }
         if (right) {
@@ -603,6 +600,14 @@ public class Robot {
     }
     // TELE-OP*************************************************************************************~
 
+//    boolean brakeAllowSotf = true;
+//    boolean brakeAllowDebounce = true;
+    //returns if we want to allow sotf
+    public void notBrakeDriveTrain() {
+//        brakeAllowSotf = true;
+//        brakeAllowDebounce = true;
+//        return brakeAllowSotf;
+    }
     public void breakDrivetrain() {
         Vector velocity = follower.getVelocity().copy();
         double heading = getCurrentPose().getHeading() + Math.toRadians(90);
@@ -663,6 +668,13 @@ public class Robot {
         drivetrain.setLeftBackPower(leftBackPower);
         drivetrain.setRightFrontPower(rightFrontPower);
         drivetrain.setRightBackPower(rightBackPower);
+//        if (speed < 0.1) {
+//            brakeAllowDebounce = false;
+//            brakeAllowSotf = true;
+//        } else if (brakeAllowDebounce) {
+//            brakeAllowSotf = false;
+//        }
+//        return !brakeAllowSotf;
     }
 
     // Does not set panicShootingButton if panic shoot is false
@@ -729,9 +741,6 @@ public class Robot {
             debug();
         }
 
-        panelsTelemetry.addData("rpm", shooter.getRPM());
-        panelsTelemetry.addData("tar", shooter.getTargetRpm());
-        panelsTelemetry.addData("Pow", Math.min(1, shooter.shooterPID.run()));
         panelsTelemetry.update();
     }
 

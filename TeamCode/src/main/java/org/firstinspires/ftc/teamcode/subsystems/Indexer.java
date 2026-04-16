@@ -119,7 +119,7 @@ public class Indexer {
             spindexer2.setPosition(set);
         }
     }
-    private void setFeederPower(double set) {
+    public void setFeederPower(double set) {
         if (lastTransferPower != set) {
             lastTransferPower = set;
             feeder.setPower(set);
@@ -172,9 +172,15 @@ public class Indexer {
         return ColorFunctions.toColor(colorSensorI2C.getNormalizedColors(), colorSensorI2C.getDistance(DistanceUnit.INCH));
     }
 
+    boolean fastDistanceThisBall = false;
+
     public BallColor getColorOptimized() {
-        if (hasDistanceFast()) {
+        if (hasDistanceFast() && isAtPosition()) {
+            fastDistanceThisBall = true;
+        }
+        if (fastDistanceThisBall) {
             if (hasDistanceSlow() || seesDistance.getElapsedTimeSeconds() > 0.25) {
+                fastDistanceThisBall = false;
                 NormalizedRGBA rgba = colorSensorI2C.getNormalizedColors();
                 RGBColors[] colorOrder = RGBColors.sortByMagnitude(rgba);
                 if (Arrays.equals(colorOrder, Constants.Color.greenColorOrder)) {
@@ -521,6 +527,7 @@ public class Indexer {
                 if (nextIndex == 2) {
                     // do the thing where we plug the intake until we move x inches
                     startIndexerPlug = true;
+//                    setIndexerPos(IndexerEnums.getEnum(nextIndex, false)); // remove if plugging again
                 } else {
                     setIndexerPos(IndexerEnums.getEnum(nextIndex, false));
                 }

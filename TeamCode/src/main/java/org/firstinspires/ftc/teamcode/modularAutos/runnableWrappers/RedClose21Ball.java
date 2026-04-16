@@ -117,7 +117,9 @@ public class RedClose21Ball extends OpMode {
                         !ShapeDetection.isRobotInside(FieldShapes.closeTriangle, robot.getCurrentPose())
         )
         ) {
-            robot.indexer.shootAll();
+            if (robot.inShootingZone()) {
+                robot.indexer.shootAll();
+            }
             robot.doSmartShoot(false);
             if (robot.getCurrentPose().getX() > - 25) {
                 robot.follower.followPath(robot.follower.linearPathBuilder(Common.ShootPoses.parkShoot, Common.IntakeBallPoses.intakeSpike2Start));

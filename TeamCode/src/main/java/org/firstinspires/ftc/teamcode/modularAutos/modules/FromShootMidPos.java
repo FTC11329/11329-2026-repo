@@ -106,7 +106,7 @@ public class FromShootMidPos {
                     setPathState(1);
                     break;
                 case 1:
-                    if (!robot.follower.isBusy() || robot.basicallyHas3() || robot.indexer.isHasBallsFull()) {
+                    if (!robot.follower.isBusy() || robot.basicallyHas3() || robot.indexer.isHasBallsFull() || Math.abs(robot.getCurrentPose().getY()) > 52) {
                         if (!lever) {
                             robot.follower.followPath(toShootPose);
                         }
@@ -260,7 +260,7 @@ public class FromShootMidPos {
                     setPathState(1);
                     break;
                 case 1:
-                    if (!robot.follower.isBusy() || robot.basicallyHas3() || robot.indexer.isHasBallsFull()) {
+                    if (!robot.follower.isBusy() || robot.basicallyHas3() || robot.indexer.isHasBallsFull() || Math.abs(robot.getCurrentPose().getY()) > 55) {
                         if (!lever) {
                             robot.follower.followPath(toShootPose);
                         }
@@ -408,7 +408,7 @@ public class FromShootMidPos {
                     setPathState(1);
                     break;
                 case 1:
-                    if (!robot.follower.isBusy() || robot.basicallyHas3() || robot.indexer.isHasBallsFull()) {
+                    if (!robot.follower.isBusy() || robot.basicallyHas3() || robot.indexer.isHasBallsFull() || Math.abs(robot.getCurrentPose().getY()) > 55) {
                         robot.follower.followPath(toShootPose);
                         setPathState(2);
                     }
@@ -533,7 +533,7 @@ public class FromShootMidPos {
                     setPathState(1);
                     break;
                 case 1:
-                    if (!robot.follower.isBusy() || robot.basicallyHas3() || robot.indexer.isHasBallsFull()) {
+                    if (!robot.follower.isBusy() || robot.basicallyHas3() || robot.indexer.isHasBallsFull() || Math.abs(robot.getCurrentPose().getY()) > 55) {
                         robot.follower.followPath(toShootPose);
                         setPathState(2);
                     }
@@ -693,7 +693,7 @@ public class FromShootMidPos {
                     }
                     break;
                 case 2:
-                    if (robot.basicallyHas3() || pathTimer.getElapsedTimeSeconds() > leverTimeOut) {
+                    if (robot.indexer.isHasBallsFull() || robot.basicallyHas3() || pathTimer.getElapsedTimeSeconds() > leverTimeOut) {
                         robot.follower.followPath(toIntake);
                         setPathState(3);
                     }

@@ -36,7 +36,7 @@ public class Common {
         public static double unjamTimeOutSort = 2.5;
         public static double unjamTimeOutFarSort = 3;
 
-        public static double spikeIntakeTimeOut = 1.3;
+        public static double spikeIntakeTimeOut = 1.1;
         public static double fastSpikeIntakeTimeOut = 1.25;
 
         public static double shortLeverPressTime = 0.3;
@@ -99,7 +99,7 @@ public class Common {
 
         public static Pose movingToPushLeverControlPoint = new Pose(-3.8, 25.3);
         public static Pose pushLeverAfterSpike = new Pose(-0.4,56.1, Math.toRadians(60));
-        public static Pose pushLever = new Pose(-11.85, 61.5, Math.toRadians(63));
+        public static Pose pushLever = new Pose(-12, 61, Math.toRadians(63));
         public static Pose intakeFromSTunnel = new Pose(-17, 58.25, Math.toRadians(45)); // pointing at ramp
 
         public static Pose intakeHuman = new Pose(-62.5,62, Math.toRadians(120));

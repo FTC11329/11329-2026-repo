@@ -59,6 +59,7 @@ public class MainTeleop {
     HardwareMap hardwareMap;
     double RPMoffset;
     boolean sotfIsOn = true;
+    boolean brakeAllowSotfIsOn = true;
 
     public MainTeleop(Gamepad gamepad1, Gamepad gamepad2, Telemetry telemetry, HardwareMap hardwareMap, RobotSide robotSide) {
         this.gamepad1 = gamepad1;
@@ -189,6 +190,7 @@ public class MainTeleop {
 
         if (!brake.isOn) {
             robot.drivetrain.teleopMovement(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, true);
+            robot.notBrakeDriveTrain();
         } else {
             robot.breakDrivetrain();
         }

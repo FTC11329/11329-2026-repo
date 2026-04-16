@@ -58,19 +58,13 @@ public class TemporaryClassThatWeAreTotallyGoingToDelete extends OpMode {
     @Override
     public void init() {
         panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
-        shooter = new Shooter(hardwareMap);
+        intake = new Intake(hardwareMap);
     }
     double pow = 0;
     @Override
     public void loop() {
-        if (gamepad1.a) {
-            pow = 1;
-        } else {
-            pow = 0;
-        }
-        shooter.setPower(pow);
-        panelsTelemetry.addData("rpm", shooter.getRPM());
-        panelsTelemetry.update();
+        intake.setIntakeMotorPower(0.5);
+        intake.setIntakeServoPower(intake.isBeamBroken() ? 0.7 : -0.3);
     }
 
 }
