@@ -32,7 +32,7 @@ public class Constants {
         public static double indexerTolerance = 0.07;
         public static double wideIndexerTolerance = 0.14;
         public static double transferPower = 1;
-        public static double smartShootSpacingSec = 0.07;
+        public static double smartShootSpacingSec = 0.15;
 
         public static double indexerPlugDistance = 5; //inches
     }
@@ -53,9 +53,9 @@ public class Constants {
 
     public static class Vision {
         public static int configTest = 0;
-        public static Pose redGoal = new Pose(65, -64);
+        public static Pose redGoal = new Pose(64, -69);
         public static Pose blueGoal = new Pose(68, 62.5);
-        public static Pose redGoalSort = new Pose(64, -58);
+        public static Pose redGoalSort = new Pose(63, -63);
         public static Pose blueGoalSort = new Pose(67, 56.5);
 
         public static Pose redGoalPhysics = new Pose(64, -67);

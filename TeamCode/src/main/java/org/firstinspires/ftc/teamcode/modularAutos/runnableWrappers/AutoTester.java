@@ -10,7 +10,6 @@ import org.firstinspires.ftc.teamcode.modularAutos.PathPlanner;
 import org.firstinspires.ftc.teamcode.modularAutos.modules.Commands;
 import org.firstinspires.ftc.teamcode.modularAutos.modules.FromShootFarPos;
 import org.firstinspires.ftc.teamcode.modularAutos.modules.FromStartFarPos;
-import org.firstinspires.ftc.teamcode.pedroPathing.Drawing;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
@@ -39,7 +38,7 @@ public class AutoTester extends OpMode {
     @Override
     public void init() {
         //Todo
-        robotSide = RobotSide.Blue;
+        robotSide = RobotSide.Red;
         robot = new Robot(telemetry, hardwareMap, robotSide, 0,0,
                 new BallColor[]{
                         BallColor.Green,
@@ -51,9 +50,13 @@ public class AutoTester extends OpMode {
 
 
         steps.add(new FromStartFarPos.ShootPreloads  (robot, lastPlanner(), false));
-        steps.add(new FromShootFarPos.ToIntakeWVision (robot, lastPlanner(), false));
-        steps.add(new FromShootFarPos.ToIntakeWVision (robot, lastPlanner(), false));
-        steps.add(new FromShootFarPos.ToIntakeWVision (robot, lastPlanner(), false));
+        steps.add(new FromShootFarPos.ToIntakeHuman (robot, lastPlanner(), false));
+        steps.add(new FromShootFarPos.ToIntakeSpike3 (robot, lastPlanner(), false));
+        steps.add(new FromShootFarPos.ToIntakeWVisionSpline(robot, lastPlanner(), false));
+        steps.add(new FromShootFarPos.ToIntakeWVisionSpline(robot, lastPlanner(), false));
+        steps.add(new FromShootFarPos.ToIntakeWVisionSpline(robot, lastPlanner(), false));
+        steps.add(new FromShootFarPos.ToIntakeWVisionSpline(robot, lastPlanner(), false));
+        steps.add(new FromShootFarPos.ToIntakeWVisionSpline(robot, lastPlanner(), false));
 
         wComms(steps);
 

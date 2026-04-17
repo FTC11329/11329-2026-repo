@@ -214,7 +214,7 @@ public class Robot {
                 switch (type) {
                     case Spline:
                     case Predetermined:
-                        throw new RuntimeException("error alert");
+                        throw new RuntimeException("spline Pred 0 error alert");
                     case DBScan:
                         return DBSCANLiteClustering.findLargestCluster(detectedBalls, false);
                     case MeanPose:
@@ -226,11 +226,14 @@ public class Robot {
     }
 
     public PathChain getIntakeBallPathFromCam(VisionTypes type) {
+        return getIntakeBallPathFromCam(type, false, false);
+    }
+    public PathChain getIntakeBallPathFromCam(VisionTypes type, boolean limitZone, boolean farZone) {
         if (pipelineIndex != 2) {
             setPipelineIndex(2);
         }
         if (set){
-            List<Vision.DetectedBall> detectedBalls = vision.searchForBalls(getCurrentPose());
+            List<Vision.DetectedBall> detectedBalls = vision.searchForBalls(getCurrentPose(), limitZone, farZone);
             if (!detectedBalls.isEmpty()) {
                 for (Vision.DetectedBall ball: detectedBalls) {
                     telemetry.addData("detected balls", ball);
@@ -238,16 +241,19 @@ public class Robot {
                 switch (type) {
                     case DBScan:
                     case MeanPose:
-                        throw new RuntimeException("error alert");
+                        throw new RuntimeException("DB Mean error alert");
                     case Spline:
                         Path tempPath = VisionSpline.getSplinePathForVision(detectedBalls, getCurrentPose());
                         if (tempPath != null) {
                             return follower.pathBuilder()
                                     .addPath(tempPath)
+                                    .setTangentHeadingInterpolation()
                                     .build();
+                        } else {
+                            throw new RuntimeException("PathNull");
                         }
                     case Predetermined:
-                        throw new RuntimeException("error alert");
+                        throw new RuntimeException("Pred 1 error alert");
 //                        return follower.pathBuilder()
 //                                .addPath(new BezierCurve(Common.IntakeBallPoses.intakeHuman, Common.IntakeBallPoses.intakeSTunnelAfterHumanControl, Common.IntakeBallPoses.intakeSTunnelAfterHuman))
 //                                .setLinearHeadingInterpolation(Common.IntakeBallPoses.intakeHuman, Common.IntakeBallPoses.intakeSTunnelAfterHuman)

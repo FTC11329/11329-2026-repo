@@ -501,7 +501,7 @@ public class FromShootFarPos {
                         robot.follower.breakFollowing();
                         return false;
                     }
-                    intakeBallPose = robot.getIntakeBallPoseFromCam(VisionTypes.DBScan);
+                    intakeBallPose = robot.getIntakeBallPoseFromCam(VisionTypes.Spline);
                     if (intakeBallPose != null) {
                         intakeBallPose = intakeBallPose.setHeading(StartPoses.closeOuter.getHeading());
                         toIntakeBalls = robot.follower.fastPathChainBuilder(startPose, intakeBallPose, TValues.fastInterpolationIntakeStartFar, TValues.fastInterpolationIntakeEndFar);
@@ -551,8 +551,8 @@ public class FromShootFarPos {
         }
     }
 
-    public static class ToIntakeWVisionDBScan implements PathPlanner {
-        /// Intakes from around the secret Tunnel with vision
+    public static class ToIntakeWVisionSpline implements PathPlanner {
+        /// Intakes from around the secret Tunn el with vision
         // Variables
         Pose offset = new Pose();
         private Timer pathTimer;
@@ -566,7 +566,7 @@ public class FromShootFarPos {
         private boolean sort;
         private boolean visionFail = false;
         PathPlanner failSafePath;
-        public ToIntakeWVisionDBScan(Robot robot, PathPlanner prevPlanner, boolean sort) {
+        public ToIntakeWVisionSpline(Robot robot, PathPlanner prevPlanner, boolean sort) {
             pathTimer = new Timer();
             this.robot = robot;
             this.lastPose = ShootPoses.farShoot;
@@ -623,7 +623,7 @@ public class FromShootFarPos {
                         robot.follower.breakFollowing();
                         return false;
                     }
-                    intakeBallPath = robot.getIntakeBallPathFromCam(VisionTypes.Spline);
+                    intakeBallPath = robot.getIntakeBallPathFromCam(VisionTypes.Spline, true, true);
                     if (intakeBallPath != null) {
                         robot.follower.followPath(intakeBallPath);
                         setPathState(1);

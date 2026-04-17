@@ -35,6 +35,22 @@ public class FromStartFarPos {
             lastPose = ShootPoses.farShoot;
         }
 
+        @Override
+        public boolean hasComms() {
+            return true;
+        }
+
+        @Override
+        public void setOptimalEndPose(Pose optimalEndPose) {
+            lastPose = optimalEndPose;
+        }
+
+        @Override
+        public Pose getOptimalStartPose() {
+            return StartPoses.far;
+        }
+
+
         //Path initialization
         PathChain toShootPose;
 

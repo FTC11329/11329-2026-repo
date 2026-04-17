@@ -23,6 +23,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.math.Vector;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Queue;
 
 /**
@@ -1306,6 +1307,30 @@ public class Follower {
 
     public double getErrorDistance(Pose targetPose) {
         return Pose.cartesianToPolar(getErrorCartesian(targetPose).getX(), getErrorCartesian(targetPose).getY())[0];
+    }
+
+    public void throwCurrentPathError() {
+        ArrayList<Path> pathChain = new ArrayList<>();
+
+
+        for (int i = 0; i < getCurrentPathChain().size(); i++) {
+            pathChain.add(getCurrentPathChain().getPath(i));
+        }
+
+        StringBuilder errorMessage = new StringBuilder();
+        int pathIndex = 0;
+        for (Path path : pathChain) {
+            errorMessage.append("Path Number:");
+            errorMessage.append(pathIndex);
+            errorMessage.append("\n\n\n");
+            pathIndex ++;
+            for (Pose pose : path.getControlPoints()) {
+
+                errorMessage.append(pose);
+                errorMessage.append("\n");
+            }
+        }
+        throw new RuntimeException(errorMessage.toString());
     }
 
     public void resetIMU() {

@@ -11,7 +11,7 @@ import java.util.List;
 
 public class VisionSpline {
 
-    public static final int STRENGTH = 7;
+    public static final int STRENGTH = 2;
     /**
      * Main pipeline:
      * Selects up to 3 closest balls in sequence from a target pose
@@ -26,11 +26,12 @@ public class VisionSpline {
         Pose thirdBall = findAndRemoveClosest(secondBall, remaining);
 
         if (firstBall == null) {
-            throw new RuntimeException("firstBall = nul");
-//            return null;
+            return null;
         }
 
         List<Pose> poses = new ArrayList<>();
+        poses.add(robotPose);
+
         for (int i = 0; i < STRENGTH; i++) {
             poses.add(firstBall);
         }
