@@ -128,6 +128,11 @@ public class Robot {
     public BallColor[] getMotif(boolean force) {
         if (force || motif == null) {
             motif = vision.getMotif();
+            if (motif == null) {
+                return new BallColor[] {BallColor.Purple, BallColor.Purple, BallColor.Green,
+                                        BallColor.Purple, BallColor.Green, BallColor.Purple,
+                                        BallColor.Green, BallColor.Purple, BallColor.Green};
+            }
         }
         return motif;
     }
@@ -746,7 +751,7 @@ public class Robot {
         if (debug) {
             debug();
         }
-
+        panelsTelemetry.addData("time", getOpmodeTimeSeconds() > 29.25 ?1:0);
         panelsTelemetry.update();
     }
 

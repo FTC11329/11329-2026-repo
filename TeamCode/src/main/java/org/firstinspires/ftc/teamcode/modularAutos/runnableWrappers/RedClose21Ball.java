@@ -8,8 +8,10 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.modularAutos.Common;
 import org.firstinspires.ftc.teamcode.modularAutos.PathPlanner;
 import org.firstinspires.ftc.teamcode.modularAutos.modules.Commands;
+import org.firstinspires.ftc.teamcode.modularAutos.modules.FromShootFarPos;
 import org.firstinspires.ftc.teamcode.modularAutos.modules.FromShootMidPos;
 import org.firstinspires.ftc.teamcode.modularAutos.modules.FromStartClosePos;
+import org.firstinspires.ftc.teamcode.modularAutos.modules.FromStartFarPos;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
@@ -37,21 +39,28 @@ public class RedClose21Ball extends OpMode {
 
     @Override
     public void init() {
-        robotSide = RobotSide.Red;
+        robotSide = RobotSide.Blue;
         robot = new Robot(telemetry, hardwareMap, robotSide, 0,0,
                 new BallColor[]{
                         BallColor.Green,
                         BallColor.Purple,
                         BallColor.Purple
                 });
-        startPose = Common.StartPoses.closeInner;
+        startPose = Common.StartPoses.far;
 
-        steps.add(new FromStartClosePos.ShootAndGoToMidShootPosFast(robot, lastPlanner()));
-        steps.add(new FromShootMidPos.ToIntakeSpike2  (robot, lastPlanner(), false, false, false));
-        steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPlanner(), false, false, true));
-        steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPlanner(), true,  false, true));
-        steps.add(new FromShootMidPos.ToIntakeSpike3  (robot, lastPlanner(), true,  false));
-        steps.add(new FromShootMidPos.ToIntakeSpike1  (robot, lastPlanner(), true,  true, false));
+        steps.add(new FromStartFarPos.ShootPreloads(robot, lastPlanner(), false));
+        steps.add(new FromShootFarPos.ToIntakeSpike3(robot, lastPlanner(), false));
+        steps.add(new FromShootFarPos.ToIntakeHuman(robot, lastPlanner(), false));
+        steps.add(new FromShootFarPos.ToIntakeWVisionSpline(robot, lastPlanner(), false));
+        steps.add(new FromShootFarPos.ToIntakeWVisionSpline(robot, lastPlanner(), false));
+        steps.add(new FromShootFarPos.ToIntakeWVisionSpline(robot, lastPlanner(), false));
+        steps.add(new FromShootFarPos.ToIntakeWVisionSpline(robot, lastPlanner(), false));
+        steps.add(new FromShootFarPos.ToIntakeWVisionSpline(robot, lastPlanner(), false));
+        steps.add(new FromShootFarPos.ToIntakeWVisionSpline(robot, lastPlanner(), false));
+        steps.add(new FromShootFarPos.ToIntakeWVisionSpline(robot, lastPlanner(), false));
+        steps.add(new FromShootFarPos.ToIntakeWVisionSpline(robot, lastPlanner(), false));
+        steps.add(new FromShootFarPos.ToIntakeWVisionSpline(robot, lastPlanner(), false));
+        steps.add(new FromShootFarPos.ToIntakeWVisionSpline(robot, lastPlanner(), false));
 
         wComms(steps);
 
@@ -107,16 +116,7 @@ public class RedClose21Ball extends OpMode {
 
         robot.update();
 
-        if (!parkPathFollowed && robot.getOpmodeTimeSeconds() > 29.25 && (
-                (   (
-                        ShapeDetection.doesRobotCrossLine(FieldShapes.closeTriangle, robot.getCurrentPose()) ||
-                                ShapeDetection.doesRobotCrossLine(FieldShapes.farTriangle, robot.getCurrentPose())
-                ) &&
-                        robot.follower.getVelocity().getMagnitude() < Common.Timings.shootVelocityClose
-                ) ||
-                        !ShapeDetection.isRobotInside(FieldShapes.closeTriangle, robot.getCurrentPose())
-        )
-        ) {
+        if (!parkPathFollowed && robot.getOpmodeTimeSeconds() > 29.25 && !ShapeDetection.isRobotInside(FieldShapes.closeTriangle, robot.getCurrentPose().plusVector(robot.follower.getVelocity(), 0.75))) {
             if (robot.inShootingZone()) {
                 robot.indexer.shootAll();
             }
@@ -155,7 +155,7 @@ public class RedClose21Ball extends OpMode {
 //        Drawing.drawDebug(robot.follower);
 //        Drawing.drawShapesDebug(robot.follower);
 //        telemetry.addData("time", robot.getOpmodeTimeSeconds());
-//        telemetry.addData("name", step);
+        telemetry.addData("name", step);
 //        for (BallColor i : robot.indexer.getBallCells()) {
 //            telemetry.addData("hasBalls", i);
 //        }

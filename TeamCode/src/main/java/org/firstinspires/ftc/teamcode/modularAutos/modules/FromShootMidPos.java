@@ -144,7 +144,7 @@ public class FromShootMidPos {
                     }
                     break;
                 case 5:
-                    if (!robot.isIndexerUnjamming() && (robot.indexer.isHasBallsEmpty() || robot.indexer.autoFastEnd())  || (sort && robot.indexer.isQueuedBallsEmpty())) {
+                    if (!robot.isIndexerUnjamming() && (robot.indexer.isHasBallsEmpty())  || (sort && robot.indexer.isQueuedBallsEmpty())) {
 //                        robot.setShootFromPose(null);
                         robot.follower.setMaxPower(1);
                         robot.doSmartShoot(false);
@@ -298,7 +298,7 @@ public class FromShootMidPos {
                     }
                     break;
                 case 5:
-                    if (!robot.isIndexerUnjamming() && (robot.indexer.isHasBallsEmpty() || robot.indexer.autoFastEnd())  || (sort && robot.indexer.isQueuedBallsEmpty())) {
+                    if (!robot.isIndexerUnjamming() && (robot.indexer.isHasBallsEmpty())  || (sort && robot.indexer.isQueuedBallsEmpty())) {
 //                        robot.setShootFromPose(null);
                         robot.follower.setMaxPower(1);
                         robot.doSmartShoot(false);
@@ -436,7 +436,7 @@ public class FromShootMidPos {
                     }
                     break;
                 case 4:
-                    if (!robot.isIndexerUnjamming() && (robot.indexer.isHasBallsEmpty() || robot.indexer.autoFastEnd())  || (sort && robot.indexer.isQueuedBallsEmpty())) {
+                    if (!robot.isIndexerUnjamming() && (robot.indexer.isHasBallsEmpty())  || (sort && robot.indexer.isQueuedBallsEmpty())) {
                         if (!parkAfter) {
 //                            robot.setShootFromPose(null);
                         }
@@ -558,7 +558,7 @@ public class FromShootMidPos {
                     }
                     break;
                 case 4:
-                    if (!robot.isIndexerUnjamming() && (robot.indexer.isHasBallsEmpty() || robot.indexer.autoFastEnd())  || (sort && robot.indexer.isQueuedBallsEmpty())) {
+                    if (!robot.isIndexerUnjamming() && (robot.indexer.isHasBallsEmpty())  || (sort && robot.indexer.isQueuedBallsEmpty())) {
                         robot.follower.setMaxPower(1);
                         robot.doSmartShoot(false);
                         isFinished = true;
@@ -723,7 +723,7 @@ public class FromShootMidPos {
                     }
                     break;
                 case 5://       if robot shoot all balls v                                                                                                              if timeout v
-                    if (!robot.isIndexerUnjamming() && (robot.indexer.isHasBallsEmpty() || robot.indexer.autoFastEnd())  || (sort && robot.indexer.isQueuedBallsEmpty())) {
+                    if (!robot.isIndexerUnjamming() && (robot.indexer.isHasBallsEmpty())  || (sort && robot.indexer.isQueuedBallsEmpty())) {
                         robot.follower.setMaxPower(1);
                         robot.doSmartShoot(false);
 //                        robot.setShootFromPose(null);
@@ -848,7 +848,7 @@ public class FromShootMidPos {
                     if (pathTimer.getElapsedTimeSeconds() > (!sort ? Timings.unjamTimeOut : Timings.unjamTimeOutSort)) {
                         robot.indexerUnjam();
                     }
-                    if ((robot.indexer.isHasBallsEmpty() || robot.indexer.autoFastEnd())     || (sort && robot.indexer.isQueuedBallsEmpty())) {
+                    if ((robot.indexer.isHasBallsEmpty())     || (sort && robot.indexer.isQueuedBallsEmpty())) {
                         robot.follower.setMaxPower(1);
                         robot.doSmartShoot(false);
                         isFinished = true;
@@ -980,7 +980,7 @@ public class FromShootMidPos {
                     }
                     break;
                 case 3:
-                    if (!robot.isIndexerUnjamming() && (robot.indexer.isHasBallsEmpty() || robot.indexer.autoFastEnd())  || (sort && robot.indexer.isQueuedBallsEmpty())) {
+                    if (!robot.isIndexerUnjamming() && (robot.indexer.isHasBallsEmpty())  || (sort && robot.indexer.isQueuedBallsEmpty())) {
                         isFinished = true;
                     }
                     if (pathTimer.getElapsedTimeSeconds() > (!sort ? Timings.unjamTimeOut : Timings.unjamTimeOutSort)) {

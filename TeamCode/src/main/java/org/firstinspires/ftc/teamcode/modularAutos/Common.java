@@ -10,7 +10,7 @@ public class Common {
     // Outer is closer to driver wall (so usually higher y)
 
 //    public static Pose toRedOffset = new Pose(-2.25,-0.75,0); // red offset remember y is reversed
-    public static Pose toRedOffset = new Pose(0,-1,0); // red offset remember y is reversed
+    public static Pose toRedOffset = new Pose(-1.7,-1.2,0); // red offset remember y is reversed
     public static boolean wasLastRed = false;
     public static class TValues {
         public static double fastInterpolationIntakeStart = 0.8;
@@ -21,8 +21,8 @@ public class Common {
         public static double fastInterpolationSpikeShootStart = 0.65;
         public static double fastInterpolationSpikeShootEnd = 0.8;
 
-        public static double fastInterpolationLeverStart = 0.7;
-        public static double fastInterpolationLeverEnd = 0.8;
+        public static double fastInterpolationLeverStart = 0.63;
+        public static double fastInterpolationLeverEnd = 0.73;
 
         public static double fastInterpolationPreloadStart = 0.65;
         public static double fastInterpolationPreloadEnd = 0.8;
@@ -56,7 +56,7 @@ public class Common {
     }
     public static class DrivePower {
         public static double intake = 1;
-        public static double shootOnThFly = 0.3;
+        public static double shootOnThFly = 0.25;
     }
     public static class StartPoses {
         public static Pose closeInner = new Pose(64.5, 35.8, Math.toRadians(-90)); // this is against the goal and wall, facing the obelisk
@@ -99,7 +99,7 @@ public class Common {
 
         public static Pose movingToPushLeverControlPoint = new Pose(-3.8, 25.3);
         public static Pose pushLeverAfterSpike = new Pose(-0.4,56.1, Math.toRadians(60));
-        public static Pose pushLever = new Pose(-12, 61, Math.toRadians(63));
+        public static Pose pushLever = new Pose(-11.2, 62, Math.toRadians(63));
         public static Pose intakeFromSTunnel = new Pose(-17, 58.25, Math.toRadians(45)); // pointing at ramp
 
         public static Pose intakeHuman = new Pose(-62.5,62, Math.toRadians(120));
@@ -149,7 +149,7 @@ public class Common {
         public static Pose panicShoot = new Pose();
 
         public static Pose optimalSpike1Start = new Pose(13.77,22.2, Math.toRadians(96));
-        public static Pose optimalSpike2Start = new Pose(4.03,12.4, Math.toRadians(116));
+        public static Pose optimalSpike2Start = new Pose(4.03,11.9, Math.toRadians(116));
         public static Pose optimalSpike3Start = new Pose(6.18,14.25, Math.toRadians(146));
         public static Pose optimalRampStart = new Pose(6.4,15.88, Math.toRadians(106));
         public static Pose optimalHumanPlayerStart = new Pose(9.24,13.25, Math.toRadians(155));

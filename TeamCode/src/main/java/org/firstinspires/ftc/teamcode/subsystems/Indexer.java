@@ -467,10 +467,6 @@ public class Indexer {
             forceEndPlug = false;
         }
 
-        if (getEncoderPercentage() > 1.0 / 3.0) {
-            autoFastShootEnd = false;
-        }
-
         // Bulk Runs
         intakeLogicUpdate(intaking, readyToShoot);
         if (doSmartShoot) {
@@ -510,10 +506,11 @@ public class Indexer {
         ballCells = set;
     }
     public void intakeLogicUpdate(boolean intaking, boolean readyToShoot) {
-        if (intaking && !isHasBallsFull() && isAtPosition() && !shooting && !indexerPlug) {
+        if (intaking && !isHasBallsFull() && isAtPosition() && !shooting && !indexerPlug && !IndexerEnums.isAShootEnum(currentIndexerState)) {
             BallColor curColor = getColorOptimized();
 
             if (curColor != BallColor.None) {
+                autoFastShootEnd = false;
                 // moves and sets ball cells if it sees a color
                 setBallCellAtIntakeToColor(curColor);
                 int nextIndex = 0;
@@ -563,8 +560,8 @@ public class Indexer {
         }
 
         // Update autoEndShootFast
-        if (dumbShootState1 && !dumbShootState2 && getEncoderPercentage() < 1.0 / 3.0) {
-            autoFastShootEnd = true;
+        if (dumbShootState1 && !dumbShootState2 && getEncoderPercentage() < 3.5 / 6.0) {
+            clearBallCells();
         }
 
         // once back at intake, stop shooting
