@@ -201,6 +201,9 @@ public class Vision {
                 }
                 long timePhotoWasTaken = result.getControlHubTimeStampNanos();
                 Pose ballPose = poseEstimation(tx, ty, curPose);
+                if (Math.abs(ballPose.getX()) > 73 || Math.abs(ballPose.getY()) > 73) {
+                    continue;
+                }
                 if (limitZone) {
                     if (farZone) {
                         if (ballPose.getX() < -24) {

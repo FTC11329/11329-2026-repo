@@ -170,7 +170,7 @@ public class MainTeleop {
         queueGreen.checkStatus(gamepad2.y); // Press to queue green
         queuePurple.checkStatus(gamepad2.x); // Press to queue purple
         autoShoot.checkStatus(gamepad2.a); // Toggle to turn on auto shoot
-        fastShootButton.checkStatus(gamepad2.b || gamepad1.b); // press to shoot 3
+        fastShootButton.checkStatus((gamepad2.b || gamepad1.b) && !smartShoot.isOn); // press to shoot 3
         smartShoot.checkStatus(gamepad2.back); // Toggle to turn on smart shoot
 
         overrideIntake.checkStatus(gamepad2.left_trigger_pressed || gamepad1.left_trigger_pressed); // hold to turn on ignore allowintaking
@@ -188,7 +188,7 @@ public class MainTeleop {
         resetPoseCorner.checkStatus(gamepad1.a);
         climb.checkStatus(gamepad1.back);
         cycleCycler.checkStatus(robot.indexer.isHasBallsEmpty());
-        reCheckColors.checkStatus(gamepad2.circle || gamepad1.circle);
+        reCheckColors.checkStatus((gamepad2.circle || gamepad1.circle) && smartShoot.isOn);
 //        useCycleCycler.checkStatus(gamepad1.dpad_left);
 
         if (!brake.isOn) {
@@ -234,9 +234,9 @@ public class MainTeleop {
 
         robot.doSmartShoot(smartShoot.isOn);
 
-        if (fastShootButton.startPress && !smartShoot.isOn) {
+        if (fastShootButton.startPress) {
             robot.shootAll();
-        } else if (reCheckColors.startPress && smartShoot.isOn) {
+        } else if (reCheckColors.startPress) {
             robot.indexer.reReadHasBalls();
         }
 

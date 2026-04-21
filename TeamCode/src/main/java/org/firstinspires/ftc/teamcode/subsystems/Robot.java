@@ -454,8 +454,8 @@ public class Robot {
                 closeTurretOffset += 1;
                 farTurretOffset += 1 * OTHER_ZONE_MULT * 2;
             } else {
-                farTurretOffset += 1;
-                closeTurretOffset += 1 * OTHER_ZONE_MULT * 2;
+                farTurretOffset += 0.5;
+                closeTurretOffset += 0.5 * OTHER_ZONE_MULT * 2;
             }
         }
         if (right) {
@@ -463,8 +463,8 @@ public class Robot {
                 closeTurretOffset -= 1;
                 farTurretOffset -= 1 * OTHER_ZONE_MULT;
             } else {
-                farTurretOffset -= 1;
-                closeTurretOffset -= 1 * OTHER_ZONE_MULT;
+                farTurretOffset -= 0.5;
+                closeTurretOffset -= 0.5 * OTHER_ZONE_MULT;
             }
         }
     }

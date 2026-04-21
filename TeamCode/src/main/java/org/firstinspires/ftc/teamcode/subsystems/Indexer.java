@@ -176,6 +176,7 @@ public class Indexer {
 
     boolean fastDistanceThisBall = false;
 
+    BallColor lastBall = BallColor.None;
     public BallColor getColorOptimized() {
         if (hasDistanceFast() && isAtPosition()) {
             fastDistanceThisBall = true;
@@ -186,14 +187,25 @@ public class Indexer {
                 NormalizedRGBA rgba = colorSensorI2C.getNormalizedColors();
                 RGBColors[] colorOrder = RGBColors.sortByMagnitude(rgba);
                 if (Arrays.equals(colorOrder, Constants.Color.greenColorOrder)) {
-                    return BallColor.Green;
+                    if (lastBall == BallColor.Green) {
+                        return BallColor.Green;
+                    } else {
+                        lastBall = BallColor.Green;
+                        return BallColor.None;
+                    }
                 } else {
-                    return BallColor.Purple;
+                    if (lastBall == BallColor.Purple) {
+                        return BallColor.Purple;
+                    } else {
+                        lastBall = BallColor.Purple;
+                        return BallColor.None;
+                    }
                 }
             }
         } else {
             seesDistance.resetTimer();
         }
+        lastBall = BallColor.None;
         return BallColor.None;
     }
 
@@ -251,7 +263,7 @@ public class Indexer {
             case intake3:
                 ballCells[0] = ballColor;
             default:
-                throw new RuntimeException("shouldnt error, set ball cells");
+                return;
 
         }
     }
@@ -291,6 +303,9 @@ public class Indexer {
 
     public void reReadHasBalls() {
         clearBallCells();
+        emptyQueue();
+        setFeederPower(0);
+        shooting = false;
         turnPluggingOffOnce = true;
         setIndexerPos(IndexerEnums.intake0);
     }
