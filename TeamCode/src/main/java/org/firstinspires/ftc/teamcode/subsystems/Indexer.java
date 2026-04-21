@@ -65,6 +65,7 @@ public class Indexer {
     public boolean startIndexerPlug = false;
     public boolean indexerPlug = false;
     public boolean autoFastShootEnd = false;
+    public boolean turnPluggingOffOnce = false;
     private Pose lastPosition = new Pose(0,0,0);
 
     BallColor[] queuedBalls = new BallColor[]{BallColor.None, BallColor.None, BallColor.None};
@@ -158,6 +159,7 @@ public class Indexer {
     }
 
     public boolean hasDistanceFast() {
+        turnPluggingOffOnce = false;
         return distanceAnalog.getVoltage() / 3.3 * 100 > Constants.Color.brushLandsDist;
     }
 
@@ -286,6 +288,12 @@ public class Indexer {
     }
 
     // functions to shoot specific colors *********************************************************~
+
+    public void reReadHasBalls() {
+        clearBallCells();
+        turnPluggingOffOnce = true;
+        setIndexerPos(IndexerEnums.intake0);
+    }
 
     public boolean isQueuedBallsFull() {
         for (BallColor color : queuedBalls) {
@@ -523,8 +531,12 @@ public class Indexer {
 
                 if (nextIndex == 2) {
                     // do the thing where we plug the intake until we move x inches
-                    startIndexerPlug = true;
-//                    setIndexerPos(IndexerEnums.getEnum(nextIndex, false)); // remove if plugging again
+                    if (turnPluggingOffOnce) {
+                        setIndexerPos(IndexerEnums.getEnum(nextIndex, false)); // remove if plugging again
+                        turnPluggingOffOnce = false;
+                    } else {
+                        startIndexerPlug = true;
+                    }
                 } else {
                     setIndexerPos(IndexerEnums.getEnum(nextIndex, false));
                 }
@@ -594,7 +606,7 @@ public class Indexer {
                 spinTransferWheel(false);
                 if (isQueuedBallsEmpty()) {
                     allowIntaking = true;
-                    setIndexerPos(IndexerEnums.intake0);
+                    setIndexerPos(IndexerEnums.getEnum(findIndexWithColor(BallColor.None), false));
                     shooting = false;
                     smartShootState = SmartShootState.IDLE;
                 } else {

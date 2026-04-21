@@ -62,7 +62,7 @@ public class Common {
         public static Pose closeInner = new Pose(64.5, 35.8, Math.toRadians(-90)); // this is against the goal and wall, facing the obelisk
         public static Pose closeOuter = new Pose(40.55, 53.5, Math.toRadians(90)); // this is up against the goal and secret tunnel
         public static Pose far = new Pose(-64, 15.8, Math.toRadians(0));
-        public static Pose reZeroAtCorner = new Pose(-57, -61, Math.toRadians(-90));
+        public static Pose reZeroAtCorner = new Pose(-52, -61, Math.toRadians(-90));
         public static Pose farZoneAutoPark = new Pose(-48, 12, Math.toRadians(90));
 
         static void convert(boolean toRed) {

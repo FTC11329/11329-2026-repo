@@ -5,10 +5,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
-import org.firstinspires.ftc.teamcode.pedroPathing.math.Vector;
-import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
 import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.EndValuesStorer;
@@ -43,7 +40,8 @@ public class MainTeleop {
     FancyButton movePoseDown;
     FancyButton movePoseLeft;
     FancyButton movePoseRight;
-    FancyButton resetPose;
+    FancyButton resetPoseGoal;
+    FancyButton resetPoseCorner;
     FancyButton unjamSpindexer;
     FancyButton climb;
     FancyButton reZeroIndexer;
@@ -51,6 +49,7 @@ public class MainTeleop {
     FancyButton useCycleCycler;
 
     FancyButton manualTurretStart;
+    FancyButton reCheckColors;
 
     Gamepad gamepad1;
     Gamepad gamepad2;
@@ -106,7 +105,8 @@ public class MainTeleop {
 
         climb = new FancyButton(FancyButton.PressType.Toggle);
         unjamSpindexer = new FancyButton(FancyButton.PressType.LongPress);
-        resetPose = new FancyButton(FancyButton.PressType.LongPress);
+        resetPoseGoal = new FancyButton(FancyButton.PressType.LongPress);
+        resetPoseCorner = new FancyButton(FancyButton.PressType.LongPress);
         takePhoto = new FancyButton(FancyButton.PressType.LongPress);
         movePoseUp = new FancyButton(FancyButton.PressType.LongPress);
         movePoseDown = new FancyButton(FancyButton.PressType.LongPress);
@@ -114,6 +114,7 @@ public class MainTeleop {
         movePoseRight = new FancyButton(FancyButton.PressType.LongPress);
         cycleCycler = new FancyButton(FancyButton.PressType.Toggle);
         useCycleCycler = new FancyButton(FancyButton.PressType.Toggle);
+        reCheckColors = new FancyButton(FancyButton.PressType.LongPress);
 
         manualTurretStart = new FancyButton(FancyButton.PressType.Toggle);
 
@@ -124,9 +125,9 @@ public class MainTeleop {
 
 
     public void init_loop() {
-        resetPose.checkStatus(gamepad2.b || gamepad1.b);
+        resetPoseGoal.checkStatus(gamepad2.b || gamepad1.b);
         manualTurretStart.checkStatus(gamepad2.a || gamepad1.a);
-        if (resetPose.startPress) {
+        if (resetPoseGoal.startPress) {
             startPose = new Pose();
             robot.follower.setPose(startPose);
             robot.turret.encoderOffset = 12830;
@@ -183,10 +184,12 @@ public class MainTeleop {
 
         takePhoto.checkStatus(gamepad1.y); // press to take photo
         debug.checkStatus(gamepad1.start); // toggle to print telemetry
-        resetPose.checkStatus(gamepad1.x);
+        resetPoseGoal.checkStatus(gamepad1.x);
+        resetPoseCorner.checkStatus(gamepad1.a);
         climb.checkStatus(gamepad1.back);
         cycleCycler.checkStatus(robot.indexer.isHasBallsEmpty());
-        useCycleCycler.checkStatus(gamepad1.dpad_left);
+        reCheckColors.checkStatus(gamepad2.circle || gamepad1.circle);
+//        useCycleCycler.checkStatus(gamepad1.dpad_left);
 
         if (!brake.isOn) {
             robot.drivetrain.teleopMovement(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, true);
@@ -231,12 +234,14 @@ public class MainTeleop {
 
         robot.doSmartShoot(smartShoot.isOn);
 
-        if (fastShootButton.startPress) {
+        if (fastShootButton.startPress && !smartShoot.isOn) {
             robot.shootAll();
+        } else if (reCheckColors.startPress && smartShoot.isOn) {
+            robot.indexer.reReadHasBalls();
         }
 
         if (autoShoot.isOn && !climb.isOn) {
-            robot.prepareShooter(ShotType.TABLE, !brake.isOn && sotfIsOn, cycleCycler.isOn && useCycleCycler.isOn);
+            robot.prepareShooter(ShotType.TABLE, !brake.isOn && sotfIsOn, cycleCycler.isOn && useCycleCycler.isOn, false);
         } else if (autoShoot.endPress || climb.startPress) {
             robot.casualShooterModeOn();
         }
@@ -252,8 +257,13 @@ public class MainTeleop {
         }
 
          // Changing our aim
-        robot.shooterTrim(movePoseUp.startPress, movePoseDown.startPress, movePoseLeft.startPress, movePoseRight.startPress, resetPose.startPress);
+        robot.shooterTrim(movePoseUp.startPress, movePoseDown.startPress, movePoseLeft.startPress, movePoseRight.startPress);
 
+        if (resetPoseGoal.startPress) {
+            robot.reZeroAtGoal();
+        } else if (resetPoseCorner.startPress) {
+            robot.reZeroAtCorner();
+        }
 
         robot.setPanicShoot(panicShoot.isOn, fastShootButton.isOn);
 

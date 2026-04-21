@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.modularAutos.runnableWrappers;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.modularAutos.Common;
@@ -23,9 +22,8 @@ import org.firstinspires.ftc.teamcode.util.ShapeDetection;
 import java.util.ArrayList;
 import java.util.List;
 
-@Disabled
-@Autonomous(name = "Auto Test", group = "5Test", preselectTeleOp = "Main Teleop Blue")
-public class AutoTester extends OpMode {
+@Autonomous(name = "Red Far Vision", group = "2Comp", preselectTeleOp = "Main Teleop Red")
+public class RedFarVision extends OpMode {
     Pose startPose;
     RobotSide robotSide;
     Robot robot;
@@ -39,7 +37,6 @@ public class AutoTester extends OpMode {
 
     @Override
     public void init() {
-        //Todo
         robotSide = RobotSide.Red;
         robot = new Robot(telemetry, hardwareMap, robotSide, 0,0,
                 new BallColor[]{
@@ -47,13 +44,16 @@ public class AutoTester extends OpMode {
                         BallColor.Purple,
                         BallColor.Purple
                 });
-        //Todo
         startPose = Common.StartPoses.far;
 
-
-        steps.add(new FromStartFarPos.ShootPreloads  (robot, lastPlanner(), false));
-        steps.add(new FromShootFarPos.ToIntakeHuman (robot, lastPlanner(), false));
-        steps.add(new FromShootFarPos.ToIntakeSpike3 (robot, lastPlanner(), false));
+        steps.add(new FromStartFarPos.ShootPreloads(robot, lastPlanner(), false));
+        steps.add(new FromShootFarPos.ToIntakeSpike3(robot, lastPlanner(), false));
+        steps.add(new FromShootFarPos.ToIntakeHuman(robot, lastPlanner(), false));
+        steps.add(new FromShootFarPos.ToIntakeWVisionSpline(robot, lastPlanner(), false));
+        steps.add(new FromShootFarPos.ToIntakeWVisionSpline(robot, lastPlanner(), false));
+        steps.add(new FromShootFarPos.ToIntakeWVisionSpline(robot, lastPlanner(), false));
+        steps.add(new FromShootFarPos.ToIntakeWVisionSpline(robot, lastPlanner(), false));
+        steps.add(new FromShootFarPos.ToIntakeWVisionSpline(robot, lastPlanner(), false));
         steps.add(new FromShootFarPos.ToIntakeWVisionSpline(robot, lastPlanner(), false));
         steps.add(new FromShootFarPos.ToIntakeWVisionSpline(robot, lastPlanner(), false));
         steps.add(new FromShootFarPos.ToIntakeWVisionSpline(robot, lastPlanner(), false));
@@ -115,6 +115,10 @@ public class AutoTester extends OpMode {
         robot.update();
 
         if (!parkPathFollowed && robot.getOpmodeTimeSeconds() > 29.25 && !ShapeDetection.isRobotInside(FieldShapes.closeTriangle, robot.getCurrentPose().plusVector(robot.follower.getVelocity(), 0.75))) {
+            if (robot.inShootingZone()) {
+                robot.indexer.shootAll();
+            }
+            robot.doSmartShoot(false);
             if (robot.getCurrentPose().getX() > - 25) {
                 robot.follower.followPath(robot.follower.linearPathBuilder(Common.ShootPoses.parkShoot, Common.IntakeBallPoses.intakeSpike2Start));
             } else {
@@ -133,7 +137,6 @@ public class AutoTester extends OpMode {
             telemetry.update();
             return;
         }
-
         robot.prepareShooter(steps.get(currentStep).useSOTF());
 
         PathPlanner step = steps.get(currentStep);
@@ -150,8 +153,7 @@ public class AutoTester extends OpMode {
 //        Drawing.drawDebug(robot.follower);
 //        Drawing.drawShapesDebug(robot.follower);
 //        telemetry.addData("time", robot.getOpmodeTimeSeconds());
-//        telemetry.addData("name", step);
-//        telemetry.addData("unjamm", robot.isIndexerUnjamming());
+        telemetry.addData("name", step);
 //        for (BallColor i : robot.indexer.getBallCells()) {
 //            telemetry.addData("hasBalls", i);
 //        }

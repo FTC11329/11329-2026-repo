@@ -171,7 +171,19 @@ public class Robot {
     }
     public void reZeroAtCorner() {
         offsetPose = new Pose();
+        follower.setPose(Common.StartPoses.reZeroAtCorner);
+        closeDistanceOffset = 0;
+        closeTurretOffset = 0;
+        farDistanceOffset = 0;
+        farTurretOffset = 0;
+    }
+    public void reZeroAtGoal() {
+        offsetPose = new Pose();
         follower.setPose(Common.StartPoses.closeOuter);
+        closeDistanceOffset = 0;
+        closeTurretOffset = 0;
+        farDistanceOffset = 0;
+        farTurretOffset = 0;
     }
     public void setAveragePose() {
         if (pipelineIndex != 0) {
@@ -333,10 +345,10 @@ public class Robot {
         prepareShooter(ShotType.TABLE);
     }
     public void prepareShooter(boolean doSOTF) {
-        prepareShooter(ShotType.TABLE, doSOTF);
+        prepareShooter(ShotType.TABLE, doSOTF, true);
     }
     public void prepareShooter(ShotType shotType) {
-        prepareShooter(shotType, true);
+        prepareShooter(shotType, true, true);
     }
     double rpmOffset;
     double hoodAngleOffset;
@@ -345,11 +357,11 @@ public class Robot {
         this.rpmOffset = rpmOffset;
     }
     double rpmRatio = 1;
-    public void prepareShooter(ShotType shotType, boolean useSOTF) {
-        prepareShooter(shotType, useSOTF, false);
+    public void prepareShooter(ShotType shotType, boolean useSOTF, boolean isAuto) {
+        prepareShooter(shotType, useSOTF, false, isAuto);
     }
 
-    public void prepareShooter(ShotType shotType, boolean useSOTF, boolean swapGoal) {
+    public void prepareShooter(ShotType shotType, boolean useSOTF, boolean swapGoal, boolean isAuto) {
         usePID = true;
         ShotContext ctx = new ShotContext();
 
@@ -359,7 +371,7 @@ public class Robot {
             ctx.robotPose = shootFromPose;
         }
         Pose goalPose;
-        if (smartShoot) {
+        if (smartShoot && isAuto) {
             if (!swapGoal) {
                 if (robotSide == RobotSide.Blue) {
                     goalPose = Constants.Vision.blueGoalSort;
@@ -418,7 +430,7 @@ public class Robot {
 
     double OTHER_ZONE_MULT = 0.5;
 
-    public void shooterTrim(boolean up, boolean down, boolean left, boolean right, boolean reset) {
+    public void shooterTrim(boolean up, boolean down, boolean left, boolean right) {
         if (up) {
             if (lastShape == FieldShapes.closeTriangle) {
                 closeDistanceOffset += 1.4;
@@ -454,13 +466,6 @@ public class Robot {
                 farTurretOffset -= 1;
                 closeTurretOffset -= 1 * OTHER_ZONE_MULT;
             }
-        }
-        if (reset) {
-            reZeroAtCorner();
-            closeDistanceOffset = 0;
-            closeTurretOffset = 0;
-            farDistanceOffset = 0;
-            farTurretOffset = 0;
         }
     }
 

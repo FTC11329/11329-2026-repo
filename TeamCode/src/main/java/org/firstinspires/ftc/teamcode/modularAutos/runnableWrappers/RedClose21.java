@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Autonomous(name = "Red Close 21", group = "0Comp", preselectTeleOp = "Main Teleop Red")
-public class RedClose21Ball extends OpMode {
+public class RedClose21 extends OpMode {
     Pose startPose;
     RobotSide robotSide;
     Robot robot;
@@ -39,28 +39,22 @@ public class RedClose21Ball extends OpMode {
 
     @Override
     public void init() {
-        robotSide = RobotSide.Blue;
+        robotSide = RobotSide.Red;
         robot = new Robot(telemetry, hardwareMap, robotSide, 0,0,
                 new BallColor[]{
                         BallColor.Green,
                         BallColor.Purple,
                         BallColor.Purple
                 });
-        startPose = Common.StartPoses.far;
+        startPose = Common.StartPoses.closeOuter;
 
-        steps.add(new FromStartFarPos.ShootPreloads(robot, lastPlanner(), false));
-        steps.add(new FromShootFarPos.ToIntakeSpike3(robot, lastPlanner(), false));
-        steps.add(new FromShootFarPos.ToIntakeHuman(robot, lastPlanner(), false));
-        steps.add(new FromShootFarPos.ToIntakeWVisionSpline(robot, lastPlanner(), false));
-        steps.add(new FromShootFarPos.ToIntakeWVisionSpline(robot, lastPlanner(), false));
-        steps.add(new FromShootFarPos.ToIntakeWVisionSpline(robot, lastPlanner(), false));
-        steps.add(new FromShootFarPos.ToIntakeWVisionSpline(robot, lastPlanner(), false));
-        steps.add(new FromShootFarPos.ToIntakeWVisionSpline(robot, lastPlanner(), false));
-        steps.add(new FromShootFarPos.ToIntakeWVisionSpline(robot, lastPlanner(), false));
-        steps.add(new FromShootFarPos.ToIntakeWVisionSpline(robot, lastPlanner(), false));
-        steps.add(new FromShootFarPos.ToIntakeWVisionSpline(robot, lastPlanner(), false));
-        steps.add(new FromShootFarPos.ToIntakeWVisionSpline(robot, lastPlanner(), false));
-        steps.add(new FromShootFarPos.ToIntakeWVisionSpline(robot, lastPlanner(), false));
+        steps.add(new FromStartClosePos.ShootAndGoToMidShootPosFast(robot, lastPlanner()));
+        steps.add(new FromShootMidPos.ToIntakeSpike2(robot, lastPlanner(), false, false, false));
+        steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPlanner(), false, false, true));
+        steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPlanner(), false, false, true));
+        steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPlanner(), false, false, true));
+        steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPlanner(), false, false, true));
+        steps.add(new FromShootMidPos.ToIntakeSpike1(robot, lastPlanner(), false, true, false));
 
         wComms(steps);
 
