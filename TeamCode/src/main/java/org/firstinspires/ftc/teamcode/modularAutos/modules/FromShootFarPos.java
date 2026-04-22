@@ -567,6 +567,9 @@ public class FromShootFarPos {
         private boolean visionFail = false;
         PathPlanner failSafePath;
         public ToIntakeWVisionSpline(Robot robot, PathPlanner prevPlanner, boolean sort) {
+            this(robot, prevPlanner, new ToIntakeHuman(robot, prevPlanner, sort), sort);
+        }
+        public ToIntakeWVisionSpline(Robot robot, PathPlanner prevPlanner, PathPlanner failSafePath, boolean sort) {
             pathTimer = new Timer();
             this.robot = robot;
             this.lastPose = ShootPoses.farShoot;
@@ -576,8 +579,8 @@ public class FromShootFarPos {
             } else {
                 startPose = prevPlanner.getEndPoseEst();
             }
-            failSafePath = new ToIntakeHuman(robot, prevPlanner, sort);
-            failSafePath.buildPaths();
+            this.failSafePath = failSafePath;
+            this.failSafePath.buildPaths();
         }
 
         @Override

@@ -8,8 +8,8 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.modularAutos.Common;
 import org.firstinspires.ftc.teamcode.modularAutos.PathPlanner;
 import org.firstinspires.ftc.teamcode.modularAutos.modules.Commands;
-import org.firstinspires.ftc.teamcode.modularAutos.modules.FromShootFarPos;
-import org.firstinspires.ftc.teamcode.modularAutos.modules.FromStartFarPos;
+import org.firstinspires.ftc.teamcode.modularAutos.modules.FromShootMidPos;
+import org.firstinspires.ftc.teamcode.modularAutos.modules.FromStartClosePos;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
@@ -22,8 +22,8 @@ import org.firstinspires.ftc.teamcode.util.ShapeDetection;
 import java.util.ArrayList;
 import java.util.List;
 
-@Autonomous(name = "Blue Far Vision", group = "3Comp", preselectTeleOp = "Main Teleop Blue")
-public class BlueFarVision extends OpMode {
+@Autonomous(name = "Blue Close 21 W Spike 3", group = "2Comp", preselectTeleOp = "Main Teleop Blue")
+public class BlueClose21WSpike3 extends OpMode {
     Pose startPose;
     RobotSide robotSide;
     Robot robot;
@@ -44,21 +44,15 @@ public class BlueFarVision extends OpMode {
                         BallColor.Purple,
                         BallColor.Purple
                 });
-        startPose = Common.StartPoses.far;
+        startPose = Common.StartPoses.closeOuter;
 
-        steps.add(new FromStartFarPos.ShootPreloads(robot, lastPlanner(), false));
-        steps.add(new FromShootFarPos.ToIntakeSpike3(robot, lastPlanner(), false));
-        steps.add(new FromShootFarPos.ToIntakeHuman(robot, lastPlanner(), false));
-        steps.add(new FromShootFarPos.ToIntakeWVisionSpline(robot, lastPlanner(), false));
-        steps.add(new FromShootFarPos.ToIntakeWVisionSpline(robot, lastPlanner(), false));
-        steps.add(new FromShootFarPos.ToIntakeWVisionSpline(robot, lastPlanner(), false));
-        steps.add(new FromShootFarPos.ToIntakeWVisionSpline(robot, lastPlanner(), false));
-        steps.add(new FromShootFarPos.ToIntakeWVisionSpline(robot, lastPlanner(), false));
-        steps.add(new FromShootFarPos.ToIntakeWVisionSpline(robot, lastPlanner(), false));
-        steps.add(new FromShootFarPos.ToIntakeWVisionSpline(robot, lastPlanner(), false));
-        steps.add(new FromShootFarPos.ToIntakeWVisionSpline(robot, lastPlanner(), false));
-        steps.add(new FromShootFarPos.ToIntakeWVisionSpline(robot, lastPlanner(), false));
-        steps.add(new FromShootFarPos.ToIntakeWVisionSpline(robot, lastPlanner(), false));
+        steps.add(new FromStartClosePos.ShootAndGoToMidShootPosFast(robot, lastPlanner()));
+        steps.add(new FromShootMidPos.ToIntakeSpike2  (robot, lastPlanner(), false, false, false));
+        steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPlanner(), false, false, true));
+        steps.add(new FromShootMidPos.ToIntakeSpike3  (robot, lastPlanner(), false, false));
+        steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPlanner(), false, false, true));
+        steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPlanner(), false, false, true));
+        steps.add(new FromShootMidPos.ToIntakeSpike1  (robot, lastPlanner(), false, true, false));
 
         wComms(steps);
 

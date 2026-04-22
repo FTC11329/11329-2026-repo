@@ -1281,6 +1281,16 @@ public class Follower {
         temp.setFastHeadingInterpolation(tValue);
         return temp;
     }
+    public Path fastPathBuilder(Pose startPose, Pose endPose, double tValue, double tEndValue) {
+        Path temp = new Path(new BezierLine(startPose, endPose));
+        temp.setFastHeadingInterpolation(tValue, tEndValue);
+        return temp;
+    }
+    public Path fastPathBuilder(Pose startPose, Pose endPose, double tValue, double tEndValue, boolean reversed) {
+        Path temp = new Path(new BezierLine(startPose, endPose));
+        temp.setFastHeadingInterpolation(tValue, tEndValue, reversed);
+        return temp;
+    }
 
 
 

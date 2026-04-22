@@ -11,7 +11,7 @@ import java.util.List;
 
 public class VisionSpline {
 
-    public static final int STRENGTH = 2;
+    public static final int STRENGTH = 3;
     /**
      * Main pipeline:
      * Selects up to 3 closest balls in sequence from a target pose

@@ -73,11 +73,13 @@ public class FromShootMidPos {
                     .setFastHeadingInterpolation(TValues.fastInterpolationIntakeStart)
                     .addPath(robot.follower.linearPathBuilder(IntakeBallPoses.intakeSpike1Start, IntakeBallPoses.intakeSpike1End));
             if (lever) {
-                pathChainBuilder.addPath(robot.follower.linearPathBuilder(IntakeBallPoses.intakeSpike1End, IntakeBallPoses.pushLever));
+                pathChainBuilder.addPath(robot.follower.linearPathBuilder(IntakeBallPoses.intakeSpike1End, IntakeBallPoses.prePushLeverAfterSpike1));
+                pathChainBuilder.addPath(robot.follower.linearPathBuilder(IntakeBallPoses.prePushLeverAfterSpike1, IntakeBallPoses.pushLeverAfterSpike1));
                 toShootPose = new Path(new BezierCurve(IntakeBallPoses.intakeSpike1End, IntakeBallPoses.intakeSpike1ControlPoint, lastPose));
-                toShootPose.setLinearHeadingInterpolation(IntakeBallPoses.intakeSpike1End, lastPose);
+                toShootPose.setFastHeadingInterpolation(TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootEnd, true);
             } else {
                 toShootPose = new Path(new BezierLine(IntakeBallPoses.intakeSpike1End, lastPose));
+                toShootPose.setFastHeadingInterpolation(TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootEnd, true);
             }
             pathChain = pathChainBuilder.build();
             if (parkAfter) {
@@ -120,7 +122,7 @@ public class FromShootMidPos {
                     break;
                 case 3:
                     // time pushing the lever
-                    if (!lever || pathTimer.getElapsedTimeSeconds() > Timings.longLeverPressTime) {
+                    if (!lever || pathTimer.getElapsedTimeSeconds() > Timings.shortLeverPressTime) {
                         if (lever) {
                             robot.follower.followPath(toShootPose);
                         }
@@ -228,10 +230,13 @@ public class FromShootMidPos {
                     .setConstantHeadingInterpolation(startPose);
             if (lever) {
                 pathChainBuilder.addPath(robot.follower.linearPathBuilder(IntakeBallPoses.intakeSpike2Start, IntakeBallPoses.pushLever));
-                toShootPose = new Path(new BezierCurve(IntakeBallPoses.pushLever, IntakeBallPoses.intakeSpike2ControlPoint, lastPose));
+                pathChainBuilder.addPath(robot.follower.linearPathBuilder(IntakeBallPoses.pushLever, IntakeBallPoses.pushLeverAfterSpike2));
+                toShootPose = new Path(new BezierCurve(IntakeBallPoses.pushLeverAfterSpike2, IntakeBallPoses.intakeSpike2ControlPoint, lastPose));
+                toShootPose.setFastHeadingInterpolation(TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootEnd, true);
             } else {
                 pathChainBuilder.addPath(robot.follower.linearPathBuilder(IntakeBallPoses.intakeSpike2Start, IntakeBallPoses.intakeSpike2End));
                 toShootPose = new Path(new BezierCurve(IntakeBallPoses.intakeSpike2End, IntakeBallPoses.intakeSpike2ControlPoint, lastPose));
+                toShootPose.setFastHeadingInterpolation(TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootEnd, true);
             }
             pathChain = pathChainBuilder.build();
             if (parkAfter) {
@@ -274,7 +279,7 @@ public class FromShootMidPos {
                     break;
                 case 3:
                     // time pushing the lever
-                    if (!lever || pathTimer.getElapsedTimeSeconds() > Timings.longLeverPressTime) {
+                    if (!lever || pathTimer.getElapsedTimeSeconds() > Timings.shortLeverPressTime) {
                         if (lever) {
                             robot.follower.followPath(toShootPose);
                         }
@@ -283,6 +288,7 @@ public class FromShootMidPos {
                         }
                         setPathState(4);
                     }
+                    break;
                 case 4:
                     if ((robot.inShootingZone() || !robot.follower.isBusy()) && (parkAfter || robot.movingSlowEnoughToShoot(true))) {
                         if (parkAfter && !sort) {
@@ -378,7 +384,7 @@ public class FromShootMidPos {
                     .setFastHeadingInterpolation(TValues.fastInterpolationIntakeStart)
                     .addPath(robot.follower.linearPathBuilder(IntakeBallPoses.intakeSpike3StartClose, IntakeBallPoses.intakeSpike3End))
                     .build();
-            toShootPose = robot.follower.linearPathBuilder(IntakeBallPoses.intakeSpike3End, lastPose);
+            toShootPose = robot.follower.fastPathBuilder(IntakeBallPoses.intakeSpike3End, lastPose, TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootEnd, true);
             if (parkAfter) {
                 toShootPose.setTangentHeadingInterpolation();
                 toShootPose.reverseHeadingInterpolation();
@@ -462,7 +468,7 @@ public class FromShootMidPos {
             return "From shoot mid to intake spike 3, state: " + state;
         }
     }
-
+    @Deprecated
     public static class ToIntakeSpike3ToFar implements PathPlanner {
         /// intakes 3 from the second spike mark
         /// then goes to far and shoots them
@@ -658,7 +664,8 @@ public class FromShootMidPos {
             toShootBuilder = robot.follower.pathBuilder();
             if (sort) {
                 toShootBuilder.addPath(robot.follower.linearPathBuilder(IntakeBallPoses.intakeFromSTunnel, IntakeBallPoses.pushLever))
-                        .addPath(new BezierCurve(IntakeBallPoses.pushLever, IntakeBallPoses.movingToPushLeverControlPoint, lastPose));
+                        .addPath(new BezierCurve(IntakeBallPoses.pushLever, IntakeBallPoses.movingToPushLeverControlPoint, lastPose))
+                        .setFastHeadingInterpolation(TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootEnd, true);
             } else {
                 toShootBuilder.addPath(new BezierCurve(IntakeBallPoses.intakeFromSTunnel, IntakeBallPoses.movingToPushLeverControlPoint, lastPose));
             }

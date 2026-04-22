@@ -46,7 +46,7 @@ public class Lights {
 
     public Lights(HardwareMap hardwareMap) {
         prism = hardwareMap.get(GoBildaPrismDriver.class, "prism");
-        int brightness = 50;
+        int brightness = 100;
         int start = 0;
         int end = 18;
 
@@ -76,7 +76,7 @@ public class Lights {
         bigRed.setIndexes(0, 17);
         bigRed.setPrimaryColor(Color.RED);
         teamColorAnimation.setPrimaryColor(teamColor);
-        teamColorAnimation.setSecondaryColor(Color.dimColor(teamColor, 9));
+        teamColorAnimation.setSecondaryColor(Color.dimColor(teamColor, 8));
         teamColorAnimation.setSparkleProbability(3);
         teamColorAnimation.setPeriod(100);
         teamColorAnimation.setBrightness(brightness);

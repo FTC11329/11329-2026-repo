@@ -22,7 +22,7 @@ import org.firstinspires.ftc.teamcode.util.ShapeDetection;
 import java.util.ArrayList;
 import java.util.List;
 
-@Autonomous(name = "Red Far Vision", group = "2Comp", preselectTeleOp = "Main Teleop Red")
+@Autonomous(name = "Red Far Vision", group = "3Comp", preselectTeleOp = "Main Teleop Red")
 public class RedFarVision extends OpMode {
     Pose startPose;
     RobotSide robotSide;

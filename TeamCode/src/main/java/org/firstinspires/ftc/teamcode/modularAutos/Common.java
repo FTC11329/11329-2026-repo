@@ -83,7 +83,7 @@ public class Common {
         public static Pose intakeSpike2Start = new Pose(-11.75, 32, Math.toRadians(90));
         public static Pose intakeSpike2End = new Pose(-11.75, 63, Math.toRadians(90));
 
-        public static Pose intakeSpike3ControlPoint = new Pose(10.1, 14.9, Math.toRadians(90));
+        public static Pose intakeSpike3ControlPoint = new Pose(-10.1, 14.9, Math.toRadians(90));
         public static Pose intakeSpike3StartClose = new Pose(-30.5, 32, Math.toRadians(90));
         public static Pose intakeSpike3StartFar = new Pose(-39, 32, Math.toRadians(90));
         public static Pose intakeSpike3End = new Pose(-36, 63, Math.toRadians(90));
@@ -98,7 +98,9 @@ public class Common {
         public static Pose intakeSpike3Fast = new Pose(-31.1,47.9, Math.toRadians(180));
 
         public static Pose movingToPushLeverControlPoint = new Pose(-3.8, 25.3);
-        public static Pose pushLeverAfterSpike = new Pose(-0.4,56.1, Math.toRadians(60));
+        public static Pose prePushLeverAfterSpike1 = new Pose(6,53, Math.toRadians(90));
+        public static Pose pushLeverAfterSpike1 = new Pose(6,56.1, Math.toRadians(90));
+        public static Pose pushLeverAfterSpike2 = new Pose(-7,59, Math.toRadians(90));
         public static Pose pushLever = new Pose(-11.2, 62, Math.toRadians(63));
         public static Pose intakeFromSTunnel = new Pose(-17, 58.25, Math.toRadians(45)); // pointing at ramp
 
@@ -120,7 +122,9 @@ public class Common {
             intakeSpike3StartClose = convertToRed(intakeSpike3StartClose, toRed);
             intakeSpike3StartFar = convertToRed(intakeSpike3StartFar, toRed);
             intakeSpike3End = convertToRed(intakeSpike3End, toRed);
-            pushLeverAfterSpike = convertToRed(pushLeverAfterSpike, toRed);
+            prePushLeverAfterSpike1 = convertToRed(prePushLeverAfterSpike1, toRed);
+            pushLeverAfterSpike1 = convertToRed(pushLeverAfterSpike1, toRed);
+            pushLeverAfterSpike2 = convertToRed(pushLeverAfterSpike2, toRed);
             pushLever = convertToRed(pushLever, toRed);
             movingToPushLeverControlPoint = convertToRed(movingToPushLeverControlPoint, toRed);
             intakeFromSTunnel = convertToRed(intakeFromSTunnel, toRed);
