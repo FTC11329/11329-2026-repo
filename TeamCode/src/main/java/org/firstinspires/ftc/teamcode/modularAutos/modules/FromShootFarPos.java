@@ -429,6 +429,7 @@ public class FromShootFarPos {
         }
     }
 
+    @Deprecated
     public static class ToIntakeWVision implements PathPlanner {
         /// Intakes from around the secret Tunnel with vision
         // Variables
@@ -796,6 +797,7 @@ public class FromShootFarPos {
             return "From shoot far to intake spike 3, state: " + state;
         }
     }
+    @Deprecated
     public static class ToIntakeHumanThenWait implements PathPlanner {
         /// intakes 3 from the Human Player zone
         /// then goes back and shoots them

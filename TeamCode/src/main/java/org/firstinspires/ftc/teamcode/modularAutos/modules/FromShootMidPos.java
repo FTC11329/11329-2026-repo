@@ -468,7 +468,6 @@ public class FromShootMidPos {
             return "From shoot mid to intake spike 3, state: " + state;
         }
     }
-    @Deprecated
     public static class ToIntakeSpike3ToFar implements PathPlanner {
         /// intakes 3 from the second spike mark
         /// then goes to far and shoots them
