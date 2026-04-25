@@ -54,8 +54,8 @@ public class KalmanFilter implements NoiseFilter {
     @Override
     public void update(double updateData, double updateProjection) {
         state = previousState + updateData;
-        variance = previousVariance + parameters.modelCovariance;
-        kalmanGain = variance / (variance + parameters.dataCovariance);
+        variance = previousVariance + parameters.Q;
+        kalmanGain = variance / (variance + parameters.R);
         state += kalmanGain * (updateProjection - state);
         variance *= (1.0 - kalmanGain);
         previousState = state;
@@ -77,5 +77,9 @@ public class KalmanFilter implements NoiseFilter {
                 "Variance: " + variance,
                 "Kalman Gain: " + kalmanGain
         };
+    }
+
+    public void setParameters(KalmanFilterParameters parameters) {
+        this.parameters = parameters;
     }
 }

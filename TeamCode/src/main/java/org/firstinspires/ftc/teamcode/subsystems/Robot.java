@@ -12,6 +12,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.modularAutos.Common;
 import org.firstinspires.ftc.teamcode.pedroPathing.Drawing;
+import org.firstinspires.ftc.teamcode.pedroPathing.control.KalmanFilter;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.math.Vector;
@@ -21,6 +22,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.DBSCANLiteClustering;
 import org.firstinspires.ftc.teamcode.util.FieldShapes;
+import org.firstinspires.ftc.teamcode.util.KalmanFilter2d;
 import org.firstinspires.ftc.teamcode.util.MeanBallPoses;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
 import org.firstinspires.ftc.teamcode.util.ShapeDetection;
@@ -52,7 +54,7 @@ public class Robot {
     public ElapsedTime shooterTimer;
     TelemetryManager panelsTelemetry;
     HardwareMap.DeviceMapping<VoltageSensor> voltageSensors;
-
+    public KalmanFilter kalmanFilter;
 
     double startTime;
 
@@ -100,6 +102,7 @@ public class Robot {
         shotCalculator = new ShotCalculator();
         hoodAngleCompensation = new HoodAngleCompensation();
         voltageSensors = hardwareMap.voltageSensor;
+        kalmanFilter = new KalmanFilter(Constants.Shooter.kalmanFilterParameters);
 
 
         follower.setStartingPose(new Pose(0,0,0));
@@ -414,7 +417,11 @@ public class Robot {
         ShotSolution s = shotCalculator.solveShot(ctx, shotType, useSOTF);
 
         // expose turret feedforward
-        angleToGoalVelocity = s.turretVel;
+        panelsTelemetry.addData("raw velocity", s.turretVel);
+        kalmanFilter.setParameters(Constants.Shooter.kalmanFilterParameters);
+        kalmanFilter.update(0, s.turretVel);
+        angleToGoalVelocity = kalmanFilter.getState();
+        panelsTelemetry.addData("filtered velocity", angleToGoalVelocity);
 
         if (lastShape == FieldShapes.closeTriangle) {
             turret.setTargetRad(s.turretAngleRad + Math.toRadians(closeTurretOffset));
@@ -756,8 +763,14 @@ public class Robot {
         if (debug) {
             debug();
         }
-        panelsTelemetry.addData("time", getOpmodeTimeSeconds() > 29.25 ?1:0);
+        panelsTelemetry.addData("turret pos", turret.getAngle());
+        panelsTelemetry.addData("turret target", turret.turretPID.getTargetPosition());
+        panelsTelemetry.addData("turret error", turret.turretPID.getError());
+        panelsTelemetry.addData("turret velocity", turret.getVelocity());
+        panelsTelemetry.addData("RPM", shooter.getRPM());
+        panelsTelemetry.addData("RPM target", shooter.shooterPID.getTargetPosition());
         panelsTelemetry.update();
+
     }
 
     public void debug() {
@@ -791,16 +804,10 @@ public class Robot {
         panelsTelemetry.addData("hue", indexer.getHue());
          */
 
-        panelsTelemetry.addData("turret pos", turret.getAngle());
-        panelsTelemetry.addData("turret target", turret.turretPID.getTargetPosition());
-        panelsTelemetry.addData("turret error", turret.turretPID.getError());
-        panelsTelemetry.addData("turret velocity", turret.getVelocity());
         panelsTelemetry.addData("turret power", clamp(turret.turretPID.run(), -1, 1) * 360);
         panelsTelemetry.addData("turret Acceleration", follower.getAngularAcceleration());
 
 
-        panelsTelemetry.addData("RPM", shooter.getRPM());
-        panelsTelemetry.addData("RPM target", shooter.shooterPID.getTargetPosition());
         panelsTelemetry.addData("Hood angle", shooter.getHoodPosDeg());
         panelsTelemetry.addData("distance to goal", distanceToGoal());
         panelsTelemetry.addData("RPM error", shooter.shooterPID.getError());

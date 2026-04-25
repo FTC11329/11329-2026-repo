@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.bylazar.configurables.annotations.Configurable;
 
+import org.firstinspires.ftc.teamcode.pedroPathing.control.KalmanFilterParameters;
 import org.firstinspires.ftc.teamcode.pedroPathing.control.PIDFCoefficients;
 import org.firstinspires.ftc.teamcode.pedroPathing.control.PIDFController;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
@@ -70,14 +71,14 @@ public class Constants {
         public static double closeEnough = 8; //Inches
         public static double turretOffset = 0;
 
-        public static double P = .008;
+        public static double P = .005;
         public static double I = 0;
         public static double D = 0.0005;
 
         public static double CCW_F = -0.035;
         public static double CW_F = 0.087;
         public static double CableCW_F = 0.115;
-        public static double kV = .045;
+        public static double kV = .04;
         public static double kA = -.07;
 
 
@@ -87,9 +88,10 @@ public class Constants {
 
     @Configurable
     public static class Shooter {
+        public static KalmanFilterParameters kalmanFilterParameters = new KalmanFilterParameters(0.01, 0.1);
         public static PIDFCoefficients shooterVelocityPID = new PIDFCoefficients(.0025, 0, 0, .118599876923);
 //        public static PIDFCoefficients shooterVelocityPID = new PIDFCoefficients(0, 0, 0, 0);
-        public static double kV = 5368.59375;
+        public static double kV = 5500;
         public static double RPMoffset = 0;
         public static double hoodAngleOffset = 0;
         public static double closeEnoughRPM = 50;

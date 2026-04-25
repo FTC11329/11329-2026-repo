@@ -7,8 +7,8 @@ package org.firstinspires.ftc.teamcode.pedroPathing.control;
  * @version 1.0, 7/17/2024
  */
 public class KalmanFilterParameters {
-    public double modelCovariance;
-    public double dataCovariance;
+    public double Q;
+    public double R;
 
     /**
      * This creates a new KalmanFilterParameters with a specified model and data covariance.
@@ -17,7 +17,7 @@ public class KalmanFilterParameters {
      * @param dataCovariance the covariance of the data.
      */
     public KalmanFilterParameters(double modelCovariance, double dataCovariance) {
-        this.modelCovariance = modelCovariance;
-        this.dataCovariance = dataCovariance;
+        this.Q = modelCovariance;
+        this.R = dataCovariance;
     }
 }
