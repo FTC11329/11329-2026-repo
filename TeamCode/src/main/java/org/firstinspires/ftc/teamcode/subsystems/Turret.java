@@ -118,7 +118,17 @@ public class Turret {
         turretPID.updatePosition(curAngle);  // degrees
         if (usePid) {
             turretPID.setCoefficients(Constants.Turret.turretPID);
-            double velocityFF = angVel * Constants.Turret.kV;
+            double kV = Constants.Turret.kV;
+            if (curAngle > 280) {
+                if (angVel > 0) {
+                    kV += Constants.Turret.Cable_kV;
+                }
+                if (turretPID.getError() < 0) {
+                    double kP = Constants.Turret.P + Constants.Turret.Cable_kP;
+                    turretPID.setP(kP);
+                }
+            }
+            double velocityFF = angVel * kV;
             double accelerationFF = angAccel * Constants.Turret.kA;
             setPower((( turretPID.run() + velocityFF * voltageCompensation) + accelerationFF));
         } else {

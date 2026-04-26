@@ -50,6 +50,9 @@ public class Common {
         public static double shootTimeOut = 0.7;
         public static double sortShootTimeOut = 3.5;
 
+        public static double spike1HightOut = 52;
+        public static double notSpike1HightOut = 57;
+
         public static double shootVelocityClose = 10; // in / s
         public static double shootVelocityFar = 1; // in / s
         public static double shootAccelerationFar = 3; // in / s^2
@@ -143,7 +146,7 @@ public class Common {
     }
 
     public static class ShootPoses {
-        public static Pose parkShoot =  new Pose(48, 24, Math.toRadians(45));
+        public static Pose parkShoot =  new Pose(48, 12, Math.toRadians(135));
         public static Pose closeShoot = new Pose(36, 36, Math.toRadians(90));
         public static Pose midShoot =   new Pose(8.9,18.5, Math.toRadians(90));
         public static Pose farShoot =   new Pose(-56.4, 20.7, Math.toRadians(85));

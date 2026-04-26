@@ -83,7 +83,6 @@ public class CloseAuto18BallRedPurpleRobo extends OpMode {
         steps.get(currentStep).buildPaths();
         robot.spinIntake();
     }
-
     @Override
     public void loop() {
         // to stop the auto

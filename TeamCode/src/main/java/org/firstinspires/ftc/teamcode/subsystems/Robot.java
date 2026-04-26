@@ -35,6 +35,7 @@ import org.firstinspires.ftc.teamcode.util.VisionSpline;
 import org.firstinspires.ftc.teamcode.util.VisionTypes;
 
 import java.util.List;
+import java.util.Objects;
 
 
 public class Robot {
@@ -435,43 +436,44 @@ public class Robot {
         shooter.setHoodDeg(s.hoodDeg + hoodAngleOffset);
     }
 
-    double OTHER_ZONE_MULT = 0.5;
+    double FAR_AFFECT_CLOSE = 1;
+    double CLOSE_AFFECT_FAR = 1;
 
     public void shooterTrim(boolean up, boolean down, boolean left, boolean right) {
         if (up) {
             if (lastShape == FieldShapes.closeTriangle) {
                 closeDistanceOffset += 1.4;
-                farDistanceOffset += 1.4 * OTHER_ZONE_MULT;
+                farDistanceOffset += 1.4 * CLOSE_AFFECT_FAR;
             } else {
                 farDistanceOffset += 1.4;
-                closeDistanceOffset += 1.4 * OTHER_ZONE_MULT;
+                closeDistanceOffset += 1.4 * FAR_AFFECT_CLOSE;
             }
         }
         if (down) {
             if (lastShape == FieldShapes.closeTriangle) {
                 closeDistanceOffset -= 1.4;
-                farDistanceOffset -= 1.4 * OTHER_ZONE_MULT;
+                farDistanceOffset -= 1.4 * CLOSE_AFFECT_FAR;
             } else {
                 farDistanceOffset -= 1.4;
-                closeDistanceOffset -= 1.4 * OTHER_ZONE_MULT;
+                closeDistanceOffset -= 1.4 * FAR_AFFECT_CLOSE;
             }
         }
         if (left) {
             if (lastShape == FieldShapes.closeTriangle) {
                 closeTurretOffset += 1;
-                farTurretOffset += 1 * OTHER_ZONE_MULT * 2;
+                farTurretOffset += 1 * CLOSE_AFFECT_FAR;
             } else {
                 farTurretOffset += 0.5;
-                closeTurretOffset += 0.5 * OTHER_ZONE_MULT * 2;
+                closeTurretOffset += 0.5 * FAR_AFFECT_CLOSE;
             }
         }
         if (right) {
             if (lastShape == FieldShapes.closeTriangle) {
                 closeTurretOffset -= 1;
-                farTurretOffset -= 1 * OTHER_ZONE_MULT;
+                farTurretOffset -= 1 * CLOSE_AFFECT_FAR;
             } else {
                 farTurretOffset -= 0.5;
-                closeTurretOffset -= 0.5 * OTHER_ZONE_MULT;
+                closeTurretOffset -= 0.5 * FAR_AFFECT_CLOSE;
             }
         }
     }
@@ -767,6 +769,7 @@ public class Robot {
         panelsTelemetry.addData("turret target", turret.turretPID.getTargetPosition());
         panelsTelemetry.addData("turret error", turret.turretPID.getError());
         panelsTelemetry.addData("turret velocity", turret.getVelocity());
+        panelsTelemetry.addData("turret velocity", angleToGoalVelocity);
         panelsTelemetry.addData("RPM", shooter.getRPM());
         panelsTelemetry.addData("RPM target", shooter.shooterPID.getTargetPosition());
         panelsTelemetry.update();

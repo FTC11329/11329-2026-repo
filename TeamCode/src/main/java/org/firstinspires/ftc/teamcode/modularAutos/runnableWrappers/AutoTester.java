@@ -53,9 +53,10 @@ public class AutoTester extends OpMode {
 
 
         steps.add(new FromStartClosePos.ShootAndGoToMidShootPosFast(robot, lastPlanner()));
+        steps.add(new FromShootMidPos.ToIntakeSpike1(robot, lastPlanner(), false, false, true));
         steps.add(new FromShootMidPos.ToIntakeSpike2(robot, lastPlanner(), false, false, true));
-        steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPlanner(), true, true, false));
-
+        steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPlanner(), false, false, true));
+        steps.add(new FromShootMidPos.ToIntakeSpike3ToFar(robot, lastPlanner(), false));
         wComms(steps);
 
         robot.follower.setPose(startPose);
@@ -146,7 +147,7 @@ public class AutoTester extends OpMode {
 //        Drawing.drawDebug(robot.follower);
 //        Drawing.drawShapesDebug(robot.follower);
 //        telemetry.addData("time", robot.getOpmodeTimeSeconds());
-//        telemetry.addData("name", step);
+        telemetry.addData("name", step);
 //        telemetry.addData("unjamm", robot.isIndexerUnjamming());
 //        for (BallColor i : robot.indexer.getBallCells()) {
 //            telemetry.addData("hasBalls", i);

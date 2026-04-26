@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.modularAutos.modules;
 
+import org.firstinspires.ftc.teamcode.modularAutos.Common;
 import org.firstinspires.ftc.teamcode.modularAutos.PathPlanner;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.BezierCurve;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.BezierLine;
@@ -15,6 +16,7 @@ import static org.firstinspires.ftc.teamcode.modularAutos.Common.*;
 import androidx.annotation.NonNull;
 
 public class FromShootMidPos {
+    /// TIMES 6.82 -3.64
     public static class ToIntakeSpike1 implements PathPlanner {
         /// intakes 3 from the close spike mark
         /// then goes back and shoots them
@@ -82,12 +84,7 @@ public class FromShootMidPos {
                 toShootPose.setFastHeadingInterpolation(TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootEnd, true);
             }
             pathChain = pathChainBuilder.build();
-            if (parkAfter) {
-                toShootPose.setTangentHeadingInterpolation();
-                toShootPose.reverseHeadingInterpolation();
-            } else {
-                toShootPose.setFastHeadingInterpolation(TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootEnd, true);
-            }
+            toShootPose.setFastHeadingInterpolation(TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootEnd, true);
         }
 
         @Override
@@ -108,7 +105,7 @@ public class FromShootMidPos {
                     setPathState(1);
                     break;
                 case 1:
-                    if (!robot.follower.isBusy() || robot.basicallyHas3() || robot.indexer.isHasBallsFull() || Math.abs(robot.getCurrentPose().getY()) > 52) {
+                    if (!robot.follower.isBusy() || robot.basicallyHas3() || robot.indexer.isHasBallsFull() || Math.abs(robot.getCurrentPose().getY()) > Timings.spike1HightOut) {
                         if (!lever) {
                             robot.follower.followPath(toShootPose);
                         }
@@ -171,6 +168,7 @@ public class FromShootMidPos {
             return "From shoot mid to intake spike 1, state: " + state;
         }
     }
+    /// TIMES 10.39-6.82
     public static class ToIntakeSpike2 implements PathPlanner {
         /// intakes 3 from the second spike mark
         /// then goes back and shoots them
@@ -239,12 +237,7 @@ public class FromShootMidPos {
                 toShootPose.setFastHeadingInterpolation(TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootEnd, true);
             }
             pathChain = pathChainBuilder.build();
-            if (parkAfter) {
-                toShootPose.setTangentHeadingInterpolation();
-                toShootPose.reverseHeadingInterpolation();
-            } else {
-                toShootPose.setFastHeadingInterpolation(TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootEnd, true);
-            }
+            toShootPose.setFastHeadingInterpolation(TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootEnd, true);
         }
 
         @Override
@@ -265,7 +258,7 @@ public class FromShootMidPos {
                     setPathState(1);
                     break;
                 case 1:
-                    if (!robot.follower.isBusy() || robot.basicallyHas3() || robot.indexer.isHasBallsFull() || Math.abs(robot.getCurrentPose().getY()) > 55) {
+                    if (!robot.follower.isBusy() || robot.basicallyHas3() || robot.indexer.isHasBallsFull() || Math.abs(robot.getCurrentPose().getY()) > Timings.notSpike1HightOut) {
                         if (!lever) {
                             robot.follower.followPath(toShootPose);
                         }
@@ -329,6 +322,7 @@ public class FromShootMidPos {
             return "From shoot mid to intake spike 2, state: " + state;
         }
     }
+    /// TIMES 14.36 - 10.39
     public static class ToIntakeSpike3 implements PathPlanner {
         /// intakes 3 from the second spike mark
         /// then goes back and shoots them
@@ -385,12 +379,8 @@ public class FromShootMidPos {
                     .addPath(robot.follower.linearPathBuilder(IntakeBallPoses.intakeSpike3StartClose, IntakeBallPoses.intakeSpike3End))
                     .build();
             toShootPose = robot.follower.fastPathBuilder(IntakeBallPoses.intakeSpike3End, lastPose, TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootEnd, true);
-            if (parkAfter) {
-                toShootPose.setTangentHeadingInterpolation();
-                toShootPose.reverseHeadingInterpolation();
-            } else {
-                toShootPose.setFastHeadingInterpolation(TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootEnd, true);
-            }
+            toShootPose.setFastHeadingInterpolation(TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootEnd, true);
+
         }
 
         @Override
@@ -414,7 +404,7 @@ public class FromShootMidPos {
                     setPathState(1);
                     break;
                 case 1:
-                    if (!robot.follower.isBusy() || robot.basicallyHas3() || robot.indexer.isHasBallsFull() || Math.abs(robot.getCurrentPose().getY()) > 55) {
+                    if (!robot.follower.isBusy() || robot.basicallyHas3() || robot.indexer.isHasBallsFull() || Math.abs(robot.getCurrentPose().getY()) > Timings.notSpike1HightOut) {
                         robot.follower.followPath(toShootPose);
                         setPathState(2);
                     }
@@ -538,7 +528,7 @@ public class FromShootMidPos {
                     setPathState(1);
                     break;
                 case 1:
-                    if (!robot.follower.isBusy() || robot.basicallyHas3() || robot.indexer.isHasBallsFull() || Math.abs(robot.getCurrentPose().getY()) > 55) {
+                    if (!robot.follower.isBusy() || robot.basicallyHas3() || robot.indexer.isHasBallsFull() || Math.abs(robot.getCurrentPose().getY()) > Timings.notSpike1HightOut) {
                         robot.follower.followPath(toShootPose);
                         setPathState(2);
                     }
@@ -587,6 +577,7 @@ public class FromShootMidPos {
         }
     }
 
+    /// TIMES FAST: 18.75 - 14.36
     public static class ToIntakeFromRamp implements PathPlanner {
         /// intakes 3 from the ramp
         /// then goes back and shoots them
@@ -606,7 +597,6 @@ public class FromShootMidPos {
         double leverTimeOut;
         double rampTimeOut;
         Pose lastPose;
-
         public ToIntakeFromRamp(Robot robot, PathPlanner prevPlanner, boolean sort, boolean parkAfter, boolean longLever) {
             pathTimer = new Timer();
             this.robot = robot;
@@ -668,12 +658,7 @@ public class FromShootMidPos {
             } else {
                 toShootBuilder.addPath(new BezierCurve(IntakeBallPoses.intakeFromSTunnel, IntakeBallPoses.movingToPushLeverControlPoint, lastPose));
             }
-            if (parkAfter) {
-                toShootBuilder.setTangentHeadingInterpolation()
-                        .setReversed();
-            } else {
-                toShootBuilder.setFastHeadingInterpolation(TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootEnd - 0.05, true);
-            }
+            toShootBuilder.setFastHeadingInterpolation(TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootEnd - 0.05, true);
 
             toShootPose = toShootBuilder.build();
         }
@@ -814,7 +799,7 @@ public class FromShootMidPos {
             if (parkAfter) {
                 toShootPose = robot.follower.pathBuilder()
                         .addPath(new BezierLine(IntakeBallPoses.intakeHumanDiagonalToStrait, lastPose))
-                        .setReversed()
+                        .setFastHeadingInterpolation(TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootEnd, true)
                         .build();
             } else {
                 toShootPose = robot.follower.fastPathChainBuilder(IntakeBallPoses.intakeHumanDiagonalToStrait, lastPose, TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootStart, true);

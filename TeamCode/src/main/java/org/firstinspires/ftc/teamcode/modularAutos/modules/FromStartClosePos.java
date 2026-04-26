@@ -16,6 +16,7 @@ import org.opencv.core.Mat;
 
 public class FromStartClosePos {
     // allows for either close inner or outer startPositions
+    @Deprecated
     public static class ShootAndGoToMidShootPos implements PathPlanner {
         /// Starts Close and goes to shoot mid pos while shooting
         // Variables
@@ -107,6 +108,7 @@ public class FromStartClosePos {
             return "FromStartClosePosition ShootAndGoToMidShootPos, step: " + state;
         }
     }
+    /// TIMES  3.64 - 0.84
     public static class ShootAndGoToMidShootPosFast implements PathPlanner {
         /// Starts Close and goes to shoot mid pos while shooting
         // Variables
