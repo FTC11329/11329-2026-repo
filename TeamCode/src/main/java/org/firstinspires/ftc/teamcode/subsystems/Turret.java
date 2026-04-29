@@ -61,7 +61,7 @@ public class Turret {
         while (robotDeg > 360) {
             robotDeg -= 360;
         }
-        while (robotDeg < -25) {
+        while (robotDeg < -45) {
             robotDeg += 360;
         }
 
@@ -103,23 +103,23 @@ public class Turret {
         curTime = System.nanoTime() * 1e-9;
         curAngle = getAngle();
 
-        if (Math.abs(curAngle - turretPID.getTargetPosition()) < 0.23) {
+        if (Math.abs(curAngle - turretPID.getTargetPosition()) < 0.28) {
             turretPID.updateFeedForwardInput(0);
         } else if (curAngle > turretPID.getTargetPosition()) {
-            turretPID.updateFeedForwardInput(Constants.Turret.CCW_F);
-        } else {
-            if (curAngle < 300) {
-                turretPID.updateFeedForwardInput(Constants.Turret.CW_F);
-            } else {
+            if (curAngle < 90) {
                 turretPID.updateFeedForwardInput(Constants.Turret.CableCW_F);
+            } else {
+                turretPID.updateFeedForwardInput(Constants.Turret.CCW_F);
             }
+        } else {
+            turretPID.updateFeedForwardInput(Constants.Turret.CW_F);
         }
 
         turretPID.updatePosition(curAngle);  // degrees
         if (usePid) {
             turretPID.setCoefficients(Constants.Turret.turretPID);
             double kV = Constants.Turret.kV;
-            if (curAngle > 280) {
+            if (curAngle > 265) {
                 if (angVel > 0) {
                     kV += Constants.Turret.Cable_kV;
                 }

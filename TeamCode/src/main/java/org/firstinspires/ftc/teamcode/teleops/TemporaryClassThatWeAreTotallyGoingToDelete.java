@@ -58,14 +58,17 @@ public class TemporaryClassThatWeAreTotallyGoingToDelete extends OpMode {
     @Override
     public void init() {
         panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
-        shooter = new Shooter(hardwareMap);
+        turret = new Turret(hardwareMap, 0, RobotSide.Blue);
     }
-    double pow = 0;
+    double pos = 0;
     @Override
     public void loop() {
-        pow = gamepad1.a ? 1 : 0;
-        shooter.setPower(pow);
-        panelsTelemetry.addData("rpm", shooter.getRPM());
+        pos = gamepad1.left_stick_y * 180;
+        turret.setTargetDeg(pos);
+        turret.update(0, 0);
+        panelsTelemetry.addData("turret pow", turret.turretPID.run());
+        panelsTelemetry.addData("turret pos", turret.getAngle());
+        panelsTelemetry.addData("turret tar", turret.turretPID.getTargetPosition());
         panelsTelemetry.update();
     }
 

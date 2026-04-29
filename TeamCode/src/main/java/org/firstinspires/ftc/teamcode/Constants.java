@@ -71,16 +71,20 @@ public class Constants {
         public static double closeEnough = 8; //Inches
         public static double turretOffset = 0;
 
+//        public static double P = 0;
+//        public static double I = 0;
+//        public static double D = 0;
+//
         public static double P = .006;
         public static double I = 0;
         public static double D = 0.0005;
 
         public static double CCW_F = -0.04;
         public static double CW_F = 0.087;
-        public static double CableCW_F = 0.115;
+        public static double CableCW_F = -0.07;
         public static double kV = .04;
         public static double kA = -.07;
-        public static double Cable_kV = .03;
+        public static double Cable_kV = .08;
         public static double Cable_kP = .002;
 
 
@@ -92,9 +96,9 @@ public class Constants {
     @Configurable
     public static class Shooter {
         public static KalmanFilterParameters kalmanFilterParameters = new KalmanFilterParameters(0.01, 0.1);
-        public static PIDFCoefficients shooterVelocityPID = new PIDFCoefficients(.0025, 0, 0, .118599876923);
+        public static PIDFCoefficients shooterVelocityPID = new PIDFCoefficients(.0025, 0, 0, .08024);
 //        public static PIDFCoefficients shooterVelocityPID = new PIDFCoefficients(0, 0, 0, 0);
-        public static double kV = 5500;
+        public static double kV = 5232;
         public static double RPMoffset = 0;
         public static double hoodAngleOffset = 0;
         public static double closeEnoughRPM = 50;
