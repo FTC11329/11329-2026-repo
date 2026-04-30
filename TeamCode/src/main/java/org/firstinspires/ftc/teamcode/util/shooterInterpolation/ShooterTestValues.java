@@ -10,7 +10,7 @@ public class ShooterTestValues implements ShooterValuesParent {
 
     private final double CLOSE_ADDITION = -3.5; // - shooter farther
     private final double ADDITION = 4; // - shooter farther
-    private final double FAR_ADDITION = 3; // - shooter farther
+    private final double FAR_ADDITION = 1; // - shooter farther
     private final double RPM_MULTIPLYER = 1; // + shooter farther
     private final double FAR_ANGLE_ADDITION = 0; // + shooter farther
     public ShooterTestValues() {

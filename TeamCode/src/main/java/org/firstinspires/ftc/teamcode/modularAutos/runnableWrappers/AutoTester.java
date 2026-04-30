@@ -41,7 +41,7 @@ public class AutoTester extends OpMode {
     @Override
     public void init() {
         //Todo
-        robotSide = RobotSide.Blue;
+        robotSide = RobotSide.Red;
         robot = new Robot(telemetry, hardwareMap, robotSide, 0,0,
                 new BallColor[]{
                         BallColor.Green,
@@ -51,12 +51,12 @@ public class AutoTester extends OpMode {
         //Todo
         startPose = Common.StartPoses.closeOuter;
 
-
         steps.add(new FromStartClosePos.ShootAndGoToMidShootPosFast(robot, lastPlanner()));
         steps.add(new FromShootMidPos.ToIntakeSpike1(robot, lastPlanner(), false, false, true));
         steps.add(new FromShootMidPos.ToIntakeSpike2(robot, lastPlanner(), false, false, true));
-        steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPlanner(), false, false, true));
+        steps.add(new FromShootMidPos.ToIntakeHuman(robot, lastPlanner(), false, false));
         steps.add(new FromShootMidPos.ToIntakeSpike3ToFar(robot, lastPlanner(), false));
+        steps.add(new FromShootFarPos.ToIntakeFromRamp(robot, lastPlanner(), false, true));
         wComms(steps);
 
         robot.follower.setPose(startPose);

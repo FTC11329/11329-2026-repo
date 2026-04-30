@@ -135,7 +135,7 @@ public class Robot {
             if (motif == null) {
                 return new BallColor[] {BallColor.Purple, BallColor.Purple, BallColor.Green,
                                         BallColor.Purple, BallColor.Green, BallColor.Purple,
-                                        BallColor.Green, BallColor.Purple, BallColor.Green};
+                                        BallColor.Green, BallColor.Purple, BallColor.Purple};
             }
         }
         return motif;

@@ -18,7 +18,6 @@ import org.firstinspires.ftc.teamcode.util.VisionTypes;
 
 public class FromShootFarPos {
 
-    @Deprecated
     public static class ToIntakeSpike2 implements PathPlanner {
         /// intakes 3 from the second spike mark
         /// then goes back and shoots them
@@ -72,8 +71,7 @@ public class FromShootFarPos {
         public void buildPaths() {
             // Path creation
             pathChainBuilder = robot.follower.pathBuilder()
-                    .addPath(new BezierCurve(startPose, IntakeBallPoses.intakeSpike2Start))
-                    .setFastHeadingInterpolation(TValues.fastInterpolationIntakeStartFar, TValues.fastInterpolationIntakeEndFar);
+                    .addPath(robot.follower.fastPathBuilder(startPose, IntakeBallPoses.intakeSpike2Start, TValues.fastInterpolationIntakeStartFar, TValues.fastInterpolationIntakeEndFar));
             if (lever) {
                 pathChainBuilder.addPath(robot.follower.linearPathBuilder(IntakeBallPoses.intakeSpike2Start, IntakeBallPoses.pushLever));
                 toShootPose = new Path(new BezierLine(IntakeBallPoses.pushLever, lastPose));
@@ -280,7 +278,6 @@ public class FromShootFarPos {
         }
     }
 
-    @Deprecated
     public static class ToIntakeFromRamp implements PathPlanner {
         /// intakes 3 from the ramp
         /// then goes back and shoots them
@@ -341,7 +338,7 @@ public class FromShootFarPos {
         public void buildPaths() {
             // Path creation
             toLever = robot.follower.pathBuilder()
-                    .addPath(new BezierLine(startPose, IntakeBallPoses.pushLever))
+                    .addPath(new BezierCurve(startPose, IntakeBallPoses.movingToPushLeverControlPoint , IntakeBallPoses.pushLever))
                     .setFastHeadingInterpolation(TValues.fastInterpolationLeverStart, TValues.fastInterpolationLeverEnd)
                     .build();
 

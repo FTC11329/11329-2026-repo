@@ -50,8 +50,8 @@ public class RedFarVision extends OpMode {
         steps.add(new FromShootFarPos.ToIntakeSpike3(robot, lastPlanner(), false));
         steps.add(new FromShootFarPos.ToIntakeHuman(robot, lastPlanner(), false));
         steps.add(new FromShootFarPos.ToIntakeWVisionSpline(robot, lastPlanner(), false));
-        steps.add(new FromShootFarPos.ToIntakeWVisionSpline(robot, lastPlanner(), false));
-        steps.add(new FromShootFarPos.ToIntakeWVisionSpline(robot, lastPlanner(), false));
+        steps.add(new FromShootFarPos.ToIntakeWVisionSpline(robot, lastPlanner(), false)); //true
+        steps.add(new FromShootFarPos.ToIntakeWVisionSpline(robot, lastPlanner(), false)); //true
         steps.add(new FromShootFarPos.ToIntakeWVisionSpline(robot, lastPlanner(), false));
         steps.add(new FromShootFarPos.ToIntakeWVisionSpline(robot, lastPlanner(), false));
         steps.add(new FromShootFarPos.ToIntakeWVisionSpline(robot, lastPlanner(), false));

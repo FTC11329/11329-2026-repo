@@ -10,7 +10,7 @@ public class Common {
     // Outer is closer to driver wall (so usually higher y)
 
 //    public static Pose toRedOffset = new Pose(-2.25,-0.75,0); // red offset remember y is reversed
-    public static Pose toRedOffset = new Pose(0,-1.7); // red offset remember y is reversed
+    public static Pose toRedOffset = new Pose(-1,-1.7); // red offset remember y is reversed
     public static boolean wasLastRed = false;
     public static class TValues {
         public static double fastInterpolationIntakeStart = 0.8;
