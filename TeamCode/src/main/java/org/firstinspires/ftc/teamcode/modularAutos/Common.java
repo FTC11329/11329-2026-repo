@@ -10,7 +10,7 @@ public class Common {
     // Outer is closer to driver wall (so usually higher y)
 
 //    public static Pose toRedOffset = new Pose(-2.25,-0.75,0); // red offset remember y is reversed
-    public static Pose toRedOffset = new Pose(-1.7,-1.2,0); // red offset remember y is reversed
+    public static Pose toRedOffset = new Pose(0,-1.7); // red offset remember y is reversed
     public static boolean wasLastRed = false;
     public static class TValues {
         public static double fastInterpolationIntakeStart = 0.8;
@@ -51,7 +51,7 @@ public class Common {
         public static double sortShootTimeOut = 3.5;
 
         public static double spike1HightOut = 52;
-        public static double notSpike1HightOut = 57;
+        public static double notSpike1HightOut = 60;
 
         public static double shootVelocityClose = 10; // in / s
         public static double shootVelocityFar = 1; // in / s
@@ -103,7 +103,7 @@ public class Common {
         public static Pose movingToPushLeverControlPoint = new Pose(-3.8, 25.3);
         public static Pose prePushLeverAfterSpike1 = new Pose(6,53, Math.toRadians(90));
         public static Pose pushLeverAfterSpike1 = new Pose(6,56.1, Math.toRadians(90));
-        public static Pose pushLeverAfterSpike2 = new Pose(-7,59, Math.toRadians(90));
+        public static Pose pushLeverAfterSpike2 = new Pose(-4.5,56, Math.toRadians(90));
         public static Pose pushLever = new Pose(-11.2, 62, Math.toRadians(63));
         public static Pose intakeFromSTunnel = new Pose(-17, 58.25, Math.toRadians(45)); // pointing at ramp
 
@@ -166,7 +166,7 @@ public class Common {
 
         public static Pose optimalSpike2StartFar = new Pose(-52.5,20.2, Math.toRadians(20));
         public static Pose optimalSpike3StartFar = new Pose(-51.13,18.9, Math.toRadians(76));
-        public static Pose optimalVisionStartFar = new Pose(-56.2,12., Math.toRadians(91));
+        public static Pose optimalVisionStartFar = new Pose(-56.2,13, Math.toRadians(91));
 
 
         static void convert(boolean toRed) {

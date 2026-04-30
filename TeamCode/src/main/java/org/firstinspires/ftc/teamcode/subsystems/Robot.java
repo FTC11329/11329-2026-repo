@@ -765,14 +765,14 @@ public class Robot {
         if (debug) {
             debug();
         }
-        panelsTelemetry.addData("turret pos", turret.getAngle());
-        panelsTelemetry.addData("turret target", turret.turretPID.getTargetPosition());
-        panelsTelemetry.addData("turret error", turret.turretPID.getError());
-        panelsTelemetry.addData("turret velocity", turret.getVelocity());
-        panelsTelemetry.addData("turret velocity", angleToGoalVelocity);
-        panelsTelemetry.addData("RPM", shooter.getRPM());
-        panelsTelemetry.addData("RPM target", shooter.shooterPID.getTargetPosition());
-        panelsTelemetry.update();
+//        panelsTelemetry.addData("turret pos", turret.getAngle());
+//        panelsTelemetry.addData("turret target", turret.turretPID.getTargetPosition());
+//        panelsTelemetry.addData("turret error", turret.turretPID.getError());
+//        panelsTelemetry.addData("turret velocity", turret.getVelocity());
+//        panelsTelemetry.addData("turret velocity", angleToGoalVelocity);
+//        panelsTelemetry.addData("RPM", shooter.getRPM());
+//        panelsTelemetry.addData("RPM target", shooter.shooterPID.getTargetPosition());
+//        panelsTelemetry.update();
 
     }
 

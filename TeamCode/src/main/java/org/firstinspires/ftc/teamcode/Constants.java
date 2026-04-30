@@ -54,10 +54,10 @@ public class Constants {
 
     public static class Vision {
         public static int configTest = 0;
-        public static Pose redGoal = new Pose(64, -69);
+        public static Pose redGoal = new Pose(64, -66);
         public static Pose blueGoal = new Pose(68, 60);
-        public static Pose redGoalSort = new Pose(63, -63);
-        public static Pose blueGoalSort = new Pose(67, 56.5);
+        public static Pose redGoalSort = new Pose(62.5, -61);
+        public static Pose blueGoalSort = new Pose(66.5, 57.5);
 
         public static Pose redGoalPhysics = new Pose(64, -67);
         public static Pose blueGoalPhysics = new Pose(67, 67);

@@ -147,7 +147,7 @@ public class BlueClose21 extends OpMode {
 //        Drawing.drawDebug(robot.follower);
 //        Drawing.drawShapesDebug(robot.follower);
 //        telemetry.addData("time", robot.getOpmodeTimeSeconds());
-        telemetry.addData("name", step);
+//        telemetry.addData("name", step);
 //        for (BallColor i : robot.indexer.getBallCells()) {
 //            telemetry.addData("hasBalls", i);
 //        }

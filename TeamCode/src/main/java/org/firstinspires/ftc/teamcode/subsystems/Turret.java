@@ -103,7 +103,7 @@ public class Turret {
         curTime = System.nanoTime() * 1e-9;
         curAngle = getAngle();
 
-        if (Math.abs(curAngle - turretPID.getTargetPosition()) < 0.28) {
+        if (Math.abs(curAngle - turretPID.getTargetPosition()) < 0.75) {
             turretPID.updateFeedForwardInput(0);
         } else if (curAngle > turretPID.getTargetPosition()) {
             if (curAngle < 90) {

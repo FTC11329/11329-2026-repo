@@ -206,7 +206,7 @@ public class Vision {
                 }
                 if (limitZone) {
                     if (farZone) {
-                        if (ballPose.getX() < -24) {
+                        if (ballPose.getX() < -24 && ballPose.getX() > -64) {
                             detectedBalls.add(new DetectedBall(ballPose, ballColor, timePhotoWasTaken));
                         }
                     } else {

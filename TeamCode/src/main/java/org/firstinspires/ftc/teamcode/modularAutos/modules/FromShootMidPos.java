@@ -610,7 +610,7 @@ public class FromShootMidPos {
             }
 
             leverTimeOut = longLever ? Timings.longLeverPressTime         : Timings.shortLeverPressTime;
-            rampTimeOut =  longLever ? Timings.longSTunnelIntakeTimeOut : Timings.shortSTunnelIntakeTimeOut;
+            rampTimeOut =  longLever ? Timings.longSTunnelIntakeTimeOut   : Timings.shortSTunnelIntakeTimeOut;
             lastPose =     parkAfter ? ShootPoses.parkShoot               : ShootPoses.midShoot;
         }
 
@@ -640,6 +640,7 @@ public class FromShootMidPos {
         PathChain toIntake;
         PathBuilder toShootBuilder;
         PathChain toShootPose;
+        PathChain leverAfter;
         @Override
         public void buildPaths() {
             // Path creation
@@ -652,9 +653,8 @@ public class FromShootMidPos {
 
             toShootBuilder = robot.follower.pathBuilder();
             if (sort) {
-                toShootBuilder.addPath(robot.follower.linearPathBuilder(IntakeBallPoses.intakeFromSTunnel, IntakeBallPoses.pushLever))
-                        .addPath(new BezierCurve(IntakeBallPoses.pushLever, IntakeBallPoses.movingToPushLeverControlPoint, lastPose))
-                        .setFastHeadingInterpolation(TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootEnd, true);
+                leverAfter = robot.follower.linearPathChainBuilder(IntakeBallPoses.pushLever, IntakeBallPoses.pushLeverAfterSpike2);
+                toShootBuilder.addPath(robot.follower.fastPathBuilder(IntakeBallPoses.pushLeverAfterSpike2, lastPose, TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootEnd, true));
             } else {
                 toShootBuilder.addPath(new BezierCurve(IntakeBallPoses.intakeFromSTunnel, IntakeBallPoses.movingToPushLeverControlPoint, lastPose));
             }
@@ -690,15 +690,26 @@ public class FromShootMidPos {
                     }
                     break;
                 case 3:
-                    if (robot.basicallyHas3() ||  pathTimer.getElapsedTimeSeconds() > rampTimeOut) {
-                        if (sort) {
-                            robot.doSmartShoot(true);
-                        }
-                        robot.follower.followPath(toShootPose);
+                    if (sort) {
+                        robot.follower.followPath(leverAfter);
+                        setPathState(4);
+                    } else {
                         setPathState(4);
                     }
                     break;
                 case 4:
+                    if (!sort && (robot.basicallyHas3() ||  pathTimer.getElapsedTimeSeconds() > rampTimeOut)) {
+                        robot.follower.followPath(toShootPose);
+                        setPathState(5);
+                    }
+                    if (sort && pathTimer.getElapsedTimeSeconds() > 1) {
+                        robot.doSmartShoot(true);
+                        robot.follower.followPath(toShootPose);
+                        setPathState(5);
+
+                    }
+                    break;
+                case 5:
                     if ((robot.inShootingZone() || !robot.follower.isBusy()) && (parkAfter || robot.movingSlowEnoughToShoot(true))) {
                         if (parkAfter && !sort) {
                             robot.follower.setMaxPower(DrivePower.shootOnThFly);
@@ -706,14 +717,14 @@ public class FromShootMidPos {
                         if (sort && !robot.follower.isBusy()) {
                             robot.doSmartShoot(true);
                             robot.indexer.setQueueGivenAttemptedRampOrder(robot.getMotif());
-                            setPathState(5);
+                            setPathState(6);
                         } else if (!sort) {
                             robot.indexer.shootAll();
-                            setPathState(5);
+                            setPathState(6);
                         }
                     }
                     break;
-                case 5://       if robot shoot all balls v                                                                                                              if timeout v
+                case 6://       if robot shoot all balls v                                                                                                              if timeout v
                     if (!robot.isIndexerUnjamming() && (robot.indexer.isHasBallsEmpty())  || (sort && robot.indexer.isQueuedBallsEmpty())) {
                         robot.follower.setMaxPower(1);
                         robot.doSmartShoot(false);

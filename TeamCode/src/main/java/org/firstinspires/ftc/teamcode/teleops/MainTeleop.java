@@ -58,7 +58,8 @@ public class MainTeleop {
     HardwareMap hardwareMap;
     double RPMoffset;
     boolean sotfIsOn = true;
-    boolean brakeAllowSotfIsOn = true;
+    boolean brakeAllowSotfIsOn = false;
+    boolean brakeAllowSotfDebounce = false;
 
     public MainTeleop(Gamepad gamepad1, Gamepad gamepad2, Telemetry telemetry, HardwareMap hardwareMap, RobotSide robotSide) {
         this.gamepad1 = gamepad1;
@@ -131,6 +132,7 @@ public class MainTeleop {
             startPose = new Pose();
             robot.follower.setPose(startPose);
             robot.turret.encoderOffset = 12830;
+            robot.turret.setTargetDeg(0);
             robot.indexer.encoderOffsetFromAuto = 0;
             robot.indexer.setIndexerPos(0);
         }
@@ -187,9 +189,16 @@ public class MainTeleop {
         resetPoseGoal.checkStatus(gamepad1.x);
         resetPoseCorner.checkStatus(gamepad1.a);
         climb.checkStatus(gamepad1.back);
-        cycleCycler.checkStatus(robot.indexer.isHasBallsEmpty());
+//        cycleCycler.checkStatus(robot.indexer.isHasBallsEmpty());
         reCheckColors.checkStatus((gamepad2.circle || gamepad1.circle) && smartShoot.isOn);
-//        useCycleCycler.checkStatus(gamepad1.dpad_left);
+        useCycleCycler.checkStatus(gamepad1.dpad_left);
+
+        if (brake.endPress) {
+            brakeAllowSotfIsOn = false;
+        }
+        if (brake.isOn && robot.follower.getVelocity().getMagnitude() < 0.1) {
+            brakeAllowSotfIsOn = true;
+        }
 
         if (!brake.isOn) {
             robot.drivetrain.teleopMovement(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, true);
@@ -241,11 +250,10 @@ public class MainTeleop {
         }
 
         if (autoShoot.isOn && !climb.isOn) {
-            robot.prepareShooter(ShotType.TABLE, !brake.isOn && sotfIsOn, cycleCycler.isOn && useCycleCycler.isOn, false);
+            robot.prepareShooter(ShotType.TABLE, (!brake.isOn || brakeAllowSotfIsOn) && sotfIsOn, !cycleCycler.isOn && useCycleCycler.isOn, false);
         } else if (autoShoot.endPress || climb.startPress) {
             robot.casualShooterModeOn();
         }
-
         if (unjamSpindexer.startPress) {
             robot.indexerUnjam();
         }
