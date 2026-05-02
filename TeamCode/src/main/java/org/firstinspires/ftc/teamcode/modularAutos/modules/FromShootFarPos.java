@@ -203,13 +203,14 @@ public class FromShootFarPos {
 
         //Path initialization
         PathChain toIntakeSpike3;
-        PathChain finishIntakeSpike3;
         PathChain toShootPose;
         @Override
         public void buildPaths() {
             // Path creation
-            toIntakeSpike3 = robot.follower.linearPathChainBuilder(startPose, IntakeBallPoses.intakeSpike3StartFar);
-            finishIntakeSpike3 = robot.follower.linearPathChainBuilder(IntakeBallPoses.intakeSpike3StartFar, IntakeBallPoses.intakeSpike3End);
+            toIntakeSpike3 = robot.follower.pathBuilder()
+                    .addPath(robot.follower.linearPathBuilder(startPose, IntakeBallPoses.intakeSpike3StartFar))
+                    .addPath(robot.follower.linearPathBuilder(IntakeBallPoses.intakeSpike3StartFar, IntakeBallPoses.intakeSpike3End))
+                    .build();
             toShootPose = robot.follower.fastPathChainBuilder(IntakeBallPoses.intakeSpike3End, lastPose, TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootStart, true);
         }
 
@@ -227,22 +228,16 @@ public class FromShootFarPos {
                     break;
                 case 1:
                     if (!robot.follower.isBusy()) {
-                        robot.follower.followPath(finishIntakeSpike3);
+                        robot.follower.followPath(toShootPose);
                         setPathState(2);
                     }
                     break;
                 case 2:
-                    if (!robot.follower.isBusy()) {
-                        robot.follower.followPath(toShootPose);
+                    if (robot.indexer.isHasBallsFull() || robot.basicallyHas3() || pathTimer.getElapsedTimeSeconds() > Timings.spikeIntakeTimeOut) {
                         setPathState(3);
                     }
                     break;
                 case 3:
-                    if (robot.indexer.isHasBallsFull() || robot.basicallyHas3() || pathTimer.getElapsedTimeSeconds() > Timings.spikeIntakeTimeOut) {
-                        setPathState(4);
-                    }
-                    break;
-                case 4:
                     if ((robot.inShootingZone() || !robot.follower.isBusy()) && robot.movingSlowEnoughToShoot(false)) {
                         if (sort) {
                             robot.doSmartShoot(true);
@@ -250,10 +245,10 @@ public class FromShootFarPos {
                         } else {
                             robot.indexer.shootAll();
                         }
-                        setPathState(5);
+                        setPathState(4);
                     }
                     break;
-                case 5:
+                case 4:
                     if (pathTimer.getElapsedTimeSeconds() > (!sort ? Timings.unjamTimeOutFar : Timings.unjamTimeOutFarSort)) {
                         robot.indexerUnjam();
                     }
@@ -715,17 +710,15 @@ public class FromShootFarPos {
         }
 
         //Path initialization
-        Path toIntakeHuman;
+        PathChain toIntakeHuman;
         PathChain toShootPose;
         @Override
         public void buildPaths() {
-            HeadingInterpolator.PiecewiseNode node1, node2;
-            node1 = new HeadingInterpolator.PiecewiseNode(0, 0.95, HeadingInterpolator.constant(IntakeBallPoses.intakeHuman.getHeading()));
-            node2 = new HeadingInterpolator.PiecewiseNode(0.95, 1, HeadingInterpolator.linear(IntakeBallPoses.intakeHuman.getHeading(), ShootPoses.farShoot.getHeading()));
-            HeadingInterpolator hInterp = HeadingInterpolator.piecewise(node1, node2);
             // Path creation
-            toIntakeHuman = robot.follower.linearPathBuilder(startPose, IntakeBallPoses.intakeHuman);
-            toIntakeHuman.setHeadingInterpolation(hInterp);
+            toIntakeHuman = robot.follower.pathBuilder()
+                    .addPath(robot.follower.fastPathBuilder(startPose, IntakeBallPoses.intakeHumanDiag, TValues.fastInterpolationIntakeStartFar, TValues.fastInterpolationIntakeEndFar))
+                    .addPath(robot.follower.linearPathBuilder(IntakeBallPoses.intakeHumanDiag,IntakeBallPoses.intakeHuman))
+                    .build();
             toShootPose = robot.follower.fastPathChainBuilder(IntakeBallPoses.intakeHuman, lastPose, TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootStart, true);
         }
 
@@ -742,13 +735,13 @@ public class FromShootFarPos {
                     setPathState(1);
                     break;
                 case 1:
-                    if (!robot.follower.isBusy()) {
+                    if (robot.indexer.isHasBallsFull() || robot.basicallyHas3() || robot.follower.getVelocity().getMagnitude() < 0.5 && pathTimer.getElapsedTimeSeconds() > 0.75) {
+                        robot.follower.followPath(toShootPose);
                         setPathState(2);
                     }
                     break;
                 case 2:
-                    if (robot.indexer.isHasBallsFull() || robot.basicallyHas3() || pathTimer.getElapsedTimeSeconds() > Timings.humanIntakeTime || robot.follower.getVelocity().getMagnitude() < 2 && pathTimer.getElapsedTimeSeconds() > 0.75) {
-                        robot.follower.followPath(toShootPose);
+                    if (robot.basicallyHas3() || robot.indexer.isHasBallsFull() || pathTimer.getElapsedTimeSeconds() > Timings.humanIntakeTime) {
                         setPathState(3);
                     }
                     break;

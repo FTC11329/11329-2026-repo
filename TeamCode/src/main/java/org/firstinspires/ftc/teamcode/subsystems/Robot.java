@@ -439,23 +439,24 @@ public class Robot {
     double FAR_AFFECT_CLOSE = 1;
     double CLOSE_AFFECT_FAR = 1;
 
-    public void shooterTrim(boolean up, boolean down, boolean left, boolean right) {
+    public void shooterTrim(boolean up, boolean down, boolean left, boolean right, boolean panicShoot) {
+        double mult = panicShoot ? 10 : 1;
         if (up) {
             if (lastShape == FieldShapes.closeTriangle) {
-                closeDistanceOffset += 1.4;
-                farDistanceOffset += 1.4 * CLOSE_AFFECT_FAR;
+                closeDistanceOffset += 1.4 * mult;
+                farDistanceOffset += 1.4 * CLOSE_AFFECT_FAR * mult;
             } else {
                 farDistanceOffset += 1.4;
-                closeDistanceOffset += 1.4 * FAR_AFFECT_CLOSE;
+                closeDistanceOffset += 1.4 * FAR_AFFECT_CLOSE * mult;
             }
         }
         if (down) {
             if (lastShape == FieldShapes.closeTriangle) {
-                closeDistanceOffset -= 1.4;
-                farDistanceOffset -= 1.4 * CLOSE_AFFECT_FAR;
+                closeDistanceOffset -= 1.4 * mult;
+                farDistanceOffset -= 1.4 * CLOSE_AFFECT_FAR * mult;
             } else {
-                farDistanceOffset -= 1.4;
-                closeDistanceOffset -= 1.4 * FAR_AFFECT_CLOSE;
+                farDistanceOffset -= 1.4 * mult;
+                closeDistanceOffset -= 1.4 * FAR_AFFECT_CLOSE * mult;
             }
         }
         if (left) {

@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.math.Vector;
 import org.firstinspires.ftc.teamcode.util.BallColor;
 import org.firstinspires.ftc.teamcode.util.RobotSide;
+import org.firstinspires.ftc.teamcode.util.ShapeDetection;
 import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterState;
 import org.firstinspires.ftc.teamcode.util.shooterInterpolation.ShooterTestValues;
 
@@ -206,8 +207,10 @@ public class Vision {
                 }
                 if (limitZone) {
                     if (farZone) {
-                        if (ballPose.getX() < -24 && ballPose.getX() > -64) {
-                            detectedBalls.add(new DetectedBall(ballPose, ballColor, timePhotoWasTaken));
+                        if (ballPose.getX() < -24 && ballPose.getX() > -69) {
+                            if (!ShapeDetection.isPoseInsideOfVisionArea(ballPose)) {
+                                detectedBalls.add(new DetectedBall(ballPose, ballColor, timePhotoWasTaken));
+                            }
                         }
                     } else {
                         if (ballPose.getX() > -48) {

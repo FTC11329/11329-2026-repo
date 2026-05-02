@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.util;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
 
 public class ShapeDetection {
@@ -27,9 +28,16 @@ public class ShapeDetection {
             new Pose(-72, 72),
             new Pose(-36,72),//set x
     };
+    private static final Pose[] notVisionAreaCorners =  new Pose[]{
+            new Pose(-66, -36),
+            new Pose(72, -36),
+            new Pose(72,36),//set x
+            new Pose(-66,36),//set x
+    };
     private static final Polygon closeTriangle = createPolygon(closeTriangleCorners);
     private static final Polygon farTriangle = createPolygon(farTriangleCorners);
     private static final Polygon seesObeliskFrontTag = createPolygon(seesObeliskFrontTagCorners);
+    private static final Polygon notVisionArea = createPolygon(notVisionAreaCorners);
 
     private static final double robotSizeMult = 2.25;
 
@@ -158,5 +166,9 @@ public class ShapeDetection {
             default:
                 return seesObeliskFrontTagCorners;
         }
+    }
+    public static boolean isPoseInsideOfVisionArea(Pose pose) {
+        Point point = geometryFactory.createPoint(new Coordinate(pose.getX(), pose.getY()));
+        return notVisionArea.contains(point);
     }
 }
