@@ -33,18 +33,18 @@ public class VisionSpline {
         poses.add(robotPose);
 
         for (int i = 0; i < STRENGTH; i++) {
-            poses.add(firstBall);
+            poses.add(firstBall.plus(new Pose(-1, 0)));
         }
         
         if (secondBall != null) {
             for (int i = 0; i < STRENGTH; i++) {
-                poses.add(secondBall);
+                poses.add(secondBall.plus(new Pose(-1, 0)));
             }
         }
 
         if (thirdBall != null) {
             for (int i = 0; i < STRENGTH; i++) {
-                poses.add(thirdBall);
+                poses.add(thirdBall.plus(new Pose(-1, 0)));
             }
         }
         return new Path(new BezierCurve(poses));

@@ -119,7 +119,7 @@ public class Turret {
         if (usePid) {
             turretPID.setCoefficients(Constants.Turret.turretPID);
             double kV = Constants.Turret.kV;
-            if (curAngle > 265) {
+            if (curAngle > 245) {
                 if (angVel > 0) {
                     kV += Constants.Turret.Cable_kV;
                 }

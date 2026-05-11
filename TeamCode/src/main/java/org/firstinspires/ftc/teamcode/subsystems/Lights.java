@@ -9,8 +9,15 @@ import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.util.BallColor;
 
 import java.util.Arrays;
+import java.util.Random;
 
 public class Lights {
+    PrismAnimations.Pulse romaniaFlag0 = new PrismAnimations.Pulse();
+    PrismAnimations.Pulse romaniaFlag1 = new PrismAnimations.Pulse();
+    PrismAnimations.Pulse romaniaFlag2 = new PrismAnimations.Pulse();
+    PrismAnimations.Pulse americaFlag0 = new PrismAnimations.Pulse();
+    PrismAnimations.Pulse americaFlag1 = new PrismAnimations.Pulse();
+    PrismAnimations.Pulse americaFlag2 = new PrismAnimations.Pulse();
     PrismAnimations.Sparkle teamColorAnimation = new PrismAnimations.Sparkle();
     PrismAnimations.Pulse cell0 = new PrismAnimations.Pulse();
     PrismAnimations.Pulse cell1 = new PrismAnimations.Pulse();
@@ -30,6 +37,12 @@ public class Lights {
 
     PrismAnimations.Pulse[] ballCellsAnimation = new PrismAnimations.Pulse[]{
             cell0, cell1, cell2
+    };
+    PrismAnimations.Pulse[] romaniaFlagFull = new PrismAnimations.Pulse[]{
+            romaniaFlag0, romaniaFlag1, romaniaFlag2
+    };
+    PrismAnimations.Pulse[] americaFlagFull = new PrismAnimations.Pulse[]{
+            americaFlag0, americaFlag1, americaFlag2
     };
     PrismAnimations.Pulse[] queueCellsAnimation = new PrismAnimations.Pulse[]{
             queueCell0, queueCell1, queueCell2
@@ -53,6 +66,28 @@ public class Lights {
         cell0.setIndexes(0, 5);
         cell1.setIndexes(6, 11);
         cell2.setIndexes(12, 17);
+        romaniaFlag0.setIndexes(0, 5);
+        romaniaFlag1.setIndexes(6, 11);
+        romaniaFlag2.setIndexes(12, 17);
+        romaniaFlag0.setPrimaryColor(Color.RED);
+        romaniaFlag0.setSecondaryColor(Color.dimColor(Color.RED));
+        romaniaFlag1.setSecondaryColor(new Color(255, 230, 0));
+        romaniaFlag1.setPrimaryColor(Color.dimColor(new Color(255, 230, 0)));
+        romaniaFlag2.setPrimaryColor(Color.BLUE);
+        romaniaFlag2.setSecondaryColor(Color.dimColor(Color.BLUE));
+
+        americaFlag0.setIndexes(0, 5);
+        americaFlag1.setIndexes(6, 11);
+        americaFlag2.setIndexes(12, 17);
+        americaFlag0.setPrimaryColor(Color.RED);
+        americaFlag0.setSecondaryColor(Color.dimColor(Color.RED));
+        americaFlag1.setPrimaryColor(Color.WHITE);
+        americaFlag1.setSecondaryColor(Color.dimColor(Color.WHITE));
+        americaFlag2.setPrimaryColor(Color.BLUE);
+        americaFlag2.setSecondaryColor(Color.dimColor(Color.BLUE));
+        for (PrismAnimations.Pulse cell : romaniaFlagFull) {
+            cell.setBrightness(brightness);
+        }
         int i = 0;
         prism.clearAllAnimations();
         for (PrismAnimations.Pulse cell : ballCellsAnimation) {
@@ -156,7 +191,17 @@ public class Lights {
                 }
             }
         } else {
-            prism.insertAndUpdateAnimation(7, climbCell);
+            prism.insertAndUpdateAnimation(4, climbCell);
+            Random random = new Random();
+//            if (random.nextBoolean()) {
+                for (int i = 0; i < 3; i++) {
+                    prism.insertAndUpdateAnimation(i + 5, romaniaFlagFull[i]);
+                }
+//            } else {
+//                for (int i = 0; i < 3; i++) {
+//                    prism.insertAndUpdateAnimation(i + 5, americaFlagFull[i]);
+//                }
+//            }
         }
 
     }

@@ -331,7 +331,7 @@ public class Robot {
     }
 
     public void casualShooterModeOn() {
-        turret.setTargetDeg(180);
+        turret.setTargetDeg(150);
         shooter.casualModeOn();
     }
 

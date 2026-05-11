@@ -131,14 +131,14 @@ public class FromShootFarPos {
                     }
                     break;
                 case 5:
-                    if (pathTimer.getElapsedTimeSeconds() > (!sort ? Timings.unjamTimeOutFar : Timings.unjamTimeOutFarSort)) {
-                        robot.indexerUnjam();
-                    }
                     if (! robot.isIndexerUnjamming() && (robot.indexer.isHasBallsEmpty()) || (sort && robot.indexer.isQueuedBallsEmpty())) {
 //                        robot.setShootFromPose(null);
                         robot.follower.setMaxPower(1);
                         robot.doSmartShoot(false);
                         isFinished = true;
+                    }
+                    if (pathTimer.getElapsedTimeSeconds() > (!sort ? Timings.unjamTimeOutFar : Timings.unjamTimeOutFarSort)) {
+                        robot.indexerUnjam();
                     }
             }
 
@@ -249,13 +249,13 @@ public class FromShootFarPos {
                     }
                     break;
                 case 4:
-                    if (pathTimer.getElapsedTimeSeconds() > (!sort ? Timings.unjamTimeOutFar : Timings.unjamTimeOutFarSort)) {
-                        robot.indexerUnjam();
-                    }
                     if (!robot.isIndexerUnjamming() && (robot.indexer.isHasBallsEmpty()) || (sort && robot.indexer.isQueuedBallsEmpty())) {
                         robot.follower.setMaxPower(1);
                         robot.doSmartShoot(false);
                         isFinished = true;
+                    }
+                    if (pathTimer.getElapsedTimeSeconds() > (!sort ? Timings.unjamTimeOutFar : Timings.unjamTimeOutFarSort)) {
+                        robot.indexerUnjam();
                     }
             }
             return isFinished;
@@ -396,13 +396,13 @@ public class FromShootFarPos {
                     }
                     break;
                 case 5:
-                    if (pathTimer.getElapsedTimeSeconds() > (!sort ? Timings.unjamTimeOutFar : Timings.unjamTimeOutFarSort)) {
-                        robot.indexerUnjam();
-                    }
                     if (!robot.isIndexerUnjamming() && (robot.indexer.isHasBallsEmpty()) || (sort && robot.indexer.isQueuedBallsEmpty())) {
                         robot.follower.setMaxPower(1);
                         robot.doSmartShoot(false);
                         isFinished = true;
+                    }
+                    if (pathTimer.getElapsedTimeSeconds() > (!sort ? Timings.unjamTimeOutFar : Timings.unjamTimeOutFarSort)) {
+                        robot.indexerUnjam();
                     }
             }
 
@@ -764,13 +764,13 @@ public class FromShootFarPos {
                     }
                     break;
                 case 5:
-                    if (pathTimer.getElapsedTimeSeconds() > (!sort ? Timings.unjamTimeOutFar : Timings.unjamTimeOutFarSort)) {
-                        robot.indexerUnjam();
-                    }
                     if (!robot.isIndexerUnjamming() && (robot.indexer.isHasBallsEmpty()) || (sort && robot.indexer.isQueuedBallsEmpty())) {
                         robot.follower.setMaxPower(1);
                         robot.doSmartShoot(false);
                         isFinished = true;
+                    }
+                    if (pathTimer.getElapsedTimeSeconds() > (!sort ? Timings.unjamTimeOutFar : Timings.unjamTimeOutFarSort)) {
+                        robot.indexerUnjam();
                     }
             }
             return isFinished;
