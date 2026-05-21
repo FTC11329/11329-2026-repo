@@ -175,7 +175,8 @@ public class Robot {
     }
     public void reZeroAtCorner() {
         offsetPose = new Pose();
-        follower.setPose(Common.StartPoses.reZeroAtCorner);
+        follower.setPose(goal.minus(new Pose(48, 0)));
+//        follower.setPose(Common.StartPoses.reZeroAtCorner);
         closeDistanceOffset = 0;
         closeTurretOffset = 0;
         farDistanceOffset = 0;
@@ -183,6 +184,7 @@ public class Robot {
     }
     public void reZeroAtGoal() {
         offsetPose = new Pose();
+//        follower.setPose(goal.minus(new Pose(-48, 0)));
         follower.setPose(Common.StartPoses.closeOuter);
         closeDistanceOffset = 0;
         closeTurretOffset = 0;
