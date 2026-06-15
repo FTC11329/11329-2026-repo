@@ -169,8 +169,8 @@ public class MainTeleop {
         turnSOTFOn.checkStatus(false); // Toggle on SOTF
         turnSOTFOff.checkStatus(false); // Toggle off SOTF
 
-        queueGreen.checkStatus(gamepad2.y); // Press to queue green
-        queuePurple.checkStatus(gamepad2.x); // Press to queue purple
+        queueGreen.checkStatus(gamepad2.y && gamepad1.right_bumper); // Press to queue green
+        queuePurple.checkStatus(gamepad2.x && gamepad1.right_bumper); // Press to queue purple
         autoShoot.checkStatus(gamepad2.a); // Toggle to turn on auto shoot
         fastShootButton.checkStatus((gamepad2.b || gamepad1.b) && !smartShoot.isOn); // press to shoot 3
         smartShoot.checkStatus(gamepad2.back); // Toggle to turn on smart shoot
@@ -190,8 +190,8 @@ public class MainTeleop {
         resetPoseCorner.checkStatus(gamepad1.a);
         climb.checkStatus(gamepad1.back);
 //        cycleCycler.checkStatus(robot.indexer.isHasBallsEmpty());
-        reCheckColors.checkStatus((gamepad2.circle || gamepad1.circle) && smartShoot.isOn);
-//        useCycleCycler.checkStatus(gamepad1.dpad_left);
+        reCheckColors.checkStatus((gamepad2.circle || gamepad1.circle || smartShoot.startPress) && smartShoot.isOn);
+        useCycleCycler.checkStatus(gamepad1.dpad_left);
 
         if (brake.endPress) {
             brakeAllowSotfIsOn = false;
@@ -250,7 +250,7 @@ public class MainTeleop {
         }
 
         if (autoShoot.isOn && !climb.isOn) {
-            robot.prepareShooter(ShotType.TABLE, (!brake.isOn || brakeAllowSotfIsOn) && sotfIsOn, !cycleCycler.isOn && useCycleCycler.isOn, false);
+            robot.prepareShooter(ShotType.TABLE, (!brake.isOn || brakeAllowSotfIsOn) && sotfIsOn, cycleCycler.isOn /*!cycleCycler.isOn && useCycleCycler.isOn*/, false);
         } else if (autoShoot.endPress || climb.startPress) {
             robot.casualShooterModeOn();
         }

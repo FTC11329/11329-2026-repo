@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.modularAutos.Common;
 import org.firstinspires.ftc.teamcode.pedroPathing.Drawing;
@@ -175,8 +176,8 @@ public class Robot {
     }
     public void reZeroAtCorner() {
         offsetPose = new Pose();
-        follower.setPose(goal.minus(new Pose(48, 0)));
-//        follower.setPose(Common.StartPoses.reZeroAtCorner);
+//        follower.setPose(goal.minus(new Pose(48, 0)));
+        follower.setPose(Common.StartPoses.reZeroAtCorner);
         closeDistanceOffset = 0;
         closeTurretOffset = 0;
         farDistanceOffset = 0;
@@ -221,6 +222,30 @@ public class Robot {
         }
     }
 
+    public Pose getClosestBallFromCam() {
+        if (pipelineIndex != 2) {
+            setPipelineIndex(2);
+        }
+
+        Pose closest = null;
+        double minDistance = Double.MAX_VALUE;
+        int closestIndex = -1;
+
+        List<Vision.DetectedBall> detectedBalls = vision.searchForBalls(getCurrentPose());
+        for (int i = 0; i < detectedBalls.size(); i++) {
+
+            Pose p = detectedBalls.get(i).ballPose;
+
+            double distance = getCurrentPose().distanceFrom(p);
+
+            if (distance < minDistance) {
+                minDistance = distance;
+                closest = p;
+            }
+
+        }
+        return closest;
+    }
     public Pose getIntakeBallPoseFromCam() {
         return getIntakeBallPoseFromCam(VisionTypes.MeanPose);
     }
@@ -247,6 +272,8 @@ public class Robot {
         }
         return null;
     }
+
+
 
     public PathChain getIntakeBallPathFromCam(VisionTypes type) {
         return getIntakeBallPathFromCam(type, false, false);
@@ -377,35 +404,35 @@ public class Robot {
             ctx.robotPose = shootFromPose;
         }
         Pose goalPose;
-        if (smartShoot && isAuto) {
-            if (!swapGoal) {
-                if (robotSide == RobotSide.Blue) {
-                    goalPose = Constants.Vision.blueGoalSort;
-                } else {
-                    goalPose = Constants.Vision.redGoalSort;
-                }
+//        if (smartShoot && isAuto) {
+//            if (!swapGoal) {
+//                if (robotSide == RobotSide.Blue) {
+//                    goalPose = Constants.Vision.blueGoalSort;
+//                } else {
+//                    goalPose = Constants.Vision.redGoalSort;
+//                }
+//            } else {
+//                if (robotSide == RobotSide.Blue) {
+//                    goalPose = Constants.Vision.redGoalSort;
+//                } else {
+//                    goalPose = Constants.Vision.blueGoalSort;
+//                }
+//            }
+//        } else {
+        if (!swapGoal) {
+            if (robotSide == RobotSide.Blue) {
+                goalPose = shotType == ShotType.PHYSICAL ? Constants.Vision.blueGoalPhysics : Constants.Vision.blueGoal;
             } else {
-                if (robotSide == RobotSide.Blue) {
-                    goalPose = Constants.Vision.redGoalSort;
-                } else {
-                    goalPose = Constants.Vision.blueGoalSort;
-                }
+                goalPose = shotType == ShotType.PHYSICAL ? Constants.Vision.redGoalPhysics : Constants.Vision.redGoal;
             }
         } else {
-            if (!swapGoal) {
-                if (robotSide == RobotSide.Blue) {
-                    goalPose = shotType == ShotType.PHYSICAL ? Constants.Vision.blueGoalPhysics : Constants.Vision.blueGoal;
-                } else {
-                    goalPose = shotType == ShotType.PHYSICAL ? Constants.Vision.redGoalPhysics : Constants.Vision.redGoal;
-                }
+            if (robotSide == RobotSide.Blue) {
+                goalPose = shotType == ShotType.PHYSICAL ? Constants.Vision.redGoalPhysics : Constants.Vision.redGoal;
             } else {
-                if (robotSide == RobotSide.Blue) {
-                    goalPose = shotType == ShotType.PHYSICAL ? Constants.Vision.redGoalPhysics : Constants.Vision.redGoal;
-                } else {
-                    goalPose = shotType == ShotType.PHYSICAL ? Constants.Vision.blueGoalPhysics : Constants.Vision.blueGoal;
-                }
+                goalPose = shotType == ShotType.PHYSICAL ? Constants.Vision.blueGoalPhysics : Constants.Vision.blueGoal;
             }
         }
+//        }
         ctx.goalPose = goalPose.plus(offsetPose);
         ctx.velocity = follower.getVelocity();
         ctx.acceleration = follower.getAcceleration();
@@ -768,14 +795,6 @@ public class Robot {
         if (debug) {
             debug();
         }
-//        panelsTelemetry.addData("turret pos", turret.getAngle());
-//        panelsTelemetry.addData("turret target", turret.turretPID.getTargetPosition());
-//        panelsTelemetry.addData("turret error", turret.turretPID.getError());
-//        panelsTelemetry.addData("turret velocity", turret.getVelocity());
-//        panelsTelemetry.addData("turret velocity", angleToGoalVelocity);
-//        panelsTelemetry.addData("RPM", shooter.getRPM());
-//        panelsTelemetry.addData("RPM target", shooter.shooterPID.getTargetPosition());
-//        panelsTelemetry.update();
 
     }
 

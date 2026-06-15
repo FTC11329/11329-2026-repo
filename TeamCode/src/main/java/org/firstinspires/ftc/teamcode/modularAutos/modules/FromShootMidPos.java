@@ -102,6 +102,9 @@ public class FromShootMidPos {
             switch (state) {
                 case 0:
                     robot.follower.followPath(pathChain);
+                    if (sort) {
+                        robot.doSmartShoot(true);
+                    }
                     setPathState(1);
                     break;
                 case 1:
@@ -122,9 +125,6 @@ public class FromShootMidPos {
                     if (!lever || pathTimer.getElapsedTimeSeconds() > Timings.shortLeverPressTime) {
                         if (lever) {
                             robot.follower.followPath(toShootPose);
-                        }
-                        if (sort) {
-                            robot.doSmartShoot(true);
                         }
                         setPathState(4);
                     }
@@ -255,6 +255,9 @@ public class FromShootMidPos {
             switch (state) {
                 case 0:
                     robot.follower.followPath(pathChain);
+                    if (sort) {
+                        robot.doSmartShoot(true);
+                    }
                     setPathState(1);
                     break;
                 case 1:
@@ -275,9 +278,6 @@ public class FromShootMidPos {
                     if (!lever || pathTimer.getElapsedTimeSeconds() > Timings.shortLeverPressTime) {
                         if (lever) {
                             robot.follower.followPath(toShootPose);
-                        }
-                        if (sort) {
-                            robot.doSmartShoot(true);
                         }
                         setPathState(4);
                     }
@@ -400,6 +400,9 @@ public class FromShootMidPos {
                     if (!parkAfter) {
 //                        robot.setShootFromPose(lastPose);
                     }
+                    if (sort) {
+                        robot.doSmartShoot(true);
+                    }
                     robot.follower.followPath(pathChain);
                     setPathState(1);
                     break;
@@ -411,9 +414,6 @@ public class FromShootMidPos {
                     break;
                 case 2:
                     if (robot.indexer.isHasBallsFull() || robot.basicallyHas3() || pathTimer.getElapsedTimeSeconds() > Timings.spikeIntakeTimeOut) {
-                        if (sort) {
-                            robot.doSmartShoot(true);
-                        }
                         setPathState(3);
                     }
                     break;
@@ -525,6 +525,9 @@ public class FromShootMidPos {
             switch (state) {
                 case 0:
                     robot.follower.followPath(pathChain);
+                    if (sort) {
+                        robot.doSmartShoot(true);
+                    }
                     setPathState(1);
                     break;
                 case 1:
@@ -535,16 +538,12 @@ public class FromShootMidPos {
                     break;
                 case 2:
                     if (robot.indexer.isHasBallsFull() || robot.basicallyHas3() || pathTimer.getElapsedTimeSeconds() > Timings.spikeIntakeTimeOut) {
-                        if (sort) {
-                            robot.doSmartShoot(true);
-                        }
                         setPathState(3);
                     }
                     break;
                 case 3:
                     if ((robot.inShootingZone() || !robot.follower.isBusy()) && robot.movingSlowEnoughToShoot(false)) {
                         if (sort) {
-                            robot.doSmartShoot(true);
                             robot.indexer.setQueueGivenAttemptedRampOrder(robot.getMotif());
                         } else {
                             robot.indexer.shootAll();
@@ -675,6 +674,9 @@ public class FromShootMidPos {
                     if (!parkAfter) {
 //                        robot.setShootFromPose(lastPose);
                     }
+                    if (sort) {
+                        robot.doSmartShoot(true);
+                    }
                     robot.follower.followPath(toLever);
                     setPathState(1);
                     break;
@@ -703,7 +705,6 @@ public class FromShootMidPos {
                         setPathState(5);
                     }
                     if (sort && pathTimer.getElapsedTimeSeconds() > 1) {
-                        robot.doSmartShoot(true);
                         robot.follower.followPath(toShootPose);
                         setPathState(5);
 
@@ -715,7 +716,6 @@ public class FromShootMidPos {
                             robot.follower.setMaxPower(DrivePower.shootOnThFly);
                         }
                         if (sort && !robot.follower.isBusy()) {
-                            robot.doSmartShoot(true);
                             robot.indexer.setQueueGivenAttemptedRampOrder(robot.getMotif());
                             setPathState(6);
                         } else if (!sort) {
@@ -822,6 +822,9 @@ public class FromShootMidPos {
             switch (state) {
                 case 0:
                     robot.follower.followPath(toIntakeBalls);
+                    if (sort) {
+                        robot.doSmartShoot(true);
+                    }
                     setPathState(1);
                     break;
                 case 1:
@@ -838,7 +841,6 @@ public class FromShootMidPos {
                 case 3:
                     if ((robot.inShootingZone() || !robot.follower.isBusy()) && (parkAfter || robot.movingSlowEnoughToShoot(true))) {
                         if (sort) {
-                            robot.doSmartShoot(true);
                             robot.indexer.setQueueGivenAttemptedRampOrder(robot.getMotif());
                         } else {
                             robot.indexer.shootAll();
@@ -942,6 +944,9 @@ public class FromShootMidPos {
             switch (state) {
                 case -1:
                     setPathState(0);
+                    if (sort) {
+                        robot.doSmartShoot(true);
+                    }
                     break;
                 case 0:
                     if (pathTimer.getElapsedTimeSeconds() > 0.5) {
@@ -973,7 +978,6 @@ public class FromShootMidPos {
                 case 2:
                     if ((robot.inShootingZone() || !robot.follower.isBusy()) && (parkAfter || robot.movingSlowEnoughToShoot(true))) {
                         if (sort) {
-                            robot.doSmartShoot();
                             robot.indexer.setQueueGivenAttemptedRampOrder(robot.getMotif());
                         } else {
                             robot.indexer.shootAll();

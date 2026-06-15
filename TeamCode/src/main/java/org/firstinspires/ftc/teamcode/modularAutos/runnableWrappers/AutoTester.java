@@ -111,7 +111,7 @@ public class AutoTester extends OpMode {
 
         robot.update();
 
-        if (!parkPathFollowed && robot.getOpmodeTimeSeconds() > 29.5 && !ShapeDetection.isRobotInside(FieldShapes.closeTriangle, robot.getCurrentPose().plusVector(robot.follower.getVelocity(), 0.75))) {
+        if (!parkPathFollowed && robot.getOpmodeTimeSeconds() > 29.1 && !ShapeDetection.isRobotInside(FieldShapes.closeTriangle, robot.getCurrentPose().plusVector(robot.follower.getVelocity(), 0.75))) {
             if (robot.getCurrentPose().getX() > - 25) {
                 robot.follower.followPath(robot.follower.linearPathBuilder(Common.ShootPoses.parkShoot, Common.IntakeBallPoses.intakeSpike2Start));
             } else {

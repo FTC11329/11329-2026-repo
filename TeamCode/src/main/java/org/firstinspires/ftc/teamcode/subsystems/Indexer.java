@@ -209,7 +209,15 @@ public class Indexer {
         return BallColor.None;
     }
 
-    public boolean isHasBallsFull() {
+    public BallColor getColorFast() {
+        if (distanceAnalog.getVoltage() > 1.15) {
+            return BallColor.Any;
+        } else {
+            return BallColor.None;
+        }
+    }
+
+        public boolean isHasBallsFull() {
         for (BallColor color : ballCells) {
             if (color == BallColor.None) {
                 return false;
@@ -530,7 +538,13 @@ public class Indexer {
     }
     public void intakeLogicUpdate(boolean intaking, boolean readyToShoot) {
         if (intaking && !isHasBallsFull() && isAtPosition() && !shooting && !indexerPlug && !IndexerEnums.isAShootEnum(currentIndexerState)) {
-            BallColor curColor = getColorOptimized();
+
+            BallColor curColor;
+            if (doSmartShoot) {
+                curColor = getColorOptimized();
+            } else {
+                curColor = getColorFast();
+            }
 
             if (curColor != BallColor.None) {
                 autoFastShootEnd = false;

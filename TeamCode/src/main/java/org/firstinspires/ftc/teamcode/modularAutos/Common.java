@@ -44,7 +44,7 @@ public class Common {
         public static double shortSTunnelIntakeTimeOut = 1.2;
         public static double longSTunnelIntakeTimeOut = 0;
 
-        public static double humanIntakeTime = 0.4;
+        public static double humanIntakeTime = 0.5;
         public static double farShootWaitUntil = 23;
 
         public static double shootTimeOut = 0.7;
@@ -107,9 +107,9 @@ public class Common {
         public static Pose pushLever = new Pose(-9.7, 62, Math.toRadians(63));
         public static Pose intakeFromSTunnel = new Pose(-17, 58.25, Math.toRadians(45)); // pointing at ramp
 
-        public static Pose toIntakeHumanStart = new Pose(-61.5,60, Math.toRadians(120));
+        public static Pose toIntakeHumanStart = new Pose(-61,36, Math.toRadians(90));
         public static Pose intakeHumanDiag = new Pose(-61.5,60, Math.toRadians(120));
-        public static Pose intakeHuman = new Pose(-62.5,62, Math.toRadians(90));
+        public static Pose intakeHuman = new Pose(-62.5,66, Math.toRadians(90));
         public static Pose intakeSTunnelAfterHumanControl = new Pose(-56.4,55.8);
         public static Pose intakeSTunnelAfterHuman = new Pose(-49.6,62.9, Math.toRadians(0));
 

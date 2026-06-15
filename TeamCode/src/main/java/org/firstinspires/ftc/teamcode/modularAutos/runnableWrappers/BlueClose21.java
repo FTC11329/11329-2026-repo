@@ -108,7 +108,7 @@ public class BlueClose21 extends OpMode {
 
         robot.update();
 
-        if (!parkPathFollowed && robot.getOpmodeTimeSeconds() > 29.5 && !ShapeDetection.isRobotInside(FieldShapes.closeTriangle, robot.getCurrentPose().plusVector(robot.follower.getVelocity(), 0.75))) {
+        if (!parkPathFollowed && robot.getOpmodeTimeSeconds() > 29.1 && !ShapeDetection.isRobotInside(FieldShapes.closeTriangle, robot.getCurrentPose().plusVector(robot.follower.getVelocity(), 0.75))) {
             if (robot.inShootingZone()) {
                 robot.indexer.shootAll();
             }

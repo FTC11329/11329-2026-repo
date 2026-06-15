@@ -194,9 +194,9 @@ public class Lights {
             prism.insertAndUpdateAnimation(4, climbCell);
             Random random = new Random();
 //            if (random.nextBoolean()) {
-                for (int i = 0; i < 3; i++) {
-                    prism.insertAndUpdateAnimation(i + 5, romaniaFlagFull[i]);
-                }
+//                for (int i = 0; i < 3; i++) {
+//                    prism.insertAndUpdateAnimation(i + 5, romaniaFlagFull[i]);
+//                }
 //            } else {
 //                for (int i = 0; i < 3; i++) {
 //                    prism.insertAndUpdateAnimation(i + 5, americaFlagFull[i]);
