@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
-@TeleOp(name = "TestOpMode", group = "zzzzzzzz") // more spaces means higher up on the teleop list more z, lower
+@TeleOp(name = "TestOpMode", group = "zzzzzzzzzzzzzz") // more spaces means higher up on the teleop list more z is lower
 public class SimpleOpMode extends OpMode {
 
     DcMotorEx transferMotor;
