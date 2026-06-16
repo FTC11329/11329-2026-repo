@@ -190,7 +190,7 @@ public class MainTeleop {
         resetPoseCorner.checkStatus(gamepad1.a);
         climb.checkStatus(gamepad1.back);
 //        cycleCycler.checkStatus(robot.indexer.isHasBallsEmpty());
-        reCheckColors.checkStatus((gamepad2.circle || gamepad1.circle || smartShoot.startPress) && smartShoot.isOn);
+        reCheckColors.checkStatus((gamepad2.circle || gamepad1.circle/* || smartShoot.startPress*/) && smartShoot.isOn);
         useCycleCycler.checkStatus(gamepad1.dpad_left);
 
         if (brake.endPress) {
@@ -250,7 +250,7 @@ public class MainTeleop {
         }
 
         if (autoShoot.isOn && !climb.isOn) {
-            robot.prepareShooter(ShotType.TABLE, (!brake.isOn || brakeAllowSotfIsOn) && sotfIsOn, cycleCycler.isOn /*!cycleCycler.isOn && useCycleCycler.isOn*/, false);
+            robot.prepareShooter(ShotType.TABLE, (!brake.isOn || brakeAllowSotfIsOn) && sotfIsOn, useCycleCycler.isOn /*!cycleCycler.isOn && useCycleCycler.isOn*/, false);
         } else if (autoShoot.endPress || climb.startPress) {
             robot.casualShooterModeOn();
         }

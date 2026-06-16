@@ -104,7 +104,7 @@ public class Common {
         public static Pose prePushLeverAfterSpike1 = new Pose(6,53, Math.toRadians(90));
         public static Pose pushLeverAfterSpike1 = new Pose(6,56.1, Math.toRadians(90));
         public static Pose pushLeverAfterSpike2 = new Pose(-2,56, Math.toRadians(90));
-        public static Pose pushLever = new Pose(-9.7, 62, Math.toRadians(63));
+        public static Pose pushLever = new Pose(-10.2, 62, Math.toRadians(63));
         public static Pose intakeFromSTunnel = new Pose(-17, 58.25, Math.toRadians(45)); // pointing at ramp
 
         public static Pose toIntakeHumanStart = new Pose(-61,36, Math.toRadians(90));

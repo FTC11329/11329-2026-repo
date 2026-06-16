@@ -310,12 +310,13 @@ public class Indexer {
     // functions to shoot specific colors *********************************************************~
 
     public void reReadHasBalls() {
-        clearBallCells();
-        emptyQueue();
-        setFeederPower(0);
-        shooting = false;
-        turnPluggingOffOnce = true;
-        setIndexerPos(IndexerEnums.intake0);
+        if (!shooting && smartShootState == SmartShootState.IDLE) {
+            clearBallCells();
+            emptyQueue();
+            setFeederPower(0);
+            turnPluggingOffOnce = true;
+            setIndexerPos(IndexerEnums.intake0);
+        }
     }
 
     public boolean isQueuedBallsFull() {
@@ -459,8 +460,13 @@ public class Indexer {
         update(intaking, readyToShoot, false, false, currentPose);
     }
 
-    public void update(boolean intaking, boolean readyToShoot, boolean doSmartShoot, boolean isFarShot, Pose currentPose) {
-        this.doSmartShoot = doSmartShoot;
+    public void update(boolean intaking, boolean readyToShoot, boolean startDoSmartShoot, boolean isFarShot, Pose currentPose) {
+        if (!shooting && startDoSmartShoot) {
+            doSmartShoot = true;
+        }
+        if (smartShootState == SmartShootState.IDLE && !startDoSmartShoot) {
+            doSmartShoot = false;
+        }
         stuckUpdate();
 
         updateEncoder(); //updates this variable on tick so we are not calling multiple times in one tick
@@ -586,7 +592,7 @@ public class Indexer {
 
     boolean dumbShootState2 = false;
     public void dumbShootLogicUpdate(boolean readyToShoot) {
-        // move to highest full index
+        // move to the highest full index
         if (startShooting && readyToShoot) {
             setIndexerPos(IndexerEnums.shoot1);
             spinTransferWheel(true);
@@ -601,7 +607,7 @@ public class Indexer {
         }
 
         // Update autoEndShootFast
-        if (dumbShootState1 && !dumbShootState2 && getEncoderPercentage() < 3.5 / 6.0) {
+        if (dumbShootState1 && !dumbShootState2 && getEncoderPercentage() < 4.0 / 6.0) {
             clearBallCells();
         }
 
@@ -623,7 +629,9 @@ public class Indexer {
     }
     SmartShootState smartShootState = SmartShootState.IDLE;
     public void smartShootLogicUpdate(boolean readyToShoot) {
-        if (!isAtPosition()) {spinTransferWheel(false);}
+        if (!isAtPosition()) {
+            spinTransferWheel(false);
+        }
 
         switch (smartShootState) {
             case IDLE:
@@ -635,7 +643,7 @@ public class Indexer {
                 spinTransferWheel(false);
                 if (isQueuedBallsEmpty()) {
                     allowIntaking = true;
-                    setIndexerPos(IndexerEnums.getEnum(findIndexWithColor(BallColor.None), false));
+                    setIndexerPos(IndexerEnums.intake0);
                     shooting = false;
                     smartShootState = SmartShootState.IDLE;
                 } else {

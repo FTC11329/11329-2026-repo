@@ -447,11 +447,9 @@ public class Robot {
         ShotSolution s = shotCalculator.solveShot(ctx, shotType, useSOTF);
 
         // expose turret feedforward
-        panelsTelemetry.addData("raw velocity", s.turretVel);
         kalmanFilter.setParameters(Constants.Shooter.kalmanFilterParameters);
         kalmanFilter.update(0, s.turretVel);
         angleToGoalVelocity = kalmanFilter.getState();
-        panelsTelemetry.addData("filtered velocity", angleToGoalVelocity);
 
         if (lastShape == FieldShapes.closeTriangle) {
             turret.setTargetRad(s.turretAngleRad + Math.toRadians(closeTurretOffset));
@@ -591,6 +589,9 @@ public class Robot {
         if (smartShoot != set) {
             smartShoot = set;
             indexer.emptyQueue();
+            if (set) {
+                indexer.reReadHasBalls();
+            }
         }
     }
     public void isIntaking(boolean isIntaking) {
@@ -795,6 +796,8 @@ public class Robot {
         if (debug) {
             debug();
         }
+        telemetry.addData("state", indexer.currentIndexerState);
+        telemetry.addData("smart state", indexer.smartShootState);
 
     }
 
