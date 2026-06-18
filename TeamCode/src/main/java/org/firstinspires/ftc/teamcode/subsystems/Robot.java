@@ -463,8 +463,8 @@ public class Robot {
         shooter.setHoodDeg(s.hoodDeg + hoodAngleOffset);
     }
 
-    double FAR_AFFECT_CLOSE = 1;
-    double CLOSE_AFFECT_FAR = 1;
+    double FAR_AFFECT_CLOSE = 0.6;
+    double CLOSE_AFFECT_FAR = 0.6;
 
     public void shooterTrim(boolean up, boolean down, boolean left, boolean right, boolean panicShoot) {
         double mult = panicShoot ? 10 : 1;

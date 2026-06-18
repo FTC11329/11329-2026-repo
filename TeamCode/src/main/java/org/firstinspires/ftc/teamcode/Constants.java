@@ -40,7 +40,7 @@ public class Constants {
 
     public static class Intake {
         public static double intakeMotorPower = 1;
-        public static double intakeMotorOffPower = -0.16;
+        public static double intakeMotorOffPower = -0.2;
         public static double intakeMotorPluggedPower = 0.04;
         public static double intakeMotorLightSpit = -0.3;
         public static double spitMotorPower = -0.67; //67 67 67 67 67 67 67 67 67 67
