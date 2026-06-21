@@ -619,7 +619,7 @@ public class FromShootFarPos {
                     }
                     break;
                 case 0:
-                    if (pathTimer.getElapsedTimeSeconds() > 0.5 || (robot.getClosestBallFromCam() != null && robot.getClosestBallFromCam().getX() < -61)) {
+                    if (pathTimer.getElapsedTimeSeconds() > 0.5 || (robot.getClosestBallFromCam() != null && robot.getClosestBallFromCam().getX() < -60)) {
                         visionFail = true;
                         robot.follower.breakFollowing();
                         return false;

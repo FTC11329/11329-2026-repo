@@ -10,7 +10,7 @@ public class Common {
     // Outer is closer to driver wall (so usually higher y)
 
 //    public static Pose toRedOffset = new Pose(-2.25,-0.75,0); // red offset remember y is reversed
-    public static Pose toRedOffset = new Pose(-1,-1.7); // red offset remember y is reversed
+    public static Pose toRedOffset = new Pose(-2,-1.7); // red offset remember y is reversed
     public static boolean wasLastRed = false;
     public static class TValues {
         public static double fastInterpolationIntakeStart = 0.8;
@@ -18,8 +18,8 @@ public class Common {
         public static double fastInterpolationIntakeStartFar = 0.5;
         public static double fastInterpolationIntakeEndFar = 0.65;
 
-        public static double fastInterpolationSpikeShootStart = 0.65;
-        public static double fastInterpolationSpikeShootEnd = 0.8;
+        public static double fastInterpolationSpikeShootStart = 0.6;
+        public static double fastInterpolationSpikeShootEnd = 0.75;
 
         public static double fastInterpolationLeverStart = 0.63;
         public static double fastInterpolationLeverEnd = 0.73;
@@ -36,7 +36,7 @@ public class Common {
         public static double unjamTimeOutSort = 2.5;
         public static double unjamTimeOutFarSort = 3;
 
-        public static double spikeIntakeTimeOut = 1.1;
+        public static double spikeIntakeTimeOut = 1.4;
         public static double fastSpikeIntakeTimeOut = 1.25;
 
         public static double shortLeverPressTime = 0.3;
@@ -53,7 +53,7 @@ public class Common {
         public static double spike1HightOut = 52;
         public static double notSpike1HightOut = 60;
 
-        public static double shootVelocityClose = 10; // in / s
+        public static double shootVelocityClose = 3; // in / s
         public static double shootVelocityFar = 1; // in / s
         public static double shootAccelerationFar = 3; // in / s^2
     }
@@ -67,6 +67,7 @@ public class Common {
         public static Pose far = new Pose(-64, 15.8, Math.toRadians(0));
         public static Pose reZeroAtCorner = new Pose(-52, -61, Math.toRadians(-90));
         public static Pose farZoneAutoPark = new Pose(-48, 12, Math.toRadians(90));
+        public static Pose closePark = new Pose(12, 38, Math.toRadians(90));
 
         static void convert(boolean toRed) {
             closeInner = convertToRed(closeInner, toRed, true);
@@ -74,6 +75,7 @@ public class Common {
             far = convertToRed(far, toRed, true);
             reZeroAtCorner = convertToRed(reZeroAtCorner, toRed, true);
             farZoneAutoPark = convertToRed(farZoneAutoPark, toRed, true);
+            closePark = convertToRed(closePark, toRed, true);
         }
     }
 
@@ -107,9 +109,9 @@ public class Common {
         public static Pose pushLever = new Pose(-10.2, 62, Math.toRadians(63));
         public static Pose intakeFromSTunnel = new Pose(-17, 58.25, Math.toRadians(45)); // pointing at ramp
 
-        public static Pose toIntakeHumanStart = new Pose(-61,36, Math.toRadians(90));
+        public static Pose toIntakeHumanStart = new Pose(-61.5,24, Math.toRadians(90));
         public static Pose intakeHumanDiag = new Pose(-61.5,60, Math.toRadians(120));
-        public static Pose intakeHuman = new Pose(-62.5,66, Math.toRadians(90));
+        public static Pose intakeHuman = new Pose(-63,66, Math.toRadians(90));
         public static Pose intakeSTunnelAfterHumanControl = new Pose(-56.4,55.8);
         public static Pose intakeSTunnelAfterHuman = new Pose(-49.6,62.9, Math.toRadians(0));
 
@@ -166,11 +168,11 @@ public class Common {
         public static Pose optimalHumanPlayerStart = new Pose(9.24,13.25, Math.toRadians(155));
         public static Pose optimalVisionStart = new Pose(9.24,14.25, Math.toRadians(155));
 
-        public static Pose optimalLeverStart = new Pose(14.7, 25.6, Math.toRadians(135));
+        public static Pose optimalLeverStart =  new Pose(14.7, 25.6, Math.toRadians(135));
 
         public static Pose optimalSpike2StartFar = new Pose(-52.5,20.2, Math.toRadians(20));
         public static Pose optimalSpike3StartFar = new Pose(-52.5,18.9, Math.toRadians(76));
-        public static Pose optimalVisionStartFar = new Pose(-56.2,13, Math.toRadians(104));
+        public static Pose optimalVisionStartFar = new Pose(-56.2,13, Math.toRadians(95));
 
 
         static void convert(boolean toRed) {

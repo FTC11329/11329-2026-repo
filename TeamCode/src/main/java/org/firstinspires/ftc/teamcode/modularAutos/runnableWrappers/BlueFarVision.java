@@ -114,7 +114,7 @@ public class BlueFarVision extends OpMode {
 
         robot.update();
 
-        if (!parkPathFollowed && robot.getOpmodeTimeSeconds() > 29.1 && !ShapeDetection.isRobotInside(FieldShapes.closeTriangle, robot.getCurrentPose().plusVector(robot.follower.getVelocity(), 0.75))) {
+        if (!parkPathFollowed && robot.getOpmodeTimeSeconds() > 29.5 && ShapeDetection.doesRobotCrossLine(FieldShapes.farTriangle, robot.getCurrentPose().plusVector(robot.follower.getVelocity(), 0.75))) {
             if (robot.inShootingZone()) {
                 robot.indexer.shootAll();
             }

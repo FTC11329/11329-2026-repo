@@ -42,8 +42,8 @@ public class ShapeDetection {
     private static final double robotSizeMult = 2.25;
 
     private static final double forwardFromCenter = 10;
-    private static final double leftFromCenter = 7.5;
-    private static final double rightFromCenter = 7.5;
+    private static final double leftFromCenter = 8.5;
+    private static final double rightFromCenter = 8.5;
     private static final double backFromCenter = 6.8;
 
 

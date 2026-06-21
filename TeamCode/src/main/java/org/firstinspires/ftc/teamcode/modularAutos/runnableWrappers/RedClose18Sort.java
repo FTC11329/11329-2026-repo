@@ -51,7 +51,8 @@ public class RedClose18Sort extends OpMode {
         steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPlanner(), false, false, true));
         steps.add(new FromShootMidPos.ToIntakeFromRamp(robot, lastPlanner(), true, false, true));
         steps.add(new FromShootMidPos.ToIntakeSpike3(robot, lastPlanner(), true, false));
-        steps.add(new FromShootMidPos.ToIntakeSpike1(robot, lastPlanner(), true, true, false));
+        steps.add(new FromShootMidPos.ToIntakeSpike1(robot, lastPlanner(), true, false, false));
+        steps.add(new Commands.goToPose(robot, lastPlanner(), Common.StartPoses.closePark));
 
         wComms(steps);
 
@@ -107,12 +108,12 @@ public class RedClose18Sort extends OpMode {
 
         robot.update();
 
-        if (!parkPathFollowed && robot.getOpmodeTimeSeconds() > 29.1 && !ShapeDetection.isRobotInside(FieldShapes.closeTriangle, robot.getCurrentPose().plusVector(robot.follower.getVelocity(), 0.75))) {
+        if (!parkPathFollowed && robot.getOpmodeTimeSeconds() > 29.5 && ShapeDetection.doesRobotCrossLine(FieldShapes.closeTriangle, robot.getCurrentPose().plusVector(robot.follower.getVelocity(), 0.75))) {
             if (robot.inShootingZone()) {
                 robot.indexer.shootAll();
             }
             robot.doSmartShoot(false);
-            if (robot.getCurrentPose().getX() > - 25) {
+            if (robot.getCurrentPose().getX() > -25) {
                 robot.follower.followPath(robot.follower.linearPathBuilder(Common.ShootPoses.parkShoot, Common.IntakeBallPoses.intakeSpike2Start));
             } else {
                 robot.follower.followPath(robot.follower.linearPathBuilder(Common.ShootPoses.farShoot, Common.IntakeBallPoses.intakeSpike3StartFar));

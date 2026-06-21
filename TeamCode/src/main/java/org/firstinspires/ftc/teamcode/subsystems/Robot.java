@@ -463,8 +463,8 @@ public class Robot {
         shooter.setHoodDeg(s.hoodDeg + hoodAngleOffset);
     }
 
-    double FAR_AFFECT_CLOSE = 0.6;
-    double CLOSE_AFFECT_FAR = 0.6;
+    double FAR_AFFECT_CLOSE = 0.55;
+    double CLOSE_AFFECT_FAR = 0.55;
 
     public void shooterTrim(boolean up, boolean down, boolean left, boolean right, boolean panicShoot) {
         double mult = panicShoot ? 10 : 1;
@@ -796,9 +796,6 @@ public class Robot {
         if (debug) {
             debug();
         }
-        telemetry.addData("state", indexer.currentIndexerState);
-        telemetry.addData("smart state", indexer.smartShootState);
-
     }
 
     public void debug() {
