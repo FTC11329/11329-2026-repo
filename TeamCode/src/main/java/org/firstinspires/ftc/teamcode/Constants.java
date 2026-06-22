@@ -134,6 +134,12 @@ public class Constants {
         public static double[] purpleFar = {0.0229, 0.0302, 0.0324, 0.9816}; //1.73
         public static double[] purpleWeird = {0.0666, 0.0763, 0.0966, 0.9976}; //0.62
 
+        public static double[] red = {0.062, 0.0719, 0.0898, 0.9973}; //0.48
+        public static double[] orange = {0.062, 0.0719, 0.0898, 0.9973}; //0.48
+        public static double[] yellow = {0.062, 0.0719, 0.0898, 0.9973}; //0.48
+        public static double[] blue = {0.062, 0.0719, 0.0898, 0.9973}; //0.48
+
+
         public static double[] none = {0.012, 0.0271, 0.02, 0.9622}; //6
         public static double[] none2 = {-1, -1, -1, -1}; // unused
 

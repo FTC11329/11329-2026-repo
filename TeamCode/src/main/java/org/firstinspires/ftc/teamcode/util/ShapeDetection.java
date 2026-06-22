@@ -11,14 +11,16 @@ public class ShapeDetection {
     private static final GeometryFactory geometryFactory = new GeometryFactory();
 
     private static final Pose[] closeTriangleCorners = new Pose[]{
-            new Pose(72, 72),
-            new Pose(72, -72),
+            new Pose(96, 96),
+            new Pose(96, -96),
             new Pose(0,  0)
     };
     private static final Pose[] farTriangleCorners = new Pose[]{
-            new Pose(-48, -0),
-            new Pose(-72, -24),
-            new Pose(-72, 24)
+            new Pose(-96, 24),
+            new Pose(-48, 24),
+            new Pose(-24, 0),
+            new Pose(-48, -24),
+            new Pose(-96, -24)
     };
     private static final Pose[] seesObeliskFrontTagCorners =  new Pose[]{
             new Pose(75, 11),

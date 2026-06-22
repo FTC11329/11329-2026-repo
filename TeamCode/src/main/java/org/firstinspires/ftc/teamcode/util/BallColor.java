@@ -1,5 +1,5 @@
 package org.firstinspires.ftc.teamcode.util;
 
 public enum BallColor {
-    Purple, Green, None, Any
+    Red, Orange, Yellow, Green, Blue, Purple, None, Any
 }
