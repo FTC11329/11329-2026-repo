@@ -67,6 +67,9 @@ public class Indexer {
     public boolean autoFastShootEnd = false;
     public boolean turnPluggingOffOnce = false;
     private Pose lastPosition = new Pose(0,0,0);
+    private int ballInterfaceIndex = -1;
+    private boolean gemMode = false;
+    private BallColor lastQueued = BallColor.Red;
 
     BallColor[] queuedBalls = new BallColor[]{BallColor.None, BallColor.None, BallColor.None};
 
@@ -355,6 +358,34 @@ public class Indexer {
         }
     }
 
+    public void queueInterface(boolean right) {
+        if (gemMode) {
+            if (ballInterfaceIndex == -1) {
+                if (!isQueuedBallsFull()) {
+                    ballInterfaceIndex = highestEmptyQueueIndex();
+                    queuedBalls[highestEmptyQueueIndex()] = lastQueued;
+                }
+            }
+            if (ballInterfaceIndex != -1) {
+                queuedBalls[ballInterfaceIndex] = BallColor.toBall((queuedBalls[ballInterfaceIndex].toInt() + (right ? 1 : -1)) % BallColor.numberColors());
+            }
+        } else {
+            if (!isQueuedBallsFull()) {
+                queuedBalls[highestEmptyQueueIndex()] = right ? BallColor.Purple : BallColor.Green;
+            }
+        }
+    }
+
+    public void registerQueue() {
+        if (ballInterfaceIndex == -1){
+            gemMode = !gemMode;
+        }
+        else {
+            lastQueued = queuedBalls[ballInterfaceIndex];
+            ballInterfaceIndex = -1;
+        }
+    }
+
     public void emptyQueue() {
         queuedBalls[0] = BallColor.None;
         queuedBalls[1] = BallColor.None;
@@ -547,7 +578,7 @@ public class Indexer {
 
             BallColor curColor;
             if (doSmartShoot) {
-                curColor = getColorOptimized();
+                curColor = getColorSlow();
             } else {
                 curColor = getColorFast();
             }

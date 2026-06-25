@@ -27,8 +27,9 @@ public class MainTeleop {
     FancyButton autoShoot;
     FancyButton smartShoot;
     FancyButton fastShootButton;
-    FancyButton queueGreen;
-    FancyButton queuePurple;
+    FancyButton queueRight;
+    FancyButton queueLeft;
+    FancyButton registerQueue;
 
     FancyButton overrideShootPosition;
     FancyButton overrideIntake;
@@ -91,8 +92,9 @@ public class MainTeleop {
         turnSOTFOn = new FancyButton(FancyButton.PressType.LongPress);
         turnSOTFOff = new FancyButton(FancyButton.PressType.LongPress);
 
-        queueGreen = new FancyButton(FancyButton.PressType.LongPress);
-        queuePurple = new FancyButton(FancyButton.PressType.LongPress);
+        queueRight = new FancyButton(FancyButton.PressType.LongPress);
+        queueLeft = new FancyButton(FancyButton.PressType.LongPress);
+        registerQueue = new FancyButton(FancyButton.PressType.LongPress);
         autoShoot = new FancyButton(FancyButton.PressType.Toggle);
         smartShoot = new FancyButton(FancyButton.PressType.Toggle);
         fastShootButton = new FancyButton(FancyButton.PressType.LongPress);
@@ -169,8 +171,9 @@ public class MainTeleop {
         turnSOTFOn.checkStatus(false); // Toggle on SOTF
         turnSOTFOff.checkStatus(false); // Toggle off SOTF
 
-        queueGreen.checkStatus(gamepad2.y && gamepad1.right_bumper); // Press to queue green
-        queuePurple.checkStatus(gamepad2.x && gamepad1.right_bumper); // Press to queue purple
+        queueRight.checkStatus(gamepad2.y && gamepad1.right_bumper); // Press to queue green
+        queueLeft.checkStatus(gamepad2.x && gamepad1.right_bumper); // Press to queue purple
+        registerQueue.checkStatus(gamepad2.touchpad); // Press to queue purple
         autoShoot.checkStatus(gamepad2.a); // Toggle to turn on auto shoot
         fastShootButton.checkStatus((gamepad2.b || gamepad1.b) && !smartShoot.isOn); // press to shoot 3
         smartShoot.checkStatus(gamepad2.back); // Toggle to turn on smart shoot
@@ -234,11 +237,14 @@ public class MainTeleop {
         }
         robot.setIntakeOverride(overrideIntake.isOn);
 
-        if (queuePurple.startPress) {
-            robot.qBall(BallColor.Purple);
+        if (queueLeft.startPress) {
+            robot.qGem(true);
         }
-        if (queueGreen.startPress) {
-            robot.qBall(BallColor.Green);
+        if (queueRight.startPress) {
+            robot.qGem(false);
+        }
+        if (registerQueue.startPress) {
+            robot.registerGem();
         }
 
         robot.doSmartShoot(smartShoot.isOn);

@@ -355,6 +355,14 @@ public class Robot {
     public void qBall(BallColor qdColor) {
         indexer.addToQueue(qdColor);
     }
+
+    public void qGem(boolean right) {
+        indexer.queueInterface(right);
+    }
+
+    public void registerGem(){
+        indexer.registerQueue();
+    }
     public void reZeroIndexer() {
         indexer.reZeroIndexer();
     }
