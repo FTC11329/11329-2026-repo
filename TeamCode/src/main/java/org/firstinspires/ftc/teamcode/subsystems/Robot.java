@@ -75,6 +75,7 @@ public class Robot {
     double closeTurretOffset = 0;
     double farDistanceOffset = 0;
     double farTurretOffset = 0;
+    public boolean gemShoot = false;
     //This is an array of the 3 special colors of the games MOTIF
     public BallColor[] motif = null;
     int thingies = 0;
@@ -429,15 +430,15 @@ public class Robot {
 //        } else {
         if (!swapGoal) {
             if (robotSide == RobotSide.Blue) {
-                goalPose = shotType == ShotType.PHYSICAL ? Constants.Vision.blueGoalPhysics : Constants.Vision.blueGoal;
+                goalPose = gemShoot ?  Constants.Vision.blueGemGoal : (shotType == ShotType.PHYSICAL ? Constants.Vision.blueGoalPhysics : Constants.Vision.blueGoal);
             } else {
-                goalPose = shotType == ShotType.PHYSICAL ? Constants.Vision.redGoalPhysics : Constants.Vision.redGoal;
+                goalPose = gemShoot ?  Constants.Vision.redGemGoal : (shotType == ShotType.PHYSICAL ? Constants.Vision.redGoalPhysics : Constants.Vision.redGoal);
             }
         } else {
             if (robotSide == RobotSide.Blue) {
-                goalPose = shotType == ShotType.PHYSICAL ? Constants.Vision.redGoalPhysics : Constants.Vision.redGoal;
+                goalPose = gemShoot ?  Constants.Vision.blueGemGoal : (shotType == ShotType.PHYSICAL ? Constants.Vision.redGoalPhysics : Constants.Vision.redGoal);
             } else {
-                goalPose = shotType == ShotType.PHYSICAL ? Constants.Vision.blueGoalPhysics : Constants.Vision.blueGoal;
+                goalPose = gemShoot ?  Constants.Vision.redGemGoal : (shotType == ShotType.PHYSICAL ? Constants.Vision.blueGoalPhysics : Constants.Vision.blueGoal);
             }
         }
 //        }

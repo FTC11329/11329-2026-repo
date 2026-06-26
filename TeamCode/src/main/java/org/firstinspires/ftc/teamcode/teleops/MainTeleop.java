@@ -48,6 +48,7 @@ public class MainTeleop {
     FancyButton reZeroIndexer;
     FancyButton cycleCycler;
     FancyButton useCycleCycler;
+    FancyButton spectrumTime;
 
     FancyButton manualTurretStart;
     FancyButton reCheckColors;
@@ -102,6 +103,7 @@ public class MainTeleop {
         overrideShootPosition = new FancyButton(FancyButton.PressType.LongPress);
         overrideIntake = new FancyButton(FancyButton.PressType.LongPress);
         panicShoot = new FancyButton(FancyButton.PressType.Toggle);
+        spectrumTime = new FancyButton(FancyButton.PressType.Toggle);
         reZeroIndexer = new FancyButton(FancyButton.PressType.Toggle);
 
         debug = new FancyButton(FancyButton.PressType.Toggle);
@@ -177,6 +179,7 @@ public class MainTeleop {
         autoShoot.checkStatus(gamepad2.a); // Toggle to turn on auto shoot
         fastShootButton.checkStatus((gamepad2.b || gamepad1.b) && !smartShoot.isOn); // press to shoot 3
         smartShoot.checkStatus(gamepad2.back); // Toggle to turn on smart shoot
+        spectrumTime.checkStatus(gamepad2.b); // Toggle to turn on smart shoot
 
         overrideIntake.checkStatus(gamepad2.left_trigger_pressed || gamepad1.left_trigger_pressed); // hold to turn on ignore allowintaking
         panicShoot.checkStatus(gamepad2.ps); // toggle to turn on panic shoot
@@ -246,6 +249,8 @@ public class MainTeleop {
         if (registerQueue.startPress) {
             robot.registerGem();
         }
+
+        robot.gemShoot = spectrumTime.isOn;
 
         robot.doSmartShoot(smartShoot.isOn);
 

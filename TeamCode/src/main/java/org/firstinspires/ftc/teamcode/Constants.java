@@ -56,7 +56,9 @@ public class Constants {
         public static int configTest = 0;
 
         public static Pose redGoal = new Pose(59, -61.5);
+        public static Pose redGemGoal = new Pose(59, -61.5);
         public static Pose blueGoal = new Pose(61.5, 56.5);
+        public static Pose blueGemGoal = new Pose(61.5, 56.5);
         public static Pose redGoalSort = new Pose(65, -66);
         public static Pose blueGoalSort = new Pose(65.5, 54);
 

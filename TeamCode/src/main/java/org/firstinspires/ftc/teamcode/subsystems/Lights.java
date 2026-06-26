@@ -34,6 +34,10 @@ public class Lights {
 
     Color purple = new Color(148, 8, 251);
     Color green = new Color(0, 182, 0);
+    Color red = new Color(182, 0, 0);
+    Color orange = new Color(148, 88, 0);
+    Color yellow = new Color(112, 112, 0);
+    Color blue = new Color(0, 0, 182);
 
     PrismAnimations.Pulse[] ballCellsAnimation = new PrismAnimations.Pulse[]{
             cell0, cell1, cell2
@@ -216,6 +220,22 @@ public class Lights {
                 case Green:
                     listToChange[i].setPrimaryColor(green);
                     listToChange[i].setSecondaryColor(Color.dimColor(green));
+                    break;
+                case Red:
+                    listToChange[i].setPrimaryColor(red);
+                    listToChange[i].setSecondaryColor(Color.dimColor(red));
+                    break;
+                case Orange:
+                    listToChange[i].setPrimaryColor(orange);
+                    listToChange[i].setSecondaryColor(Color.dimColor(orange));
+                    break;
+                case Yellow:
+                    listToChange[i].setPrimaryColor(yellow);
+                    listToChange[i].setSecondaryColor(Color.dimColor(yellow));
+                    break;
+                case Blue:
+                    listToChange[i].setPrimaryColor(blue);
+                    listToChange[i].setSecondaryColor(Color.dimColor(blue));
                     break;
                 case Any:
                     listToChange[i].setPrimaryColor(teamColor);
