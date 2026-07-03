@@ -300,7 +300,6 @@ public class Vision {
                     ballColor = BallColor.Green;
                 } else if (className.equals("purple")) {
                     ballColor = BallColor.Purple;
-
                 } else {
                     ballColor = BallColor.Any;
                 }

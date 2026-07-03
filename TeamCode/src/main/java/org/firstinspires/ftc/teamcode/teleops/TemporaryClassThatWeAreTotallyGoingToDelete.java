@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.teleops;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.hardware.lynx.LynxModule;
+import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.AnalogInput;
@@ -11,9 +12,11 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
+import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.subsystems.Climber;
 import org.firstinspires.ftc.teamcode.subsystems.Indexer;
@@ -26,7 +29,7 @@ import org.firstinspires.ftc.teamcode.util.RobotSide;
 
 import java.util.List;
 
-@TeleOp(name = "TEST", group = "       group")
+@TeleOp(name = "TEST", group = "group")
 public class TemporaryClassThatWeAreTotallyGoingToDelete extends OpMode {
     Shooter shooter;
     Turret turret;
@@ -51,22 +54,23 @@ public class TemporaryClassThatWeAreTotallyGoingToDelete extends OpMode {
     CRServo turretServo2;
     DcMotorEx rightBack;
     TouchSensor touchSensor;
-    double hoodPos = 0;
-    double lastTime = 0;
-    public DcMotorEx flywheel1;
-    public DcMotorEx flywheel2;
+    RevColorSensorV3 colorSensorI2C;
     @Override
     public void init() {
         panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
-        shooter = new Shooter(hardwareMap);
+        colorSensorI2C = hardwareMap.get(RevColorSensorV3.class, "ColorI2C");
+
     }
-    double pos = 0;
-    double pow = 0;
+
     @Override
     public void loop() {
-        pos = gamepad1.left_stick_y * 180;
-        pow = gamepad1.a ? 1 : 0;
-        shooter.setPower(pow);
+        NormalizedRGBA colors = colorSensorI2C.getNormalizedColors();
+
+        telemetry.addData("distance", colorSensorI2C.getDistance(DistanceUnit.INCH));
+        telemetry.addData("Blue", colors.blue);
+        telemetry.addData("Red", colors.red);
+        telemetry.addData("Green", colors.green);
+        telemetry.update();
     }
 
 }
