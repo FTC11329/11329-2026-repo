@@ -32,9 +32,13 @@ public class Lights {
 
     Color teamColor = new Color(52, 153, 255);
 
+    //documentation: colors. todo: orange and yellow should not be so blue. cheer them up.
     Color purple = new Color(148, 8, 251);
     Color green = new Color(0, 182, 0);
-
+    Color red = new Color(182, 0, 0 );
+    Color blue = new Color(0, 0, 182);
+    Color orange = new Color(0, 0, 182);
+    Color yellow = new Color(0, 0, 182);
     PrismAnimations.Pulse[] ballCellsAnimation = new PrismAnimations.Pulse[]{
             cell0, cell1, cell2
     };
@@ -66,6 +70,7 @@ public class Lights {
         cell0.setIndexes(0, 5);
         cell1.setIndexes(6, 11);
         cell2.setIndexes(12, 17);
+        //documentation: Romanian flag
         romaniaFlag0.setIndexes(0, 5);
         romaniaFlag1.setIndexes(6, 11);
         romaniaFlag2.setIndexes(12, 17);
@@ -76,6 +81,7 @@ public class Lights {
         romaniaFlag2.setPrimaryColor(Color.BLUE);
         romaniaFlag2.setSecondaryColor(Color.dimColor(Color.BLUE));
 
+        //documentation: american flag
         americaFlag0.setIndexes(0, 5);
         americaFlag1.setIndexes(6, 11);
         americaFlag2.setIndexes(12, 17);
@@ -94,7 +100,7 @@ public class Lights {
             cell.setBrightness(brightness);
             cell.setPrimaryColor(teamColor);
             cell.setSecondaryColor(Color.dimColor(teamColor));
-            i++;
+            i++; //todo: add documentation
         }
         queueCell0.setIndexes(10, 11);
         queueCell1.setIndexes(12, 13);
@@ -216,6 +222,22 @@ public class Lights {
                 case Green:
                     listToChange[i].setPrimaryColor(green);
                     listToChange[i].setSecondaryColor(Color.dimColor(green));
+                    break;
+                case Red:
+                    listToChange[i].setPrimaryColor(red);
+                    listToChange[i].setSecondaryColor(Color.dimColor(red));
+                    break;
+                case Blue:
+                    listToChange[i].setPrimaryColor(blue);
+                    listToChange[i].setSecondaryColor(Color.dimColor(blue));
+                    break;
+                case Orange:
+                    listToChange[i].setPrimaryColor(orange);
+                    listToChange[i].setSecondaryColor(Color.dimColor(orange));
+                    break;
+                case Yellow:
+                    listToChange[i].setPrimaryColor(yellow);
+                    listToChange[i].setSecondaryColor(Color.dimColor(yellow));
                     break;
                 case Any:
                     listToChange[i].setPrimaryColor(teamColor);
