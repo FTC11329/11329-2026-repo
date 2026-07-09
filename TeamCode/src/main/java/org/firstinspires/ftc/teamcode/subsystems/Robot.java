@@ -458,9 +458,9 @@ public class Robot {
         }
 
 
-        shooter.setTargetRPM(s.rpm + rpmOffset);
+        shooter.setTargetRPM(s.rpm + Constants.Shooter.RPMoffset);
 
-        shooter.setHoodDeg(s.hoodDeg + hoodAngleOffset);
+        shooter.setHoodDeg(s.hoodDeg + Constants.Shooter.hoodAngleOffset);
     }
 
     double FAR_AFFECT_CLOSE = 0.55;
@@ -792,6 +792,13 @@ public class Robot {
         follower.update();
         visionUpdate();
         lightsUpdate();
+
+        panelsTelemetry.addData("Rpm", shooter.getRPM());
+        panelsTelemetry.addData("Rpm Offset", rpmOffset);
+        panelsTelemetry.addData("Hood Angle", shooter.getHoodPosDeg());
+        panelsTelemetry.addData("Hood Offset", hoodAngleOffset);
+        panelsTelemetry.addData("Distance", distanceToGoal());
+        panelsTelemetry.update();
 
         if (debug) {
             debug();
