@@ -208,23 +208,10 @@ public class Lights {
 
     public PrismAnimations.Pulse[] updateBallCellsAnimation(BallColor[] ballColorsToUse, PrismAnimations.Pulse[] listToChange) {
         for (int i = 0; i < 3; i++) {
-            switch (ballColorsToUse[i]) {
-                case Purple:
-                    listToChange[i].setPrimaryColor(purple);
-                    listToChange[i].setSecondaryColor(Color.dimColor(purple));
-                    break;
-                case Green:
-                    listToChange[i].setPrimaryColor(green);
-                    listToChange[i].setSecondaryColor(Color.dimColor(green));
-                    break;
-                case Any:
-                    listToChange[i].setPrimaryColor(teamColor);
-                    listToChange[i].setSecondaryColor(Color.dimColor(teamColor));
-                    break;
-                case None:
-                    listToChange[i].setPrimaryColor(Color.TRANSPARENT);
-                    listToChange[i].setSecondaryColor(Color.TRANSPARENT);
-            }
+            Color color = BallColor.getColor(ballColorsToUse[i]);
+            
+            listToChange[i].setPrimaryColor(color);
+            listToChange[i].setSecondaryColor(Color.dimColor(color));
         }
         return listToChange;
     }

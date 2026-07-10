@@ -1,6 +1,6 @@
-# 11329 2026 Robot Code - Hailstone
+# 11329 2026 Robot Code - Hailstorm
 
-This is the code for FTC team 11329's 2026 competition robot Hailstone.
+This is the code for FTC team 11329's 2026 competition robot Hailstorm.
 
 We placed winning alliance captain at Michiana, winning alliance first pick at the Edison Division of worlds, and winning alliance captain at Indiana State. [FtcScout](https://ftcscout.org/teams/11329?season=2025)
 

@@ -64,7 +64,7 @@ public class Robot {
 
     boolean spitIntake = false;
     boolean isIntaking = false;
-    boolean smartShoot = false;
+    public boolean smartShoot = false;
     boolean intakeOverride = false;
     boolean panicShoot = false;
     boolean panicShootingButton = false;
@@ -378,10 +378,10 @@ public class Robot {
         prepareShooter(ShotType.TABLE);
     }
     public void prepareShooter(boolean doSOTF) {
-        prepareShooter(ShotType.TABLE, doSOTF, true);
+        prepareShooter(ShotType.TABLE, doSOTF);
     }
     public void prepareShooter(ShotType shotType) {
-        prepareShooter(shotType, true, true);
+        prepareShooter(shotType, true);
     }
     double rpmOffset;
     double hoodAngleOffset;
@@ -390,11 +390,11 @@ public class Robot {
         this.rpmOffset = rpmOffset;
     }
     double rpmRatio = 1;
-    public void prepareShooter(ShotType shotType, boolean useSOTF, boolean isAuto) {
-        prepareShooter(shotType, useSOTF, false, isAuto);
+    public void prepareShooter(ShotType shotType, boolean useSOTF) {
+        prepareShooter(shotType, useSOTF, false, false);
     }
 
-    public void prepareShooter(ShotType shotType, boolean useSOTF, boolean swapGoal, boolean isAuto) {
+    public void prepareShooter(ShotType shotType, boolean useSOTF, boolean swapGoal, boolean prismGoal) {
         usePID = true;
         ShotContext ctx = new ShotContext();
 
@@ -404,35 +404,35 @@ public class Robot {
             ctx.robotPose = shootFromPose;
         }
         Pose goalPose;
-//        if (smartShoot && isAuto) {
-//            if (!swapGoal) {
-//                if (robotSide == RobotSide.Blue) {
-//                    goalPose = Constants.Vision.blueGoalSort;
-//                } else {
-//                    goalPose = Constants.Vision.redGoalSort;
-//                }
-//            } else {
-//                if (robotSide == RobotSide.Blue) {
-//                    goalPose = Constants.Vision.redGoalSort;
-//                } else {
-//                    goalPose = Constants.Vision.blueGoalSort;
-//                }
-//            }
-//        } else {
         if (!swapGoal) {
-            if (robotSide == RobotSide.Blue) {
-                goalPose = shotType == ShotType.PHYSICAL ? Constants.Vision.blueGoalPhysics : Constants.Vision.blueGoal;
+            if (prismGoal) {
+                if (robotSide == RobotSide.Blue) {
+                    goalPose = Constants.Vision.bluePrism;
+                } else {
+                    goalPose = Constants.Vision.redPrism;
+                }
             } else {
-                goalPose = shotType == ShotType.PHYSICAL ? Constants.Vision.redGoalPhysics : Constants.Vision.redGoal;
+                if (robotSide == RobotSide.Blue) {
+                    goalPose = Constants.Vision.blueGoal;
+                } else {
+                    goalPose = Constants.Vision.redGoal;
+                }
             }
         } else {
-            if (robotSide == RobotSide.Blue) {
-                goalPose = shotType == ShotType.PHYSICAL ? Constants.Vision.redGoalPhysics : Constants.Vision.redGoal;
+            if (prismGoal) {
+                if (robotSide == RobotSide.Blue) {
+                    goalPose = Constants.Vision.blueGoal;
+                } else {
+                    goalPose = Constants.Vision.redGoal;
+                }
             } else {
-                goalPose = shotType == ShotType.PHYSICAL ? Constants.Vision.blueGoalPhysics : Constants.Vision.blueGoal;
+                if (robotSide == RobotSide.Blue) {
+                    goalPose = Constants.Vision.redGoal;
+                } else {
+                    goalPose = Constants.Vision.blueGoal;
+                }
             }
         }
-//        }
         ctx.goalPose = goalPose.plus(offsetPose);
         ctx.velocity = follower.getVelocity();
         ctx.acceleration = follower.getAcceleration();
@@ -564,6 +564,7 @@ public class Robot {
     public void spinIntake(boolean set) {
         isIntaking = set;
     }
+    boolean teleopSpit = false; 
     boolean intakeInit = false;
 
     public void intakeUpdate() {
@@ -576,7 +577,7 @@ public class Robot {
         }
 
         boolean dontAllowIntaking = indexer.shooting && intake.isBeamBroken();
-        intake.update(spitIntake || isIndexerUnjamming(), isIntaking, indexer.shooting, indexer.doSpit(), indexer.allowIntaking() && !dontAllowIntaking, indexer.isPlugged(), intakeOverride);
+        intake.update(spitIntake || isIndexerUnjamming(), isIntaking, indexer.shooting, indexer.doSpit() || teleopSpit, indexer.allowIntaking() && !dontAllowIntaking, indexer.isPlugged(), intakeOverride);
     }
 
 
@@ -628,6 +629,9 @@ public class Robot {
         intake.climb(false);
     }
     // LIGHTS**************************************************************************************~
+    public boolean flashRed() {
+        return basicallyHas3() || indexer.flashRed();
+    }
     public void lightsUpdate() {
         lights.setBallColors(indexer.getBallCells(), indexer.getQueuedBalls(), basicallyHas3(), smartShoot);
         lights.update();
@@ -659,6 +663,11 @@ public class Robot {
 //    boolean brakeAllowSotf = true;
 //    boolean brakeAllowDebounce = true;
     //returns if we want to allow sotf
+
+    public void setTeleopSpit(boolean teleopSpit) {
+        this.teleopSpit = teleopSpit;
+    }
+
     public void notBrakeDriveTrain() {
 //        brakeAllowSotf = true;
 //        brakeAllowDebounce = true;
@@ -927,7 +936,6 @@ public class Robot {
         telemetry.addData("Turret power", turret.turretPID.run());
 
         telemetry.addLine("=== COLOR ===");
-        telemetry.addData("indexer col", indexer.getColorSlow());
 
         telemetry.addLine("=== POSITION ===");
         telemetry.addData("is at position", indexer.isAtPosition());

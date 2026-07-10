@@ -27,8 +27,13 @@ public class MainTeleop {
     FancyButton autoShoot;
     FancyButton smartShoot;
     FancyButton fastShootButton;
+    FancyButton queueRed;
+    FancyButton queueOrange;
+    FancyButton queueYellow;
     FancyButton queueGreen;
+    FancyButton queueBlue;
     FancyButton queuePurple;
+    FancyButton forceSpit;
 
     FancyButton overrideShootPosition;
     FancyButton overrideIntake;
@@ -91,8 +96,13 @@ public class MainTeleop {
         turnSOTFOn = new FancyButton(FancyButton.PressType.LongPress);
         turnSOTFOff = new FancyButton(FancyButton.PressType.LongPress);
 
-        queueGreen = new FancyButton(FancyButton.PressType.LongPress);
-        queuePurple = new FancyButton(FancyButton.PressType.LongPress);
+        queueRed = new FancyButton(FancyButton.PressType.LongPress);;
+        queueOrange = new FancyButton(FancyButton.PressType.LongPress);;
+        queueYellow = new FancyButton(FancyButton.PressType.LongPress);;
+        queueGreen = new FancyButton(FancyButton.PressType.LongPress);;
+        queueBlue = new FancyButton(FancyButton.PressType.LongPress);;
+        queuePurple = new FancyButton(FancyButton.PressType.LongPress);;
+        forceSpit = new FancyButton(FancyButton.PressType.LongPress);;
         autoShoot = new FancyButton(FancyButton.PressType.Toggle);
         smartShoot = new FancyButton(FancyButton.PressType.Toggle);
         fastShootButton = new FancyButton(FancyButton.PressType.LongPress);
@@ -160,24 +170,30 @@ public class MainTeleop {
 
     public void loop() {
         brake.checkStatus(gamepad1.right_bumper); // hold to turn on brake
-        unjamSpindexer.checkStatus(gamepad1.right_trigger_pressed || gamepad2.right_trigger_pressed);
+        unjamSpindexer.checkStatus(gamepad1.right_trigger_pressed || (gamepad2.right_trigger_pressed && !smartShoot.isOn));
         intake.checkStatus(gamepad2.left_bumper); // Toggle on to intake
-        spitIntake.checkStatus(gamepad2.right_bumper || gamepad1.left_bumper); // Hold to spit
+        spitIntake.checkStatus((!smartShoot.isOn && gamepad2.right_bumper) || gamepad1.left_bumper); // Hold to spit
 
 //        turnSOTFOn.checkStatus(gamepad1.left_stick_button); // Toggle on SOTF
 //        turnSOTFOff.checkStatus(gamepad1.right_stick_button); // Toggle off SOTF
         turnSOTFOn.checkStatus(false); // Toggle on SOTF
         turnSOTFOff.checkStatus(false); // Toggle off SOTF
 
-        queueGreen.checkStatus(gamepad2.y && gamepad1.right_bumper); // Press to queue green
-        queuePurple.checkStatus(gamepad2.x && gamepad1.right_bumper); // Press to queue purple
-        autoShoot.checkStatus(gamepad2.a); // Toggle to turn on auto shoot
+        queueRed.checkStatus   (gamepad2.right_trigger_pressed && gamepad1.right_bumper && smartShoot.isOn);
+        queueOrange.checkStatus(gamepad2.right_bumper && gamepad1.right_bumper && smartShoot.isOn);
+        queueYellow.checkStatus(gamepad2.triangle && gamepad1.right_bumper && smartShoot.isOn);
+        queueGreen.checkStatus (gamepad2.circle && gamepad1.right_bumper && smartShoot.isOn);
+        queueBlue.checkStatus  (gamepad2.cross && gamepad1.right_bumper && smartShoot.isOn);
+        queuePurple.checkStatus(gamepad2.square && gamepad1.right_bumper && smartShoot.isOn);
+
+        autoShoot.checkStatus(gamepad2.a && !smartShoot.isOn); // Toggle to turn on auto shoot
         fastShootButton.checkStatus((gamepad2.b || gamepad1.b) && !smartShoot.isOn); // press to shoot 3
         smartShoot.checkStatus(gamepad2.back); // Toggle to turn on smart shoot
 
         overrideIntake.checkStatus(gamepad2.left_trigger_pressed || gamepad1.left_trigger_pressed); // hold to turn on ignore allowintaking
         panicShoot.checkStatus(gamepad2.ps); // toggle to turn on panic shoot
         reZeroIndexer.checkStatus(gamepad1.ps);
+        forceSpit.checkStatus(gamepad1.dpad_down);
 
         movePoseUp.checkStatus(gamepad2.dpad_up);
         movePoseDown.checkStatus(gamepad2.dpad_down);  //Buttons to control where the robot aims
@@ -190,7 +206,7 @@ public class MainTeleop {
         resetPoseCorner.checkStatus(gamepad1.a);
         climb.checkStatus(gamepad1.back);
 //        cycleCycler.checkStatus(robot.indexer.isHasBallsEmpty());
-        reCheckColors.checkStatus((gamepad2.circle || gamepad1.circle/* || smartShoot.startPress*/) && smartShoot.isOn);
+        reCheckColors.checkStatus(((gamepad2.circle && !smartShoot.isOn) || gamepad1.circle/* || smartShoot.startPress*/) && smartShoot.isOn);
         useCycleCycler.checkStatus(gamepad1.dpad_left);
 
         if (brake.endPress) {
@@ -234,11 +250,23 @@ public class MainTeleop {
         }
         robot.setIntakeOverride(overrideIntake.isOn);
 
-        if (queuePurple.startPress) {
-            robot.qBall(BallColor.Purple);
+        if (queueRed.startPress) {
+            robot.qBall(BallColor.Red);
+        }
+        if (queueOrange.startPress) {
+            robot.qBall(BallColor.Orange);
+        }
+        if (queueYellow.startPress) {
+            robot.qBall(BallColor.Yellow);
         }
         if (queueGreen.startPress) {
             robot.qBall(BallColor.Green);
+        }
+        if (queueBlue.startPress) {
+            robot.qBall(BallColor.Blue);
+        }
+        if (queuePurple.startPress) {
+            robot.qBall(BallColor.Purple);
         }
 
         robot.doSmartShoot(smartShoot.isOn);
@@ -250,7 +278,7 @@ public class MainTeleop {
         }
 
         if (autoShoot.isOn && !climb.isOn) {
-            robot.prepareShooter(ShotType.TABLE, (!brake.isOn || brakeAllowSotfIsOn) && sotfIsOn, useCycleCycler.isOn /*!cycleCycler.isOn && useCycleCycler.isOn*/, false);
+            robot.prepareShooter(ShotType.TABLE, (!brake.isOn || brakeAllowSotfIsOn) && sotfIsOn, useCycleCycler.isOn, smartShoot.isOn);
         } else if (autoShoot.endPress || climb.startPress) {
             robot.casualShooterModeOn();
         }
@@ -278,6 +306,7 @@ public class MainTeleop {
         if (reZeroIndexer.startPress) {
             robot.reZeroIndexer();
         }
+        robot.setTeleopSpit(forceSpit.isOn);
 
         if (climb.startPress) {
             robot.climb();

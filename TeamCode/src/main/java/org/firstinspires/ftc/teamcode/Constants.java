@@ -55,13 +55,15 @@ public class Constants {
     public static class Vision {
         public static int configTest = 0;
 
-        public static Pose redGoal = new Pose(59, -62);
-        public static Pose blueGoal = new Pose(61.5, 56.5);
+        public static Pose redGoal = new Pose(83, -86);
+        public static Pose blueGoal = new Pose(85.5, 80.5);
+        public static Pose bluePrism = new Pose(85, 12);
+        public static Pose redPrism = new Pose(85, -12);
         public static Pose redGoalSort = new Pose(65, -66);
         public static Pose blueGoalSort = new Pose(65.5, 54);
 
-        public static Pose redGoalPhysics = new Pose(64, -67);
-        public static Pose blueGoalPhysics = new Pose(67, 67);
+//        public static Pose redGoalPhysics = new Pose(64, -67);
+//        public static Pose blueGoalPhysics = new Pose(67, 67);
 
         public static Pose redGoalAimOffset = new Pose(0, 0);
         public static Pose blueGoalAimOffset = new Pose(0, 0);
@@ -125,17 +127,26 @@ public class Constants {
         public static double i2cDist = 1.07;
 
 //        Prev Method (Dont use)
-        public static double[] green = {0.0269, 0.0792, 0.06, 0.9551}; //0.743
-        public static double[] greenFar = {0.0147, 0.0361, 0.0274, 0.978}; //1.95
-        public static double[] greenWeird = {0.0157, 0.0414, 0.0313, 0.9828}; //4.7
-        public static double[] greenFakeHole = {-1, -1, -1, -1}; //0.0
+//        public static double[] green = {0.0269, 0.0792, 0.06, 0.9551}; //0.743
+//        public static double[] greenFar = {0.0147, 0.0361, 0.0274, 0.978}; //1.95
+//        public static double[] greenWeird = {0.0157, 0.0414, 0.0313, 0.9828}; //4.7
+//        public static double[] greenFakeHole = {-1, -1, -1, -1}; //0.0
+//
+//        public static double[] purple = {0.062, 0.0719, 0.0898, 0.9973}; //0.48
+//        public static double[] purpleFar = {0.0229, 0.0302, 0.0324, 0.9816}; //1.73
+//        public static double[] purpleWeird = {0.0666, 0.0763, 0.0966, 0.9976}; //0.62
+//
+//        public static double[] none = {0.012, 0.0271, 0.02, 0.9622}; //6
 
-        public static double[] purple = {0.062, 0.0719, 0.0898, 0.9973}; //0.48
-        public static double[] purpleFar = {0.0229, 0.0302, 0.0324, 0.9816}; //1.73
-        public static double[] purpleWeird = {0.0666, 0.0763, 0.0966, 0.9976}; //0.62
 
-        public static double[] none = {0.012, 0.0271, 0.02, 0.9622}; //6
-        public static double[] none2 = {-1, -1, -1, -1}; // unused
+
+        public static double[] red =    {1.852, 1.379, 1, 0.436}; //0
+        public static double[] orange = {2.029, 1.887, 1, 0.459}; //0
+        public static double[] yellow = {1.571, 2.745, 1, 0.783}; //0
+        public static double[] green =  {0.332, 1.245, 1, 0.464}; //0.743
+        public static double[] blue =   {0.169, 0.387, 1, 0.417}; //0
+        public static double[] purple = {0.416, 0.574, 1, 0.486}; //0.48
+
 
 //      with orange tape
 //        public static double[] green = {0.209, 0.4111, 0.1952, 0.9998}; //0.583

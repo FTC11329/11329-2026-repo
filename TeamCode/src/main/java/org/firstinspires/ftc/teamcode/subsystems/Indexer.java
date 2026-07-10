@@ -23,18 +23,19 @@ import org.firstinspires.ftc.teamcode.util.RGBColors;
 import org.firstinspires.ftc.teamcode.util.ShapeDetection;
 import org.firstinspires.ftc.teamcode.util.SmartShootState;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 
 public class Indexer {
 
     ServoImplEx spindexer1;
-    public ServoImplEx spindexer2;
+    ServoImplEx spindexer2;
     DcMotorEx feeder;
     DcMotorEx encoder;
     AnalogInput distanceDigital;
-    AnalogInput distanceAnalog;
-    RevColorSensorV3 colorSensorI2C;
+    public AnalogInput distanceAnalog;
+    public RevColorSensorV3 colorSensorI2C;
 
 
     // index 0 is touching lever
@@ -67,6 +68,8 @@ public class Indexer {
     public boolean autoFastShootEnd = false;
     public boolean turnPluggingOffOnce = false;
     private Pose lastPosition = new Pose(0,0,0);
+    public int flashIndex = 0;
+    ArrayList<double[]> colorReadList;
 
     BallColor[] queuedBalls = new BallColor[]{BallColor.None, BallColor.None, BallColor.None};
 
@@ -75,6 +78,8 @@ public class Indexer {
     }
 
     public Indexer(HardwareMap hardwareMap, BallColor[] ballCells, double startIndexerPos) {
+        colorReadList = new ArrayList<>();
+
         encoder = hardwareMap.get(DcMotorEx.class, "intake");
         encoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         encoder.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -170,9 +175,9 @@ public class Indexer {
         return distanceSlow() < Constants.Color.i2cDist;
     }
 
-    public BallColor getColorSlow(){
-        return ColorFunctions.toColor(colorSensorI2C.getNormalizedColors(), colorSensorI2C.getDistance(DistanceUnit.INCH));
-    }
+//    public BallColor getColorSlow(){
+//        return ColorFunctions.toColor(colorSensorI2C.getNormalizedColors(), colorSensorI2C.getDistance(DistanceUnit.INCH));
+//    }
 
     boolean fastDistanceThisBall = false;
 
@@ -217,9 +222,59 @@ public class Indexer {
         }
     }
 
-        public boolean isHasBallsFull() {
+    public BallColor getColorSlow() {
+        if (distanceAnalog.getVoltage() > 1.15) {
+            if (colorSensorI2C.getDistance(DistanceUnit.INCH) < Constants.Color.backDst) {
+                addReadEntry(colorSensorI2C.getNormalizedColors());
+            }
+
+            if (colorReadList.size() > 5) {
+                BallColor color = ColorFunctions.toColor(normalizeList(), colorSensorI2C.getDistance(DistanceUnit.INCH));
+                if (!(color == BallColor.Red || color == BallColor.Purple) || colorReadList.size() > 30) {
+                    colorReadList.clear();
+                    return color;
+                } else {
+                    return BallColor.None;
+                }
+            } else {
+                return BallColor.None;
+            }
+
+        } else {
+            return BallColor.None;
+        }
+    }
+
+    public void addReadEntry(NormalizedRGBA rgba) {
+        colorReadList.add(new double[]{rgba.red / rgba.blue, rgba.green / rgba.blue, rgba.blue / rgba.blue, rgba.alpha});
+    }
+    public double[] normalizeList() {
+        double rTot = 0;
+        double gTot = 0;
+        double bTot = 0;
+        double aTot = 0;
+        for (double[] rgba : colorReadList) {
+            rTot += rgba[0];
+            gTot += rgba[1];
+            bTot += rgba[2];
+            aTot += rgba[3];
+        }
+        double red   = rTot / colorReadList.size();
+        double green = gTot / colorReadList.size();
+        double blue  = bTot / colorReadList.size();
+        double alpha = aTot / colorReadList.size();
+
+        return new double[]{red, green, blue, alpha};
+    }
+
+
+    public boolean flashRed() {
+        flashIndex --;
+        return flashIndex > 1;
+    }
+    public boolean isHasBallsFull() {
         for (BallColor color : ballCells) {
-            if (color == BallColor.None) {
+       if (color == BallColor.None) {
                 return false;
             }
         }
@@ -315,6 +370,7 @@ public class Indexer {
             emptyQueue();
             setFeederPower(0);
             turnPluggingOffOnce = true;
+            colorReadList.clear();
             setIndexerPos(IndexerEnums.intake0);
         }
     }
@@ -378,7 +434,7 @@ public class Indexer {
 
 
     // returns the location of any color if the correct is not found
-    // else returns 2
+    // else removes the qudded ball and flashes red
     public int findIndexWithColor(BallColor color) {
         // searches in a special order
         int[] searchOrder;
@@ -406,11 +462,8 @@ public class Indexer {
                 return i;
             }
         }
-        if (color != BallColor.Any) {
-            return findIndexWithColor(BallColor.Any);
-        } else {
-            return 2;
-        }
+        removeFrontQueue();
+        return -1;
     }
 
     public void unjam() {
@@ -547,7 +600,7 @@ public class Indexer {
 
             BallColor curColor;
             if (doSmartShoot) {
-                curColor = getColorOptimized();
+                curColor = getColorSlow();
             } else {
                 curColor = getColorFast();
             }
@@ -647,8 +700,14 @@ public class Indexer {
                     shooting = false;
                     smartShootState = SmartShootState.IDLE;
                 } else {
-                    setIndexerPos(IndexerEnums.getEnum(findIndexWithColor(queuedBalls[0]), true));
-                    smartShootState = SmartShootState.SHOOT;
+                    int foundBallCell = findIndexWithColor(queuedBalls[0]);
+                    if (foundBallCell != -1) {
+                        setIndexerPos(IndexerEnums.getEnum(foundBallCell, true));
+                        smartShootState = SmartShootState.SHOOT;
+                    } else {
+                        smartShootState = SmartShootState.IDLE;
+                        flashIndex = 10;
+                    }
                 }
                 break;
             case SHOOT:
