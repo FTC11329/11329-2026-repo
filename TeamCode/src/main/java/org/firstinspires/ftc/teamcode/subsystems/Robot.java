@@ -12,6 +12,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.modularAutos.Common;
+import org.firstinspires.ftc.teamcode.modularAutos.CommonCRI;
 import org.firstinspires.ftc.teamcode.pedroPathing.Drawing;
 import org.firstinspires.ftc.teamcode.pedroPathing.control.KalmanFilter;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
@@ -90,6 +91,7 @@ public class Robot {
         follower = org.firstinspires.ftc.teamcode.pedroPathing.Constants.createFollower(hardwareMap);
         Drawing.init();
         Common.init(robotSide);
+        CommonCRI.init(robotSide);
         this.telemetry = telemetry;
         this.robotSide = robotSide;
         panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();

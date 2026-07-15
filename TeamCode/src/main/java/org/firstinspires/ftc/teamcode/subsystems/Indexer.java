@@ -156,6 +156,7 @@ public class Indexer {
     public void reZeroIndexer() {
         encoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         encoder.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        indexerPlug = false;
         encoderOffsetFromAuto = .833;
     }
 
@@ -228,9 +229,9 @@ public class Indexer {
                 addReadEntry(colorSensorI2C.getNormalizedColors());
             }
 
-            if (colorReadList.size() > 5) {
+            if (colorReadList.size() > 4) {
                 BallColor color = ColorFunctions.toColor(normalizeList(), colorSensorI2C.getDistance(DistanceUnit.INCH));
-                if (!(color == BallColor.Red || color == BallColor.Purple) || colorReadList.size() > 30) {
+                if (!(color == BallColor.Red || color == BallColor.Purple || color == BallColor.Green) || colorReadList.size() > 12) {
                     colorReadList.clear();
                     return color;
                 } else {

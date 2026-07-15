@@ -51,7 +51,7 @@ public class MainTeleop {
     FancyButton climb;
     FancyButton reZeroIndexer;
     FancyButton cycleCycler;
-    FancyButton useCycleCycler;
+    FancyButton swapGoal;
 
     FancyButton manualTurretStart;
     FancyButton reCheckColors;
@@ -124,7 +124,7 @@ public class MainTeleop {
         movePoseLeft = new FancyButton(FancyButton.PressType.LongPress);
         movePoseRight = new FancyButton(FancyButton.PressType.LongPress);
         cycleCycler = new FancyButton(FancyButton.PressType.Toggle);
-        useCycleCycler = new FancyButton(FancyButton.PressType.Toggle);
+        swapGoal = new FancyButton(FancyButton.PressType.Toggle);
         reCheckColors = new FancyButton(FancyButton.PressType.LongPress);
 
         manualTurretStart = new FancyButton(FancyButton.PressType.Toggle);
@@ -186,7 +186,7 @@ public class MainTeleop {
         queueBlue.checkStatus  (gamepad2.cross && gamepad1.right_bumper && smartShoot.isOn);
         queuePurple.checkStatus(gamepad2.square && gamepad1.right_bumper && smartShoot.isOn);
 
-        autoShoot.checkStatus(gamepad2.a && !smartShoot.isOn); // Toggle to turn on auto shoot
+        autoShoot.checkStatus((gamepad2.a && !smartShoot.isOn) || gamepad2.touchpad); // Toggle to turn on auto shoot
         fastShootButton.checkStatus((gamepad2.b || gamepad1.b) && !smartShoot.isOn); // press to shoot 3
         smartShoot.checkStatus(gamepad2.back); // Toggle to turn on smart shoot
 
@@ -207,7 +207,7 @@ public class MainTeleop {
         climb.checkStatus(gamepad1.back);
 //        cycleCycler.checkStatus(robot.indexer.isHasBallsEmpty());
         reCheckColors.checkStatus(((gamepad2.circle && !smartShoot.isOn) || gamepad1.circle/* || smartShoot.startPress*/) && smartShoot.isOn);
-        useCycleCycler.checkStatus(gamepad1.dpad_left);
+        swapGoal.checkStatus(gamepad1.dpad_left || (swapGoal.isOn && smartShoot.endPress));
 
         if (brake.endPress) {
             brakeAllowSotfIsOn = false;
@@ -278,7 +278,7 @@ public class MainTeleop {
         }
 
         if (autoShoot.isOn && !climb.isOn) {
-            robot.prepareShooter(ShotType.TABLE, (!brake.isOn || brakeAllowSotfIsOn) && sotfIsOn, useCycleCycler.isOn, smartShoot.isOn);
+            robot.prepareShooter(ShotType.TABLE, (!brake.isOn || brakeAllowSotfIsOn) && sotfIsOn, swapGoal.isOn, smartShoot.isOn);
         } else if (autoShoot.endPress || climb.startPress) {
             robot.casualShooterModeOn();
         }

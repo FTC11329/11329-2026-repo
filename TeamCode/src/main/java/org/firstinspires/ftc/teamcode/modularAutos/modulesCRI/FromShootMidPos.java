@@ -1,0 +1,1006 @@
+package org.firstinspires.ftc.teamcode.modularAutos.modulesCRI;
+
+import static org.firstinspires.ftc.teamcode.modularAutos.CommonCRI.*;
+
+import androidx.annotation.NonNull;
+
+import org.firstinspires.ftc.teamcode.modularAutos.PathPlanner;
+import org.firstinspires.ftc.teamcode.pedroPathing.geometry.BezierCurve;
+import org.firstinspires.ftc.teamcode.pedroPathing.geometry.BezierLine;
+import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
+import org.firstinspires.ftc.teamcode.pedroPathing.paths.Path;
+import org.firstinspires.ftc.teamcode.pedroPathing.paths.PathBuilder;
+import org.firstinspires.ftc.teamcode.pedroPathing.paths.PathChain;
+import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
+import org.firstinspires.ftc.teamcode.subsystems.Robot;
+
+public class FromShootMidPos {
+    /// TIMES 6.82 -3.64
+    public static class ToIntakeSpike1 implements PathPlanner {
+        /// intakes 3 from the close spike mark
+        /// then goes back and shoots them
+        // Variables
+        Pose offset = new Pose();
+        private Timer pathTimer;
+        private int state = 0;
+        private boolean isFinished = false;
+
+        // Pass-through Variables
+        private volatile Robot robot;
+        private Pose startPose;
+        private boolean lever;
+        private boolean sort;
+        private boolean parkAfter;
+        Pose lastPose;
+
+        public ToIntakeSpike1(Robot robot, PathPlanner prevPlanner, boolean sort, boolean parkAfter, boolean lever) {
+            pathTimer = new Timer();
+            this.robot = robot;
+            this.lever = lever;
+            this.sort = sort;
+            this.parkAfter = parkAfter;
+            lastPose = parkAfter ? ShootPoses.parkShoot : ShootPoses.midShoot;
+            if (!prevPlanner.hasComms()) {
+                startPose = getOptimalStartPose();
+            } else {
+                startPose = prevPlanner.getEndPoseEst();
+            }
+        }
+
+        @Override
+        public boolean hasComms() {
+            return true;
+        }
+
+        @Override
+        public void setOptimalEndPose(Pose optimalEndPose) {
+            lastPose = optimalEndPose;
+        }
+
+        @Override
+        public Pose getOptimalStartPose() {
+            return ShootPoses.optimalSpike1Start;
+        }
+
+        //Path initialization
+        PathBuilder pathChainBuilder;
+        PathChain pathChain;
+        Path toShootPose;
+        @Override
+        public void buildPaths() {
+            // Path creation
+            pathChainBuilder = robot.follower.pathBuilder()
+                    .addPath(new BezierCurve(startPose, IntakeBallPoses.intakeSpike1ControlPoint, IntakeBallPoses.intakeSpike1Start))
+                    .setFastHeadingInterpolation(TValues.fastInterpolationIntakeStart)
+                    .addPath(robot.follower.linearPathBuilder(IntakeBallPoses.intakeSpike1Start, IntakeBallPoses.intakeSpike1End));
+
+            if (lever) {
+                pathChainBuilder.addPath(robot.follower.linearPathBuilder(IntakeBallPoses.intakeSpike1Start, IntakeBallPoses.pushLever));
+                toShootPose = new Path(new BezierCurve(IntakeBallPoses.pushLeverAfterSpike1, IntakeBallPoses.intakeSpike1ControlPoint, lastPose));
+                toShootPose.setFastHeadingInterpolation(TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootEnd, true);
+            } else {
+                toShootPose = new Path(new BezierLine(IntakeBallPoses.intakeSpike1End, lastPose));
+                toShootPose.setFastHeadingInterpolation(TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootEnd, true);
+            }
+            pathChain = pathChainBuilder.build();
+            toShootPose.setFastHeadingInterpolation(TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootEnd, true);
+        }
+
+        @Override
+        public boolean useSOTF() {
+            return parkAfter && !sort;
+        }
+
+        @Override
+        public Pose getEndPoseEst() {
+            return lastPose;
+        }
+
+        @Override
+        public boolean run() {
+            switch (state) {
+                case 0:
+                    robot.follower.followPath(pathChain);
+                    if (sort) {
+                        robot.doSmartShoot(true);
+                    }
+                    setPathState(1);
+                    break;
+                case 1:
+                    if (!robot.follower.isBusy() || robot.basicallyHas3() || robot.indexer.isHasBallsFull() || Math.abs(robot.getCurrentPose().getY()) > Timings.notSpike1HightOut) {
+                        if (!lever) {
+                            robot.follower.followPath(toShootPose);
+                        }
+                        setPathState(2);
+                    }
+                    break;
+                case 2:
+                    if (robot.indexer.isHasBallsFull() || robot.basicallyHas3() || pathTimer.getElapsedTimeSeconds() > Timings.spikeIntakeTimeOut) {
+                        setPathState(3);
+                    }
+                    break;
+                case 3:
+                    // time pushing the lever
+                    if (!lever || pathTimer.getElapsedTimeSeconds() > Timings.shortLeverPressTime) {
+                        if (lever) {
+                            robot.follower.followPath(toShootPose);
+                        }
+                        setPathState(4);
+                    }
+                case 4:
+                    if ((robot.inShootingZone() || !robot.follower.isBusy()) && (parkAfter || robot.movingSlowEnoughToShoot(true))) {
+                        if (parkAfter && !sort) {
+                            robot.follower.setMaxPower(DrivePower.shootOnThFly);
+                        }
+                        if (sort && !robot.follower.isBusy()) {
+                            robot.indexer.setQueueGivenAttemptedRampOrder(robot.getMotif());
+                            setPathState(5);
+                        } else if (!sort) {
+                            robot.indexer.shootAll();
+                            setPathState(5);
+                        }
+                    }
+                    break;
+                case 5:
+                    if (!robot.isIndexerUnjamming() && (robot.indexer.isHasBallsEmpty())  || (sort && robot.indexer.isQueuedBallsEmpty())) {
+//                        robot.setShootFromPose(null);
+                        robot.follower.setMaxPower(1);
+                        robot.doSmartShoot(false);
+                        isFinished = true;
+                    }
+                    if (pathTimer.getElapsedTimeSeconds() > (!sort ? Timings.unjamTimeOut : Timings.unjamTimeOutSort)) {
+                        robot.indexerUnjam();
+                    }
+            }
+
+            return isFinished;
+        }
+
+        private void setPathState(int state) {
+            this.state = state;
+            pathTimer.resetTimer();
+        }
+
+        @NonNull
+        @Override
+        public String toString() {
+            return "From shoot mid to intake spike 1, state: " + state;
+        }
+    }
+    /// TIMES 10.39-6.82
+    public static class ToIntakeSpike2 implements PathPlanner {
+        /// intakes 3 from the second spike mark
+        /// then goes back and shoots them
+
+        Pose offset = new Pose();
+        // Variables
+        private Timer pathTimer;
+        private int state = 0;
+        private boolean isFinished = false;
+
+        // Pass-through Variables
+        private volatile Robot robot;
+        private Pose startPose;
+        private boolean lever;
+        private boolean sort;
+        private boolean parkAfter;
+        Pose lastPose;
+
+        public ToIntakeSpike2(Robot robot, PathPlanner prevPlanner, boolean sort, boolean parkAfter, boolean lever) {
+            pathTimer = new Timer();
+            this.robot = robot;
+            this.lever = lever;
+            this.sort = sort;
+            this.parkAfter = parkAfter;
+            lastPose = parkAfter ? ShootPoses.parkShoot : ShootPoses.midShoot;
+            if (!prevPlanner.hasComms()) {
+                startPose = getOptimalStartPose();
+            } else {
+                startPose = prevPlanner.getEndPoseEst();
+            }
+        }
+
+        @Override
+        public boolean hasComms() {
+            return true;
+        }
+
+        @Override
+        public void setOptimalEndPose(Pose optimalEndPose) {
+            lastPose = optimalEndPose;
+        }
+
+        @Override
+        public Pose getOptimalStartPose() {
+            return ShootPoses.optimalSpike2Start;
+        }
+
+        //Path initialization
+        PathBuilder pathChainBuilder;
+        PathChain pathChain;
+        Path toShootPose;
+        @Override
+        public void buildPaths() {
+            // Path creation
+            pathChainBuilder = robot.follower.pathBuilder()
+                    .addPath(new BezierCurve(startPose, IntakeBallPoses.intakeSpike2ControlPoint, IntakeBallPoses.intakeSpike2Start))
+                    .setConstantHeadingInterpolation(startPose);
+            if (lever) {
+                pathChainBuilder.addPath(robot.follower.linearPathBuilder(IntakeBallPoses.intakeSpike2End, IntakeBallPoses.pushLeverAfterSpike1));
+            } else {
+                pathChainBuilder.addPath(robot.follower.linearPathBuilder(IntakeBallPoses.intakeSpike2Start, IntakeBallPoses.intakeSpike2End));
+            }
+            toShootPose = new Path(new BezierCurve(IntakeBallPoses.intakeSpike2End, IntakeBallPoses.intakeSpike2ControlPoint, lastPose));
+            toShootPose.setFastHeadingInterpolation(TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootEnd, true);
+            pathChain = pathChainBuilder.build();
+            toShootPose.setFastHeadingInterpolation(TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootEnd, true);
+        }
+
+        @Override
+        public boolean useSOTF() {
+            return parkAfter && !sort;
+        }
+
+        @Override
+        public Pose getEndPoseEst() {
+            return lastPose;
+        }
+
+        @Override
+        public boolean run() {
+            switch (state) {
+                case 0:
+                    robot.follower.followPath(pathChain);
+                    if (sort) {
+                        robot.doSmartShoot(true);
+                    }
+                    setPathState(1);
+                    break;
+                case 1:
+                    if (!robot.follower.isBusy() || robot.basicallyHas3() || robot.indexer.isHasBallsFull() || Math.abs(robot.getCurrentPose().getY()) > Timings.notSpike1HightOut) {
+                        if (!lever) {
+                            robot.follower.followPath(toShootPose);
+                        }
+                        setPathState(2);
+                    }
+                    break;
+                case 2:
+                    if (robot.indexer.isHasBallsFull() || robot.basicallyHas3() || pathTimer.getElapsedTimeSeconds() > Timings.spikeIntakeTimeOut) {
+                        setPathState(3);
+                    }
+                    break;
+                case 3:
+                    // time pushing the lever
+                    if (!lever || pathTimer.getElapsedTimeSeconds() > Timings.shortLeverPressTime) {
+                        if (lever) {
+                            robot.follower.followPath(toShootPose);
+                        }
+                        setPathState(4);
+                    }
+                    break;
+                case 4:
+                    if ((robot.inShootingZone() || !robot.follower.isBusy()) && (parkAfter || robot.movingSlowEnoughToShoot(true))) {
+                        if (parkAfter && !sort) {
+                            robot.follower.setMaxPower(DrivePower.shootOnThFly);
+                        }
+                        if (sort && !robot.follower.isBusy()) {
+                            robot.indexer.setQueueGivenAttemptedRampOrder(robot.getMotif());
+                            setPathState(5);
+                        } else if (!sort) {
+                            robot.indexer.shootAll();
+                            setPathState(5);
+                        }
+                    }
+                    break;
+                case 5:
+                    if (!robot.isIndexerUnjamming() && (robot.indexer.isHasBallsEmpty())  || (sort && robot.indexer.isQueuedBallsEmpty())) {
+//                        robot.setShootFromPose(null);
+                        robot.follower.setMaxPower(1);
+                        robot.doSmartShoot(false);
+                        isFinished = true;
+                    }
+                    if (pathTimer.getElapsedTimeSeconds() > (!sort ? Timings.unjamTimeOut : Timings.unjamTimeOutSort)) {
+                        robot.indexerUnjam();
+                    }
+            }
+
+            return isFinished;
+        }
+
+        private void setPathState(int state) {
+            this.state = state;
+            pathTimer.resetTimer();
+        }
+
+        @NonNull
+        @Override
+        public String toString() {
+            return "From shoot mid to intake spike 2, state: " + state;
+        }
+    }
+    /// TIMES 14.36 - 10.39
+    public static class ToIntakeSpike3 implements PathPlanner {
+        /// intakes 3 from the second spike mark
+        /// then goes back and shoots them
+
+        Pose offset = new Pose();
+        // Variables
+        private Timer pathTimer;
+        private int state = 0;
+        private boolean isFinished = false;
+
+        // Pass-through Variables
+        private volatile Robot robot;
+        private Pose startPose;
+        private boolean sort;
+        private boolean parkAfter;
+        Pose lastPose;
+        public ToIntakeSpike3(Robot robot, PathPlanner prevPlanner, boolean sort, boolean parkAfter) {
+            pathTimer = new Timer();
+            this.robot = robot;
+            this.sort = sort;
+            this.parkAfter = parkAfter;
+            lastPose = parkAfter ? ShootPoses.parkShoot : ShootPoses.midShoot;
+            if (!prevPlanner.hasComms()) {
+                startPose = getOptimalStartPose();
+            } else {
+                startPose = prevPlanner.getEndPoseEst();
+            }
+        }
+
+        @Override
+        public boolean hasComms() {
+            return true;
+        }
+
+        @Override
+        public void setOptimalEndPose(Pose optimalEndPose) {
+            lastPose = optimalEndPose;
+        }
+
+        @Override
+        public Pose getOptimalStartPose() {
+            return ShootPoses.optimalSpike3Start;
+        }
+
+        //Path initialization
+        PathChain pathChain;
+        Path toShootPose;
+        @Override
+        public void buildPaths() {
+            // Path creation
+            pathChain = robot.follower.pathBuilder()
+                    .addPath(new BezierCurve(startPose, IntakeBallPoses.intakeSpike3ControlPoint, IntakeBallPoses.intakeSpike3StartClose))
+                    .setFastHeadingInterpolation(TValues.fastInterpolationIntakeStart)
+                    .addPath(robot.follower.linearPathBuilder(IntakeBallPoses.intakeSpike3StartClose, IntakeBallPoses.intakeSpike3End))
+                    .build();
+            toShootPose = robot.follower.fastPathBuilder(IntakeBallPoses.intakeSpike3End, lastPose, TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootEnd, true);
+            toShootPose.setFastHeadingInterpolation(TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootEnd, true);
+
+        }
+
+        @Override
+        public boolean useSOTF() {
+            return parkAfter && !sort;
+        }
+
+        @Override
+        public Pose getEndPoseEst() {
+            return lastPose;
+        }
+
+        @Override
+        public boolean run() {
+            switch (state) {
+                case 0:
+                    if (!parkAfter) {
+//                        robot.setShootFromPose(lastPose);
+                    }
+                    if (sort) {
+                        robot.doSmartShoot(true);
+                    }
+                    robot.follower.followPath(pathChain);
+                    setPathState(1);
+                    break;
+                case 1:
+                    if (!robot.follower.isBusy() || robot.basicallyHas3() || robot.indexer.isHasBallsFull() || Math.abs(robot.getCurrentPose().getY()) > Timings.notSpike1HightOut) {
+                        robot.follower.followPath(toShootPose);
+                        setPathState(2);
+                    }
+                    break;
+                case 2:
+                    if (robot.indexer.isHasBallsFull() || robot.basicallyHas3() || pathTimer.getElapsedTimeSeconds() > Timings.spikeIntakeTimeOut) {
+                        setPathState(3);
+                    }
+                    break;
+                case 3:
+                    if ((robot.inShootingZone() || !robot.follower.isBusy()) && (parkAfter || robot.movingSlowEnoughToShoot(true))) {
+                        if (parkAfter && !sort) {
+                            robot.follower.setMaxPower(DrivePower.shootOnThFly);
+                        }
+                        if (sort && !robot.follower.isBusy()) {
+                            robot.indexer.setQueueGivenAttemptedRampOrder(robot.getMotif());
+                            setPathState(4);
+                        } else if (!sort) {
+                            robot.indexer.shootAll();
+                            setPathState(4);
+                        }
+                    }
+                    break;
+                case 4:
+                    if (!robot.isIndexerUnjamming() && (robot.indexer.isHasBallsEmpty())  || (sort && robot.indexer.isQueuedBallsEmpty())) {
+                        if (!parkAfter) {
+//                            robot.setShootFromPose(null);
+                        }
+                        robot.follower.setMaxPower(1);
+                        robot.doSmartShoot(false);
+                        isFinished = true;
+                    }
+                    if (pathTimer.getElapsedTimeSeconds() > (!sort ? Timings.unjamTimeOut : Timings.unjamTimeOutSort)) {
+                        robot.indexerUnjam();
+                    }
+            }
+            return isFinished;
+        }
+
+        private void setPathState(int state) {
+            this.state = state;
+            pathTimer.resetTimer();
+        }
+
+        @NonNull
+        @Override
+        public String toString() {
+            return "From shoot mid to intake spike 3, state: " + state;
+        }
+    }
+    public static class ToIntakeSpike3ToFar implements PathPlanner {
+        /// intakes 3 from the second spike mark
+        /// then goes to far and shoots them
+
+        Pose offset = new Pose();
+        // Variables
+        private Timer pathTimer;
+        private int state = 0;
+        private boolean isFinished = false;
+
+        // Pass-through Variables
+        private volatile Robot robot;
+        private Pose startPose;
+        private boolean sort;
+        Pose lastPose;
+        public ToIntakeSpike3ToFar(Robot robot, PathPlanner prevPlanner, boolean sort) {
+            pathTimer = new Timer();
+            this.robot = robot;
+            this.sort = sort;
+            lastPose = ShootPoses.farShoot;
+            if (!prevPlanner.hasComms()) {
+                startPose = getOptimalStartPose();
+            } else {
+                startPose = prevPlanner.getEndPoseEst();
+            }
+        }
+
+        //Path initialization
+        PathChain pathChain;
+        Path toShootPose;
+        @Override
+        public void buildPaths() {
+            // Path creation
+            pathChain = robot.follower.pathBuilder()
+                    .addPath(new BezierCurve(startPose, IntakeBallPoses.intakeSpike3ControlPoint, IntakeBallPoses.intakeSpike3StartClose))
+                    .setFastHeadingInterpolation(TValues.fastInterpolationIntakeStart)
+                    .addPath(robot.follower.linearPathBuilder(IntakeBallPoses.intakeSpike3StartClose, IntakeBallPoses.intakeSpike3End))
+                    .build();
+            toShootPose = robot.follower.linearPathBuilder(IntakeBallPoses.intakeSpike3End, lastPose);
+            toShootPose.setFastHeadingInterpolation(TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootEnd, true);
+        }
+
+        @Override
+        public boolean hasComms() {
+            return true;
+        }
+
+        @Override
+        public void setOptimalEndPose(Pose optimalEndPose) {
+            lastPose = optimalEndPose;
+        }
+
+        @Override
+        public Pose getOptimalStartPose() {
+            return ShootPoses.optimalSpike3Start;
+        }
+
+        @Override
+        public Pose getEndPoseEst() {
+            return lastPose;
+        }
+
+        @Override
+        public boolean run() {
+            switch (state) {
+                case 0:
+                    robot.follower.followPath(pathChain);
+                    if (sort) {
+                        robot.doSmartShoot(true);
+                    }
+                    setPathState(1);
+                    break;
+                case 1:
+                    if (!robot.follower.isBusy() || robot.basicallyHas3() || robot.indexer.isHasBallsFull() || Math.abs(robot.getCurrentPose().getY()) > Timings.notSpike1HightOut) {
+                        robot.follower.followPath(toShootPose);
+                        setPathState(2);
+                    }
+                    break;
+                case 2:
+                    if (robot.indexer.isHasBallsFull() || robot.basicallyHas3() || pathTimer.getElapsedTimeSeconds() > Timings.spikeIntakeTimeOut) {
+                        setPathState(3);
+                    }
+                    break;
+                case 3:
+                    if ((robot.inShootingZone() || !robot.follower.isBusy()) && robot.movingSlowEnoughToShoot(false)) {
+                        if (sort) {
+                            robot.indexer.setQueueGivenAttemptedRampOrder(robot.getMotif());
+                        } else {
+                            robot.indexer.shootAll();
+                        }
+                        setPathState(4);
+                    }
+                    break;
+                case 4:
+                    if (!robot.isIndexerUnjamming() && (robot.indexer.isHasBallsEmpty())  || (sort && robot.indexer.isQueuedBallsEmpty())) {
+                        robot.follower.setMaxPower(1);
+                        robot.doSmartShoot(false);
+                        isFinished = true;
+                    }
+                    if (pathTimer.getElapsedTimeSeconds() > (!sort ? Timings.unjamTimeOut : Timings.unjamTimeOutSort)) {
+                        robot.indexerUnjam();
+                    }
+            }
+            return isFinished;
+        }
+
+        private void setPathState(int state) {
+            this.state = state;
+            pathTimer.resetTimer();
+        }
+
+        @NonNull
+        @Override
+        public String toString() {
+            return "From shoot mid to intake spike 3, state: " + state;
+        }
+    }
+
+    /// TIMES FAST: 18.75 - 14.36
+    public static class ToIntakeFromRamp implements PathPlanner {
+        /// intakes 3 from the ramp
+        /// then goes back and shoots them
+
+        // Variables
+        Pose offset = new Pose();
+        private Timer pathTimer;
+        private int state = 0;
+        private boolean isFinished = false;
+
+        // Pass-through Variables
+        private volatile Robot robot;
+        private Pose startPose;
+        private boolean sort;
+        private boolean parkAfter;
+        private boolean longLever;
+        double leverTimeOut;
+        double rampTimeOut;
+        Pose lastPose;
+        public ToIntakeFromRamp(Robot robot, PathPlanner prevPlanner, boolean sort, boolean parkAfter, boolean longLever) {
+            pathTimer = new Timer();
+            this.robot = robot;
+            this.sort = sort;
+            this.parkAfter = parkAfter;
+            this.longLever = longLever;
+            if (!prevPlanner.hasComms()) {
+                startPose = getOptimalStartPose();
+            } else {
+                startPose = prevPlanner.getEndPoseEst();
+            }
+
+            leverTimeOut = longLever ? Timings.longLeverPressTime         : Timings.shortLeverPressTime;
+            rampTimeOut =  longLever ? Timings.longSTunnelIntakeTimeOut   : Timings.shortSTunnelIntakeTimeOut;
+            lastPose =     parkAfter ? ShootPoses.parkShoot               : ShootPoses.midShoot;
+        }
+
+        @Override
+        public boolean useSOTF() {
+            return parkAfter && !sort;
+        }
+
+        @Override
+        public boolean hasComms() {
+            return true;
+        }
+
+        @Override
+        public void setOptimalEndPose(Pose optimalEndPose) {
+            lastPose = optimalEndPose;
+        }
+
+        @Override
+        public Pose getOptimalStartPose() {
+            return ShootPoses.optimalRampStart;
+        }
+
+
+        //Path initialization
+        PathChain toLever;
+        PathChain toIntake;
+        PathBuilder toShootBuilder;
+        PathChain toShootPose;
+        PathChain leverAfter;
+        @Override
+        public void buildPaths() {
+            // Path creation
+            toLever = robot.follower.pathBuilder()
+                    .addPath(new BezierCurve(startPose, IntakeBallPoses.movingToPushLeverControlPoint, IntakeBallPoses.pushLever))
+                    .setFastHeadingInterpolation(TValues.fastInterpolationLeverStart, TValues.fastInterpolationLeverEnd)
+                    .build();
+
+            toIntake = robot.follower.linearPathChainBuilder(IntakeBallPoses.pushLever, IntakeBallPoses.intakeFromSTunnel);
+
+            toShootBuilder = robot.follower.pathBuilder();
+            if (sort) {
+                leverAfter = robot.follower.linearPathChainBuilder(IntakeBallPoses.pushLever, IntakeBallPoses.pushLeverAfterSpike1);
+                toShootBuilder.addPath(robot.follower.fastPathBuilder(IntakeBallPoses.pushLeverAfterSpike1, lastPose, TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootEnd, true));
+            } else {
+                toShootBuilder.addPath(new BezierCurve(IntakeBallPoses.intakeFromSTunnel, IntakeBallPoses.movingToPushLeverControlPoint, lastPose));
+            }
+            toShootBuilder.setFastHeadingInterpolation(TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootEnd - 0.05, true);
+
+            toShootPose = toShootBuilder.build();
+        }
+
+        @Override
+        public Pose getEndPoseEst() {
+            return lastPose;
+        }
+
+        @Override
+        public boolean run() {
+            switch (state) {
+                case 0:
+                    if (!parkAfter) {
+//                        robot.setShootFromPose(lastPose);
+                    }
+                    if (sort) {
+                        robot.doSmartShoot(true);
+                    }
+                    robot.follower.followPath(toLever);
+                    setPathState(1);
+                    break;
+                case 1:
+                    if (!robot.follower.isBusy()) {
+                        setPathState(2);
+                    }
+                    break;
+                case 2:
+                    if (robot.indexer.isHasBallsFull() || robot.basicallyHas3() || pathTimer.getElapsedTimeSeconds() > leverTimeOut) {
+                        robot.follower.followPath(toIntake);
+                        setPathState(3);
+                    }
+                    break;
+                case 3:
+                    if (sort) {
+                        robot.follower.followPath(leverAfter);
+                        setPathState(4);
+                    } else {
+                        setPathState(4);
+                    }
+                    break;
+                case 4:
+                    if (!sort && (robot.basicallyHas3() ||  pathTimer.getElapsedTimeSeconds() > rampTimeOut)) {
+                        robot.follower.followPath(toShootPose);
+                        setPathState(5);
+                    }
+                    if (sort && pathTimer.getElapsedTimeSeconds() > 1) {
+                        robot.follower.followPath(toShootPose);
+                        setPathState(5);
+
+                    }
+                    break;
+                case 5:
+                    if ((robot.inShootingZone() || !robot.follower.isBusy()) && (parkAfter || robot.movingSlowEnoughToShoot(true))) {
+                        if (parkAfter && !sort) {
+                            robot.follower.setMaxPower(DrivePower.shootOnThFly);
+                        }
+                        if (sort && !robot.follower.isBusy()) {
+                            robot.indexer.setQueueGivenAttemptedRampOrder(robot.getMotif());
+                            setPathState(6);
+                        } else if (!sort) {
+                            robot.indexer.shootAll();
+                            setPathState(6);
+                        }
+                    }
+                    break;
+                case 6://       if robot shoot all balls v                                                                                                              if timeout v
+                    if (!robot.isIndexerUnjamming() && (robot.indexer.isHasBallsEmpty())  || (sort && robot.indexer.isQueuedBallsEmpty())) {
+                        robot.follower.setMaxPower(1);
+                        robot.doSmartShoot(false);
+//                        robot.setShootFromPose(null);
+                        isFinished = true;
+                    }
+                    if (pathTimer.getElapsedTimeSeconds() > (!sort ? Timings.unjamTimeOut : Timings.unjamTimeOutSort)) {
+                        robot.indexerUnjam();
+                    }
+            }
+
+            return isFinished;
+        }
+
+        private void setPathState(int state) {
+            this.state = state;
+            pathTimer.resetTimer();
+        }
+
+        @NonNull
+        @Override
+        public String toString() {
+            return "From shoot mid to intake ramp, state: " + state;
+        }
+    }
+
+    public static class ToIntakeHuman implements PathPlanner {
+        /// Intakes from around the human player zone generally
+        // Variables
+        private Timer pathTimer;
+        private int state = 0;
+        private boolean isFinished = false;
+
+        // Pass-through Variables
+        private volatile Robot robot;
+        private Pose startPose;
+        private Pose lastPose;
+        private boolean sort;
+        private boolean parkAfter;
+        public ToIntakeHuman(Robot robot, PathPlanner prevPlanner, boolean sort, boolean parkAfter) {
+            pathTimer = new Timer();
+            this.robot = robot;
+            this.lastPose = parkAfter ? ShootPoses.parkShoot : ShootPoses.midShoot;
+            this.sort = sort;
+            this.parkAfter = parkAfter;
+            if (!prevPlanner.hasComms()) {
+                startPose = getOptimalStartPose();
+            } else {
+                startPose = prevPlanner.getEndPoseEst();
+            }
+        }
+
+        @Override
+        public boolean hasComms() {
+            return true;
+        }
+
+        @Override
+        public void setOptimalEndPose(Pose optimalEndPose) {
+            lastPose = optimalEndPose;
+        }
+
+        @Override
+        public Pose getOptimalStartPose() {
+            return ShootPoses.optimalHumanPlayerStart;
+        }
+
+        @Override
+        public Pose getEndPoseEst() {
+            return lastPose;
+        }
+
+        //Path initialization
+        PathChain toIntakeBalls;
+        PathChain toShootPose;
+
+        @Override
+        public void buildPaths() {
+            toIntakeBalls = robot.follower.pathBuilder()
+                    .addPath(robot.follower.fastPathBuilder(startPose, IntakeBallPoses.intakeHumanDiagonal, TValues.fastInterpolationIntakeStart))
+                    .addPath(robot.follower.linearPathBuilder(IntakeBallPoses.intakeHumanDiagonal, IntakeBallPoses.intakeHumanDiagonalToStrait))
+                    .build();
+            if (parkAfter) {
+                toShootPose = robot.follower.pathBuilder()
+                        .addPath(new BezierLine(IntakeBallPoses.intakeHumanDiagonalToStrait, lastPose))
+                        .setFastHeadingInterpolation(TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootEnd, true)
+                        .build();
+            } else {
+                toShootPose = robot.follower.fastPathChainBuilder(IntakeBallPoses.intakeHumanDiagonalToStrait, lastPose, TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootStart, true);
+            }
+        }
+
+        @Override
+        public boolean run() {
+            switch (state) {
+                case 0:
+                    robot.follower.followPath(toIntakeBalls);
+                    if (sort) {
+                        robot.doSmartShoot(true);
+                    }
+                    setPathState(1);
+                    break;
+                case 1:
+                    if (!robot.follower.isBusy() || robot.basicallyHas3() || robot.indexer.isHasBallsFull() || robot.follower.getVelocity().getMagnitude() < 5 && pathTimer.getElapsedTimeSeconds() > 1) {
+                        setPathState(2);
+                    }
+                    break;
+                case 2:
+                    if (pathTimer.getElapsedTimeSeconds() > 0.25) {
+                        robot.follower.followPath(toShootPose);
+                        setPathState(3);
+                    }
+                    break;
+                case 3:
+                    if ((robot.inShootingZone() || !robot.follower.isBusy()) && (parkAfter || robot.movingSlowEnoughToShoot(true))) {
+                        if (sort) {
+                            robot.indexer.setQueueGivenAttemptedRampOrder(robot.getMotif());
+                        } else {
+                            robot.indexer.shootAll();
+                        }
+                        setPathState(4);
+                    }
+                    break;
+                case 4:
+                    if (pathTimer.getElapsedTimeSeconds() > (!sort ? Timings.unjamTimeOut : Timings.unjamTimeOutSort)) {
+                        robot.indexerUnjam();
+                    }
+                    if ((robot.indexer.isHasBallsEmpty())     || (sort && robot.indexer.isQueuedBallsEmpty())) {
+                        robot.follower.setMaxPower(1);
+                        robot.doSmartShoot(false);
+                        isFinished = true;
+                    }
+            }
+            return isFinished;
+        }
+
+
+
+        private void setPathState(int state) {
+            this.state = state;
+            pathTimer.resetTimer();
+        }
+
+        @NonNull
+        @Override
+        public String toString() {
+            return "To Intake Human, state: " + state;
+        }
+    }
+
+    public static class ToIntakeHumanWVision implements PathPlanner {
+        /// Intakes from around the human player with vision
+        // Variables
+        private Timer pathTimer;
+        private int state = -1;
+        private boolean isFinished = false;
+
+        // Pass-through Variables
+        private volatile Robot robot;
+        private Pose startPose;
+        private Pose lastPose;
+        private boolean sort;
+        private boolean parkAfter;
+        private boolean visionFail;
+        PathPlanner failSafePath;
+        public ToIntakeHumanWVision(Robot robot, PathPlanner prevPlanner, boolean sort, boolean parkAfter) {
+            pathTimer = new Timer();
+            this.robot = robot;
+            this.startPose = prevPlanner.getEndPoseEst();
+            this.lastPose = parkAfter ? ShootPoses.parkShoot : ShootPoses.midShoot;
+            this.sort = sort;
+            this.parkAfter = parkAfter;
+            if (!prevPlanner.hasComms()) {
+                startPose = getOptimalStartPose();
+            } else {
+                startPose = prevPlanner.getEndPoseEst();
+            }
+            failSafePath = new FromShootFarPos.ToIntakeHuman(robot, prevPlanner, sort);
+            failSafePath.buildPaths();
+        }
+
+        @Override
+        public boolean hasComms() {
+            return true;
+        }
+
+        @Override
+        public void setOptimalEndPose(Pose optimalEndPose) {
+            lastPose = optimalEndPose;
+        }
+
+        @Override
+        public Pose getOptimalStartPose() {
+            return ShootPoses.optimalVisionStart;
+        }
+
+        @Override
+        public Pose getEndPoseEst() {
+            return lastPose;
+        }
+
+        //Path initialization
+        PathChain toIntakeBalls;
+        PathChain toShootPose;
+
+        @Override
+        public void buildPaths() {
+            // We create these on the fly during runtime
+        }
+
+        Pose intakeBallPose;
+        @Override
+        public boolean run() {
+            if (visionFail) {
+                return failSafePath.run();
+            }
+            switch (state) {
+                case -1:
+                    setPathState(0);
+                    if (sort) {
+                        robot.doSmartShoot(true);
+                    }
+                    break;
+                case 0:
+                    if (pathTimer.getElapsedTimeSeconds() > 0.5) {
+                        visionFail = true;
+                        robot.follower.breakFollowing();
+                        return false;
+                    }
+
+                    intakeBallPose = robot.getIntakeBallPoseFromCam();
+                    if (intakeBallPose != null) {
+                        double dx = intakeBallPose.getX() - startPose.getX();
+                        double dy = intakeBallPose.getY() - startPose.getY();
+                        double headingRadians = Math.atan2(dy, dx);
+
+                        intakeBallPose = intakeBallPose.setHeading(headingRadians);
+                        toIntakeBalls = robot.follower.linearPathChainBuilder(startPose, intakeBallPose);
+                        toIntakeBalls.getPath(0).setTangentHeadingInterpolation();
+                        robot.follower.followPath(toIntakeBalls);
+                        setPathState(1);
+                    }
+                    break;
+                case 1:
+                    if (!robot.follower.isBusy() || pathTimer.getElapsedTimeSeconds() > 3 || robot.indexer.isHasBallsFull() || robot.basicallyHas3() || robot.follower.getVelocity().getMagnitude() < 2 && pathTimer.getElapsedTimeSeconds() > 0.75) {
+                        toShootPose = robot.follower.fastPathChainBuilder(intakeBallPose, lastPose, TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootEnd, true);
+
+                        robot.follower.followPath(toShootPose);
+                    }
+                    break;
+                case 2:
+                    if ((robot.inShootingZone() || !robot.follower.isBusy()) && (parkAfter || robot.movingSlowEnoughToShoot(true))) {
+                        if (sort) {
+                            robot.indexer.setQueueGivenAttemptedRampOrder(robot.getMotif());
+                        } else {
+                            robot.indexer.shootAll();
+                        }
+                        setPathState(5);
+                    }
+                    break;
+                case 3:
+                    if (!robot.isIndexerUnjamming() && (robot.indexer.isHasBallsEmpty())  || (sort && robot.indexer.isQueuedBallsEmpty())) {
+                        isFinished = true;
+                    }
+                    if (pathTimer.getElapsedTimeSeconds() > (!sort ? Timings.unjamTimeOut : Timings.unjamTimeOutSort)) {
+                        robot.indexerUnjam();
+                    }
+            }
+            return isFinished;
+        }
+
+        private void setPathState(int state) {
+            this.state = state;
+            pathTimer.resetTimer();
+        }
+
+        @NonNull
+        @Override
+        public String toString() {
+            return "From Mid Shoot PosTo Intake Human W Vision, state: " + state;
+        }
+    }
+}

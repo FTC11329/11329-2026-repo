@@ -21,12 +21,12 @@ public class ShooterTestValues implements ShooterValuesParent {
         shooterMap.put(121.5, new ShooterState(2870,38, 0.834));
         shooterMap.put(131.5, new ShooterState(3030,39.3,0.922));
         shooterMap.put(141.6, new ShooterState(3100,36.5,0.916));
-        shooterMap.put(151.5, new ShooterState(3240,38,0.956));
-        shooterMap.put(161.5, new ShooterState(3400,38,0.940));
-        shooterMap.put(171.5, new ShooterState(3530,40.5, 0.985));
-        shooterMap.put(181.5, new ShooterState(3610,40.5, 0.998));
-        shooterMap.put(191.5, new ShooterState(3710,41.5, 1.011));
-        shooterMap.put(201.5, new ShooterState(3810,41.5, 1.024));
+        shooterMap.put(151.5, new ShooterState(3240,38,0.924));
+        shooterMap.put(161.5, new ShooterState(3400,38,0.928));
+        shooterMap.put(171.5, new ShooterState(3530,40.5, 0.980));
+        shooterMap.put(181.5, new ShooterState(3610,40.5, 0.993));
+        shooterMap.put(191.5, new ShooterState(3710,41.5, 1.098));
+        shooterMap.put(201.5, new ShooterState(3810,41.5, 1.020));
     }
 
     public ShooterState get(double distance) {
