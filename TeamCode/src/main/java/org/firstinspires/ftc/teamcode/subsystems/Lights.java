@@ -37,8 +37,9 @@ public class Lights {
     Color green = new Color(0, 182, 0);
     Color red = new Color(182, 0, 0 );
     Color blue = new Color(0, 0, 182);
-    Color orange = new Color(0, 0, 182);
-    Color yellow = new Color(0, 0, 182);
+    Color orange = new Color(251, 148, 8);
+    
+    Color yellow = Color.YELLOW;
     PrismAnimations.Pulse[] ballCellsAnimation = new PrismAnimations.Pulse[]{
             cell0, cell1, cell2
     };
