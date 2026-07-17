@@ -202,24 +202,13 @@ public class Vision {
                 }
                 long timePhotoWasTaken = result.getControlHubTimeStampNanos();
                 Pose ballPose = poseEstimation(tx, ty, curPose);
-                if (Math.abs(ballPose.getX()) > 73 || Math.abs(ballPose.getY()) > 73) {
+                if (Math.abs(ballPose.getX()) > 90 || Math.abs(ballPose.getY()) > 90) {
                     continue;
                 }
-                if (limitZone) {
-                    if (farZone) {
-                        if (ballPose.getX() < -24 && ballPose.getX() > -67) {
-                            if (!ShapeDetection.isPoseInsideOfVisionArea(ballPose)) {
-                                detectedBalls.add(new DetectedBall(ballPose, ballColor, timePhotoWasTaken));
-                            }
-                        }
-                    } else {
-                        if (ballPose.getX() > -48) {
-                            detectedBalls.add(new DetectedBall(ballPose, ballColor, timePhotoWasTaken));
-                        }
-                    }
-                } else {
-                    detectedBalls.add(new DetectedBall(ballPose, ballColor, timePhotoWasTaken));
+                if (limitZone && ballPose.getX() > -4) {
+                    continue;
                 }
+                detectedBalls.add(new DetectedBall(ballPose, ballColor, timePhotoWasTaken));
             }
         }
         return detectedBalls;
@@ -329,8 +318,8 @@ public class Vision {
     }
 
     public boolean isInField(Pose pose){
-        boolean inX = pose.getX() < 72 && pose.getX() > -72;
-        boolean inY = pose.getY() < 72 && pose.getY() > -72;
+        boolean inX = pose.getX() < 92 && pose.getX() > -92;
+        boolean inY = pose.getY() < 92 && pose.getY() > -92;
         return inX && inY;
     }
 

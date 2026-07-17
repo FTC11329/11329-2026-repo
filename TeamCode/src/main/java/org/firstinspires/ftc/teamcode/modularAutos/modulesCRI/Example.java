@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.modularAutos.modulesCRI;
 
-import static org.firstinspires.ftc.teamcode.modularAutos.Common.ShootPoses;
+import static org.firstinspires.ftc.teamcode.modularAutos.CommonCRI.*;
 
 import androidx.annotation.NonNull;
 
@@ -40,7 +40,7 @@ public class Example {
 
         @Override
         public Pose getOptimalStartPose() {
-            return ShootPoses.optimalSpike1Start;
+            return ShootPoses.optimalSpike1StartClose;
         }
 
         //Path initialization

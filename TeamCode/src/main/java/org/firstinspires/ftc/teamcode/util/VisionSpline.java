@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.util;
 
+import org.firstinspires.ftc.teamcode.modularAutos.CommonCRI;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.BezierCurve;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.BezierLine;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
@@ -33,21 +34,23 @@ public class VisionSpline {
         poses.add(robotPose);
 
         for (int i = 0; i < STRENGTH; i++) {
-            poses.add(firstBall.plus(new Pose(-1, 0)));
+            poses.add(firstBall.plus(new Pose(-3, 0)));
         }
         
         if (secondBall != null) {
             for (int i = 0; i < STRENGTH; i++) {
-                poses.add(secondBall.plus(new Pose(-1, 0)));
+                poses.add(secondBall.plus(new Pose(-2, 0)));
             }
         }
 
         if (thirdBall != null) {
             for (int i = 0; i < STRENGTH; i++) {
-                poses.add(thirdBall.plus(new Pose(-1, 0)));
+                poses.add(thirdBall.plus(new Pose(-2, 0)));
             }
         }
-        return new Path(new BezierCurve(poses));
+        Path visionPath = new Path(new BezierCurve(poses));
+        visionPath.setConstantHeadingInterpolation(Math.toRadians(CommonCRI.wasLastRed ? -45 : 45));
+        return visionPath;
     }
 
     /**
@@ -62,12 +65,15 @@ public class VisionSpline {
         Pose closest = null;
         double minDistance = Double.MAX_VALUE;
         int closestIndex = -1;
+        double height = target.getX();
 
         for (int i = 0; i < poses.size(); i++) {
             Pose p = poses.get(i).ballPose;
 
             double distance = target.distanceFrom(p);
-
+            if (p.getX() < height) {
+                continue;
+            }
             if (distance < minDistance) {
                 minDistance = distance;
                 closest = p;

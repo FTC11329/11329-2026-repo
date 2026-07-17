@@ -59,7 +59,7 @@ public class FromShootMidPos {
 
         @Override
         public Pose getOptimalStartPose() {
-            return ShootPoses.optimalSpike1Start;
+            return ShootPoses.optimalSpike1StartClose;
         }
 
         //Path initialization
@@ -70,13 +70,13 @@ public class FromShootMidPos {
         public void buildPaths() {
             // Path creation
             pathChainBuilder = robot.follower.pathBuilder()
-                    .addPath(new BezierCurve(startPose, IntakeBallPoses.intakeSpike1ControlPoint, IntakeBallPoses.intakeSpike1Start))
+                    .addPath(new BezierCurve(startPose, IntakeBallPoses.intakeSpike1ControlPointClose, IntakeBallPoses.intakeSpike1Start))
                     .setFastHeadingInterpolation(TValues.fastInterpolationIntakeStart)
                     .addPath(robot.follower.linearPathBuilder(IntakeBallPoses.intakeSpike1Start, IntakeBallPoses.intakeSpike1End));
 
             if (lever) {
                 pathChainBuilder.addPath(robot.follower.linearPathBuilder(IntakeBallPoses.intakeSpike1Start, IntakeBallPoses.pushLever));
-                toShootPose = new Path(new BezierCurve(IntakeBallPoses.pushLeverAfterSpike1, IntakeBallPoses.intakeSpike1ControlPoint, lastPose));
+                toShootPose = new Path(new BezierCurve(IntakeBallPoses.pushLeverAfterSpike1, IntakeBallPoses.intakeSpike1ControlPointClose, lastPose));
                 toShootPose.setFastHeadingInterpolation(TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootEnd, true);
             } else {
                 toShootPose = new Path(new BezierLine(IntakeBallPoses.intakeSpike1End, lastPose));
@@ -212,7 +212,7 @@ public class FromShootMidPos {
 
         @Override
         public Pose getOptimalStartPose() {
-            return ShootPoses.optimalSpike2Start;
+            return ShootPoses.optimalSpike2StartClose;
         }
 
         //Path initialization
@@ -223,14 +223,14 @@ public class FromShootMidPos {
         public void buildPaths() {
             // Path creation
             pathChainBuilder = robot.follower.pathBuilder()
-                    .addPath(new BezierCurve(startPose, IntakeBallPoses.intakeSpike2ControlPoint, IntakeBallPoses.intakeSpike2Start))
+                    .addPath(new BezierCurve(startPose, IntakeBallPoses.intakeSpike2ControlPointClose, IntakeBallPoses.intakeSpike2Start))
                     .setConstantHeadingInterpolation(startPose);
             if (lever) {
                 pathChainBuilder.addPath(robot.follower.linearPathBuilder(IntakeBallPoses.intakeSpike2End, IntakeBallPoses.pushLeverAfterSpike1));
             } else {
                 pathChainBuilder.addPath(robot.follower.linearPathBuilder(IntakeBallPoses.intakeSpike2Start, IntakeBallPoses.intakeSpike2End));
             }
-            toShootPose = new Path(new BezierCurve(IntakeBallPoses.intakeSpike2End, IntakeBallPoses.intakeSpike2ControlPoint, lastPose));
+            toShootPose = new Path(new BezierCurve(IntakeBallPoses.intakeSpike2End, IntakeBallPoses.intakeSpike2ControlPointClose, lastPose));
             toShootPose.setFastHeadingInterpolation(TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootEnd, true);
             pathChain = pathChainBuilder.build();
             toShootPose.setFastHeadingInterpolation(TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootEnd, true);
@@ -360,7 +360,7 @@ public class FromShootMidPos {
 
         @Override
         public Pose getOptimalStartPose() {
-            return ShootPoses.optimalSpike3Start;
+            return ShootPoses.optimalSpike3StartClose;
         }
 
         //Path initialization
@@ -508,7 +508,7 @@ public class FromShootMidPos {
 
         @Override
         public Pose getOptimalStartPose() {
-            return ShootPoses.optimalSpike3Start;
+            return ShootPoses.optimalSpike3StartClose;
         }
 
         @Override
@@ -801,15 +801,15 @@ public class FromShootMidPos {
         public void buildPaths() {
             toIntakeBalls = robot.follower.pathBuilder()
                     .addPath(robot.follower.fastPathBuilder(startPose, IntakeBallPoses.intakeHumanDiagonal, TValues.fastInterpolationIntakeStart))
-                    .addPath(robot.follower.linearPathBuilder(IntakeBallPoses.intakeHumanDiagonal, IntakeBallPoses.intakeHumanDiagonalToStrait))
+                    .addPath(robot.follower.linearPathBuilder(IntakeBallPoses.intakeHumanDiagonal, IntakeBallPoses.intakeHumanStrait))
                     .build();
             if (parkAfter) {
                 toShootPose = robot.follower.pathBuilder()
-                        .addPath(new BezierLine(IntakeBallPoses.intakeHumanDiagonalToStrait, lastPose))
+                        .addPath(new BezierLine(IntakeBallPoses.intakeHumanStrait, lastPose))
                         .setFastHeadingInterpolation(TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootEnd, true)
                         .build();
             } else {
-                toShootPose = robot.follower.fastPathChainBuilder(IntakeBallPoses.intakeHumanDiagonalToStrait, lastPose, TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootStart, true);
+                toShootPose = robot.follower.fastPathChainBuilder(IntakeBallPoses.intakeHumanStrait, lastPose, TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootStart, true);
             }
         }
 
@@ -914,7 +914,7 @@ public class FromShootMidPos {
 
         @Override
         public Pose getOptimalStartPose() {
-            return ShootPoses.optimalVisionStart;
+            return ShootPoses.optimalVisionStartClose;
         }
 
         @Override

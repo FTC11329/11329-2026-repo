@@ -1,11 +1,6 @@
 package org.firstinspires.ftc.teamcode.modularAutos.modulesCRI;
 
-import static org.firstinspires.ftc.teamcode.modularAutos.Common.IntakeBallPoses;
-import static org.firstinspires.ftc.teamcode.modularAutos.Common.ShootPoses;
-import static org.firstinspires.ftc.teamcode.modularAutos.Common.StartPoses;
-import static org.firstinspires.ftc.teamcode.modularAutos.Common.TValues;
-import static org.firstinspires.ftc.teamcode.modularAutos.Common.Timings;
-
+import static org.firstinspires.ftc.teamcode.modularAutos.CommonCRI.*;
 import androidx.annotation.NonNull;
 
 import org.firstinspires.ftc.teamcode.modularAutos.PathPlanner;
@@ -466,7 +461,7 @@ public class FromShootFarPos {
 
         @Override
         public Pose getOptimalStartPose() {
-            return ShootPoses.optimalVisionStartFar;
+            return ShootPoses.optimalVisionStart;
         }
         //Path initialization
         PathChain toIntakeBalls;
@@ -564,8 +559,11 @@ public class FromShootFarPos {
         private boolean sort;
         private boolean visionFail = false;
         PathPlanner failSafePath;
+        public ToIntakeWVisionSpline(Robot robot, PathPlanner prevPlanner, boolean sort, boolean lever) {
+            this(robot, prevPlanner, new ToIntakeSTunnelDumb(robot, prevPlanner, sort, lever), sort);
+        }
         public ToIntakeWVisionSpline(Robot robot, PathPlanner prevPlanner, boolean sort) {
-            this(robot, prevPlanner, new ToIntakeHuman(robot, prevPlanner, sort), sort);
+            this(robot, prevPlanner, new ToIntakeSTunnelDumb(robot, prevPlanner, sort, false), sort);
         }
         public ToIntakeWVisionSpline(Robot robot, PathPlanner prevPlanner, PathPlanner failSafePath, boolean sort) {
             pathTimer = new Timer();
@@ -593,7 +591,7 @@ public class FromShootFarPos {
 
         @Override
         public Pose getOptimalStartPose() {
-            return ShootPoses.optimalVisionStartFar;
+            return ShootPoses.optimalVisionStart;
         }
         //Path initialization
         PathChain toIntakeBalls;
@@ -722,15 +720,11 @@ public class FromShootFarPos {
         @Override
         public void buildPaths() {
             // Path creation
-//            toIntakeHuman = robot.follower.pathBuilder()
-//                    .addPath(robot.follower.fastPathBuilder(startPose, IntakeBallPoses.intakeHumanDiag, TValues.fastInterpolationIntakeStartFar, TValues.fastInterpolationIntakeEndFar))
-//                    .addPath(robot.follower.linearPathBuilder(IntakeBallPoses.intakeHumanDiag,IntakeBallPoses.intakeHuman))
-//                    .build();
             toIntakeHuman = robot.follower.pathBuilder()
-                    .addPath(robot.follower.linearPathBuilder(startPose, IntakeBallPoses.toIntakeHumanStart))
-                    .addPath(robot.follower.fastPathBuilder(IntakeBallPoses.toIntakeHumanStart, IntakeBallPoses.intakeHuman, TValues.fastInterpolationIntakeStartFar, TValues.fastInterpolationIntakeEndFar))
+                    .addPath(robot.follower.fastPathBuilder(startPose, IntakeBallPoses.intakeHumanDiagonal, TValues.fastInterpolationIntakeStartFar, TValues.fastInterpolationIntakeEndFar))
+                    .addPath(robot.follower.linearPathBuilder(IntakeBallPoses.intakeHumanDiagonal,IntakeBallPoses.intakeHumanStrait))
                     .build();
-            toShootPose = robot.follower.fastPathChainBuilder(IntakeBallPoses.intakeHuman, lastPose, TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootStart, true);
+            toShootPose = robot.follower.fastPathChainBuilder(IntakeBallPoses.intakeHumanStrait, lastPose, TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootStart, true);
         }
 
         @Override
@@ -793,12 +787,13 @@ public class FromShootFarPos {
             return "From shoot far to intake spike 3, state: " + state;
         }
     }
-    @Deprecated
-    public static class ToIntakeHumanThenWait implements PathPlanner {
+
+    public static class ToIntakeSTunnelDumb implements PathPlanner {
         /// intakes 3 from the Human Player zone
         /// then goes back and shoots them
 
         Pose offset = new Pose();
+        Pose lowPose;
         // Variables
         private Timer pathTimer;
         private int state = 0;
@@ -809,10 +804,13 @@ public class FromShootFarPos {
         private Pose startPose;
         private Pose lastPose;
         private boolean sort;
-        public ToIntakeHumanThenWait(Robot robot, PathPlanner prevPlanner, boolean sort) {
+        private boolean lever;
+        private boolean once = false;
+        public ToIntakeSTunnelDumb(Robot robot, PathPlanner prevPlanner, boolean sort, boolean lever) {
             pathTimer = new Timer();
             this.robot = robot;
             this.sort = sort;
+            this.lever = lever;
             if (!prevPlanner.hasComms()) {
                 startPose = getOptimalStartPose();
             } else {
@@ -833,23 +831,25 @@ public class FromShootFarPos {
 
         @Override
         public Pose getOptimalStartPose() {
-            return ShootPoses.farShoot;
+            return ShootPoses.optimalVisionStart;
         }
 
         //Path initialization
-        Path toIntakeHuman;
-        PathChain toWaitPose;
-        Path toShootPose;
+        PathBuilder toIntakeSTunnelBuilder;
+        PathChain toShootPose;
+        Path panicPath;
         @Override
         public void buildPaths() {
             // Path creation
-            toIntakeHuman = robot.follower.linearPathBuilder(startPose, IntakeBallPoses.intakeHuman);
-            toWaitPose = robot.follower.pathBuilder()
-                    .addPath(new BezierCurve(IntakeBallPoses.intakeHuman, IntakeBallPoses.intakeSTunnelAfterHumanControl, IntakeBallPoses.intakeSTunnelAfterHuman))
-                    .setLinearHeadingInterpolation(IntakeBallPoses.intakeHuman, IntakeBallPoses.intakeSTunnelAfterHuman)
-                    .build();
-            toShootPose = robot.follower.linearPathBuilder(IntakeBallPoses.intakeSpike3End, lastPose);
-            toShootPose.setBrakingStrength(0.3);
+            if (lever) {
+                toShootPose = robot.follower.pathBuilder()
+                        .addPath(robot.follower.fastPathBuilder(IntakeBallPoses.pushLever, IntakeBallPoses.intakeSTunnelDiagonalEnd, 0.8, 0.9, true))
+                        .addPath(robot.follower.fastPathBuilder(IntakeBallPoses.intakeSTunnelDiagonalEnd, lastPose, TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootStart, true))
+                        .build();
+            } else {
+                toShootPose = robot.follower.fastPathChainBuilder(IntakeBallPoses.intakeSTunnelDiagonalEnd, lastPose, TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootStart, true);
+            }
+            panicPath = robot.follower.fastPathBuilder(IntakeBallPoses.pushLever, ShootPoses.distantShoot, TValues.fastInterpolationPreloadStart, TValues.fastInterpolationPreloadEnd);
         }
 
         @Override
@@ -861,30 +861,53 @@ public class FromShootFarPos {
         public boolean run() {
             switch (state) {
                 case 0:
-                    robot.follower.followPath(toIntakeHuman);
-                    setPathState(1);
-                    if (sort) {
-                        robot.doSmartShoot(true);
+                    double height = robot.getLowestBallHeightFromCam();
+
+                    if (height < -12 || pathTimer.getElapsedTimeSeconds() > 0.5) {
+                        if (height > -12) {
+                            lowPose = IntakeBallPoses.intakeSTunnelDiagonalStart;
+                        } else {
+                            lowPose = new Pose(Math.max(height - 5, -80), IntakeBallPoses.intakeSTunnelDiagonalStart.getY(), IntakeBallPoses.intakeSTunnelDiagonalStart.getHeading());
+                        }
+
+                        toIntakeSTunnelBuilder = robot.follower.pathBuilder()
+                                .addPath(robot.follower.fastPathBuilder(startPose, lowPose, TValues.fastInterpolationIntakeStartFar, TValues.fastInterpolationIntakeEndFar))
+                                .addPath(robot.follower.linearPathBuilder(lowPose, IntakeBallPoses.intakeSTunnelDiagonalEnd));
+                        if (lever) {
+                            toIntakeSTunnelBuilder
+                                    .addPath(robot.follower.linearPathBuilder(IntakeBallPoses.intakeSTunnelDiagonalEnd, IntakeBallPoses.pushLeverFromSTunnel));
+                        }
+
+                        robot.follower.followPath(toIntakeSTunnelBuilder.build());
+                        if (sort) {
+                            robot.doSmartShoot(true);
+                        }
+                        setPathState(1);
                     }
                     break;
                 case 1:
-                    if (robot.indexer.isHasBallsFull() || robot.basicallyHas3() || !robot.follower.isBusy()) {
-                        robot.follower.followPath(toWaitPose);
+                    if (robot.follower.getChainIndex() == 1 || robot.indexer.isHasBallsFull() || robot.basicallyHas3() || !robot.follower.isBusy()) {
+                        robot.follower.setMaxPower(0.9);
                         setPathState(2);
                     }
                     break;
                 case 2:
-                    if (robot.indexer.isHasBallsFull() || robot.basicallyHas3() || robot.getOpmodeTimeSeconds() > Timings.farShootWaitUntil) {
+                    if (robot.indexer.isHasBallsFull() || robot.basicallyHas3() || !robot.follower.isBusy() || robot.follower.getVelocity().getMagnitude() < 1 && pathTimer.getElapsedTimeSeconds() > 0.75) {
+                        robot.follower.setMaxPower(1);
                         robot.follower.followPath(toShootPose);
                         setPathState(3);
                     }
                     break;
                 case 3:
-                    if ((robot.inShootingZone() || !robot.follower.isBusy()) && robot.movingSlowEnoughToShoot(false)) {
+                    if (pathTimer.getElapsedTimeSeconds() > 2.5 && !once) {
+                        robot.follower.followPath(panicPath);
+                        once = true;
+                    }
+                    if (!robot.follower.isBusy()) {
                         if (sort) {
                             robot.indexer.setQueueGivenAttemptedRampOrder(robot.getMotif());
                         } else {
-                            robot.shootAll();
+                            robot.indexer.shootAll();
                         }
                         setPathState(4);
                     }
@@ -894,6 +917,9 @@ public class FromShootFarPos {
                         robot.follower.setMaxPower(1);
                         robot.doSmartShoot(false);
                         isFinished = true;
+                    }
+                    if (pathTimer.getElapsedTimeSeconds() > (!sort ? Timings.unjamTimeOutFar : Timings.unjamTimeOutFarSort)) {
+                        robot.indexerUnjam();
                     }
             }
             return isFinished;

@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.util.RobotSide;
 import org.firstinspires.ftc.teamcode.util.ShootOnTheFly.ShotType;
 
 public class MainTeleop {
-    //This is where we introduce the tele-operated controls
+    //This is where we introduce the teleoperated controls
     Robot robot;
     // PressHolds
     FancyButton brake;

@@ -57,7 +57,7 @@ public class FromStartFarPos {
         @Override
         public void buildPaths() {
             // Path creation
-            toShootPose = robot.follower.linearPathChainBuilder(startPose, lastPose);
+            toShootPose = robot.follower.fastPathChainBuilder(startPose, lastPose, TValues.fastInterpolationPreloadStart, TValues.fastInterpolationPreloadEnd);
         }
 
         @Override

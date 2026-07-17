@@ -188,7 +188,7 @@ public class Robot {
     public void reZeroAtGoal() {
         offsetPose = new Pose();
 //        follower.setPose(goal.minus(new Pose(-48, 0)));
-        follower.setPose(Common.StartPoses.closeOuter);
+        follower.setPose(CommonCRI.StartPoses.closeOuter);
         closeDistanceOffset = 0;
         closeTurretOffset = 0;
         farDistanceOffset = 0;
@@ -275,10 +275,29 @@ public class Robot {
         return null;
     }
 
+    public double getLowestBallHeightFromCam() {
+        if (pipelineIndex != 2) {
+            setPipelineIndex(2);
+        }
+        if (set) {
+            List<Vision.DetectedBall> detectedBalls = vision.searchForBalls(getCurrentPose());
+            double minHeight = 92;
+            for (Vision.DetectedBall ball : detectedBalls) {
+                double thisHeight = ball.ballPose.getX();
+                if (thisHeight < minHeight) {
+                    minHeight = thisHeight;
+                }
+            }
+            return minHeight;
+        }
+        return 92;
+
+    }
+
 
 
     public PathChain getIntakeBallPathFromCam(VisionTypes type) {
-        return getIntakeBallPathFromCam(type, false, false);
+        return getIntakeBallPathFromCam(type, true, true);
     }
     public PathChain getIntakeBallPathFromCam(VisionTypes type, boolean limitZone, boolean farZone) {
         if (pipelineIndex != 2) {
@@ -302,7 +321,7 @@ public class Robot {
                                     .setTangentHeadingInterpolation()
                                     .build();
                         } else {
-                            throw new RuntimeException("PathNull");
+                            return null;
                         }
                     case Predetermined:
                         throw new RuntimeException("Pred 1 error alert");
