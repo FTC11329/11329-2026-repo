@@ -57,7 +57,7 @@ public class Constants {
 
         public static Pose redGoal = new Pose(83, -86);
         public static Pose blueGoal = new Pose(82.5, 78);
-        public static Pose bluePrism = new Pose(85, 12);
+        public static Pose bluePrism = new Pose(80, 15);
         public static Pose redPrism = new Pose(85, -12);
         public static Pose redGoalSort = new Pose(65, -66);
         public static Pose blueGoalSort = new Pose(65.5, 54);
@@ -140,12 +140,12 @@ public class Constants {
 
 
 
-        public static double[] red =    {1.852, 1.379, 1, 0.436}; //0
-        public static double[] orange = {2.029, 1.887, 1, 0.459}; //0
-        public static double[] yellow = {1.571, 2.745, 1, 0.783}; //0
-        public static double[] green =  {0.332, 1.245, 1, 0.464}; //0.743
-        public static double[] blue =   {0.169, 0.387, 1, 0.417}; //0
-        public static double[] purple = {0.416, 0.574, 1, 0.486}; //0.48
+        public static double[] red =    {1.992, 1.719, 1, 0.314}; //0
+        public static double[] orange = {2.278, 2.352, 1, 0.362}; //0
+        public static double[] yellow = {1.776, 3.502, 1, 0.741}; //0
+        public static double[] green =  {0.434, 1.598, 1, 0.266}; //0.743
+        public static double[] blue =   {0.205, 0.511, 1, 0.332}; //0
+        public static double[] purple = {0.497, 0.789, 1, 0.309}; //0.48
 
 
 //      with orange tape

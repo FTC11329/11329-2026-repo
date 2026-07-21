@@ -622,6 +622,11 @@ public class Robot {
 
     public void shootAll() {
         indexer.shootAll();
+        if (!ShapeDetection.isRobotInside(FieldShapes.closeTriangle, follower.getPose())) {
+            if (robotSide == RobotSide.Blue) {
+                shooterTrim(true,  false, false, true, false);
+            }
+        }
     }
     public void spindexerUpdate() {
         boolean readyToShoot = panicShoot ? true : readyToShootMotors();

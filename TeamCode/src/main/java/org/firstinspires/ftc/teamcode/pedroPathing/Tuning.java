@@ -17,6 +17,8 @@ import com.bylazar.field.PanelsField;
 import com.bylazar.field.Style;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
+
+import org.firstinspires.ftc.teamcode.modularAutos.CommonCRI;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.*;
 import org.firstinspires.ftc.teamcode.pedroPathing.math.*;
@@ -134,7 +136,8 @@ public class Tuning extends SelectableOpMode {
 class LocalizationTest extends OpMode {
     @Override
     public void init() {
-        follower.setStartingPose(new Pose(0,0));
+//        follower.setStartingPose(new Pose(0,0));
+        follower.setStartingPose(CommonCRI.StartPoses.closeOuter);
     }
 
     /** This initializes the PoseUpdater, the mecanum drive motors, and the Panels telemetry. */

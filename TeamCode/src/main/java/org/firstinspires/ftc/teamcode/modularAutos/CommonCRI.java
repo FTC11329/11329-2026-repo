@@ -34,7 +34,7 @@ public class CommonCRI {
         public static double unjamTimeOutSort = 2.5;
         public static double unjamTimeOutFarSort = 3;
 
-        public static double spikeIntakeTimeOut = 1.4;
+        public static double spikeIntakeTimeOut = 0.5;
 
         public static double shortLeverPressTime = 0.3;
         public static double longLeverPressTime = 2.5;
@@ -44,7 +44,7 @@ public class CommonCRI {
         public static double humanIntakeTime = 0.5;
         public static double farShootWaitUntil = 23;
 
-        public static double notSpike1HightOut = 85;
+        public static double spikeHightOut = 85;
 
 
     }
@@ -54,6 +54,7 @@ public class CommonCRI {
     }
     public static class StartPoses {
         public static Pose closeInner = new Pose(88.5, 59.8, Math.toRadians(-90)); // this is against the goal and wall, facing the obelisk
+        public static Pose perpPrism = new Pose(80,26, Math.toRadians(125)); // this is against the prism, facing the gate
         public static Pose closeOuter = new Pose(64.55, 77.5, Math.toRadians(90)); // this is up against the goal and secret tunnel
         public static Pose far = new Pose(-83.9,13, Math.toRadians(0));
 
@@ -68,22 +69,22 @@ public class CommonCRI {
         public static Pose intakeSpike1ControlPointClose = new Pose(20.2,40.5, Math.toRadians(90));
         public static Pose intakeSpike1ControlPointFar = new Pose(15.3,31.6, Math.toRadians(90));
         public static Pose intakeSpike1Start = new Pose(11.6,49.7, Math.toRadians(90));
-        public static Pose intakeSpike1End = new Pose(9,84, Math.toRadians(90));
+        public static Pose intakeSpike1End = new Pose(9,87, Math.toRadians(90));
 
-        public static Pose intakeSpike2ControlPointClose = new Pose(0.5,35.5, Math.toRadians(90));
+        public static Pose intakeSpike2ControlPointClose = new Pose(-9.2,28, Math.toRadians(90));
         public static Pose intakeSpike2ControlPointFar = new Pose(-6.9,23.2, Math.toRadians(90));
         public static Pose intakeSpike2Start = new Pose(-5.7,49.7, Math.toRadians(90));
-        public static Pose intakeSpike2End = new Pose(-9.4,84, Math.toRadians(90));
+        public static Pose intakeSpike2End = new Pose(-9.4,87, Math.toRadians(90));
 
         public static Pose intakeSpike3ControlPoint = new Pose(-24.9,36, Math.toRadians(90));
         public static Pose intakeSpike3StartClose = new Pose(-29.6,49.7, Math.toRadians(90));
         public static Pose intakeSpike3StartFar = new Pose(-33.2,49.7, Math.toRadians(90));
-        public static Pose intakeSpike3End = new Pose(-32.9,84, Math.toRadians(90));
+        public static Pose intakeSpike3End = new Pose(-32.9,87, Math.toRadians(90));
 
 
         public static Pose movingToPushLeverControlPoint = new Pose(11.6,59.9);
         public static Pose pushLeverAfterSpike1 = new Pose(16.1,75.8, Math.toRadians(90));
-        public static Pose pushLever = new Pose(12,83.25, Math.toRadians(63));
+        public static Pose pushLever = new Pose(9,83.25, Math.toRadians(63));
         public static Pose pushLeverFromSTunnel = new Pose(4,80, Math.toRadians(63));
         public static Pose intakeFromSTunnel = new Pose(6, 75, Math.toRadians(45)); // pointing at ramp
 
@@ -92,6 +93,7 @@ public class CommonCRI {
 
         public static Pose intakeHumanDiagonal = new Pose(-75,78, Math.toRadians(130));
         public static Pose intakeHumanStrait = new Pose(-81.5,81.7, Math.toRadians(90));
+        public static Pose intakeHumanStraitControlPoint = new Pose(-87.8,23.5, Math.toRadians(90));
 
         static void convert(boolean toRed) {
             intakeSpike1ControlPointClose = convertToRed(intakeSpike1ControlPointClose, toRed);
@@ -134,7 +136,7 @@ public class CommonCRI {
         public static Pose optimalRampStart = new Pose(36.9,42.6, Math.toRadians(140));
         public static Pose optimalHumanPlayerStart = new Pose(-67.9,26.4, Math.toRadians(100));
         public static Pose optimalVisionStartClose = new Pose(52,52.5, Math.toRadians(45));
-        public static Pose optimalVisionStart = new Pose(-65.9,23, Math.toRadians(72));
+        public static Pose optimalVisionStart = new Pose(-40,15, Math.toRadians(120));
 
         static void convert(boolean toRed) {
             parkShoot = convertToRed(parkShoot, toRed);

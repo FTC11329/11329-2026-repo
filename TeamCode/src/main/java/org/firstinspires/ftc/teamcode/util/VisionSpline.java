@@ -12,7 +12,7 @@ import java.util.List;
 
 public class VisionSpline {
 
-    public static final int STRENGTH = 3;
+    public static final int STRENGTH = 4;
     /**
      * Main pipeline:
      * Selects up to 3 closest balls in sequence from a target pose
@@ -34,22 +34,35 @@ public class VisionSpline {
         poses.add(robotPose);
 
         for (int i = 0; i < STRENGTH; i++) {
-            poses.add(firstBall.plus(new Pose(-3, 0)));
+            if (firstBall.getX() > -69) {
+                poses.add(firstBall.plus(new Pose(-18, 0)));
+            } else {
+                poses.add(firstBall);
+            }
         }
         
         if (secondBall != null) {
             for (int i = 0; i < STRENGTH; i++) {
-                poses.add(secondBall.plus(new Pose(-2, 0)));
+                if (secondBall.getX() > -69) {
+                    poses.add(secondBall.plus(new Pose(-18, 0)));
+                } else {
+                    poses.add(secondBall);
+                }
             }
         }
 
         if (thirdBall != null) {
             for (int i = 0; i < STRENGTH; i++) {
-                poses.add(thirdBall.plus(new Pose(-2, 0)));
+                if (thirdBall.getX() > -69) {
+                    poses.add(thirdBall.plus(new Pose(-18, 0)));
+                } else {
+                    poses.add(thirdBall);
+                }
             }
         }
         Path visionPath = new Path(new BezierCurve(poses));
-        visionPath.setConstantHeadingInterpolation(Math.toRadians(CommonCRI.wasLastRed ? -45 : 45));
+        visionPath.setTangentHeadingInterpolation();
+//        visionPath.setConstantHeadingInterpolation(Math.toRadians(CommonCRI.wasLastRed ? -45 : 45));
         return visionPath;
     }
 
@@ -65,15 +78,11 @@ public class VisionSpline {
         Pose closest = null;
         double minDistance = Double.MAX_VALUE;
         int closestIndex = -1;
-        double height = target.getX();
 
         for (int i = 0; i < poses.size(); i++) {
             Pose p = poses.get(i).ballPose;
 
             double distance = target.distanceFrom(p);
-            if (p.getX() < height) {
-                continue;
-            }
             if (distance < minDistance) {
                 minDistance = distance;
                 closest = p;

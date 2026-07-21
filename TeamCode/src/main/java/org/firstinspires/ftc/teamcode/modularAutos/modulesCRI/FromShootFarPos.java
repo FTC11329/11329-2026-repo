@@ -560,10 +560,10 @@ public class FromShootFarPos {
         private boolean visionFail = false;
         PathPlanner failSafePath;
         public ToIntakeWVisionSpline(Robot robot, PathPlanner prevPlanner, boolean sort, boolean lever) {
-            this(robot, prevPlanner, new ToIntakeSTunnelDumb(robot, prevPlanner, sort, lever), sort);
+            this(robot, prevPlanner, new ToIntakeSTunnelDumb(robot, prevPlanner, sort, lever, false), sort);
         }
         public ToIntakeWVisionSpline(Robot robot, PathPlanner prevPlanner, boolean sort) {
-            this(robot, prevPlanner, new ToIntakeSTunnelDumb(robot, prevPlanner, sort, false), sort);
+            this(robot, prevPlanner, new ToIntakeSTunnelDumb(robot, prevPlanner, sort, false, false), sort);
         }
         public ToIntakeWVisionSpline(Robot robot, PathPlanner prevPlanner, PathPlanner failSafePath, boolean sort) {
             pathTimer = new Timer();
@@ -620,7 +620,7 @@ public class FromShootFarPos {
                     }
                     break;
                 case 0:
-                    if (pathTimer.getElapsedTimeSeconds() > 0.5 || (robot.getClosestBallFromCam() != null && robot.getClosestBallFromCam().getX() < -60)) {
+                    if (pathTimer.getElapsedTimeSeconds() > 0.75) {
                         visionFail = true;
                         robot.follower.breakFollowing();
                         return false;
@@ -805,12 +805,14 @@ public class FromShootFarPos {
         private Pose lastPose;
         private boolean sort;
         private boolean lever;
+        private boolean high;
         private boolean once = false;
-        public ToIntakeSTunnelDumb(Robot robot, PathPlanner prevPlanner, boolean sort, boolean lever) {
+        public ToIntakeSTunnelDumb(Robot robot, PathPlanner prevPlanner, boolean sort, boolean lever, boolean high) {
             pathTimer = new Timer();
             this.robot = robot;
             this.sort = sort;
             this.lever = lever;
+            this.high = high;
             if (!prevPlanner.hasComms()) {
                 startPose = getOptimalStartPose();
             } else {
@@ -861,29 +863,35 @@ public class FromShootFarPos {
         public boolean run() {
             switch (state) {
                 case 0:
-                    double height = robot.getLowestBallHeightFromCam();
-
-                    if (height < -12 || pathTimer.getElapsedTimeSeconds() > 0.5) {
-                        if (height > -12) {
-                            lowPose = IntakeBallPoses.intakeSTunnelDiagonalStart;
-                        } else {
-                            lowPose = new Pose(Math.max(height - 5, -80), IntakeBallPoses.intakeSTunnelDiagonalStart.getY(), IntakeBallPoses.intakeSTunnelDiagonalStart.getHeading());
+                    toIntakeSTunnelBuilder = robot.follower.pathBuilder();
+                    if (!high) {
+                        lowPose = IntakeBallPoses.intakeSTunnelDiagonalStart;
+                        toIntakeSTunnelBuilder
+                                .addPath(new Path(new BezierCurve(startPose, IntakeBallPoses.intakeHumanStraitControlPoint, IntakeBallPoses.intakeHumanStrait)))
+                                .setFastHeadingInterpolation(TValues.fastInterpolationIntakeStartFar, TValues.fastInterpolationIntakeEndFar)
+                                .addPath(robot.follower.linearPathBuilder(IntakeBallPoses.intakeHumanStrait, IntakeBallPoses.intakeSTunnelDiagonalStart))
+                                .addPath(robot.follower.linearPathBuilder(IntakeBallPoses.intakeSTunnelDiagonalStart, IntakeBallPoses.intakeSTunnelDiagonalEnd));
+                    } else {
+                        double height = robot.getLowestBallHeightFromCam();
+                        if (height > -36) {
+                            height = 48;
                         }
-
-                        toIntakeSTunnelBuilder = robot.follower.pathBuilder()
+                        lowPose = new Pose(Math.max(height - 12, -80), IntakeBallPoses.intakeSTunnelDiagonalStart.getY(), IntakeBallPoses.intakeSTunnelDiagonalStart.getHeading());
+                        toIntakeSTunnelBuilder
                                 .addPath(robot.follower.fastPathBuilder(startPose, lowPose, TValues.fastInterpolationIntakeStartFar, TValues.fastInterpolationIntakeEndFar))
                                 .addPath(robot.follower.linearPathBuilder(lowPose, IntakeBallPoses.intakeSTunnelDiagonalEnd));
-                        if (lever) {
-                            toIntakeSTunnelBuilder
-                                    .addPath(robot.follower.linearPathBuilder(IntakeBallPoses.intakeSTunnelDiagonalEnd, IntakeBallPoses.pushLeverFromSTunnel));
-                        }
-
-                        robot.follower.followPath(toIntakeSTunnelBuilder.build());
-                        if (sort) {
-                            robot.doSmartShoot(true);
-                        }
-                        setPathState(1);
                     }
+
+                    if (lever) {
+                        toIntakeSTunnelBuilder
+                                .addPath(robot.follower.linearPathBuilder(IntakeBallPoses.intakeSTunnelDiagonalEnd, IntakeBallPoses.pushLeverFromSTunnel));
+                    }
+
+                    robot.follower.followPath(toIntakeSTunnelBuilder.build());
+                    if (sort) {
+                        robot.doSmartShoot(true);
+                    }
+                    setPathState(1);
                     break;
                 case 1:
                     if (robot.follower.getChainIndex() == 1 || robot.indexer.isHasBallsFull() || robot.basicallyHas3() || !robot.follower.isBusy()) {

@@ -5,10 +5,15 @@ import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.teamcode.modularAutos.CommonCRI.*;
 import org.firstinspires.ftc.teamcode.modularAutos.CommonCRI;
+import org.firstinspires.ftc.teamcode.modularAutos.CommonCRI.IntakeBallPoses;
+import org.firstinspires.ftc.teamcode.modularAutos.CommonCRI.ShootPoses;
+import org.firstinspires.ftc.teamcode.modularAutos.CommonCRI.StartPoses;
 import org.firstinspires.ftc.teamcode.modularAutos.PathPlanner;
-import org.firstinspires.ftc.teamcode.modularAutos.modulesCRI.*;
+import org.firstinspires.ftc.teamcode.modularAutos.modulesCRI.Commands;
+import org.firstinspires.ftc.teamcode.modularAutos.modulesCRI.FromShootMidPos;
+import org.firstinspires.ftc.teamcode.modularAutos.modulesCRI.FromStartClosePos;
+import org.firstinspires.ftc.teamcode.modularAutos.modulesCRI.FromStartPrismPos;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
@@ -21,8 +26,8 @@ import org.firstinspires.ftc.teamcode.util.ShapeDetection;
 import java.util.ArrayList;
 import java.util.List;
 
-@Autonomous(name = "CRI Blue Far Vision", group = "03Comp", preselectTeleOp = "Main Teleop Blue")
-public class CRIBlueFarVision extends OpMode {
+@Autonomous(name = "CRI Blue Prism Cycle", group = "04Comp", preselectTeleOp = "Main Teleop Blue")
+public class CRIBluePrismCycle extends OpMode {
     Pose startPose;
     RobotSide robotSide;
     Robot robot;
@@ -43,16 +48,17 @@ public class CRIBlueFarVision extends OpMode {
                         BallColor.Purple,
                         BallColor.Purple
                 });
-        startPose = CommonCRI.StartPoses.far;
+        startPose = StartPoses.perpPrism;
 
-        steps.add(new FromStartFarPos.ShootPreloads(robot, lastPlanner(), false));
-        steps.add(new FromShootFarPos.ToIntakeSpike3(robot, lastPlanner(), false));
-        steps.add(new FromShootFarPos.ToIntakeHuman(robot, lastPlanner(), false));
-        steps.add(new FromShootFarPos.ToIntakeWVisionSpline(robot, lastPlanner(), false));
-        steps.add(new FromShootFarPos.ToIntakeWVisionSpline(robot, lastPlanner(), false));
-        steps.add(new FromShootFarPos.ToIntakeWVisionSpline(robot, lastPlanner(), false));
-        steps.add(new FromShootFarPos.ToIntakeWVisionSpline(robot, lastPlanner(), false));
-        steps.add(new FromShootFarPos.ToIntakeWVisionSpline(robot, lastPlanner(), false));
+        steps.add(new FromStartPrismPos.ShootAndGoToMidShootPosFast(robot, lastPlanner(), true));
+        steps.add(new FromShootMidPos.ToIntakeSpike2(robot, lastPlanner(), false, false, false, true));
+        steps.add(new FromShootMidPos.ToIntakeSpike2(robot, lastPlanner(), false, false, false, true));
+        steps.add(new FromShootMidPos.ToIntakeSpike2(robot, lastPlanner(), false, false, false, true));
+        steps.add(new FromShootMidPos.ToIntakeSpike2(robot, lastPlanner(), false, false, false, true));
+        steps.add(new FromShootMidPos.ToIntakeSpike2(robot, lastPlanner(), false, false, false, true));
+        steps.add(new FromShootMidPos.ToIntakeSpike2(robot, lastPlanner(), false, false, false, true));
+        steps.add(new FromShootMidPos.ToIntakeSpike2(robot, lastPlanner(), false, false, false, true));
+        steps.add(new FromShootMidPos.ToIntakeSpike2(robot, lastPlanner(), false, false, false, true));
 
         wComms(steps);
 
@@ -63,7 +69,7 @@ public class CRIBlueFarVision extends OpMode {
     @Override
     public void init_loop() {
         telemetry.addData("start pose", startPose);
-        telemetry.addData("shoot pose", CommonCRI.ShootPoses.midShoot);
+        telemetry.addData("shoot pose", ShootPoses.midShoot);
         telemetry.addData("Is Red", CommonCRI.wasLastRed);
         telemetry.addLine("=== Motif ===");
         BallColor[] motif = robot.getMotif(true);
@@ -108,15 +114,15 @@ public class CRIBlueFarVision extends OpMode {
 
         robot.update();
 
-        if (!parkPathFollowed && robot.getOpmodeTimeSeconds() > 29.5 && ShapeDetection.doesRobotCrossLine(FieldShapes.farTriangle, robot.getCurrentPose().plusVector(robot.follower.getVelocity(), 0.75))) {
+        if (!parkPathFollowed && robot.getOpmodeTimeSeconds() > 29.5 && ShapeDetection.doesRobotCrossLine(FieldShapes.closeTriangle, robot.getCurrentPose().plusVector(robot.follower.getVelocity(), 0.75))) {
             if (robot.inShootingZone()) {
                 robot.indexer.shootAll();
             }
             robot.doSmartShoot(false);
             if (robot.getCurrentPose().getX() > - 25) {
-                robot.follower.followPath(robot.follower.linearPathBuilder(CommonCRI.ShootPoses.parkShoot, CommonCRI.IntakeBallPoses.intakeSpike2Start));
+                robot.follower.followPath(robot.follower.linearPathBuilder(ShootPoses.parkShoot, IntakeBallPoses.intakeSpike2Start));
             } else {
-                robot.follower.followPath(robot.follower.linearPathBuilder(CommonCRI.ShootPoses.farShoot, CommonCRI.IntakeBallPoses.intakeSpike3StartFar));
+                robot.follower.followPath(robot.follower.linearPathBuilder(ShootPoses.farShoot, IntakeBallPoses.intakeSpike3StartFar));
             }
             parkPathFollowed = true;
             return;
@@ -148,7 +154,6 @@ public class CRIBlueFarVision extends OpMode {
 //        Drawing.drawShapesDebug(robot.follower);
 //        telemetry.addData("time", robot.getOpmodeTimeSeconds());
 //        telemetry.addData("name", step);
-        telemetry.addData("pos", robot.getCurrentPose());
 //        for (BallColor i : robot.indexer.getBallCells()) {
 //            telemetry.addData("hasBalls", i);
 //        }

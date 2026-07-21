@@ -71,14 +71,14 @@ public class FromShootMidPos {
             // Path creation
             pathChainBuilder = robot.follower.pathBuilder()
                     .addPath(new BezierCurve(startPose, IntakeBallPoses.intakeSpike1ControlPointClose, IntakeBallPoses.intakeSpike1Start))
-                    .setFastHeadingInterpolation(TValues.fastInterpolationIntakeStart)
-                    .addPath(robot.follower.linearPathBuilder(IntakeBallPoses.intakeSpike1Start, IntakeBallPoses.intakeSpike1End));
+                    .setFastHeadingInterpolation(TValues.fastInterpolationIntakeStart);
 
             if (lever) {
                 pathChainBuilder.addPath(robot.follower.linearPathBuilder(IntakeBallPoses.intakeSpike1Start, IntakeBallPoses.pushLever));
                 toShootPose = new Path(new BezierCurve(IntakeBallPoses.pushLeverAfterSpike1, IntakeBallPoses.intakeSpike1ControlPointClose, lastPose));
                 toShootPose.setFastHeadingInterpolation(TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootEnd, true);
             } else {
+                pathChainBuilder.addPath(robot.follower.linearPathBuilder(IntakeBallPoses.intakeSpike1Start, IntakeBallPoses.intakeSpike1End));
                 toShootPose = new Path(new BezierLine(IntakeBallPoses.intakeSpike1End, lastPose));
                 toShootPose.setFastHeadingInterpolation(TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootEnd, true);
             }
@@ -107,7 +107,7 @@ public class FromShootMidPos {
                     setPathState(1);
                     break;
                 case 1:
-                    if (!robot.follower.isBusy() || robot.basicallyHas3() || robot.indexer.isHasBallsFull() || Math.abs(robot.getCurrentPose().getY()) > Timings.notSpike1HightOut) {
+                    if (!robot.follower.isBusy() || robot.basicallyHas3() || robot.indexer.isHasBallsFull() || Math.abs(robot.getCurrentPose().getY()) > Timings.spikeHightOut) {
                         if (!lever) {
                             robot.follower.followPath(toShootPose);
                         }
@@ -127,6 +127,7 @@ public class FromShootMidPos {
                         }
                         setPathState(4);
                     }
+                    break;
                 case 4:
                     if ((robot.inShootingZone() || !robot.follower.isBusy()) && (parkAfter || robot.movingSlowEnoughToShoot(true))) {
                         if (parkAfter && !sort) {
@@ -184,15 +185,17 @@ public class FromShootMidPos {
         private boolean lever;
         private boolean sort;
         private boolean parkAfter;
+        private boolean distant;
         Pose lastPose;
 
-        public ToIntakeSpike2(Robot robot, PathPlanner prevPlanner, boolean sort, boolean parkAfter, boolean lever) {
+        public ToIntakeSpike2(Robot robot, PathPlanner prevPlanner, boolean sort, boolean parkAfter, boolean lever, boolean distant) {
             pathTimer = new Timer();
             this.robot = robot;
             this.lever = lever;
             this.sort = sort;
             this.parkAfter = parkAfter;
-            lastPose = parkAfter ? ShootPoses.parkShoot : ShootPoses.midShoot;
+            this.distant = distant;
+            lastPose = parkAfter ? ShootPoses.parkShoot : distant ? ShootPoses.distantShoot : ShootPoses.midShoot;
             if (!prevPlanner.hasComms()) {
                 startPose = getOptimalStartPose();
             } else {
@@ -202,7 +205,7 @@ public class FromShootMidPos {
 
         @Override
         public boolean hasComms() {
-            return true;
+            return !distant;
         }
 
         @Override
@@ -257,7 +260,7 @@ public class FromShootMidPos {
                     setPathState(1);
                     break;
                 case 1:
-                    if (!robot.follower.isBusy() || robot.basicallyHas3() || robot.indexer.isHasBallsFull() || Math.abs(robot.getCurrentPose().getY()) > Timings.notSpike1HightOut) {
+                    if (!robot.follower.isBusy() || robot.basicallyHas3() || robot.indexer.isHasBallsFull() || Math.abs(robot.getCurrentPose().getY()) > Timings.spikeHightOut) {
                         if (!lever) {
                             robot.follower.followPath(toShootPose);
                         }
@@ -403,7 +406,7 @@ public class FromShootMidPos {
                     setPathState(1);
                     break;
                 case 1:
-                    if (!robot.follower.isBusy() || robot.basicallyHas3() || robot.indexer.isHasBallsFull() || Math.abs(robot.getCurrentPose().getY()) > Timings.notSpike1HightOut) {
+                    if (!robot.follower.isBusy() || robot.basicallyHas3() || robot.indexer.isHasBallsFull() || Math.abs(robot.getCurrentPose().getY()) > Timings.spikeHightOut) {
                         robot.follower.followPath(toShootPose);
                         setPathState(2);
                     }
@@ -527,7 +530,7 @@ public class FromShootMidPos {
                     setPathState(1);
                     break;
                 case 1:
-                    if (!robot.follower.isBusy() || robot.basicallyHas3() || robot.indexer.isHasBallsFull() || Math.abs(robot.getCurrentPose().getY()) > Timings.notSpike1HightOut) {
+                    if (!robot.follower.isBusy() || robot.basicallyHas3() || robot.indexer.isHasBallsFull() || Math.abs(robot.getCurrentPose().getY()) > Timings.spikeHightOut) {
                         robot.follower.followPath(toShootPose);
                         setPathState(2);
                     }
@@ -589,15 +592,17 @@ public class FromShootMidPos {
         private boolean sort;
         private boolean parkAfter;
         private boolean longLever;
+        private boolean leverAfter;
         double leverTimeOut;
         double rampTimeOut;
         Pose lastPose;
-        public ToIntakeFromRamp(Robot robot, PathPlanner prevPlanner, boolean sort, boolean parkAfter, boolean longLever) {
+        public ToIntakeFromRamp(Robot robot, PathPlanner prevPlanner, boolean sort, boolean parkAfter, boolean longLever, boolean leverAfter) {
             pathTimer = new Timer();
             this.robot = robot;
             this.sort = sort;
             this.parkAfter = parkAfter;
             this.longLever = longLever;
+            this.leverAfter = leverAfter;
             if (!prevPlanner.hasComms()) {
                 startPose = getOptimalStartPose();
             } else {
@@ -635,7 +640,7 @@ public class FromShootMidPos {
         PathChain toIntake;
         PathBuilder toShootBuilder;
         PathChain toShootPose;
-        PathChain leverAfter;
+        PathChain leverAfterPath;
         @Override
         public void buildPaths() {
             // Path creation
@@ -647,8 +652,8 @@ public class FromShootMidPos {
             toIntake = robot.follower.linearPathChainBuilder(IntakeBallPoses.pushLever, IntakeBallPoses.intakeFromSTunnel);
 
             toShootBuilder = robot.follower.pathBuilder();
-            if (sort) {
-                leverAfter = robot.follower.linearPathChainBuilder(IntakeBallPoses.pushLever, IntakeBallPoses.pushLeverAfterSpike1);
+            if (sort || leverAfter) {
+                leverAfterPath = robot.follower.linearPathChainBuilder(IntakeBallPoses.pushLever, IntakeBallPoses.pushLeverAfterSpike1);
                 toShootBuilder.addPath(robot.follower.fastPathBuilder(IntakeBallPoses.pushLeverAfterSpike1, lastPose, TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootEnd, true));
             } else {
                 toShootBuilder.addPath(new BezierCurve(IntakeBallPoses.intakeFromSTunnel, IntakeBallPoses.movingToPushLeverControlPoint, lastPose));
@@ -688,19 +693,19 @@ public class FromShootMidPos {
                     }
                     break;
                 case 3:
-                    if (sort) {
-                        robot.follower.followPath(leverAfter);
+                    if (sort || leverAfter) {
+                        robot.follower.followPath(leverAfterPath);
                         setPathState(4);
                     } else {
                         setPathState(4);
                     }
                     break;
                 case 4:
-                    if (!sort && (robot.basicallyHas3() ||  pathTimer.getElapsedTimeSeconds() > rampTimeOut)) {
+                    if (!(sort || leverAfter) && (robot.basicallyHas3() ||  pathTimer.getElapsedTimeSeconds() > rampTimeOut)) {
                         robot.follower.followPath(toShootPose);
                         setPathState(5);
                     }
-                    if (sort && pathTimer.getElapsedTimeSeconds() > 1) {
+                    if ((sort || leverAfter) && pathTimer.getElapsedTimeSeconds() > 0.5) {
                         robot.follower.followPath(toShootPose);
                         setPathState(5);
 
