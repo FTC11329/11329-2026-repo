@@ -51,8 +51,8 @@ public class Common {
         public static double notSpike1HightOut = 60;
 
         public static double shootVelocityClose = 3; // in / s
-        public static double shootVelocityFar = 1; // in / s
-        public static double shootAccelerationFar = 3; // in / s^2
+        public static double shootVelocityFar = 2; // in / s
+        public static double shootAccelerationFar = 6; // in / s^2
     }
     public static class DrivePower {
         public static double intake = 1;

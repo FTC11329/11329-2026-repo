@@ -75,7 +75,7 @@ public class FromShootMidPos {
 
             if (lever) {
                 pathChainBuilder.addPath(robot.follower.linearPathBuilder(IntakeBallPoses.intakeSpike1Start, IntakeBallPoses.pushLever));
-                toShootPose = new Path(new BezierCurve(IntakeBallPoses.pushLeverAfterSpike1, IntakeBallPoses.intakeSpike1ControlPointClose, lastPose));
+                toShootPose = new Path(new BezierCurve(IntakeBallPoses.pushLever.plus(new Pose(5, 0)), IntakeBallPoses.intakeSpike1ControlPointClose, lastPose));
                 toShootPose.setFastHeadingInterpolation(TValues.fastInterpolationSpikeShootStart, TValues.fastInterpolationSpikeShootEnd, true);
             } else {
                 pathChainBuilder.addPath(robot.follower.linearPathBuilder(IntakeBallPoses.intakeSpike1Start, IntakeBallPoses.intakeSpike1End));
@@ -705,10 +705,9 @@ public class FromShootMidPos {
                         robot.follower.followPath(toShootPose);
                         setPathState(5);
                     }
-                    if ((sort || leverAfter) && pathTimer.getElapsedTimeSeconds() > 0.5) {
+                    if ((sort || leverAfter) && pathTimer.getElapsedTimeSeconds() > (sort ? 0.5 : 0.2)) {
                         robot.follower.followPath(toShootPose);
                         setPathState(5);
-
                     }
                     break;
                 case 5:

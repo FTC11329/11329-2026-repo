@@ -25,6 +25,8 @@ import org.firstinspires.ftc.teamcode.pedroPathing.math.*;
 import org.firstinspires.ftc.teamcode.pedroPathing.paths.*;
 import org.firstinspires.ftc.teamcode.pedroPathing.telemetry.SelectableOpMode;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.*;
+import org.firstinspires.ftc.teamcode.util.RobotSide;
+
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -137,6 +139,7 @@ class LocalizationTest extends OpMode {
     @Override
     public void init() {
 //        follower.setStartingPose(new Pose(0,0));
+        CommonCRI.init(RobotSide.Red);
         follower.setStartingPose(CommonCRI.StartPoses.closeOuter);
     }
 

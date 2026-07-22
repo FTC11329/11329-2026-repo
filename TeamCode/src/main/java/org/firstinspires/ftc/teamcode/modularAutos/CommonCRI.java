@@ -9,7 +9,7 @@ public class CommonCRI {
     // Close is close to goal (so usually higher x)
     // Outer is closer to driver wall (so usually higher y)
 
-    public static Pose toRedOffset = new Pose(0,0); // red offset remember y is reversed
+    public static Pose toRedOffset = new Pose(2.5,-2.5); // red offset remember y is reversed
     public static boolean wasLastRed = false;
     public static class TValues {
         public static double fastInterpolationIntakeStart = 0.8;
@@ -54,13 +54,14 @@ public class CommonCRI {
     }
     public static class StartPoses {
         public static Pose closeInner = new Pose(88.5, 59.8, Math.toRadians(-90)); // this is against the goal and wall, facing the obelisk
-        public static Pose perpPrism = new Pose(80,26, Math.toRadians(125)); // this is against the prism, facing the gate
+        public static Pose perpPrism = new Pose(83,27, Math.toRadians(180)); // this is against the prism, facing the gate
         public static Pose closeOuter = new Pose(64.55, 77.5, Math.toRadians(90)); // this is up against the goal and secret tunnel
         public static Pose far = new Pose(-83.9,13, Math.toRadians(0));
 
         static void convert(boolean toRed) {
             closeInner = convertToRed(closeInner, toRed, true);
             closeOuter = convertToRed(closeOuter, toRed, true);
+            perpPrism = convertToRed(perpPrism, toRed, true);
             far = convertToRed(far, toRed, true);
         }
     }
