@@ -312,7 +312,7 @@ public class DemoOpMode {
         }
 
         if (autoShoot.isOn && !climb.isOn) {
-            robot.prepareShooter(ShotType.TABLE, (!brake.isOn || brakeAllowSotfIsOn) && sotfIsOn, swapGoal.isOn, smartShoot.isOn);
+            robot.prepareShooter(ShotType.TABLE, (!brake.isOn || brakeAllowSotfIsOn) && sotfIsOn, swapGoal.isOn, false);
         } else if (autoShoot.endPress || climb.startPress) {
             robot.casualShooterModeOn();
         }

@@ -55,7 +55,7 @@ public class Constants {
     public static class Vision {
         public static int configTest = 0;
 
-        public static Pose redGoal = new Pose(83, -86);
+        public static Pose redGoal = new Pose(86, -86);
         public static Pose blueGoal = new Pose(82.5, 78);
         public static Pose bluePrism = new Pose(80, 15);
         public static Pose redPrism = new Pose(85, -12);

@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.util;
 
+import org.firstinspires.ftc.teamcode.modularAutos.Common;
 import org.firstinspires.ftc.teamcode.modularAutos.CommonCRI;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.BezierCurve;
 import org.firstinspires.ftc.teamcode.pedroPathing.geometry.BezierLine;
@@ -13,6 +14,10 @@ import java.util.List;
 public class VisionSpline {
 
     public static final int STRENGTH = 4;
+    public static final double zHeight = -69;
+    public static final double zVel = -28;
+    public static final double zFree = 3;
+    public static final double aRandomvariable = -85;
     /**
      * Main pipeline:
      * Selects up to 3 closest balls in sequence from a target pose
@@ -34,29 +39,29 @@ public class VisionSpline {
         poses.add(robotPose);
 
         for (int i = 0; i < STRENGTH; i++) {
-            if (firstBall.getX() > -69) {
-                poses.add(firstBall.plus(new Pose(-18, 0)));
+            if (firstBall.getX() > zHeight) {
+                poses.add(firstBall.plus(new Pose(zVel, Common.wasLastRed ? zFree : -zFree)));
             } else {
-                poses.add(firstBall);
+                poses.add(new Pose(aRandomvariable, firstBall.getY(), firstBall.getHeading()));
             }
         }
         
         if (secondBall != null) {
             for (int i = 0; i < STRENGTH; i++) {
-                if (secondBall.getX() > -69) {
-                    poses.add(secondBall.plus(new Pose(-18, 0)));
+                if (secondBall.getX() > zHeight) {
+                    poses.add(secondBall.plus(new Pose(zVel, Common.wasLastRed ? zFree : -zFree)));
                 } else {
-                    poses.add(secondBall);
+                    poses.add(new Pose(aRandomvariable, secondBall.getY(), secondBall.getHeading()));
                 }
             }
         }
 
         if (thirdBall != null) {
             for (int i = 0; i < STRENGTH; i++) {
-                if (thirdBall.getX() > -69) {
-                    poses.add(thirdBall.plus(new Pose(-18, 0)));
+                if (thirdBall.getX() > zHeight) {
+                    poses.add(thirdBall.plus(new Pose(zVel, Common.wasLastRed ? zFree : -zFree)));
                 } else {
-                    poses.add(thirdBall);
+                    poses.add(new Pose(aRandomvariable, thirdBall.getY(), thirdBall.getHeading()));
                 }
             }
         }
