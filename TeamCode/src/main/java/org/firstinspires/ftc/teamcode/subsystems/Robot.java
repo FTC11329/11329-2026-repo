@@ -194,6 +194,24 @@ public class Robot {
         farDistanceOffset = 0;
         farTurretOffset = 0;
     }
+    public void reZero48() {
+        offsetPose = new Pose();
+        follower.setPose(goal.minus(new Pose(-48, 0)));
+        //follower.setPose(CommonCRI.StartPoses.closeOuter);
+        closeDistanceOffset = 0;
+        closeTurretOffset = 0;
+        farDistanceOffset = 0;
+        farTurretOffset = 0;
+    }
+    public void reZero72() {
+        offsetPose = new Pose();
+        follower.setPose(goal.minus(new Pose(-72, 0)));
+        //follower.setPose(CommonCRI.StartPoses.closeOuter);
+        closeDistanceOffset = 0;
+        closeTurretOffset = 0;
+        farDistanceOffset = 0;
+        farTurretOffset = 0;
+    }
     public void setAveragePose() {
         if (pipelineIndex != 0) {
             setPipelineIndex(0);
